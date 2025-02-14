@@ -1,0 +1,95 @@
+public class EDIFileProcess {
+    
+    List<string>vList = new List<string>();
+    Boolean vDate;    
+    Matcher matchDate;    
+    string fileNumber;
+    String RAmount;
+    Boolean vAmount = true;
+    String Rdate = ' ';
+    
+    public List<string> GetData(String str){
+        
+        If (str== Null || str.trim()=='\r' || str.trim()=='') {
+            
+            //skip empty string
+            
+            vList.add('Skip');return vList;
+            
+        }
+        else  {
+            list<string>fileRecord=str.split(',');
+            
+            if(fileRecord!=Null && ( fileRecord.size() == 2 || fileRecord.size() == 3 )){
+                
+                // Must have File Number, Amount and Date (optional )
+                
+                fileNumber=fileRecord.get(0);
+                fileNumber=fileNumber.trim();
+                
+                RAmount=fileRecord.get(1);  
+                RAmount=RAmount.trim();
+                
+                if(!IsValidAmount(RAmount)){ vList.add('Error'); return vList; }
+                
+                if ( fileRecord.size() == 3 ) { 
+                    Rdate = fileRecord.get(2);
+                    Rdate = Rdate.removeEnd('\r');
+                    Rdate = Rdate.trim();
+                    
+                    if(!IsDateValid(Rdate)){ vList.add('Error'); return vList; }  
+                    
+                }
+                vList.add(fileNumber);
+                vList.add(RAmount);
+                vList.add(Rdate);
+                
+            } else { 
+                vList.add('Error'); return vList;
+            }
+            
+        }
+        
+        //system.debug('vList---->'+vList);
+       
+        return vList; 
+    } 
+    
+    
+    public Boolean IsDateValid(String Rdate){
+        
+        // Check Date is valid or not through regex function
+        
+        String regex = '^((((0[13578])|([13578])|(1[02]))[\\//](([1-9])|([0-2][0-9])|(3[01])))|(((0[469])|([469])|(11))[\\//](([1-9])|([0-2][0-9])|(30)))|((2|02)[\\//](([1-9])|([0-2][0-9]))))[\\//]\\d{4}$|^\\d{4}$'; 
+        
+        If(Rdate !=Null && Rdate !=''){
+            Pattern datePattern = Pattern.compile(regex); 
+            Matcher matchDate = datePattern.matcher(Rdate); 
+            vDate = matchDate.matches();
+        }
+        else{
+            vDate =false;
+        }
+        system.debug('vDate----->'+ vDate);        
+        return vDate ;
+        
+        
+    }
+    
+    public Boolean IsValidAmount(String RAmount){
+        
+        // Check Amount is valid or not 
+        
+        try{
+            Decimal.valueOf(RAmount);
+            vAmount = TRUE; 
+        } catch (Exception e) {
+            vAmount = FALSE;
+        }
+               
+        return vAmount ;
+        
+        
+    }
+    
+}

@@ -1,0 +1,199 @@
+@isTest
+Public class ClientEFTBatchTest {
+   @testSetup
+    static void EFTBatchTestCase1(){
+         
+        List<Contact> conList = new List<Contact>();
+        List<pmdm__ProgramEngagement__c>peList=new List<pmdm__ProgramEngagement__c>();
+        List<Client_EFT__c> ceList=new List<Client_EFT__c>();
+        List<Agreed_Payment_Amount__c> agList = new List<Agreed_Payment_Amount__c>();
+        List<Agreed_Payment_Amount_Itmen__c>agItemList = New List<Agreed_Payment_Amount_Itmen__c>();
+        Map<Decimal,List<Payment_Received__c>>receiveMapTest = New Map<Decimal,List<Payment_Received__c>>();
+        List<Payment_Received__c>payList = New List<Payment_Received__c>();
+        
+        Date exDate = Date.newInstance(2022, 8, 19);
+        Date PayDate = Date.newInstance(2022, 8, 5);
+        Date payStartDate = Date.newInstance(2022, 1, 19);
+        Date startDate = Date.newInstance(2022, 1, 1);
+        Date endDate = Date.newInstance(2022, 12, 31);
+              
+        pmdm__Program__c pr=new pmdm__Program__c();
+        pr.name = 'Orderly Payment of Debts';
+        pr.pmdm__Status__c='Active';
+        insert pr;
+        
+        pmdm__ProgramCohort__c pc=new pmdm__ProgramCohort__c();
+        pc.name = 'Calgary Cohort';
+        pc.pmdm__Status__c ='Active';
+        pc.pmdm__Program__c =pr.id;
+        
+        insert pc;
+        
+        EFTFile__c 	fe=new EFTFile__c();
+        fe.Name='EFTFiles';
+        insert fe;
+        
+        for(Integer i=0;i<8;i++){
+            conList.add(new Contact(firstname='first',
+                                    lastname='last'+i));
+        }
+        if(conList!=Null && conList.size()>0){
+            
+            insert conList;
+        
+        }
+       
+        
+        // create PE Records 
+       
+        for(Contact con : conList) {
+            peList.add(new pmdm__ProgramEngagement__c(Name='PeTest'+con.FirstName, pmdm__Stage__c='Active File', 
+                                                      pmdm__Contact__c=con.id,
+                                                      Payment_Order__c='Electronic Funds Transfer (EFT)',
+                                                      Judicial_Centre__c='Calgary',
+                                                      pmdm__ProgramCohort__c=pc.id, 
+                                                      pmdm__Program__c=pr.id,
+                                                      X1st_Payment_Day__c ='19',
+                                                      X2nd_Payment_Day__c ='29',
+                                                      Number_of_EFTs__c = 2,
+                                                      Disbursement_Fee__c = '10%',
+                                                      Total_Outstanding_Debt_Remaining__c = 10000,
+                                                      Payment_Frequency__c ='Monthly',
+                                                      Payment_Start_Date__c = payStartDate));
+        }
+         for(Contact con : conList) {
+            peList.add(new pmdm__ProgramEngagement__c(Name='PE'+con.FirstName, pmdm__Stage__c='Active File', 
+                                                      pmdm__Contact__c=con.id,
+                                                      Payment_Order__c='Electronic Funds Transfer (EFT)',
+                                                      Judicial_Centre__c='Calgary',
+                                                      pmdm__ProgramCohort__c=pc.id, 
+                                                      pmdm__Program__c=pr.id,
+                                                      Number_of_EFTs__c = 2,
+                                                      Disbursement_Fee__c = 'Discounted 10%',
+                                                      Total_Outstanding_Debt_Remaining__c = 10000,
+                                                      Payment_Frequency__c ='Bi-Weekly',
+                                                      Bi_Weekly_Group__c ='A',
+                                                      Payment_Start_Date__c = payStartDate));
+        }
+        
+         for(Contact con : conList) {
+            peList.add(new pmdm__ProgramEngagement__c(Name='Test1', pmdm__Stage__c='Active File', 
+                                                      pmdm__Contact__c=con.id,
+                                                      Payment_Order__c='Electronic Funds Transfer (EFT)',
+                                                      Judicial_Centre__c='Calgary',
+                                                      pmdm__ProgramCohort__c=pc.id, 
+                                                      pmdm__Program__c=pr.id,
+                                                      Number_of_EFTs__c = 2,
+                                                      Disbursement_Fee__c = '10%',
+                                                      Total_Outstanding_Debt_Remaining__c = 10000,
+                                                      Payment_Frequency__c ='Bi-Weekly',
+                                                      Bi_Weekly_Group__c ='B',
+                                                      Payment_Start_Date__c = payStartDate));
+        }
+        if(peList!=Null && peList.size()>0){
+        insert peList;
+        }
+        for(pmdm__ProgramEngagement__c pe:peList){
+            agList.add(new Agreed_Payment_Amount__c(Contact__c=pe.pmdm__Contact__c,
+                                                    Active_Agreed_Payment_Amount__c= True, 
+                                                    Program_Engagement__c=pe.id 
+                                                   ));
+            
+            payList.add(new Payment_Received__c(Client__c=pe.pmdm__Contact__c,
+                                                  //  Active_Agreed_Payment_Amount__c= True, 
+                                                    Program_Engagement__c=pe.id,
+                                                   // EFTFile__c = ef.id,
+                                                    Status__c = 'Received',
+                                                    Amount__c = 10,
+                                                   Payment_Mode__c = 'EFT payment',
+                                                    DateReceived__c = PayDate 
+                                                   ));
+                         
+       
+            
+        }
+         if(agList!=Null && agList.size()>0){
+            Insert agList;
+        }
+         if(payList!=Null && payList.size()>0){
+            Insert payList;
+        }        
+        for(Agreed_Payment_Amount__c ag:agList){
+            agItemList.add(new Agreed_Payment_Amount_Itmen__c(Agreed_Payment_Amount__c=ag.id,
+                                                    Payment_Start_Date__c= startDate, 
+                                                    Payment_End_Date__c=endDate,
+                                                    Payment_Item_Type__c= 'Initial Agreed Payment Amount', 
+                                                    Total_Payment__c= 1000 
+                                                   
+                                                   ));
+            
+        }
+        if(agItemList!=Null && agItemList.size()>0){
+            Insert agItemList;
+        }
+        for(pmdm__ProgramEngagement__c pe:peList) {
+            ceList.add(new Client_EFT__c(Contact__c=pe.pmdm__Contact__c,
+                                         Program_Engagement__c =pe.id,
+                                         Account_Type__c='Savings', 
+                                         Account_Number__c='012345678912',
+                                         Routing_Number__c='00412345', 
+                                         Amount__c=443.78, 
+                                         Active__c= True, 
+                                        Start_Date__c=startDate
+                                        ));
+        }
+        
+        Client_EFT__c ce = new Client_EFT__c();
+        ce.Program_Engagement__c = peList[1].Id;
+        ce.Contact__c =peList[1].pmdm__Contact__c;
+        ce.Account_Type__c = 'Savings';
+        ce.Account_Number__c = '01234567';
+        ce.Routing_Number__c = '01234879';
+        ceList.add(ce);
+        
+        Client_EFT__c ce1 = new Client_EFT__c();
+        ce1.Program_Engagement__c = peList[0].Id;
+        ce1.Contact__c =peList[0].pmdm__Contact__c;
+        ce1.Account_Type__c = 'Savings';
+        ce1.Account_Number__c ='01234567';
+        ce1.Routing_Number__c = '01234567';
+        ceList.add(ce1);
+         
+        ceList.remove(3);
+        
+        if(ceList!=Null && ceList.size()>0){
+        insert ceList;
+         }
+        
+    }
+    
+
+    
+     @isTest static void test(){
+         
+        EFTFile__c 	fe=new EFTFile__c();
+        fe.Name='EFTFiles';
+        insert fe;
+        
+        ContentDocumentLink conDoc;
+        String fileStr = 'ClientEFTFile';
+
+        Test.startTest();
+        Date exDate = Date.newInstance(2022, 8, 19);
+     //   Date exDate = System.today();
+        ClientEFTBatch batch = new ClientEFTBatch(exDate, false);
+        Id jobid= Database.executeBatch(batch);
+         
+    //    conDoc = batch.InsertEFTFile(fileStr,'FTP' , 'ClientEFT File', fe.id);
+         
+     // receiveMapTest = cp.CalculateEFTPayment(peList.get(0), exDate);
+     
+         BatchtoCreateCSVFile bc = new BatchtoCreateCSVFile(ExDate);
+         Database.executeBatch(bc);
+        
+        Test.stopTest();
+    }
+    
+    
+     
+}

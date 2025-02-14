@@ -1,0 +1,612 @@
+public class UpdatePEDefaultStatus {
+   
+    Public attachment PeAttachment{get; set;}
+    
+    public string errMsg{get;set;}
+    public String converid{get;set;}
+    public string DocId{get;set;}
+    public Boolean flag{get;set;}
+    
+    Public Integer TotalRecords{get;set;}
+    Public Integer SuccRecords{get;set;}
+    Public Integer FailRecords{get;set;}
+    
+    public List<PeStatusDetails>peStatusList{get;set;} 
+    //public Map<Id,Affidavit_Debts__c> mapPeIdToAffidavitDebts = new Map<Id,Affidavit_Debts__c>();
+    public Map<Id,Decimal> mapPeIdToDebtDisbursement = new Map<Id,Decimal>();
+    public Map<Id,string> mapPEIdsToFirstPaymentDate = new Map<Id,string>(); 
+    
+    Public UpdatePEDefaultStatus(ApexPages.StandardSetController controller){        
+        PeAttachment = new Attachment();
+        peStatusList = new List<PeStatusDetails>();        
+    }       
+    
+    Public pageReference updatePEStatus(){
+        
+         TotalRecords=0;
+         SuccRecords=0;
+        FailRecords=0;
+
+        List<string>recList=new List<string>();
+        List<string>opdRecList=new List<string>();
+        set<string>opdNumberSet =new set<string>();
+        List<pmdm__ProgramEngagement__c>peList = new List<pmdm__ProgramEngagement__c> ();      
+        List<pmdm__ProgramEngagement__c>peUpdateList = New List<pmdm__ProgramEngagement__c>();  
+         Map<String,List<pmdm__ProgramEngagement__c>>peRecordsMap = New Map<String,List<pmdm__ProgramEngagement__c>>();
+        Map<Id, pmdm__ProgramEngagement__c>mapPEUpdate = New Map<Id, pmdm__ProgramEngagement__c>();
+        
+       
+        
+        String fileNumber;
+        String peStatus;        
+        errMsg  = ''; 
+        flag = False;
+        try {
+            system.debug('PeAttachment.Name =========='+PeAttachment.Name);
+           if(PeAttachment.Body != Null && (PeAttachment.Name.endsWith('.csv') || PeAttachment.Name.endsWith('.CSV') || PeAttachment.Name.endsWith('.txt') || PeAttachment.Name.endsWith('.TXT') ) ){                              
+                String statusFile = EncodingUtil.base64Decode(EncodingUtil.base64Encode(PeAttachment.Body)).toString();                
+                system.debug('statusFile is..'+statusFile);                
+                Integer fileSize=statusFile.length();                
+                system.debug('status File Size....'+ fileSize);                
+                List<string>statusFileList=statusFile.split('\n');                                               
+                system.debug('status File List....'+statusFileList); 
+               
+               if(statusFileList!=Null && statusFileList.size()>0 ){
+                   
+                   for(string str:statusFileList){
+                        opdRecList = GetData(str);                        
+                        System.debug('opdRecList--->'+opdRecList );
+                       if(opdRecList[0]!='Skip' && opdRecList[0]!= 'Error'){
+                        opdNumberSet.add(opdRecList.get(0));
+                    }
+                   }
+                   
+               }
+               system.debug('opdNumberSet====>'+opdNumberSet);
+               
+               List<pmdm__ProgramEngagement__c> pRecList = [Select id,Sum_of_Default_Reviews__c ,Default_Status__c,Legacy_OPD_File_Number__c from pmdm__ProgramEngagement__c where Legacy_OPD_File_Number__c IN:opdNumberSet];  
+               
+               system.debug(' pRecList =====>'+pRecList);
+               
+               if (pRecList.size()>0) {
+                   for (pmdm__ProgramEngagement__c pRec : pRecList) {
+                       if(pRec.Legacy_OPD_File_Number__c!=Null){
+                           if(peRecordsMap.containsKey(pRec.Legacy_OPD_File_Number__c)) {
+                               peRecordsMap.get(pRec.Legacy_OPD_File_Number__c).add(pRec);
+                           }
+                           else {
+                               peRecordsMap.put(pRec.Legacy_OPD_File_Number__c, new List<pmdm__ProgramEngagement__c>{pRec}); 
+                           }
+                       }
+                   }
+               } 
+               system.debug(' peRecordsMap =====>'+peRecordsMap);
+                
+               if(statusFileList!=Null && statusFileList.size()>0 ){                    
+                    
+                   for(string str:statusFileList){
+                        recList = GetData(str);                        
+                        System.debug('recList--->'+recList );
+                        
+                       if(recList[0]== 'Skip'){                            
+                        }
+                        
+                       else if(recList[0]== 'Error'){ 
+                            if(str.Contains(',')){
+                            List<String>fList=str.split(',');
+                            FailRecords++;
+                            if(FailRecords<=100) {
+                            peStatusList.add(new PeStatusDetails(fList[0], fList[1], 'Fail' )) ;
+                            }
+                             }
+                            else{
+                                if(FailRecords<=100) {
+                                    peStatusList.add(new PeStatusDetails(str, 'Invalid Record', 'Invalid data, ignored' )) ;
+                                } 
+                                
+                            }
+                            }
+                            
+                        else {
+                            fileNumber = recList.get(0);
+                            peStatus =recList.get(1);
+                            
+                            pmdm__ProgramEngagement__c PA = new pmdm__ProgramEngagement__c();
+                     
+                            
+                             //retrieve PE record on matching of file number through Map
+                        
+                                peList = peRecordsMap.get(fileNumber);
+                               system.debug('peList======>'+peList);                                                 
+                            
+                               If(peList != Null && peList.size() == 1 ){                                
+                                PA.Id = peList[0].id;
+                                if(peStatus!=Null){
+                                PA.Default_Status__c = peStatus;
+                                       }
+                                   else{
+                                       PA.Default_Status__c = Null; 
+                                   }
+                                if(peList[0].Sum_of_Default_Reviews__c == Null ){
+                                    PA.Sum_of_Default_Reviews__c = 1;
+                                }
+                                else {
+                                    PA.Sum_of_Default_Reviews__c = peList[0].Sum_of_Default_Reviews__c + 1;
+                                }
+                                peUpdateList.Add(PA); 
+                                mapPEUpdate.put(peList[0].id,PA);
+                              
+                              //  peStatusList.add(new PeStatusDetails(fileNumber, peStatus, 'success' )) ; 
+                                SuccRecords++;   
+                               
+                            }
+                            else{
+                                FailRecords++;
+                                system.debug('File Number not found');
+                                if(FailRecords <=100){
+                                peStatusList.add(new PeStatusDetails(fileNumber, peStatus, 'Fail, File Number not found' )) ;
+                                }
+                            }                            
+                        }
+                    }
+                    
+                    
+                    TotalRecords = SuccRecords+FailRecords;
+                    
+                     system.debug('SuccRecords====>'+SuccRecords);
+                     system.debug('SuccRecords====>'+FailRecords);
+                     system.debug('TotalRecords====>'+TotalRecords);
+                     system.debug('peStatusList====>'+peStatusList);
+                    
+                 /*   if(peUpdateList!=Null && peUpdateList.size()>0){
+                        Update peUpdateList;
+                    } */
+                    system.debug('mapPEUpdate=====>'+mapPEUpdate);
+                    if(mapPEUpdate!=Null && mapPEUpdate.size()>0){
+                        Update mapPEUpdate.values();
+                        system.debug('mapPEUpdate=====>'+mapPEUpdate);
+                    }
+                    if(peStatusList!=Null && peStatusList.size()>0){
+                        flag = True;
+                    }
+                }                                
+            }
+            else{
+                ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.FATAL,'Upload only CSV document');
+                ApexPages.addMessage(myMsg); 
+                return null;
+            }
+        }
+        catch (Exception ex) {
+            errMsg = 'Error in File Uploading.';
+        }
+        return Null;
+    }        
+    
+    public pageReference close() {                        
+        string filterId = '';
+        List<ListView> lstView = [SELECT Id FROM ListView WHERE SObjectType = 'pmdm__ProgramEngagement__c' and Name = 'All' ];
+        if(lstView.size() > 0) {
+            filterId = lstView[0].Id;
+        }
+        if(string.isNotBlank(filterId)) {
+            PageReference pr = new PageReference('/lightning/o/pmdm__ProgramEngagement__c/list?filterName='+filterId);
+            return pr;
+        } 
+        return null;
+    }
+    
+    public PageReference getFileDownload() {  
+        
+     String SampleCSVFile = '6893499'+','+'Default Review'+'\n'; 
+        
+        SampleCSVFile +='6893487'+','+'High Risk'+'\n';
+        SampleCSVFile +='6894562'+','+'Moderate Risk'+'\n';
+        SampleCSVFile +='6987543'+','+'Low Risk'+'\n';
+        SampleCSVFile +='1234555'+','+'Default Review'+'\n';
+        SampleCSVFile +='765434567'+','+'High Risk'+'\n';
+        SampleCSVFile +='2349845'+','+'Moderate Risk'+'\n';
+        SampleCSVFile +='9084536'+','+'Low Risk'+'\n';
+        SampleCSVFile +='213219087'+','+'Default Review'+'\n';
+        SampleCSVFile +='6500987'+','+'High Risk';
+        
+        system.debug('SampleCSVFile==>'+SampleCSVFile);
+        
+        String sampleFolder = 'Shared Documents';
+        
+        Id sampleFolderId = [Select Id From Folder where Name = :sampleFolder].Id;
+        Document sdoc = new Document();        
+        sdoc.Name = 'Sample File';
+        sdoc.FolderId = sampleFolderId;
+        sdoc.Body = Blob.valueOf(SampleCSVFile );
+        sdoc.ContentType = 'data:text/csv';
+        sdoc.Type = 'csv';
+        insert sdoc;
+        
+       converid = sdoc.Id;
+        
+        system.debug('converid===>'+converid);    
+
+       return null;
+        
+    //  return new PageReference('/sfc/servlet.shepherd/version/download/' + converid); 
+        
+        
+    /*       List<ContentVersion> cv = [select Id, ContentDocumentId, ContentDocument.Title from ContentVersion where ContentDocument.Title ='PE Status Sample File' ]; 
+       if(cv.size()>0)
+        {
+            converid = cv[0].Id;
+           
+            system.debug('----------------converid '+converid);
+           // return new PageReference('/sfc/servlet.shepherd/version/download/' + cv[0].id);
+           return new PageReference('https://moneymentors--uat.sandbox.my.salesforce.com/sfc/p/8K0000004cRC/a/8K000000GpLQ/c5jlijmhQQfDLBpVAlcju3nN8E.F.i14PRLUfyE5u0U');
+       }
+        else{
+            return null;
+        }   */
+    }
+    
+    public List<string> GetData(String str) {        
+        List<string>vList = new List<string>();
+        String fileNumber;
+        String peStatus;        
+        If (str== Null || str.trim()=='\r' || str.trim()=='') {                       
+            vList.add('Skip');return vList;            
+        }
+        else  {
+            if(str.Contains(',')){
+                list<string>fileRecord=str.split(',');            
+                if(fileRecord!=Null && (fileRecord[0]!=Null && fileRecord[0] !='' && fileRecord[0]!='\r') && (fileRecord.size()>0 && fileRecord.size() <= 2) ){                                              
+                    fileNumber=fileRecord.get(0);
+                    fileNumber=fileNumber.trim();                
+                    peStatus=fileRecord.get(1);  
+                    peStatus=peStatus.trim();                
+                    vList.add(fileNumber);
+                    vList.add(peStatus);                                
+                } else { 
+                    vList.add('Error'); return vList;
+                }            
+            }
+            else{
+                vList.add('Error'); return vList; 
+            }
+        }
+        
+        return vList; 
+    } 
+    
+    public class PeStatusDetails { 
+        
+        public string fileNumber {get;set;}
+        public string peStatus {get;set;}
+        public String Result {get; set;}        
+        public PeStatusDetails(String fnumber, String fstatus, String fresult){
+            this.fileNumber=fnumber;
+            this.peStatus=fstatus;
+            this.Result =fresult;                          
+        }                
+    }
+    
+    public PageReference download() {
+        Id rtId = Schema.SObjectType.Affidavit_Debts__c.getRecordTypeInfosByName().get('Schedule A Debt').getRecordTypeId();
+        Set<string> setStage = new Set<string>();
+        setStage.add('Active File');
+        setStage.add('File Closing');
+        
+        String generatedCSVFile = 'Client Number, Client Name, Client Address, Email Address, Counsellor Name';
+        generatedCSVFile += ',Original OPD Balance, Current OPD Balance, Scheduled Payment, Current Trust Balance, Arrears Total, Current PA Arrears Balance';
+        generatedCSVFile += ',Made Payment Percentage, First Payment Date, Last Payment Received Date, Last Disbursement Date, Last 6 Months Levy, Last 6 Months Fees, EFT, Current risk status';
+        generatedCSVFile += '\n';
+        String fileRow = '';
+        
+        List<Affidavit_Debts__c> lstAffidavitDebt = [SELECT id
+                                                     , Total_Opening_Balance__c
+                                                     , Total_Outstanding_Debt_Remaining__c                                                                                                         
+                                                     , Program_Engagement__c 
+                                                     , Program_Engagement__r.Legacy_OPD_File_Number__c
+                                                     , Program_Engagement__r.pmdm__Contact__r.Name
+                                                     , Program_Engagement__r.pmdm__Contact__r.MailingStreet
+                                                     , Program_Engagement__r.pmdm__Contact__r.MailingCity
+                                                     , Program_Engagement__r.pmdm__Contact__r.MailingState
+                                                     , Program_Engagement__r.pmdm__Contact__r.MailingPostalCode
+                                                     , Program_Engagement__r.pmdm__Contact__r.MailingCountry 
+                                                     , Program_Engagement__r.pmdm__Contact__r.Email
+                                                     , Program_Engagement__r.Owner.Name  
+                                                     , Program_Engagement__r.Scheduled_Payment__c
+                                                     , Program_Engagement__r.Running_Trust_Balance__c
+                                                     , Program_Engagement__r.Amount_In_Arrears__c
+                                                     , Program_Engagement__r.Payment_Made_Till_Date__c
+                                                     , Program_Engagement__r.Expected_Payment_OPD_Till_Date__c
+                                                     , Program_Engagement__r.Last_Payment_Received_Date__c
+                                                     , Program_Engagement__r.Last_Disbursement_Date__c
+                                                     , Program_Engagement__r.Last_6_Months_Levy__c
+                                                     , Program_Engagement__r.Last_6_Months_Fees__c
+                                                     , Program_Engagement__r.Default_Status__c
+                                                     , Program_Engagement__r.Payment_Order__c
+                                                     , Program_Engagement__r.Amount_In_Arrears_PA__c
+                                                     FROM Affidavit_Debts__c 
+                                                     WHERE Program_Engagement__r.pmdm__Stage__c =: setStage
+                                                     AND Current_Affidavit_Debt_Record__c = true
+                                                     AND RecordTypeId =:rtId                                                   
+                                                    ];                     
+        
+        if(lstAffidavitDebt.size() > 0) {   
+            Set<Id> setPEIds = new set<Id>(); 
+            for (Affidavit_Debts__c ad : lstAffidavitDebt) {
+                setPEIds.add(ad.Program_Engagement__c);
+            }
+                      
+            getFirstPaymentReceived(setPEIds);
+            
+            for(Affidavit_Debts__c ad: lstAffidavitDebt) { 
+                system.debug('## Loop start ==================================');
+                string ClientNumber = ''; 
+                string ClientName = ''; 
+                string ClientAddress = ''; 
+                string EmailAddress = '';  
+                string CounsellorName = ''; 
+                string CurrentRiskStatus = '';
+                string OriginalOPDBalance = '';
+                string CurrentOPDBalance = ''; 
+                string ScheduledPayment = '';
+                decimal CurrentTrustBalance = 0;
+                decimal ArrearsTotal = 0;
+                decimal CurrentPAArrearsBalance = 0;
+                decimal MadePaymentPercentage = 0; 
+                decimal Last6MonthsLevy = 0;
+                decimal Last6MonthsFees = 0;
+                Boolean EFT = false;
+                string LastPaymentReceivedDate = '';
+                string LastDisbursementDate =  '';
+                string FirstPaymentDate = '';
+                
+                if(string.isNotEmpty(ad.Program_Engagement__r.Legacy_OPD_File_Number__c)) {
+                    ClientNumber = ad.Program_Engagement__r.Legacy_OPD_File_Number__c;
+                }
+                
+                if(string.isNotEmpty(ad.Program_Engagement__r.pmdm__Contact__r.Name)) {
+                    ClientName = '"'+ad.Program_Engagement__r.pmdm__Contact__r.Name+'"';
+                }                
+                
+                if(string.isNotEmpty(ad.Program_Engagement__r.pmdm__Contact__r.MailingStreet)) {
+                    ClientAddress = ad.Program_Engagement__r.pmdm__Contact__r.MailingStreet;
+                }
+                
+                if(string.isNotEmpty(ad.Program_Engagement__r.pmdm__Contact__r.MailingCity)) {
+                    ClientAddress +=' '+ ad.Program_Engagement__r.pmdm__Contact__r.MailingCity;
+                }
+                
+                if(string.isNotEmpty(ad.Program_Engagement__r.pmdm__Contact__r.MailingState)) {
+                    ClientAddress +=' '+ ad.Program_Engagement__r.pmdm__Contact__r.MailingState;
+                }
+                
+                if(string.isNotEmpty(ad.Program_Engagement__r.pmdm__Contact__r.MailingPostalCode)) {
+                    ClientAddress +=' '+ ad.Program_Engagement__r.pmdm__Contact__r.MailingPostalCode;
+                }
+                
+                if(string.isNotEmpty(ad.Program_Engagement__r.pmdm__Contact__r.MailingCountry)) {
+                    ClientAddress +=' '+ ad.Program_Engagement__r.pmdm__Contact__r.MailingCountry;
+                }
+                if(string.isNotEmpty(ClientAddress)) {ClientAddress = '"'+ClientAddress+'"'; }
+                system.debug('## ClientAddress ========'+ClientAddress);
+                
+                if(string.isNotEmpty(ad.Program_Engagement__r.pmdm__Contact__r.Email)) {
+                    EmailAddress += ad.Program_Engagement__r.pmdm__Contact__r.Email;
+                }
+                
+                CounsellorName = '"'+ad.Program_Engagement__r.Owner.Name+'"';
+                
+                //if(mapPeIdToAffidavitDebts.containsKey(pe.Id)) {
+                  //  Affidavit_Debts__c debt = mapPeIdToAffidavitDebts.get(pe.Id);
+                    OriginalOPDBalance  = (ad.Total_Opening_Balance__c != null || ad.Total_Opening_Balance__c == 0)? ''+ad.Total_Opening_Balance__c: '';                  
+                    CurrentOPDBalance = (ad.Total_Outstanding_Debt_Remaining__c != null || ad.Total_Outstanding_Debt_Remaining__c == 0)? ''+ad.Total_Outstanding_Debt_Remaining__c: '';
+                //}
+                
+                if(ad.Program_Engagement__r.Scheduled_Payment__c != null) {
+                    ScheduledPayment = string.valueOf(ad.Program_Engagement__r.Scheduled_Payment__c);
+                }
+                
+                if(ad.Program_Engagement__r.Running_Trust_Balance__c != null) {
+                    CurrentTrustBalance = ad.Program_Engagement__r.Running_Trust_Balance__c;
+                }
+                
+                if(ad.Program_Engagement__r.Amount_In_Arrears__c != null) {
+                    ArrearsTotal = ad.Program_Engagement__r.Amount_In_Arrears__c;
+                }                                
+                
+                /*if (mapPeIdToDebtDisbursement.containsKey(ad.Program_Engagement__r.Id)) {
+                    CurrentPAArrearsBalance = mapPeIdToDebtDisbursement.get(ad.Program_Engagement__r.Id);
+                }*/
+                if(ad.Program_Engagement__r.Amount_In_Arrears_PA__c != null) {
+                    CurrentPAArrearsBalance = ad.Program_Engagement__r.Amount_In_Arrears_PA__c;
+                }
+                
+                if(ad.Program_Engagement__r.Payment_Made_Till_Date__c != null && ad.Program_Engagement__r.Expected_Payment_OPD_Till_Date__c != null && ad.Program_Engagement__r.Expected_Payment_OPD_Till_Date__c != 0) {
+                    MadePaymentPercentage = (ad.Program_Engagement__r.Payment_Made_Till_Date__c / ad.Program_Engagement__r.Expected_Payment_OPD_Till_Date__c)*100; 
+                }
+                
+                if(ad.Program_Engagement__r.Last_Payment_Received_Date__c != null) {
+                    LastPaymentReceivedDate = string.valueOf(ad.Program_Engagement__r.Last_Payment_Received_Date__c);
+                }
+                
+                if(ad.Program_Engagement__r.Last_Disbursement_Date__c != null) {
+                    LastDisbursementDate = string.valueOf(ad.Program_Engagement__r.Last_Disbursement_Date__c);
+                }
+                
+                if(ad.Program_Engagement__r.Last_6_Months_Levy__c != null) {
+                    Last6MonthsLevy = ad.Program_Engagement__r.Last_6_Months_Levy__c;
+                }
+                
+                if(ad.Program_Engagement__r.Last_6_Months_Fees__c != null) {
+                    Last6MonthsFees = ad.Program_Engagement__r.Last_6_Months_Fees__c;
+                }                
+                
+                if(ad.Program_Engagement__r.Payment_Order__c == 'Electronic Funds Transfer (EFT)'){
+                    EFT = true;  
+                }
+                
+                if(string.isNotEmpty(ad.Program_Engagement__r.Default_Status__c)) { 
+                    CurrentRiskStatus  = ad.Program_Engagement__r.Default_Status__c;  
+                }
+                
+                if(mapPEIdsToFirstPaymentDate.containsKey(ad.Program_Engagement__r.Id)) {
+                    FirstPaymentDate = mapPEIdsToFirstPaymentDate.get(ad.Program_Engagement__r.Id);
+                }
+                
+                system.debug('## ClientNumber ========'+ClientNumber);
+                system.debug('## ClientName ========'+ClientName);
+                system.debug('## ClientAddress ========'+ClientAddress);
+                system.debug('## EmailAddress ========'+EmailAddress);
+                system.debug('## CounsellorName ========'+CounsellorName);
+                system.debug('## OriginalOPDBalance ========'+OriginalOPDBalance);
+                system.debug('## CurrentOPDBalance ========'+CurrentOPDBalance);
+                system.debug('## ScheduledPayment ========'+ScheduledPayment);
+                system.debug('## CurrentTrustBalance ========'+CurrentTrustBalance);
+                system.debug('## ArrearsTotal ========'+ArrearsTotal);
+                system.debug('## CurrentPAArrearsBalance ========'+CurrentPAArrearsBalance);
+                system.debug('## MadePaymentPercentage ========'+MadePaymentPercentage);
+                system.debug('## LastPaymentReceivedDate ========'+LastPaymentReceivedDate);
+                system.debug('## LastDisbursementDate ========'+LastDisbursementDate);
+                system.debug('## Last6MonthsLevy ========'+Last6MonthsLevy);
+                system.debug('## Last6MonthsFees ========'+Last6MonthsFees);
+                system.debug('## EFT ========'+EFT);
+                system.debug('## CurrentRiskStatus ========'+CurrentRiskStatus);
+                system.debug('## FirstPaymentDate ========'+FirstPaymentDate);
+                
+                fileRow = '';
+                fileRow += ','+ ClientNumber;
+                fileRow += ','+ ClientName;
+                fileRow += ','+ ClientAddress;
+                fileRow += ','+ EmailAddress;
+                fileRow += ','+ CounsellorName;
+                fileRow += ','+ OriginalOPDBalance;
+                fileRow += ','+ CurrentOPDBalance;
+                fileRow += ','+ ScheduledPayment;
+                fileRow += ','+ CurrentTrustBalance;
+                fileRow += ','+ ArrearsTotal;
+                fileRow += ','+ CurrentPAArrearsBalance;
+                fileRow += ','+ MadePaymentPercentage.setScale(2);
+                fileRow += ','+ FirstPaymentDate;
+                fileRow += ','+ LastPaymentReceivedDate;
+                fileRow += ','+ LastDisbursementDate;
+                fileRow += ','+ Last6MonthsLevy;
+                fileRow += ','+ Last6MonthsFees;
+                fileRow += ','+ EFT;
+                fileRow += ','+ CurrentRiskStatus;
+                
+                fileRow = fileRow.replaceFirst(',','');
+                generatedCSVFile = generatedCSVFile + fileRow + '\n';
+            }
+        }
+        
+        String sFolder = 'Shared Documents';     
+        Id sFolderId = [Select Id From Folder where Name = :sFolder].Id;
+        Document doc = new Document();        
+        doc.Name = 'DefaultReport';
+        doc.FolderId = sFolderId;
+        doc.Body = Blob.valueOf(generatedCSVFile);
+        doc.ContentType = 'data:text/csv';
+        doc.Type = 'csv';
+        insert doc;
+        DocId = doc.Id;        
+        
+        getFileDownload();
+        
+        return null;
+    
+    
+    }
+      /*  
+    public void getAffidavitDebts(Set<Id> setPEIds) {
+        Id rtId = Schema.SObjectType.Affidavit_Debts__c.getRecordTypeInfosByName().get('Schedule A Debt').getRecordTypeId();
+        List<Affidavit_Debts__c> lstAffidavitDebt = [SELECT id
+                                                     , Total_Opening_Balance__c
+                                                     , Total_Outstanding_Debt_Remaining__c                                                                                                         
+                                                     , Program_Engagement__c                                                     
+                                                     FROM Affidavit_Debts__c 
+                                                     WHERE Program_Engagement__c IN :setPEIds
+                                                     AND Current_Affidavit_Debt_Record__c = true
+                                                     AND RecordTypeId =:rtId                                                   
+                                                    ];
+        if(lstAffidavitDebt.size() > 0) {
+            for (Affidavit_Debts__c ad : lstAffidavitDebt) {
+                mapPeIdToAffidavitDebts.put(ad.Program_Engagement__c, ad);
+            }
+        }
+    }*/
+    /*
+    public void getDebtDisbursement(Set<Id> setPEIds) {
+        List<Debt_Disbursement__c> lstDD = [SELECT id
+                                            , Monthly_Arrear_PA__c                                                                                                         
+                                            , Program_Engagement__c                                                     
+                                            FROM Debt_Disbursement__c 
+                                            WHERE Program_Engagement__c IN :setPEIds
+                                            order by createddate];
+        if(lstDD.size() > 0) {
+            for (Debt_Disbursement__c dd : lstDD) {
+                if(mapPeIdToDebtDisbursement.containsKey(dd.Program_Engagement__c)) {
+                    Decimal amt = mapPeIdToDebtDisbursement.get(dd.Program_Engagement__c);
+                    amt += dd.Monthly_Arrear_PA__c;
+                    mapPeIdToDebtDisbursement.put(dd.Program_Engagement__c, amt);
+                }
+                else {
+                    mapPeIdToDebtDisbursement.put(dd.Program_Engagement__c, dd.Monthly_Arrear_PA__c);
+                }
+                
+            }
+        }
+    }*/
+        
+    public void getFirstPaymentReceived(Set<Id> setPEIds) { 
+        set<string> setStatus = new set<string>();
+        setStatus.add('Received');
+        setStatus.add('Disbursed');
+        setStatus.add('Moved2Trust');
+       
+        
+        List<AggregateResult> lstPaymentRecevied = [SELECT Min(DateReceived__c) DateReceived
+                                     , Status__c
+                                     , Program_Engagement__c
+                                     , COUNT(Id)  
+                                     FROM Payment_Received__c 
+                                     WHERE Status__c =: setStatus
+                                     AND Amount__c > 0 
+                                     AND Program_Engagement__c =: setPEIds
+                                     group by  Status__c , Program_Engagement__c
+                                     HAVING COUNT(Id) =1];
+
+        if (lstPaymentRecevied.size() > 0) {
+            for (AggregateResult pr : lstPaymentRecevied) {
+                string peId = String.valueOf(pr.get('Program_Engagement__c'));
+                if(!mapPEIdsToFirstPaymentDate.containsKey(peId)) {
+                    object obj = pr.get('DateReceived');
+                    if (obj != null) {
+                        date dt = date.valueOf(obj);
+                        string dt1 = dt.format();
+                        mapPEIdsToFirstPaymentDate.put(peId, dt1);
+                    }                    
+                }
+            }
+        }
+        
+     /*   List<Payment_Received__c> lstPaymentRecevied = [SELECT id,
+                                                        DateReceived__c,
+                                                        Program_Engagement__c
+                                                        FROM Payment_Received__c 
+                                                        WHERE Amount__c > 0
+                                                        AND Program_Engagement__c =: setPEIds
+                                                        AND Status__c =: setStatus 
+                                                        ORDER BY DateReceived__c asc]; 
+        if (lstPaymentRecevied.size() > 0) {
+            for (Payment_Received__c pr : lstPaymentRecevied) {
+                if(!mapPEIdsToFirstPaymentDate.containsKey(pr.Program_Engagement__c)) {
+                    date dt = pr.DateReceived__c;
+                    string dt1 = dt.format();
+                    mapPEIdsToFirstPaymentDate.put(pr.Program_Engagement__c, dt1);
+                }
+            }
+        }*/
+        
+    }
+    
+}

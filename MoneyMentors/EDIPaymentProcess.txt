@@ -1,0 +1,283 @@
+public class EDIPaymentProcess {
+    
+    @InvocableMethod(label='Process EDI' description='Process EDI File and Generate Payment Received & EDIfile Line item records ')
+    
+    public Static void EDIProcess(list<String> ids){
+        
+        Id docId = ids.get(0);
+        Integer fileSize;
+        string fileNumber;
+        string RecordAmount;
+        string RAmount;
+        Decimal fAmount;
+        Integer TotalTrans=0;
+        Integer SuccTrans=0;
+        Decimal SuccAmount=0.0;
+        Integer FailTrans=0;
+        Date ReceivedDate;
+        String Rdate;
+        String RecDate;
+        List<string>recList=new List<string>();
+        List<string>opdRecList=new List<string>();
+        Date CreatedDate = Date.today();
+        Matcher matchDate;
+        Boolean DateMatch = True;
+        
+        Map<Id,EDIPaymentLineItems__c> mapPEIdToEDILI = new Map<Id,EDIPaymentLineItems__c>();
+        List<EDIPaymentLineItems__c>ediItemList=new List<EDIPaymentLineItems__c>();
+        set<string>opdNumberSet =new set<string>();
+        
+        List<EDIFiles__c>ediFileList;
+        List<pmdm__ProgramEngagement__c> peList;
+        List<Payment_Received__c>payList = new List<Payment_Received__c>();
+        
+        Map<String,List<pmdm__ProgramEngagement__c>>peRecordsMap = New Map<String,List<pmdm__ProgramEngagement__c>>();          
+        
+        ediFileList=[select Id, Name, Status__c from EDIFiles__c where id=:docId AND Status__c='New' 
+                     AND Status__c!='Processed'];
+        
+        if(ediFileList[0].Status__c=='New'){
+            List<ContentDocumentLink> docList=[SELECT Id, LinkedEntityId, ContentDocumentId, Visibility,
+                                               ContentDocument.Title, ContentDocument.createdDate,
+                                               ContentDocument.FileType FROM ContentDocumentLink WHERE LinkedEntityId=:docId];
+            //    for(ContentDocumentLink cl:docList){
+            ContentVersion cv=[SELECT Checksum,ContentBodyId,
+                               ContentDocumentId,ContentLocation,
+                               Title,VersionData,VersionNumber,IsMajorVersion
+                               FROM ContentVersion WHERE ContentDocumentId =:docList[0].ContentDocumentId];
+            
+            blob b = cv.VersionData;
+            String s = EncodingUtil.base64Decode(EncodingUtil.base64Encode(b)).toString();
+            system.debug('EDI Sample file is..'+s);
+            fileSize=s.length();
+            
+            system.debug('FileSize....'+fileSize);
+            List<string>fileList=s.split('\n');
+            
+            
+            system.debug('Updated fileList....'+fileList);  
+            
+            if(fileList!=Null && fileList.size()>0 ){
+                
+                // Loop on EDI File List in order to retrieve OPD File Number in SET
+                
+                for(string str:fileList){
+                    
+                    EDIFileProcess ed=new EDIFileProcess();
+                    opdRecList = ed.GetData(str);
+                    System.debug('opdRecList=====>'+opdRecList );
+                                       
+                    if(opdRecList[0]!='Skip' && opdRecList[0]!= 'Error'){
+                        opdNumberSet.add(opdRecList.get(0));
+                    }
+                    
+                }
+                
+            }
+            system.debug('opdNumberSet====>'+opdNumberSet);
+            
+            List<pmdm__ProgramEngagement__c> pRecList = [select id,pmdm__Contact__c, pmdm__Stage__c, Legacy_OPD_File_Number__c from pmdm__ProgramEngagement__c where Legacy_OPD_File_Number__c IN:opdNumberSet ];  
+            
+            
+            system.debug(' pRecList =====>'+pRecList);
+            
+            system.debug(' pRecList Size =====>'+pRecList.size());
+            
+            if (pRecList.size()>0) {
+                
+                for (pmdm__ProgramEngagement__c pRec : pRecList) {
+                    
+                    system.debug('OPD File Number =======>'+pRec.Legacy_OPD_File_Number__c);
+                    system.debug('pRec =======>'+pRec);
+                    
+                    if(pRec.Legacy_OPD_File_Number__c!=Null){
+                        
+                        
+                        if(peRecordsMap.containsKey(pRec.Legacy_OPD_File_Number__c)) {
+                            
+                            peRecordsMap.get(pRec.Legacy_OPD_File_Number__c).add(pRec);
+                        }
+                        else {
+                            
+                            peRecordsMap.put(pRec.Legacy_OPD_File_Number__c, new List<pmdm__ProgramEngagement__c>{pRec});
+                            
+                            
+                        }
+                    }
+                }
+            }             
+            system.debug('peRecordsMap =======>'+peRecordsMap);
+            system.debug('peRecordsMap Size =======>'+peRecordsMap.size());
+            
+            if(fileList!=Null && fileList.size()>0 ){
+                
+                for(string str:fileList){
+                    TotalTrans++;
+                    EDIPaymentLineItems__c edi=new EDIPaymentLineItems__c();
+                    EDIPaymentLineItems__c edi1=new EDIPaymentLineItems__c();
+                    
+                    // Call GetData method of EDIFileProcess in order to get correct EDI File Record 
+                    
+                    EDIFileProcess ed=new EDIFileProcess();
+                    recList = ed.GetData(str);
+                    System.debug('recList--->'+recList );
+                    
+                    
+                    
+                    if(recList[0]== 'Skip'){
+                        TotalTrans--;   
+                    }
+                    else if(recList[0]== 'Error'){
+                        
+                        //Create EDI Error Lineitem
+                        
+                        FailTrans++;                            
+                        edi1.EDIFile__c=docId;
+                        edi1.EDIFileRecords__c = str;
+                        edi1.EDIFileName__c=docId;
+                        edi1.EDI_Line_Item_Status__c='Fail';
+                        //   edi1.Program_Engagement__c = peList[0].id;
+                        ediItemList.add(edi1);
+                    }
+                    else{
+                        
+                        fileNumber = recList.get(0);
+                        RAmount =recList.get(1);
+                        Rdate = recList.get(2);
+                        
+                        fileNumber.trim();
+                        
+                        system.debug('peRecordsMap==>'+peRecordsMap);
+                        system.debug('fileNumber==>'+fileNumber);
+                        
+                        //retrieve PE record on matching of file number through Map
+                        
+                        peList = peRecordsMap.get(fileNumber);
+                        system.debug('peList======>'+peList); 
+                        
+                        //Check peList Size 
+                        
+                        If(peList !=Null && peList.size()==1 ){
+                            
+                            if(Rdate!=Null && Rdate!=' '){
+                                string Rmonth = Rdate.split('/').get(0);
+                                Integer Imonth =Integer.valueOf(Rmonth);
+                                
+                                string Rday = Rdate.split('/').get(1);                                          
+                                Integer Iday = Integer.valueOf(Rday);
+                                
+                                string Ryear = Rdate.split('/').get(2);
+                                Integer Iyear = integer.valueOf(Ryear);
+                                
+                                ReceivedDate = Date.newInstance(Iyear, Imonth, Iday);
+                            }
+                            else{
+                                ReceivedDate = Date.today();
+                            }
+                            
+                            //create payment record 
+                            
+                            Payment_Received__c pr = new Payment_Received__c();
+                            pr.Program_Engagement__c=peList[0].id;
+                            pr.Payment_Mode__c='EDI/Online';   
+                            pr.Amount__c=Decimal.valueOf(RAmount);
+                            pr.Status__c='Received';                                                                                       
+                            pr.DateReceived__c = ReceivedDate;
+                            pr.EDIFile__c = docId;
+                            pr.Client__c= peList[0].pmdm__Contact__c;
+                            
+                            payList.add(pr);
+                            
+                            //create EDI success lineitem
+                            
+                            SuccTrans++;
+                            SuccAmount+=Decimal.valueOf(RAmount);
+                            // edi.EDIFile__c=docId;
+                            edi.EDIFileName__c=docId;
+                            edi.EDIFileRecords__c = str;
+                            if(peList[0].pmdm__Stage__c =='Default' || peList[0].pmdm__Stage__c =='Paid In Full'){
+                                edi.EDI_Line_Item_Status__c='Success: Payment received in Default or Paid In Full stage!!';
+                            }
+                            else{
+                                edi.EDI_Line_Item_Status__c='Success';
+                            }
+                            //edi.Payment_Received__c=pr.id;    
+                            edi.Program_Engagement__c=peList[0].id;
+                            
+                            mapPEIdToEDILI.put(peList[0].id, edi);
+                        }
+                        else{
+                            
+                            //if filenumber does not match it will create lineitem with status fail
+                            
+                            FailTrans++;
+                            edi1.EDIFile__c=docId;
+                            edi1.EDIFileName__c=docId;
+                            edi1.EDIFileRecords__c = str;
+                            edi1.EDI_Line_Item_Status__c='Fail';                                                        
+                            system.debug('Invalid OPD File Number ');
+                            ediItemList.add(edi1);
+                        }
+                        
+                    }
+                    
+                    
+                }  
+                
+            }
+            
+            system.debug('ediItemList--->'+ediItemList);
+            
+            
+            if(payList!=Null && payList.size()>0){
+                insert payList;
+            }
+            
+            for(Payment_Received__c pre :payList){
+                if(pre.Program_Engagement__c !=Null && mapPEIdToEDILI.containsKey(pre.Program_Engagement__c) ){
+                    EDIPaymentLineItems__c edliRecord = mapPEIdToEDILI.get(pre.Program_Engagement__c); 
+                    edliRecord.Payment_Received__c =pre.id;
+                    //  ediItemList.add(edliRecord);
+                    mapPEIdToEDILI.put(pre.Program_Engagement__c,edliRecord );
+                }
+            }
+            system.debug('ediItemList--->'+ediItemList);
+            
+            system.debug('mapPEIdToEDILI--->'+mapPEIdToEDILI);
+            system.debug('mapPEIdToEDILI Size--->'+mapPEIdToEDILI.size());
+            
+            if( mapPEIdToEDILI!=Null && mapPEIdToEDILI.size()>0){
+                Insert mapPEIdToEDILI.values();
+                
+                system.debug('mapPEIdToEDILI--->'+mapPEIdToEDILI);
+                system.debug('mapPEIdToEDILI Size--->'+mapPEIdToEDILI.size());
+            } 
+            
+            system.debug('ediItemList--->'+ediItemList);
+            system.debug('ediItemList Size--->'+ediItemList.size());
+            
+            if(ediItemList!=Null && ediItemList.size()>0){
+                Insert ediItemList;
+            }
+            
+            system.debug('ediItemList--->'+ediItemList);
+            system.debug('ediItemList Size--->'+ediItemList.size());
+        }
+        //   } 
+        string SAmount=string.valueOf(SuccAmount);
+        
+        // Update EDI file Record
+        
+        if(ediFileList[0].id!=Null){
+            ediFileList[0].Status__c='Processed';
+            ediFileList[0].Total_Transactions__c=TotalTrans;
+            ediFileList[0].Success_Transactions__c=SuccTrans;
+            ediFileList[0].Success_Amount__c=SAmount;
+            ediFileList[0].Failed_Transactions__c=FailTrans;
+            
+            upsert ediFileList[0];
+        } 
+    }
+    
+    
+}

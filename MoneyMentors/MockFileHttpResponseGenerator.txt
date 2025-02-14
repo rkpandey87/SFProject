@@ -1,0 +1,171 @@
+@isTest
+global class MockFileHttpResponseGenerator implements HttpCalloutMock {
+    // Implement this interface method
+    global HTTPResponse respond(HTTPRequest req) {
+        // Optionally, only send a mock response for a specific endpoint
+        // and method.
+        //     System.assertEquals('https://example.com/example/test', req.getEndpoint());
+        //    System.assertEquals('GET', req.getMethod());
+        
+        // Create a fake response
+        HttpResponse res = new HttpResponse();
+        
+        
+        if(req.getEndpoint() =='https://mm-ftpapi.qrupia.com:8000/upload' && req.getMethod() =='POST'){
+            
+            if(req.getHeader('Content-Type') == 'application/json'){
+                
+                res.setStatus('SUCCESS');
+                //    res.Message ='File(s) downloaded successfully';
+                res.setHeader('Content-Type', 'application/json');
+                res.setBody('{"example":"test"}');
+                res.setStatusCode(200);
+                
+            }
+            else if(req.getHeader('Content-Type') == 'multipart/form-data'){
+                
+                res.setStatus('SUCCESS');
+                res.setHeader('Content-Type', 'multipart/form-data');
+                res.setBody('{"example":"test"}');
+                res.setStatusCode(200);
+                
+            }
+            else {
+                res.setStatus('Failed');
+                res.setHeader('Content-Type', 'application/json');
+                res.setBody('{"example":"test"}');
+                res.setStatusCode(406);
+                
+            }
+            
+        }
+        
+        else if(req.getEndpoint() =='https://mm-ftpapi.qrupia.com:8000/download' && req.getMethod() =='POST'){
+            
+             List<Object> results1 = (List<Object>)JSON.deserializeUntyped(req.getBody());
+                system.debug( 'results1'+  results1);
+            
+          //   Map<String, Object> results = (Map<String, Object>)JSON.deserializeUntyped(req.getBody());
+           //     system.debug( 'results'+  results);
+                
+            Object ResFileName=(Object)results1.get(0);
+            
+            System.debug('ATBList...'+ ResFileName); 
+            
+            List<string> FileNameList=String.valueOf(ResFileName).split(',');
+            
+            system.debug('FileNameList'+FileNameList);
+            
+            String FileName = FileNameList.get(1).split('=').get(1);
+            
+            system.debug('FileName'+' '+FileName);    
+           
+            
+            if(FileName.contains('_ACK')){
+                
+            String testACKJSON ='{"status": "SUCCESS", "message": "File(s) downloaded successfully", "code": 200,"files": [{ "status": "SUCCESS","message": "File downloaded!","filename": "TestEFTFile_ACK.TXT", "path": "/Inbox", "base64content": "VEFDSzIwMjIwODMxMDgzNjIwMjIwODMxMDMxOCAgICAgICAgICAgICAgICAwMDAwMzE4MjE5OTA5MjQ2NyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBBQ0MgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAo" }]}';   
+            
+                if(req.getHeader('Content-Type') == 'application/json' ){
+               
+                res.setStatus('SUCCESS');
+                res.setStatusCode(200);
+                //     res.setmessage('File(s) downloaded successfully');
+                res.setHeader('Content-Type', 'application/json');
+                // res.setBody('{"filename": "ACKTestEFTFile.TXT","path":"/Inbox","base64content": "VEFDSzIwMjIwODMxMDgzNjIwMjIwODMxMDMxOCAgICAgICAgICAgICAgICAwMDAwMzE4MjE5OTA5MjQ2NyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBBQ0MgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAo=","status": "SUCCESS","message": "File downloaded!"}');
+                res.setBody(testACKJSON);
+                
+                
+            }
+            else if(req.getHeader('Content-Type') == 'multipart/form-data'){
+                
+                res.setStatus('SUCCESS');
+                res.setHeader('Content-Type', 'multipart/form-data');
+                //  res.setBody('{"filename": "IVFTestEFTFile.TXT","path": "/Inbox","base64content": "VEFDSzIwMjIwODMxMDgzNjIwMjIwODMxMDMxOCAgICAgICAgICAgICAgICAwMDAwMzE4MjE5OTA5MjQ2NyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBBQ0MgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAo=","status": "SUCCESS","message": "File downloaded!"}');
+                res.setStatusCode(200);
+                 res.setBody(testACKJSON);
+                
+            }
+            else {
+                res.setStatus('Failed');
+                res.setHeader('Content-Type', 'application/json');
+                res.setBody('{"example":"test"}');
+                res.setStatusCode(406);
+                
+            } 
+            }
+           else if(FileName.contains('_IVF')){
+                String testIVFJSON ='{"status": "SUCCESS", "message": "File(s) downloaded successfully", "code": 200,"files": [{ "status": "SUCCESS","message": "File downloaded!","filename": "TestEFTFile_IVF.TXT", "path": "/Inbox", "base64content": "VElWSTIwMjIwODMwMTAwNzIwMjIwODMwMDMxNiAgICAgICAgICAgICAgICAwMDAwMzE2OTI0NjcgICAgIDIwMjIwODMwMDU1MzI2MzEzNzQ2ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBFRlQgREJJVDAwMDAwNDUwMDBDQUQyMDIyMDgzMCAgICAgICAgICAgICAgICAgICBIaWx0b24gR3JheSAgICAgICAgICAgICAgICAgICAgMDAwNjE0MDUxICAgODkwMzQ2NzQ0NDY2ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgTW9uZXkgTWVudG9ycyAgICAgICAgICAgICAgICAgICAgMDIxOTA3NjA5MDAwNjUyNTkxMTc5ICAgICAgICBBQ0MgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgClRJVkkyMDIyMDgzMDEwMDcyMDIyMDgzMDAzMTYgICAgICAgICAgICAgICAgMDAwMDMxNjkyNDY3ICAgICAyMDIyMDgzMDA1NTMyNjMxMzg0NiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgRUZUIERCSVQwMDAwMDU2MDQ1Q0FEMjAyMjA4MzAgICAgICAgICAgICAgICAgIEFyY2hlciBEaXZpbmUgICAgICAgICAgICAgICAgICAgIDAwMDEwMDE0OSAgIDAyMzQ1Njc4OTAxMiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIE1vbmV5IE1lbnRvcnMgICAgICAgICAgICAgICAgICAgIDAyMTkwNzYwOTAwMDY1MjU5MTE3OSAgICAgICAgQUNDICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIApUSVZJMjAyMjA4MzAxMDA3MjAyMjA4MzAwMzE2ICAgICAgICAgICAgICAgIDAwMDAzMTY5MjQ2NyAgICAgMjAyMjA4MzAwNTUzMjYzMTM5NDYgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIEVGVCBEQklUMDAwMDEzMDAwMENBRDIwMjIwODMwICAgICAgICAgICAgICAgICAgIEphbWVzIEhhcnJ5ICAgICAgICAgICAgICAgICAgICAwMDA2MTQwNTEgICAwMTIzNDU2Nzg5MDEgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBNb25leSBNZW50b3JzICAgICAgICAgICAgICAgICAgICAwMjE5MDc2MDkwMDA2NTI1OTExNzkgICAgICAgIEFDQyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKVElWSTIwMjIwODMwMTAwNzIwMjIwODMwMDMxNiAgICAgICAgICAgICAgICAwMDAwMzE2OTI0NjcgICAgIDIwMjIwODMwMDU1MzI2MzE0MDQ2ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBFRlQgREJJVDAwMDAxMjAwMDBDQUQyMDIyMDgzMCAgICAgICAgICAgICAgICAgICBBYm90dCBDcmV0dCAgICAgICAgICAgICAgICAgICAgMDAwNDgxODE5ICAgMDAyMjM0NTY3ODkwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgTW9uZXkgTWVudG9ycyAgICAgICAgICAgICAgICAgICAgMDIxOTA3NjA5MDAwNjUyNTkxMTc5ICAgICAgICBBQ0MgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgClRJVkkyMDIyMDgzMDEwMDcyMDIyMDgzMDAzMTYgICAgICAgICAgICAgICAgMDAwMDMxNjkyNDY3ICAgICAyMDIyMDgzMDA1NTMyNjMxNDE0NiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgRUZUIERCSVQwMDAwMDQwNzExQ0FEMjAyMjA4MzAgICAgICAgICAgICAgICAgICAgICBFdmFuIEhlcmQgICAgICAgICAgICAgICAgICAgIDAwMDQ4MTgxOSAgIDAwMDMyMzQ1Njc4OSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIE1vbmV5IE1lbnRvcnMgICAgICAgICAgICAgICAgICAgIDAyMTkwNzYwOTAwMDY1MjU5MTE3OSAgICAgICAgQUNDICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIApUSVZJMjAyMjA4MzAxMDA3MjAyMjA4MzAwMzE2ICAgICAgICAgICAgICAgIDAwMDAzMTY5MjQ2NyAgICAgMjAyMjA4MzAwNTUzMjYzMTQyNDYgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIEVGVCBEQklUMDAwMDAzNjA1NkNBRDIwMjIwODMwICAgICAgICAgICAgICAgICAgIENvbHRvbiBDb2FsICAgICAgICAgICAgICAgICAgICAwMDAxMDAxNDkgICAwMDAwNDIzNDU2NzggICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBNb25leSBNZW50b3JzICAgICAgICAgICAgICAgICAgICAwMjE5MDc2MDkwMDA2NTI1OTExNzkgICAgICAgIEFDQyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKVElWSTIwMjIwODMwMTAwNzIwMjIwODMwMDMxNiAgICAgICAgICAgICAgICAwMDAwMzE2OTI0NjcgICAgIDIwMjIwODMwMDU1MzI2MzE0MzQ2ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBFRlQgREJJVDAwMDAwNTcwNTVDQUQyMDIyMDgzMCAgICAgICAgICAgICAgICAgQnJvZGllIENhc3RsZSAgICAgICAgICAgICAgICAgICAgMDg5OTAwOTQ5ICAgMDAwMDA1MjM0NTY3ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgTW9uZXkgTWVudG9ycyAgICAgICAgICAgICAgICAgICAgMDIxOTA3NjA5MDAwNjUyNTkxMTc5ICAgICAgICBBQ0MgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCg==" }]}';   
+                if(req.getHeader('Content-Type') == 'application/json' ){
+                  
+                res.setStatus('SUCCESS');
+                res.setStatusCode(200);
+                //     res.setmessage('File(s) downloaded successfully');
+                res.setHeader('Content-Type', 'application/json');
+                // res.setBody('{"filename": "ACKTestEFTFile.TXT","path":"/Inbox","base64content": "VEFDSzIwMjIwODMxMDgzNjIwMjIwODMxMDMxOCAgICAgICAgICAgICAgICAwMDAwMzE4MjE5OTA5MjQ2NyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBBQ0MgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAo=","status": "SUCCESS","message": "File downloaded!"}');
+                res.setBody(testIVFJSON);
+                
+                
+            }
+            else if(req.getHeader('Content-Type') == 'multipart/form-data'){
+                
+                res.setStatus('SUCCESS');
+                res.setHeader('Content-Type', 'multipart/form-data');
+                //  res.setBody('{"filename": "ACKTestEFTFile.TXT","path": "/Inbox","base64content": "VEFDSzIwMjIwODMxMDgzNjIwMjIwODMxMDMxOCAgICAgICAgICAgICAgICAwMDAwMzE4MjE5OTA5MjQ2NyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBBQ0MgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAo=","status": "SUCCESS","message": "File downloaded!"}');
+                res.setStatusCode(200);
+                 res.setBody(testIVFJSON);
+                
+            }
+            else {
+                res.setStatus('Failed');
+                res.setHeader('Content-Type', 'application/json');
+                res.setBody('{"example":"test"}');
+                res.setStatusCode(406);
+                
+            } 
+            } 
+           else if(FileName.contains('_RIN')){
+               Date todayDate=System.today();
+               String RINFileName;
+               String todayMonth = String.valueOf(todayDate.month()).leftPad(2,'0');
+               String todayDay= String.valueOf(todayDate.addDays(-1).day()).leftPad(2,'0');
+               String todayYear= String.valueOf(todayDate.year());
+               todayYear = todayYear.substring(2,4);
+               
+               String RinFileCreatedDate = todayYear+todayMonth+todayDay;
+        
+               RINFileName = 'ATB73321'+'_'+RinFileCreatedDate+'????'+'_RIN.TXT';
+                               
+                String testRINJSON ='{"status": "SUCCESS", "message": "File(s) downloaded successfully", "code": 200,"files": [{ "status": "SUCCESS","message": "File downloaded!","filename": "RINFileName_RIN.TEXT", "path": "/Inbox", "base64content": "VFJJTjIwMjIwOTE1MjEwMDIwMjIwOTE1MDM1MiAgICAgICAgICAgICAgICAwMDAwMzUyOTI0NjcgICAgIDIwMjIwOTE1MDU1NDk5ODUyNjAwMDAwMDAwMDAwMDAwMDAzNTIyMSAgICAgICAgICAgICAgICAgICBFRlQgREJJVDAwMDAwMzI4MDBDQUQyMDIyMDkxNSAgICAgICAgICAgICAgICAgICBIaWx0b24gR3JheSAgICAgICAgICAgICAgICAgICAgMGFhYWFhYWFhICAgODkwMzQ2NzQ0NDY2ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgTW9uZXkgTWVudG9ycyAgICAgICAgICAgICAgICAgICAgMDIxOTA3NjA5MDAwMDAwMDY1MjU5MTE3OSAgICBSRUoxNi05MDAgICAgSW5zdGl0dXRpb24gSUQgZm9yIFJldHVybnMgbWlzc2luZyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgClRSSU4yMDIyMDkxNTIxMDAyMDIyMDkxNTAzNTIgICAgICAgICAgICAgICAgMDAwMDM1MjkyNDY3ICAgICAyMDIyMDkxNTA1NTQ5OTg1MjcwMDAwMDAwMDAwMDAwMDAwMzUyMjIgICAgICAgICAgICAgICAgICAgRUZUIERCSVQwMDAwMDU0NDAwQ0FEMjAyMjA5MTUgICAgICAgICAgICAgICAgIEFyY2hlciBEaXZpbmUgICAgICAgICAgICAgICAgICAgIDAyMTkwNzYwOSAgIDAwMDAwMTIzNDU2NyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIE1vbmV5IE1lbnRvcnMgICAgICAgICAgICAgICAgICAgIDAyMTkwNzYwOTAwMDAwMDA2NTI1OTExNzkgICAgUkVKMDgtOTAwICAgIEludmFsaWQgUGF5ZWUvUGF5b3IgYWNjb3VudCBudW1iZXIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIApUUklOMjAyMjA5MTUyMTAwMjAyMjA5MTMwMzM5ICAgICAgICAgICAgICAgIDAwMDAzMzk5MjQ2NyAgICAgMjAyMjA5MTUwNTU1MDY3ODU3MjUwMDAwMDAwMDAwMDAwMDMzOTIzICAgICAgICAgICAgICAgICAgIEVGVCBEQklUMDAwMDAwMTAwMENBRDIwMjIwOTE1ICAgICAgICAgICAgICAgICAgIEphbWVzIEhhcnJ5ICAgICAgICAgICAgICAgICAgICAwMjE5MDc2MDkgICAwMDAwMDg3NDMyMDAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBNb25leSBNZW50b3JzICAgICAgICAgICAgICAgICAgICAwMjE5MDc2MDkwMDAwMDAwNjUyNTkxMTc5ICAgIFJFSkVGVDkwMSAgICBOU0YgKERlYml0IE9ubHkpICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAK==" }]}';                  
+               if(req.getHeader('Content-Type') == 'application/json' ){
+                  
+                res.setStatus('SUCCESS');
+                res.setStatusCode(200);
+                //     res.setmessage('File(s) downloaded successfully');
+                res.setHeader('Content-Type', 'application/json');
+                // res.setBody('{"filename": "ACKTestEFTFile.TXT","path":"/Inbox","base64content": "VEFDSzIwMjIwODMxMDgzNjIwMjIwODMxMDMxOCAgICAgICAgICAgICAgICAwMDAwMzE4MjE5OTA5MjQ2NyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBBQ0MgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAo=","status": "SUCCESS","message": "File downloaded!"}');
+                res.setBody(testRINJSON);
+                
+                
+            }
+            else if(req.getHeader('Content-Type') == 'multipart/form-data'){
+                
+                res.setStatus('SUCCESS');
+                res.setHeader('Content-Type', 'multipart/form-data');
+                //  res.setBody('{"filename": "ACKTestEFTFile.TXT","path": "/Inbox","base64content": "VEFDSzIwMjIwODMxMDgzNjIwMjIwODMxMDMxOCAgICAgICAgICAgICAgICAwMDAwMzE4MjE5OTA5MjQ2NyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBBQ0MgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAo=","status": "SUCCESS","message": "File downloaded!"}');
+                res.setStatusCode(200);
+                 res.setBody(testRINJSON);
+                
+            }
+            else {
+                res.setStatus('Failed');
+                res.setHeader('Content-Type', 'application/json');
+                res.setBody('{"example":"test"}');
+                res.setStatusCode(406);
+                
+            } 
+            } 
+        }
+        
+        return res;
+    }
+}

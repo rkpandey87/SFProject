@@ -1,0 +1,26 @@
+String jobID = System.schedule('PowerClerkBatchSyncSchedule', '0 0 23 * * ? *' , new PowerClerkBatchSyncSchedule());
+
+system.debug('#jobId======>'+jobID);
+
+
+String CRON_EXP = '0 0 0 * * ?';
+PowerClerkBatchSyncSchedule sch = new PowerClerkBatchSyncSchedule();
+system.schedule('PowerClerkBatchSyncSchedule', CRON_EXP, sch);
+
+
+System.schedule('PowerClerkBatchSyncSchedule5', '0 30 23 * * ? *' , new PowerClerkBatchSyncSchedule());
+
+SELECT ID,CronJObDetailId, CronJobDetail.Name, ownerid, State, StartTime, EndTime, CronJobDetail.JobType FROM CronTrigger
+
+
+
+
+
+System.schedule('GetProjectIdBatchSyncScheduled2', '0 0 23 * * ? *' , new GetProjectIdBatchSync());
+
+
+
+
+
+
+System.abortJob('08eOu000008bdVeIAI');

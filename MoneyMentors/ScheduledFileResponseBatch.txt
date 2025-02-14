@@ -1,0 +1,29 @@
+global class ScheduledFileResponseBatch implements Schedulable {
+   
+   // private final String JOBNAME = 'ResponseFileBatch ';
+   // private final Integer FIVEMINUTE =5;
+  
+    
+        public void execute(SchedulableContext sc) {
+         
+            BatchToProcessResponse br = new BatchToProcessResponse(); 
+            Database.executeBatch(br, 1);
+        
+           //  System.debug('every 5 min');
+            //  rescheduleJob();       
+      
+     
+    }
+    
+ 
+ /*  public void rescheduleJob()
+    {
+    
+        // Reschedule the Batch
+        
+        Datetime sysTime = System.now().addMinutes(FIVEMINUTE);
+        String cronExpression = '' + sysTime.second() + ' ' + sysTime.minute() + ' ' + sysTime.hour() + ' ' + sysTime.day() + ' ' + sysTime.month() + ' ? ' + sysTime.year();
+        System.schedule(JOBNAME+'-'+String.valueOf(System.now()), cronExpression, new ScheduledFileResponseBatch());
+    }  */
+
+}

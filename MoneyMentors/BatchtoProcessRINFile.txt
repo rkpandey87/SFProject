@@ -1,0 +1,375 @@
+global class BatchtoProcessRINFile implements Database.Batchable<sObject>,Database.AllowsCallouts,Database.Stateful {
+    
+    Blob rinBlob;
+    String rinString;
+    String rinStatus;
+    String rinStatusCode;
+    String SegAmount;
+    decimal DecSegAmount;    
+    string OriginatorsCrossReferenceNumber;
+    String RinSegAmount;
+    decimal RinDecSegAmount;
+    string RinOriginatorsCrossReferenceNumber;
+    
+    Set<ID>RinfileIdSet=New Set<ID>();
+    Set<string>eftIdSet = new Set<String>(); 
+    Set<String>prStatus =New Set<String>();
+    Set<String>payMode =New Set<String>();
+    Set<String>peIDSet =New Set<String>();
+    
+    Map<string, string>rinFileMap=New Map<string, string>(); 
+    Map<String,List<Payment_Received__c>>MaptoPRRecords = New Map<String,List<Payment_Received__c>>();
+    List<Payment_Received__c>payUpdateRecList=new List<Payment_Received__c>();
+    
+    Date todayDate;
+    String RINFileName;
+    String RinFileCreatedDate;
+    String todayMonth;
+    String todayDay;
+    String todayYear;
+    RIN_NSF__c Rnsf;
+    blob ResFileBody;
+    boolean sendCallout = True;
+    BatchToProcessResponse bt = new BatchToProcessResponse();
+    
+    global BatchtoProcessRINFile(){
+        
+        prStatus =New Set<String>{'Received','Disbursed','Moved2Trust'};
+        payMode = New Set<String>{'EFT Payment'};
+                                                           
+        todayDate =System.today();
+        todayDate =todayDate.addDays(-1);
+        system.debug('todayDate=====>'+todayDate);
+        
+        todayMonth = String.valueOf(todayDate.month()).leftPad(2,'0');
+        todayDay= String.valueOf(todayDate.day()).leftPad(2,'0');
+        todayYear= String.valueOf(todayDate.year());
+        todayYear = todayYear.substring(2,4);
+        
+        RinFileCreatedDate = todayYear+todayMonth+todayDay;  
+        RINFileName = 'ATB73321'+'_'+RinFileCreatedDate+'????'+'_RIN.TXT';
+        
+        // RINFileName = 'ATB73321_2212232100_RIN.TXT';
+        
+        Rnsf=new RIN_NSF__c(); 
+        insert Rnsf;
+        
+        system.debug(' EFT File Id Set ------>'+ RINFileName);
+        system.debug(' RINFileName ------>'+ RINFileName);
+   
+    }
+    
+    global Database.QueryLocator start(Database.BatchableContext BC){
+        
+        // Get all EFT Payment Received Records 
+        
+        String query = 'Select Id, Name, Status__c,EFTFile__c, Program_Engagement__c, Client__c, Notes__c, DateReceived__c, Amount__c,Payment_Mode__c,Originators_Cross_Reference_Number__c, EFTFile_LineNum__c,EFTFile_SegmentNum__c from Payment_Received__c where Status__c IN:prStatus AND Payment_Mode__c IN:payMode ' ;
+        
+        return Database.getQueryLocator(query);
+        
+    }
+    
+    global void execute(Database.Batchablecontext BC, list<Payment_Received__c> scope){
+            
+        system.debug('sendCallout==========>'+sendCallout);
+        
+        if(sendCallout == True){
+            
+            HttpResponse FileRes = FTPServiceHandler.getATBFile(RINFileName, 'FTP' );
+            
+            system.debug('FileRes ---->'+FileRes);
+            system.debug('RINFileName=====>'+RINFileName);  
+            
+            if(FileRes.getStatusCode() == 200){
+                
+                sendCallout= false;
+                RINFileName = bt.updateResponseFileName(FileRes);           
+                Rnsf.Name = RINFileName;        
+                ResFileBody = bt.getResponseFileBody(FileRes);      
+                system.debug('ResFileBody===>'+ResFileBody);  
+                if(ResFileBody!=Null){                
+                    MaptoPRRecords = GetRINFilePayments(ResFileBody);               
+                }
+                
+            }
+            else{
+                sendCallout= false;
+                Rnsf.Name = RINFileName;
+                Rnsf.FTP_API_Response__c = bt.createFTPAPIResponse(FileRes);              
+                system.debug('File download Error');
+                
+            }
+            
+            Update Rnsf;
+            
+            system.debug('Rnsf'+Rnsf.id); 
+        }
+        
+        system.debug('ResFileBody====>'+ResFileBody);
+        system.debug('MaptoPRRecords====>'+MaptoPRRecords);
+        
+        
+        // Process RIN File 
+        
+        if(ResFileBody!=Null && ResFileBody.size()>0){
+            
+            RINFileProcess(ResFileBody, scope, MaptoPRRecords ); 
+            
+        } 
+        
+    }
+    
+    global void finish(Database.Batchablecontext BC){
+        
+        if(payUpdateRecList!=Null && payUpdateRecList.size()>0){
+            upsert payUpdateRecList;
+        } 
+        
+        // insert RIN File
+        
+        if(ResFileBody!=Null){
+		
+		// Insert RIN File Into RIN NSF Records  
+		
+		bt.InsertResponseFile( ResFileBody, RINFileName, Rnsf.Id);  
+		
+        }
+        
+    }
+    // This Method is used to process RINFile Records 
+    
+    public List<Payment_Received__c> RINFileProcess(Blob RINFile, list<Payment_Received__c> scope, Map<String,List<Payment_Received__c>>MaptoPRRecords){
+           
+        rinString = EncodingUtil.base64Decode(EncodingUtil.base64Encode(RINFile)).toString();    
+        
+        List<string>rinfileList=rinString.split('\n');
+        List<Payment_Received__c>negPayList =new List<Payment_Received__c>();
+       // Set<String>prRinOrgSet =New Set<String>();
+        Set<String> NotFoundOrgNumSet = new Set<String>();
+        
+       // find out Originator Cross Reference that not match with any payment Received Record
+        
+        for(string rinOrg:rinfileList ){ 
+            
+            String rinOrgNumber = rinOrg.substring(81,100);
+            // prRinOrgSet.Add(rinOrgNumber);
+            
+            if(!MaptoPRRecords.containsKey(rinOrgNumber)){
+                
+                NotFoundOrgNumSet.Add(rinOrgNumber) ;
+            }
+            
+            
+        }
+            
+           system.debug('NotFoundOrgNumSet====>'+NotFoundOrgNumSet);
+       
+        //for each payment received records 
+        
+        for(Payment_Received__c pA:scope){
+            
+            system.debug('PA Record...'+pA);
+            
+            Boolean Match = False;       
+            Integer Count = 0;
+            Integer NegCount =0;
+            negPayList = new List<Payment_Received__c>();
+            
+            system.debug('negPayList After clear ======>'+negPayList);
+            
+           // run loop on rin file record list and create a origin number set 
+           
+            
+            for(string rin:rinfileList ){ 
+ 
+                system.debug('RINFile Record...'+rin);
+                RINStatus=rin.substring(332, 335);
+                
+                system.debug('RIN Record Status is'+RINStatus);                        
+                
+                RINStatusCode = rin.substring(345, 565);
+                RinSegAmount = rin.substring(127,137);
+                RinOriginatorsCrossReferenceNumber = rin.substring(81,100);
+                RinSegAmount.replaceFirst( '^0+', '');                
+                RinDecSegAmount = Decimal.valueOf(RinSegAmount);
+                RinDecSegAmount=RinDecSegAmount/100; 
+                RinDecSegAmount.SetScale(2);
+ 
+                system.debug('Rin Originators Cross ReferenceNumber ....'+ RinOriginatorsCrossReferenceNumber);   
+                system.debug('Rin SegAmount ....'+RinSegAmount);
+                system.debug('Rin DecSegAmount ....'+RinDecSegAmount); 
+                system.debug('RIN Status ....'+RINStatus); 
+                system.debug('RIN Status Code....'+RINStatusCode);
+                
+                system.debug('pA.Originators_Cross_Reference_Number__c ....'+pA.Originators_Cross_Reference_Number__c);
+                system.debug('pA.Amount__c ....'+pA.Amount__c); 
+                
+                if(pA.Originators_Cross_Reference_Number__c == RinOriginatorsCrossReferenceNumber && pA.Amount__c == RinDecSegAmount){
+                    
+                    Match=True;
+                    
+                    Break;
+                } 
+                
+                
+            }
+            
+            if(Match == True){
+                
+                if(MaptoPRRecords!=Null && MaptoPRRecords.containsKey(pA.Originators_Cross_Reference_Number__c) ){
+                    negPayList =MaptoPRRecords.get(pA.Originators_Cross_Reference_Number__c);
+                    
+                }
+            }
+             
+         
+            //count EFT and NSF payment related to particular Originators Cross Reference Number
+            
+            for(Payment_Received__c pr :negPayList){
+                
+                if(pr.Payment_Mode__c == 'EFT Payment'){
+                    Count++;
+                }
+                else if(pr.Payment_Mode__c =='NSF EFT'){
+                    NegCount++;
+                }
+            }
+            
+            // Update PA Status 
+            
+            system.debug('Match===>'+Match);
+            system.debug('negPayList===>'+negPayList);
+            system.debug('negPayList Size===>'+negPayList.size());
+            system.debug('Count===>'+Count);
+             system.debug('NegCount===>'+NegCount);
+            
+            // Create a Payment Received Instance and add common field value 
+            
+            Payment_Received__c newPA=new Payment_Received__c(); 
+            
+            newPA.Program_Engagement__c = pA.Program_Engagement__c;
+            
+            newPA.Client__c = pA.Client__c;
+            newPA.EFTFile__c =pA.EFTFile__c;
+            newPA.EFTFile_LineNum__c = pA.EFTFile_LineNum__c;
+            newPA.EFTFile_SegmentNum__c = pA.EFTFile_SegmentNum__c;
+            newPA.EFT_Error_Description__c = RINStatusCode;
+            newPA.RIN_NSF__c =Rnsf.id;
+              
+            if(Match == True && Count==1 && NegCount ==0 ){
+                
+                // Create new Payement Records with EFT Error Status and Negative Amount if Payment Status is 'Disbursed' or 'Moved2Trust'
+    
+                newPA.Payment_Mode__c ='NSF EFT';
+                newPA.DateReceived__c = pA.DateReceived__c;
+                newPA.Amount__c = -(pA.Amount__c);
+                newPA.Status__c = 'Received';
+                newPA.Originators_Cross_Reference_Number__c = pA.Originators_Cross_Reference_Number__c;
+                newPA.Notes__c = pA.Status__c+' '+ 'Payment'+' ' +pA.Name+' ' +'is reversed';
+    
+                payUpdateRecList.add(newPA);
+                
+            }  
+            
+            else if(Match == True && Count>1 && NegCount ==0){
+                
+                newPA.Payment_Mode__c ='NSF EFT';
+                newPA.DateReceived__c =system.today();
+              //  newPA.Amount__c = -(pA.Amount__c);
+                newPA.Status__c = 'EFT Error';
+                newPA.Originators_Cross_Reference_Number__c = pA.Originators_Cross_Reference_Number__c;
+               // newPA.Notes__c = pA.Status__c+' '+ 'Payment'+' ' +pA.Name+' ' +'is reversed'; 
+                newPA.EFT_Error_Description__c = 'Orginators Cross Reference Number Matched with More than One'; 
+                payUpdateRecList.add(newPA);
+                
+            }
+            
+            else if(Match == True && Count>0 && NegCount >0){
+                
+                newPA.Payment_Mode__c ='NSF EFT';
+                newPA.DateReceived__c =system.today();
+                //  newPA.Amount__c = -(pA.Amount__c);
+                newPA.Status__c = 'EFT Error';
+                newPA.Originators_Cross_Reference_Number__c = pA.Originators_Cross_Reference_Number__c;
+                // newPA.Notes__c = pA.Status__c+' '+ 'Payment'+' ' +pA.Name+' ' +'is reversed';  
+                newPA.EFT_Error_Description__c = 'NSF Payment already exists';
+                
+                payUpdateRecList.add(newPA);
+                
+            }
+            
+             else if(NotFoundOrgNumSet.size() >0){
+                 
+                 String orgNotFoundString =' ' ;  
+                 
+                 for(String pnf:NotFoundOrgNumSet){
+                     if(pnf!=Null){
+                         orgNotFoundString += pnf+',';
+                     }
+                 }
+                        
+                 Rnsf.Org_Cross_Ref_Number_Not_Found__c = orgNotFoundString.removeEnd(',');
+             }
+            
+        }
+        
+        // Update RIN NSF Record
+          Update Rnsf;  
+        // Update All PA Records
+        if(payUpdateRecList!=Null && payUpdateRecList.size()>0){
+            upsert payUpdateRecList;
+        } 
+        
+        system.debug('payUpdateRecList---->'+payUpdateRecList);
+        //  system.debug('EFTRecord---->'+payUpdateRecList);
+        
+        return payUpdateRecList;
+    }
+    
+    // This method Return a Map of RIN File Originators Cross ReferenceNumber  and related Payment Received List 
+    
+    public Map<String,List<Payment_Received__c>> GetRINFilePayments(Blob RINFile){
+                
+        rinString = EncodingUtil.base64Decode(EncodingUtil.base64Encode(RINFile)).toString();           
+        
+        List<string>rinfileList=rinString.split('\n');
+        
+        List<Payment_Received__c>negPayList =new List<Payment_Received__c>();
+        
+        List<Payment_Received__c>prList =new List<Payment_Received__c>();
+        
+        Set<String>prOrgSet =New Set<String>();
+        
+        Map<String,List<Payment_Received__c>>MaptoPRRINRecords = New Map<String,List<Payment_Received__c>>();
+        
+        for(string rin:rinfileList ){ 
+            
+            RinOriginatorsCrossReferenceNumber = rin.substring(81,100);
+            
+            prOrgSet.Add(RinOriginatorsCrossReferenceNumber);
+            
+            system.debug('Rin Originators Cross ReferenceNumber ....'+ RinOriginatorsCrossReferenceNumber);
+      
+        }
+        
+        prList =[Select Id,Name, Program_Engagement__c,Client__c,Status__c,Payment_Mode__c, EFTFile__c,Amount__c,Originators_Cross_Reference_Number__c,
+                 EFTFile_LineNum__c, EFTFile_SegmentNum__c from Payment_Received__c Where Originators_Cross_Reference_Number__c IN:prOrgSet ];
+        
+         System.debug('prList====>'+prList);
+        
+        if(prList.size()>0){            
+            for(Payment_Received__c pr:prList){
+                if(MaptoPRRINRecords.containsKey(pr.Originators_Cross_Reference_Number__c)) {
+                 MaptoPRRINRecords.get(pr.Originators_Cross_Reference_Number__c).add(pr);
+                }
+                else {
+                    MaptoPRRINRecords.put(pr.Originators_Cross_Reference_Number__c, new List<Payment_Received__c>{pr}); 
+                }
+            }
+        }
+        
+        system.debug('MaptoPRRINRecords======>'+MaptoPRRINRecords);      
+         return MaptoPRRINRecords;
+        
+    }
+}

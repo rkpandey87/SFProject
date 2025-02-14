@@ -1,0 +1,11 @@
+public class ScheduleToProcessRINFile implements Schedulable  {
+    
+      public void execute(SchedulableContext sc) {
+      
+          BatchtoProcessRINFile br=new BatchtoProcessRINFile();
+          Database.executeBatch(br);
+         
+      }
+
+
+}

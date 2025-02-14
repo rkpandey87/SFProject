@@ -1,0 +1,130 @@
+<apex:page standardController="EFTFile__c" extensions="ClientEFTProcess_Controller" recordSetVar="aa" showHeader="true" sidebar="true">    
+    <apex:includeLightning />   
+    <apex:slds />    
+   <apex:form > 
+        <div>
+            <div class="slds-scope">
+                <div style="margin:50px 400px;">
+                    <div class="slds-col slds-size_1-of-1 slds-small-size--1-of-1 slds-medium-size--1-of-1" style="text-align:right; font-size:26px" >
+                    <span style="border: 1px solid #e2e2e2; padding: 0px 10px; cursor:pointer" onclick="closeAction()">X</span>   
+                    </div>
+                    <div id="lightning" style="padding: 17px 20px 15px 20px;; border:1px solid #e2e2e2;">
+                        <div class="slds-grid slds-wrap">   
+                        <div class="slds-col slds-size_1-of-1 slds-small-size--1-of-1 slds-medium-size--1-of-1" style="margin-bottom: 20px; text-align: center;">
+                            <b style="font-size: 22px;"> Start Client EFT Process </b>
+                            </div>         
+                            <div class="slds-col slds-size_1-of-1 slds-small-size--1-of-1 slds-medium-size--1-of-1" style="margin-bottom: 20px; text-align: center;">
+                            <p style="color:red;"> {!errMsg  } </p>
+                            </div>
+                            <div class="slds-col slds-size_1-of-1 slds-small-size--1-of-1 slds-medium-size--1-of-1" ></div>
+                                                        
+                            <div class="slds-col slds-size_1-of-1 slds-small-size--1-of-1 slds-medium-size--1-of-1" >
+                                <div class="slds-grid slds-wrap">
+                                    <div style="padding: 5px" class="slds-col slds-size_3-of-12 slds-small-size--3-of-12 slds-medium-size--3-of-12">
+                                       <b> Select Date </b>                                      
+                                    </div>
+                                    <div class="slds-col slds-size_3-of-12 slds-small-size--3-of-12 slds-medium-size--3-of-12">
+                                        <apex:selectList value="{!selectedDate}" disabled="{!isDisabled}" size="1" id="selectedDate"  styleClass="slds-input">
+                                            <apex:selectOption itemLabel="1" itemValue="1"></apex:selectOption>
+                                            <apex:selectOption itemLabel="2" itemValue="2"></apex:selectOption>
+                                            <apex:selectOption itemLabel="3" itemValue="3"></apex:selectOption>
+                                            <apex:selectOption itemLabel="4" itemValue="4"></apex:selectOption>
+                                            <apex:selectOption itemLabel="5" itemValue="5"></apex:selectOption>
+                                            <apex:selectOption itemLabel="6" itemValue="6"></apex:selectOption>
+                                            <apex:selectOption itemLabel="7" itemValue="7"></apex:selectOption>
+                                            <apex:selectOption itemLabel="8" itemValue="8"></apex:selectOption>
+                                            <apex:selectOption itemLabel="9" itemValue="9"></apex:selectOption>
+                                            <apex:selectOption itemLabel="10" itemValue="10"></apex:selectOption>
+                                            <apex:selectOption itemLabel="11" itemValue="11"></apex:selectOption>
+                                            <apex:selectOption itemLabel="12" itemValue="12"></apex:selectOption>
+                                            <apex:selectOption itemLabel="13" itemValue="13"></apex:selectOption>
+                                            <apex:selectOption itemLabel="14" itemValue="14"></apex:selectOption>
+                                            <apex:selectOption itemLabel="15" itemValue="15"></apex:selectOption>
+                                            <apex:selectOption itemLabel="16" itemValue="16"></apex:selectOption>
+                                            <apex:selectOption itemLabel="17" itemValue="17"></apex:selectOption>
+                                            <apex:selectOption itemLabel="18" itemValue="18"></apex:selectOption>
+                                            <apex:selectOption itemLabel="19" itemValue="19"></apex:selectOption>
+                                            <apex:selectOption itemLabel="20" itemValue="20"></apex:selectOption>
+                                            <apex:selectOption itemLabel="21" itemValue="21"></apex:selectOption>
+                                            <apex:selectOption itemLabel="22" itemValue="22"></apex:selectOption>
+                                            <apex:selectOption itemLabel="23" itemValue="23"></apex:selectOption>
+                                            <apex:selectOption itemLabel="24" itemValue="24"></apex:selectOption>
+                                            <apex:selectOption itemLabel="25" itemValue="25"></apex:selectOption>
+                                            <apex:selectOption itemLabel="26" itemValue="26"></apex:selectOption>
+                                            <apex:selectOption itemLabel="27" itemValue="27"></apex:selectOption>
+                                            <apex:selectOption itemLabel="28" itemValue="28"></apex:selectOption>
+                                            <apex:selectOption itemLabel="29" itemValue="29"></apex:selectOption>
+                                            <apex:selectOption itemLabel="30" itemValue="30"></apex:selectOption>
+                                            <apex:selectOption itemLabel="31" itemValue="31"></apex:selectOption>
+                                           
+                                        </apex:selectList> 
+                                        
+                                    </div>
+                                    <div class="slds-col slds-size_3-of-12 slds-small-size--3-of-12 slds-medium-size--3-of-12">
+                                        <apex:selectList value="{!selectedMonth}" disabled="{!isDisabled}" size="1" id="selectedMonth"  styleClass="slds-input">
+                                            <apex:selectOption itemLabel="January" itemValue="1"></apex:selectOption>
+                                            <apex:selectOption itemLabel="February" itemValue="2"></apex:selectOption>
+                                            <apex:selectOption itemLabel="March" itemValue="3"></apex:selectOption>
+                                            <apex:selectOption itemLabel="April" itemValue="4"></apex:selectOption>
+                                            <apex:selectOption itemLabel="May" itemValue="5"></apex:selectOption>
+                                            <apex:selectOption itemLabel="June" itemValue="6"></apex:selectOption>
+                                            <apex:selectOption itemLabel="July" itemValue="7"></apex:selectOption>
+                                            <apex:selectOption itemLabel="August" itemValue="8"></apex:selectOption>
+                                            <apex:selectOption itemLabel="September" itemValue="9"></apex:selectOption>
+                                            <apex:selectOption itemLabel="October" itemValue="10"></apex:selectOption>
+                                            <apex:selectOption itemLabel="November" itemValue="11"></apex:selectOption>
+                                            <apex:selectOption itemLabel="December" itemValue="12"></apex:selectOption>
+                                        </apex:selectList>
+                                        
+                                    </div>
+                                   <!-- <div class="slds-col slds-size_1-of-12 slds-small-size--1-of-12 slds-medium-size--1-of-12"></div> -->
+                                    <div class="slds-col slds-size_3-of-12 slds-small-size--3-of-12 slds-medium-size--3-of-12">
+                                         <apex:selectList value="{!selectedYear}" disabled="{!isDisabled}" size="1" id="selectedYear"  styleClass="slds-input">
+                                            <apex:selectOptions value="{!YearList}"></apex:selectOptions>
+                                        </apex:selectList>
+                                    </div>
+                                </div>                                                                 
+                            </div> 
+                            
+                            <div class="slds-col slds-size_1-of-1 slds-small-size--1-of-1 slds-medium-size--1-of-1" >
+                                <div class="slds-grid slds-wrap" style="margin-top: 35px; text-align:center;">
+                                    <div class="slds-col slds-size_3-of-12 slds-small-size--3-of-12 slds-medium-size--3-of-12">                                        
+                                    </div>
+                                    <div class="slds-col slds-size_6-of-12 slds-small-size--6-of-12 slds-medium-size--6-of-12">
+                                        <apex:commandButton styleClass="slds-button slds-button_brand" value="Process EFT Batch" action="{!submit}" />                                     
+                                        
+                                        <apex:commandButton styleClass="slds-button slds-button_brand" value="Test" action="{!testsubmit}" />
+                                    </div>                                    
+                                    <div class="slds-col slds-size_3-of-12 slds-small-size--3-of-12 slds-medium-size--3-of-12">                                        
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="slds-col slds-size_1-of-1 slds-small-size--1-of-1 slds-medium-size--1-of-1" >
+                                <div class="slds-grid slds-wrap" style="margin-top: 35px; text-align:center;">
+                                    <div class="slds-col slds-size_3-of-12 slds-small-size--3-of-12 slds-medium-size--3-of-12">                                        
+                                    </div>
+                                    <div class="slds-col slds-size_6-of-12 slds-small-size--6-of-12 slds-medium-size--6-of-12">
+                                        
+                                         <apex:commandButton styleClass="slds-button slds-button_brand" value="Close" action="{!close}"  style="width: 100px;"  />
+                                    </div>
+                                    
+                                    <div class="slds-col slds-size_3-of-12 slds-small-size--3-of-12 slds-medium-size--3-of-12">                                        
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="slds-col slds-size_1-of-1 slds-small-size--1-of-1 slds-medium-size--1-of-1" >
+                                
+                            </div>
+                            
+                            
+                            
+                            
+                        </div>
+                        
+                    </div>  
+                </div>
+            </div>
+        </div>
+        <apex:actionFunction name="closeAction" action="{!close}" />
+    </apex:form> 
+</apex:page>

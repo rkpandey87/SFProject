@@ -1,0 +1,42 @@
+Track AB
+
+a24Ou000001gqhcIAA ### SD-SOMAH-00116
+
+
+
+Track AB
+
+a24Ou000001gqLZIAY ### PGE-SOMAH-00424
+
+Record type : Upfront Technical Assistance Approved
+Status : Upfront Technical Assistance Approved 
+
+project id : a0H540000060Kc6EAE
+
+Track AB
+
+a24Ou000001gqL8IAI ### PGE-SOMAH-00410
+
+Record type : Reservation Approved
+Status : Energy Efficiency Compliance Milestone Review 
+
+project id : a0H540000060KbdEAE
+
+
+Track B
+
+a24Ou000001gqhcIAA ### SD-SOMAH-00116
+
+
+Record type : Pending Reservation
+Status : Reservation Request Review 
+
+project id : a0HOu000000Vnu5MAC
+
+
+
+
+
+a24Ou000001gqGAIAY ### PGE-SOMAH-00344
+
+

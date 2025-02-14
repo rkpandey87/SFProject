@@ -1,0 +1,1302 @@
+@isTest
+public class CalculateMonthlyPaymentTest{
+    
+     
+    static testmethod void myTestMethod1(){
+        
+         Date payStartDate = Date.newInstance(2022, 1, 19);
+        
+        list<Agreed_Payment_Amount_Itmen__c> lstAPAIList = new list<Agreed_Payment_Amount_Itmen__c>();
+        List<Payment_Received__c>pRecList = new List<Payment_Received__c>();
+        list<Agreed_Payment_Amount__c>lstAPAList = new list<Agreed_Payment_Amount__c>();
+        List<Client_EFT__c>ceList = New List<Client_EFT__c>();
+        
+        pmdm__Program__c pr=new pmdm__Program__c();
+        pr.name = 'Orderly Payment of Debts';
+        pr.pmdm__Status__c='Active';
+        insert pr;
+        
+        pmdm__ProgramCohort__c pc=new pmdm__ProgramCohort__c();
+        pc.name = 'Calgary Cohort';
+        pc.pmdm__Status__c ='Active';
+        pc.pmdm__Program__c =pr.id;
+        
+        insert pc;
+        
+        Contact con =new Contact();
+        con.firstName = 'first';
+        con.LastName = 'last';
+        insert con;
+        
+        pmdm__ProgramEngagement__c pe = new pmdm__ProgramEngagement__c();    
+        
+        pe.Name='Test' ;
+        pe.pmdm__Stage__c='Active File'; 
+        pe.pmdm__Contact__c=con.id;
+        pe.Payment_Order__c='Electronic Funds Transfer (EFT)';
+        pe.Judicial_Centre__c='Calgary';
+        pe.pmdm__ProgramCohort__c=pc.id ;
+        pe.pmdm__Program__c=pr.id;
+        pe.Number_of_EFTs__c = 2;
+        pe.Last_Disbursement_Date__c = Date.newInstance(2022,7, 19);
+        pe.Disbursement_Fee__c = 'Discounted 10%';
+        pe.Total_Outstanding_Debt_Remaining__c = 100;
+        pe.Payment_Frequency__c ='Monthly';
+        pe.Payment_Start_Date__c = payStartDate;
+        
+        insert pe;
+        
+        Agreed_Payment_Amount__c lstAP = new Agreed_Payment_Amount__c();
+        
+        lstAP.Program_Engagement__c =pe.id;
+        lstAP.Active_Agreed_Payment_Amount__c = true;
+        lstAP.Contact__c =con.id;
+        
+        insert lstAP;
+        
+        lstAPAList.add(lstAP);
+        
+        Agreed_Payment_Amount_Itmen__c lstAPAI  = new Agreed_Payment_Amount_Itmen__c();
+        
+        lstAPAI.Total_Payment__c = 600;
+        lstAPAI.Agreed_Payment_Amount__c= lstAP.Id;
+        lstAPAI.Payment_Start_Date__c = Date.newInstance(2022,1, 1);
+        lstAPAI.Payment_End_Date__c = Date.newInstance(2024, 12,31);
+        //lstAPAI.Payment_to_Creditors__c = 600;
+        lstAPAI.Payment_Item_Type__c = 'Initial Agreed Payment Amount';
+        lstAPAIList.add(lstAPAI);
+        
+        Agreed_Payment_Amount_Itmen__c lstPA = new Agreed_Payment_Amount_Itmen__c();
+        
+        lstPA.Total_Payment__c = 600;
+        lstPA.Agreed_Payment_Amount__c= lstAP.Id;
+        lstPA.Payment_Start_Date__c = Date.newInstance(2022,9, 1);
+        lstPA.Payment_End_Date__c = Date.newInstance(2022,12,31);
+        lstPA.Payment_Item_Type__c = 'Payment Agreement';
+        lstAPAIList.add(lstPA);
+        
+        if(lstAPAIList!=Null && lstAPAIList.size()>0){
+            insert lstAPAIList;
+        }
+        
+        Payment_Received__c pRec = new  Payment_Received__c();
+        pRec.Program_Engagement__c = pe.id;
+        pRec.Amount__c = 500;
+        pRec.Client__c = con.Id;
+        pRec.DateReceived__c = Date.newInstance(2022,7,5);
+        pRec.Payment_Mode__c = 'EFT Payment';
+        pe.Number_of_EFTs__c = 2;
+        pRec.Status__c = 'Received';
+        pRecList.add(pRec);
+        if(pRecList!=Null && pRecList.size()>0){
+            insert pRecList;
+        }
+        Client_EFT__c ef = new Client_EFT__c();
+        ef.Account_Number__c ='98765099';
+        ef.Routing_Number__c ='67980345';
+        ef.Contact__c =con.id;
+        ef.Program_Engagement__c = pe.id;
+        ceList.add(ef);
+        
+        if(ceList!=Null && ceList.size()>0){
+            insert ceList;
+        }
+
+        Test.startTest();
+        
+        CalculateMonthlyPayment cp = new CalculateMonthlyPayment();
+        Date exDate = Date.newInstance(2022,8, 19);
+        
+        lstAPAIList =[Select Total_Payment__c,Agreed_Payment_Amount__c,Payment_Start_Date__c,Payment_End_Date__c,Payment_Item_Type__c,Payment_to_Creditors__c,Money_Mentor_Fee_Amount__c from Agreed_Payment_Amount_Itmen__c ];
+        
+        System.debug('lstAPAIList After query======>'+lstAPAIList);
+        
+        Map<Id, list<Agreed_Payment_Amount_Itmen__c>>agItemTestMap =new Map<Id, list<Agreed_Payment_Amount_Itmen__c>>();
+        agItemTestMap.Put(pe.Id,lstAPAIList);
+        
+        Map<String, string> NextDateAmt = CalculateMonthlyPayment.NextPaymentDueDate(exDate, pe,lstAPAIList);
+        Decimal retAmount = CalculateMonthlyPayment.CalculatePaymentExpected(exDate, pe,lstAPAIList);
+        Decimal exAmount = CalculateMonthlyPayment.CalculatePaymentExpectedCO(exDate, pe,agItemTestMap);
+        
+        List<Agreed_Payment_Amount_Itmen__c> AgItemTestList = CalculateMonthlyPayment.agreedInitialAmountItemList(exDate, lstAPAIList);
+      //  Decimal retAmt = cp.CalculatePaymentExpected(pe.Id, exDate);
+      //  Decimal exAmt = cp.CalculatePaymentExpectedCO(pe.Id, exDate);
+        Map<string,string>retMap = CalculateMonthlyPayment.CalculatePaymentExpectedPA(exDate, pe,lstAPAIList);
+        Decimal payRec = cp.CalculatePaymentReceived(pe.Id);
+        Map<Decimal,List<Payment_Received__c>>eftTestMap = cp.CalculateEFTPayment(pe,exDate,pRecList, lstAPAList,lstAPAIList);
+       // Decimal returnPayoutAmont = CalculateMonthlyPayment.CalculatePayoutAmount(pe, 220, 100);
+        Test.stopTest();
+    
+    }
+    
+     static testmethod void myTestMethod12(){
+        
+         Date payStartDate = Date.newInstance(2022, 1, 19);
+        
+        list<Agreed_Payment_Amount_Itmen__c> lstAPAIList = new list<Agreed_Payment_Amount_Itmen__c>();
+        List<Payment_Received__c>pRecList = new List<Payment_Received__c>();
+        list<Agreed_Payment_Amount__c>lstAPAList = new list<Agreed_Payment_Amount__c>();
+        List<Client_EFT__c>ceList = New List<Client_EFT__c>();
+         
+        pmdm__Program__c pr=new pmdm__Program__c();
+        pr.name = 'Orderly Payment of Debts';
+        pr.pmdm__Status__c='Active';
+        insert pr;
+        
+        pmdm__ProgramCohort__c pc=new pmdm__ProgramCohort__c();
+        pc.name = 'Calgary Cohort';
+        pc.pmdm__Status__c ='Active';
+        pc.pmdm__Program__c =pr.id;
+        
+        insert pc;
+        
+        Contact con =new Contact();
+        con.firstName = 'first';
+        con.LastName = 'last';
+        insert con;
+        
+        pmdm__ProgramEngagement__c pe = new pmdm__ProgramEngagement__c();    
+        
+        pe.Name='Test' ;
+        pe.pmdm__Stage__c='Active File'; 
+        pe.pmdm__Contact__c=con.id;
+        pe.Payment_Order__c='Electronic Funds Transfer (EFT)';
+        pe.Judicial_Centre__c='Calgary';
+        pe.pmdm__ProgramCohort__c=pc.id ;
+        pe.Number_of_EFTs__c = 2;
+        pe.Last_Disbursement_Date__c = Date.newInstance(2022, 8, 19);
+        pe.Disbursement_Fee__c = 'Discounted 10%';
+        pe.X1st_Payment_Day__c = 'Last Day of Month';
+        pe.X2nd_Payment_Day__c = 'Last Day of Month';
+        pe.pmdm__Program__c=pr.id;
+        pe.Total_Outstanding_Debt_Remaining__c = 10000;
+        pe.Payment_Frequency__c ='Monthly';
+        pe.Payment_Start_Date__c = payStartDate;
+        
+        insert pe;
+        
+        Agreed_Payment_Amount__c lstAP = new Agreed_Payment_Amount__c();
+        
+        lstAP.Program_Engagement__c =pe.id;
+        lstAP.Active_Agreed_Payment_Amount__c = true;
+        lstAP.Contact__c =con.id;
+        
+        insert lstAP;
+        
+        lstAPAList.add(lstAP);
+        
+        Agreed_Payment_Amount_Itmen__c lstAPAI  = new Agreed_Payment_Amount_Itmen__c();
+        
+        lstAPAI.Total_Payment__c = 600;
+        lstAPAI.Agreed_Payment_Amount__c= lstAP.Id;
+        lstAPAI.Payment_Start_Date__c = Date.newInstance(2022,1, 1);
+        lstAPAI.Payment_End_Date__c = Date.newInstance(2022, 12,31);
+        lstAPAI.Payment_Item_Type__c = 'Initial Agreed Payment Amount';
+        lstAPAIList.add(lstAPAI);
+        
+        Agreed_Payment_Amount_Itmen__c lstPA = new Agreed_Payment_Amount_Itmen__c();
+        
+        lstPA.Total_Payment__c = 600;
+        lstPA.Agreed_Payment_Amount__c= lstAP.Id;
+        lstPA.Payment_Start_Date__c = Date.newInstance(2022,9, 1);
+        lstPA.Payment_End_Date__c = Date.newInstance(2022,12,31);
+        lstPA.Payment_Item_Type__c = 'Payment Agreement';
+        lstAPAIList.add(lstPA);
+        if(lstAPAIList!=Null && lstAPAIList.size()>0){
+            insert lstAPAIList;
+        }
+        
+        Payment_Received__c pRec = new  Payment_Received__c();
+        pRec.Program_Engagement__c = pe.id;
+        pRec.Amount__c = 500;
+        pRec.Client__c = con.Id;
+        pRec.DateReceived__c = Date.newInstance(2022,8,5);
+        pRec.Payment_Mode__c = 'EFT Payment';
+        pRec.Status__c = 'Received';
+        pRecList.add(pRec);
+        if(pRecList!=Null && pRecList.size()>0){
+            insert pRecList;
+        }
+         
+         Client_EFT__c ef = new Client_EFT__c();
+        
+         ef.Account_Number__c ='98765099';
+         ef.Routing_Number__c ='67980345';
+         ef.Contact__c =con.id;
+         ef.Program_Engagement__c = pe.id;
+         ceList.add(ef);
+        
+        if(ceList!=Null && ceList.size()>0){
+            insert ceList;
+        }
+        
+        Test.startTest();
+        
+        CalculateMonthlyPayment cp = new CalculateMonthlyPayment();
+        Date exDate = Date.newInstance(2022,8, 31);
+         
+        lstAPAIList =[Select Total_Payment__c,Agreed_Payment_Amount__c,Payment_Start_Date__c,Payment_End_Date__c,Payment_Item_Type__c,Payment_to_Creditors__c,Money_Mentor_Fee_Amount__c from Agreed_Payment_Amount_Itmen__c ];
+        
+        System.debug('lstAPAIList After query======>'+lstAPAIList);
+        
+        Map<Id, list<Agreed_Payment_Amount_Itmen__c>>agItemTestMap =new Map<Id, list<Agreed_Payment_Amount_Itmen__c>>();
+        agItemTestMap.Put(pe.Id,lstAPAIList);
+        
+        Map<String, string> NextDateAmt = CalculateMonthlyPayment.NextPaymentDueDate(exDate, pe,lstAPAIList);
+        Decimal retAmount = CalculateMonthlyPayment.CalculatePaymentExpected(exDate, pe,lstAPAIList);
+        Decimal exAmount = CalculateMonthlyPayment.CalculatePaymentExpectedCO(exDate, pe,agItemTestMap);
+        
+        List<Agreed_Payment_Amount_Itmen__c> AgItemTestList = CalculateMonthlyPayment.agreedInitialAmountItemList(exDate, lstAPAIList);
+      //  Decimal retAmt = cp.CalculatePaymentExpected(pe.Id, exDate);
+      //  Decimal exAmt = cp.CalculatePaymentExpectedCO(pe.Id, exDate);
+        Map<string,string>retMap = CalculateMonthlyPayment.CalculatePaymentExpectedPA(exDate, pe,lstAPAIList);
+        Decimal payRec = cp.CalculatePaymentReceived(pe.Id);
+        Map<Decimal,List<Payment_Received__c>>eftTestMap = cp.CalculateEFTPayment(pe,exDate,pRecList,lstAPAList,lstAPAIList);
+        Test.stopTest();
+    
+    }
+    
+     static testmethod void myTestMethod13(){
+        
+         Date payStartDate = Date.newInstance(2022, 1, 19);
+        
+        list<Agreed_Payment_Amount_Itmen__c> lstAPAIList = new list<Agreed_Payment_Amount_Itmen__c>();
+        List<Payment_Received__c>pRecList = new List<Payment_Received__c>();
+        list<Agreed_Payment_Amount__c>lstAPAList = new list<Agreed_Payment_Amount__c>();
+        List<Client_EFT__c>ceList = New List<Client_EFT__c>();
+         
+        pmdm__Program__c pr=new pmdm__Program__c();
+        pr.name = 'Orderly Payment of Debts';
+        pr.pmdm__Status__c='Active';
+        insert pr;
+        
+        pmdm__ProgramCohort__c pc=new pmdm__ProgramCohort__c();
+        pc.name = 'Calgary Cohort';
+        pc.pmdm__Status__c ='Active';
+        pc.pmdm__Program__c =pr.id;
+        
+        insert pc;
+        
+        Contact con =new Contact();
+        con.firstName = 'first';
+        con.LastName = 'last';
+        insert con;
+        
+        pmdm__ProgramEngagement__c pe = new pmdm__ProgramEngagement__c();    
+        
+        pe.Name='Test' ;
+        pe.pmdm__Stage__c='Active File'; 
+        pe.pmdm__Contact__c=con.id;
+        pe.Payment_Order__c='Electronic Funds Transfer (EFT)';
+        pe.Judicial_Centre__c='Calgary';
+        pe.pmdm__ProgramCohort__c=pc.id ;
+        pe.X1st_Payment_Day__c = '30';
+        pe.X2nd_Payment_Day__c = '31';
+        pe.Number_of_EFTs__c = 2;
+        pe.Disbursement_Fee__c = '10%';
+        pe.pmdm__Program__c=pr.id;
+        pe.Last_Disbursement_Date__c = Date.newInstance(2022, 3, 15);
+        pe.Total_Outstanding_Debt_Remaining__c = 460;
+        pe.Payment_Frequency__c ='Monthly';
+        pe.Payment_Start_Date__c = payStartDate;
+        
+        insert pe;
+        
+        Agreed_Payment_Amount__c lstAP = new Agreed_Payment_Amount__c();
+        
+        lstAP.Program_Engagement__c =pe.id;
+        lstAP.Active_Agreed_Payment_Amount__c = true;
+        lstAP.Contact__c =con.id;
+        
+        insert lstAP;
+        
+        lstAPAList.add(lstAP);
+        
+        Agreed_Payment_Amount_Itmen__c lstAPAI  = new Agreed_Payment_Amount_Itmen__c();
+        
+        lstAPAI.Total_Payment__c = 600;
+        lstAPAI.Agreed_Payment_Amount__c= lstAP.Id;
+        lstAPAI.Payment_Start_Date__c = Date.newInstance(2022,1, 1);
+        lstAPAI.Payment_End_Date__c = Date.newInstance(2022, 12,31);
+        lstAPAI.Payment_Item_Type__c = 'Initial Agreed Payment Amount';
+        lstAPAIList.add(lstAPAI);
+        
+        Agreed_Payment_Amount_Itmen__c lstPA = new Agreed_Payment_Amount_Itmen__c();
+        
+        lstPA.Total_Payment__c = 600;
+        lstPA.Agreed_Payment_Amount__c= lstAP.Id;
+        lstPA.Payment_Start_Date__c = Date.newInstance(2022,2, 1);
+        lstPA.Payment_End_Date__c = Date.newInstance(2022,9,31);
+        lstPA.Payment_Item_Type__c = 'Payment Agreement';
+        lstAPAIList.add(lstPA);
+        if(lstAPAIList!=Null && lstAPAIList.size()>0){
+            insert lstAPAIList;
+        }
+        
+        Payment_Received__c pRec = new  Payment_Received__c();
+        pRec.Program_Engagement__c = pe.id;
+        pRec.Amount__c = 500;
+        pRec.Client__c = con.Id;
+        pRec.DateReceived__c = Date.newInstance(2022,8,5);
+        pRec.Payment_Mode__c = 'EFT Payment';
+        pRec.Status__c = 'Received';
+        pRecList.add(pRec);
+        if(pRecList!=Null && pRecList.size()>0){
+            insert pRecList;
+        }
+         
+         Client_EFT__c ef = new Client_EFT__c();
+         
+         ef.Account_Number__c ='98765099';
+         ef.Routing_Number__c ='67980345';
+         ef.Contact__c =con.id;
+         ef.Program_Engagement__c = pe.id;
+         ceList.add(ef);
+         
+         if(ceList!=Null && ceList.size()>0){
+             insert ceList;
+         }
+        
+        Test.startTest();
+         
+         lstAPAIList =[Select Total_Payment__c,Agreed_Payment_Amount__c,Payment_Start_Date__c,Payment_End_Date__c,Payment_Item_Type__c,Payment_to_Creditors__c,Money_Mentor_Fee_Amount__c from Agreed_Payment_Amount_Itmen__c ];
+         
+         System.debug('lstAPAIList After query======>'+lstAPAIList);
+        
+        CalculateMonthlyPayment cp = new CalculateMonthlyPayment();
+        Date exDate = Date.newInstance(2022,4, 30);
+        
+        Map<Id, list<Agreed_Payment_Amount_Itmen__c>>agItemTestMap =new Map<Id, list<Agreed_Payment_Amount_Itmen__c>>();
+        agItemTestMap.Put(pe.Id,lstAPAIList);
+        
+        Map<String, string> NextDateAmt = CalculateMonthlyPayment.NextPaymentDueDate(exDate, pe,lstAPAIList);
+        Decimal retAmount = CalculateMonthlyPayment.CalculatePaymentExpected(exDate, pe,lstAPAIList);
+        Decimal exAmount = CalculateMonthlyPayment.CalculatePaymentExpectedCO(exDate, pe,agItemTestMap);
+        
+        List<Agreed_Payment_Amount_Itmen__c> AgItemTestList = CalculateMonthlyPayment.agreedInitialAmountItemList(exDate, lstAPAIList);
+      //  Decimal retAmt = cp.CalculatePaymentExpected(pe.Id, exDate);
+      //  Decimal exAmt = cp.CalculatePaymentExpectedCO(pe.Id, exDate);
+        Map<string,string>retMap = CalculateMonthlyPayment.CalculatePaymentExpectedPA(exDate, pe,lstAPAIList);
+        Decimal payRec = cp.CalculatePaymentReceived(pe.Id);
+        Map<Decimal,List<Payment_Received__c>>eftTestMap = cp.CalculateEFTPayment(pe,exDate,pRecList, lstAPAList,lstAPAIList);
+        Date exDate1 = Date.newInstance(2022,2,28);
+         Map<Decimal,List<Payment_Received__c>>eftTestMap1 = cp.CalculateEFTPayment(pe,exDate1,pRecList,lstAPAList,lstAPAIList);
+         Test.stopTest();
+    
+    }
+     static testmethod void myTestMethod14(){
+        
+         Date payStartDate = Date.newInstance(2022, 1, 19);
+        
+        list<Agreed_Payment_Amount_Itmen__c> lstAPAIList = new list<Agreed_Payment_Amount_Itmen__c>();
+        List<Payment_Received__c>pRecList = new List<Payment_Received__c>();
+        list<Agreed_Payment_Amount__c>lstAPAList = new list<Agreed_Payment_Amount__c>();
+        List<Client_EFT__c>ceList = New List<Client_EFT__c>();
+
+        pmdm__Program__c pr=new pmdm__Program__c();
+        pr.name = 'Orderly Payment of Debts';
+        pr.pmdm__Status__c='Active';
+        insert pr;
+        
+        pmdm__ProgramCohort__c pc=new pmdm__ProgramCohort__c();
+        pc.name = 'Calgary Cohort';
+        pc.pmdm__Status__c ='Active';
+        pc.pmdm__Program__c =pr.id;
+        
+        insert pc;
+        
+        Contact con =new Contact();
+        con.firstName = 'first';
+        con.LastName = 'last';
+        insert con;
+        
+        pmdm__ProgramEngagement__c pe = new pmdm__ProgramEngagement__c();    
+        
+        pe.Name='Test' ;
+        pe.pmdm__Stage__c='Active File'; 
+        pe.pmdm__Contact__c=con.id;
+        pe.Payment_Order__c='Electronic Funds Transfer (EFT)';
+        pe.Judicial_Centre__c='Calgary';
+        pe.pmdm__ProgramCohort__c=pc.id ;
+        pe.Last_Disbursement_Date__c = Date.newInstance(2022,7, 19);
+      //  pe.X1st_Payment_Day__c = '30';
+        pe.X2nd_Payment_Day__c = '19';
+        pe.pmdm__Program__c=pr.id;
+        pe.Disbursement_Fee__c ='No Fee';
+        pe.Number_of_EFTs__c = 2;
+        pe.Total_Outstanding_Debt_Remaining__c =890;
+        pe.Payment_Frequency__c ='Monthly';
+        pe.Payment_Start_Date__c = payStartDate;
+        
+        insert pe;
+        
+        Agreed_Payment_Amount__c lstAP = new Agreed_Payment_Amount__c();
+        
+        lstAP.Program_Engagement__c =pe.id;
+        lstAP.Active_Agreed_Payment_Amount__c = true;
+        lstAP.Contact__c =con.id;
+        
+        insert lstAP;
+        
+        lstAPAList.add(lstAP);
+        
+        Agreed_Payment_Amount_Itmen__c lstAPAI  = new Agreed_Payment_Amount_Itmen__c();
+        
+        lstAPAI.Total_Payment__c = 600;
+        lstAPAI.Agreed_Payment_Amount__c= lstAP.Id;
+        lstAPAI.Payment_Start_Date__c = Date.newInstance(2022,1, 1);
+        lstAPAI.Payment_End_Date__c = Date.newInstance(2022, 12,31);
+        lstAPAI.Payment_Item_Type__c = 'Initial Agreed Payment Amount';
+        lstAPAIList.add(lstAPAI);
+        
+        Agreed_Payment_Amount_Itmen__c lstPA = new Agreed_Payment_Amount_Itmen__c();
+        
+        lstPA.Total_Payment__c = 600;
+        lstPA.Agreed_Payment_Amount__c= lstAP.Id;
+        lstPA.Payment_Start_Date__c = Date.newInstance(2022,2, 1);
+        lstPA.Payment_End_Date__c = Date.newInstance(2022,9,31);
+        lstPA.Payment_Item_Type__c = 'Payment Agreement';
+        lstAPAIList.add(lstPA);
+        if(lstAPAIList!=Null && lstAPAIList.size()>0){
+            insert lstAPAIList;
+        }
+        
+        Payment_Received__c pRec = new  Payment_Received__c();
+        pRec.Program_Engagement__c = pe.id;
+        pRec.Amount__c = 500;
+        pRec.Client__c = con.Id;
+        pRec.DateReceived__c = Date.newInstance(2022,8,5);
+        pRec.Payment_Mode__c = 'EFT Payment';
+        pRec.Status__c = 'Received';
+        pRecList.add(pRec);
+        if(pRecList!=Null && pRecList.size()>0){
+            insert pRecList;
+        }
+         Client_EFT__c ef = new Client_EFT__c();
+         
+         ef.Account_Number__c ='987650890';
+         ef.Routing_Number__c ='67980345';
+         ef.Contact__c =con.id;
+         ef.Program_Engagement__c = pe.id;
+         ceList.add(ef);
+         
+         if(ceList!=Null && ceList.size()>0){
+             insert ceList;
+         }
+        
+        Test.startTest();
+        
+        CalculateMonthlyPayment cp = new CalculateMonthlyPayment();
+        Date exDate = Date.newInstance(2022,8, 19);
+        
+         lstAPAIList =[Select Total_Payment__c,Agreed_Payment_Amount__c,Payment_Start_Date__c,Payment_End_Date__c,Payment_Item_Type__c,Payment_to_Creditors__c,Money_Mentor_Fee_Amount__c from Agreed_Payment_Amount_Itmen__c ];
+         
+         System.debug('lstAPAIList After query======>'+lstAPAIList);
+        
+        Map<Id, list<Agreed_Payment_Amount_Itmen__c>>agItemTestMap =new Map<Id, list<Agreed_Payment_Amount_Itmen__c>>();
+        agItemTestMap.Put(pe.Id,lstAPAIList);
+        
+        Map<String, string> NextDateAmt = CalculateMonthlyPayment.NextPaymentDueDate(exDate, pe,lstAPAIList);
+        Decimal retAmount = CalculateMonthlyPayment.CalculatePaymentExpected(exDate, pe,lstAPAIList);
+        Decimal exAmount = CalculateMonthlyPayment.CalculatePaymentExpectedCO(exDate, pe,agItemTestMap);
+        
+        List<Agreed_Payment_Amount_Itmen__c> AgItemTestList = CalculateMonthlyPayment.agreedInitialAmountItemList(exDate, lstAPAIList);
+      //  Decimal retAmt = cp.CalculatePaymentExpected(pe.Id, exDate);
+      //  Decimal exAmt = cp.CalculatePaymentExpectedCO(pe.Id, exDate);
+        Map<string,string>retMap = CalculateMonthlyPayment.CalculatePaymentExpectedPA(exDate, pe,lstAPAIList);
+        Decimal payRec = cp.CalculatePaymentReceived(pe.Id);
+        Map<Decimal,List<Payment_Received__c>>eftTestMap = cp.CalculateEFTPayment(pe,exDate,pRecList,lstAPAList,lstAPAIList);
+        Test.stopTest();
+    
+    }
+     static testmethod void myTestMethod15(){
+        
+         Date payStartDate = Date.newInstance(2022, 1, 19);
+        
+        list<Agreed_Payment_Amount_Itmen__c> lstAPAIList = new list<Agreed_Payment_Amount_Itmen__c>();
+        List<Payment_Received__c>pRecList = new List<Payment_Received__c>();
+        list<Agreed_Payment_Amount__c>lstAPAList = new list<Agreed_Payment_Amount__c>();
+        
+        pmdm__Program__c pr=new pmdm__Program__c();
+        pr.name = 'Orderly Payment of Debts';
+        pr.pmdm__Status__c='Active';
+        insert pr;
+        
+        pmdm__ProgramCohort__c pc=new pmdm__ProgramCohort__c();
+        pc.name = 'Calgary Cohort';
+        pc.pmdm__Status__c ='Active';
+        pc.pmdm__Program__c =pr.id;
+        
+        insert pc;
+        
+        Contact con =new Contact();
+        con.firstName = 'first';
+        con.LastName = 'last';
+        insert con;
+        
+        pmdm__ProgramEngagement__c pe = new pmdm__ProgramEngagement__c();    
+        
+        pe.Name='Test' ;
+        pe.pmdm__Stage__c='Active File'; 
+        pe.pmdm__Contact__c=con.id;
+        pe.Payment_Order__c='Electronic Funds Transfer (EFT)';
+        pe.Judicial_Centre__c='Calgary';
+        pe.pmdm__ProgramCohort__c=pc.id ;
+        pe.Disbursement_Fee__c ='10%';
+        pe.X1st_Payment_Day__c = '19';
+       // pe.X2nd_Payment_Day__c = '31';
+        pe.pmdm__Program__c=pr.id;
+        pe.Last_Disbursement_Date__c = Date.newInstance(2022,8, 5);
+        pe.Number_of_EFTs__c = 2;
+        pe.Total_Outstanding_Debt_Remaining__c = 10000;
+        pe.Payment_Frequency__c ='Monthly';
+        pe.Payment_Start_Date__c = payStartDate;
+        
+        insert pe;
+        
+        Agreed_Payment_Amount__c lstAP = new Agreed_Payment_Amount__c();
+        
+        lstAP.Program_Engagement__c =pe.id;
+        lstAP.Active_Agreed_Payment_Amount__c = true;
+        lstAP.Contact__c =con.id;
+        
+        insert lstAP;
+        
+        lstAPAList.add(lstAP);
+        
+        Agreed_Payment_Amount_Itmen__c lstAPAI  = new Agreed_Payment_Amount_Itmen__c();
+        
+        lstAPAI.Total_Payment__c = 600;
+        lstAPAI.Agreed_Payment_Amount__c= lstAP.Id;
+        lstAPAI.Payment_Start_Date__c = Date.newInstance(2022,1, 1);
+        lstAPAI.Payment_End_Date__c = Date.newInstance(2022, 12,31);
+        lstAPAI.Payment_Item_Type__c = 'Initial Agreed Payment Amount';
+        lstAPAIList.add(lstAPAI);
+        
+        Agreed_Payment_Amount_Itmen__c lstPA = new Agreed_Payment_Amount_Itmen__c();
+        
+        lstPA.Total_Payment__c = 600;
+        lstPA.Agreed_Payment_Amount__c= lstAP.Id;
+        lstPA.Payment_Start_Date__c = Date.newInstance(2022,2, 1);
+        lstPA.Payment_End_Date__c = Date.newInstance(2022,9,31);
+        lstPA.Payment_Item_Type__c = 'Payment Agreement';
+        lstAPAIList.add(lstPA);
+        if(lstAPAIList!=Null && lstAPAIList.size()>0){
+            insert lstAPAIList;
+        }
+        
+        Payment_Received__c pRec = new  Payment_Received__c();
+        pRec.Program_Engagement__c = pe.id;
+        pRec.Amount__c = 500;
+        pRec.Client__c = con.Id;
+        pRec.DateReceived__c = Date.newInstance(2022,8,5);
+        pRec.Payment_Mode__c = 'EFT Payment';
+        pRec.Status__c = 'Received';
+        pRecList.add(pRec);
+        if(pRecList!=Null && pRecList.size()>0){
+            insert pRecList;
+        }
+        
+        Test.startTest();
+        
+        CalculateMonthlyPayment cp = new CalculateMonthlyPayment();
+        Date exDate = Date.newInstance(2022,8, 19);
+         
+         lstAPAIList =[Select Total_Payment__c,Agreed_Payment_Amount__c,Payment_Start_Date__c,Payment_End_Date__c,Payment_Item_Type__c,Payment_to_Creditors__c,Money_Mentor_Fee_Amount__c from Agreed_Payment_Amount_Itmen__c ];
+         
+         System.debug('lstAPAIList After query======>'+lstAPAIList);
+        
+        Map<Id, list<Agreed_Payment_Amount_Itmen__c>>agItemTestMap =new Map<Id, list<Agreed_Payment_Amount_Itmen__c>>();
+        agItemTestMap.Put(pe.Id,lstAPAIList);
+        
+        Map<String, string> NextDateAmt = CalculateMonthlyPayment.NextPaymentDueDate(exDate, pe,lstAPAIList);
+        Decimal retAmount = CalculateMonthlyPayment.CalculatePaymentExpected(exDate, pe,lstAPAIList);
+        Decimal exAmount = CalculateMonthlyPayment.CalculatePaymentExpectedCO(exDate, pe,agItemTestMap);
+        
+        List<Agreed_Payment_Amount_Itmen__c> AgItemTestList = CalculateMonthlyPayment.agreedInitialAmountItemList(exDate, lstAPAIList);
+      //  Decimal retAmt = cp.CalculatePaymentExpected(pe.Id, exDate);
+      //  Decimal exAmt = cp.CalculatePaymentExpectedCO(pe.Id, exDate);
+        Map<string,string>retMap = CalculateMonthlyPayment.CalculatePaymentExpectedPA(exDate, pe,lstAPAIList);
+        Decimal payRec = cp.CalculatePaymentReceived(pe.Id);
+        Map<Decimal,List<Payment_Received__c>>eftTestMap = cp.CalculateEFTPayment(pe,exDate,pRecList,lstAPAList,lstAPAIList);
+        Test.stopTest();
+    
+    }
+    static testmethod void myTestMethod2(){
+        
+          Date payStartDate = Date.newInstance(2022, 1, 19);
+        
+        list<Agreed_Payment_Amount_Itmen__c> lstAPAIList = new list<Agreed_Payment_Amount_Itmen__c>();
+        List<Payment_Received__c>pRecList = new List<Payment_Received__c>();
+        list<Agreed_Payment_Amount__c>lstAPAList = new list<Agreed_Payment_Amount__c>();
+
+        pmdm__Program__c pr=new pmdm__Program__c();
+        pr.name = 'Orderly Payment of Debts';
+        pr.pmdm__Status__c='Active';
+        insert pr;
+        
+        pmdm__ProgramCohort__c pc=new pmdm__ProgramCohort__c();
+        pc.name = 'Calgary Cohort';
+        pc.pmdm__Status__c ='Active';
+        pc.pmdm__Program__c =pr.id;
+        
+        insert pc;
+        
+        Contact con =new Contact();
+        con.firstName = 'first';
+        con.LastName = 'last';
+        insert con;
+        
+        pmdm__ProgramEngagement__c pe = new pmdm__ProgramEngagement__c();    
+        
+        pe.Name='Test' ;
+        pe.pmdm__Stage__c='Active File'; 
+        pe.pmdm__Contact__c=con.id;
+        pe.Payment_Order__c='Electronic Funds Transfer (EFT)';
+        pe.Judicial_Centre__c='Calgary';
+        pe.pmdm__ProgramCohort__c=pc.id ;
+        pe.pmdm__Program__c=pr.id;
+        pe.X1st_Payment_Day__c = '30';
+        pe.X2nd_Payment_Day__c ='30';
+        pe.Number_of_EFTs__c = 2;
+        pe.Total_Outstanding_Debt_Remaining__c = 10000;
+        pe.Payment_Frequency__c ='Bi-Weekly';
+        pe.Bi_Weekly_Group__c ='A';
+        pe.Payment_Start_Date__c = payStartDate;
+        
+        insert pe;
+        
+        Agreed_Payment_Amount__c lstAP = new Agreed_Payment_Amount__c();
+        
+        lstAP.Program_Engagement__c =pe.id;
+        lstAP.Active_Agreed_Payment_Amount__c = true;
+        lstAP.Contact__c =con.id;
+        
+        insert lstAP;
+        lstAPAList.add(lstAP);
+        
+        Agreed_Payment_Amount_Itmen__c lstAPAI  = new Agreed_Payment_Amount_Itmen__c();
+        
+        lstAPAI.Total_Payment__c = 600;
+        lstAPAI.Agreed_Payment_Amount__c= lstAP.Id;
+        lstAPAI.Payment_Start_Date__c = Date.newInstance(2022,1, 1);
+        lstAPAI.Payment_End_Date__c = Date.newInstance(2022, 12,31);
+        lstAPAI.Payment_Item_Type__c = 'Initial Agreed Payment Amount';
+        lstAPAIList.add(lstAPAI);
+        
+        
+          
+        Agreed_Payment_Amount_Itmen__c lstPA = new Agreed_Payment_Amount_Itmen__c();
+        
+        lstPA.Total_Payment__c = 600;
+        lstPA.Agreed_Payment_Amount__c= lstAP.Id;
+        lstPA.Payment_Start_Date__c = Date.newInstance(2022,2, 1);
+        lstPA.Payment_End_Date__c = Date.newInstance(2022,8,31);
+        lstPA.Payment_Item_Type__c = 'Payment Agreement';
+        lstAPAIList.add(lstPA);
+        
+         if(lstAPAIList!=Null && lstAPAIList.size()>0){
+            insert lstAPAIList;
+        }
+        
+        Payment_Received__c pRec = new  Payment_Received__c();
+        pRec.Client__c = con.id;
+        pRec.Program_Engagement__c = pe.id;
+        pRec.Amount__c = 500;
+        pRec.DateReceived__c = Date.newInstance(2022,8,5);
+        pRec.Payment_Mode__c = 'EFT Payment';
+        pRec.Status__c = 'Received';
+        
+         pRecList.add(pRec);
+        if(pRecList!=Null && pRecList.size()>0){
+            insert pRecList;
+        }
+        
+        Test.startTest();
+        
+        CalculateMonthlyPayment cp = new CalculateMonthlyPayment();
+        Date exDate = Date.newInstance(2022,8, 19);
+        
+        lstAPAIList =[Select Total_Payment__c,Agreed_Payment_Amount__c,Payment_Start_Date__c,Payment_End_Date__c,Payment_Item_Type__c,Payment_to_Creditors__c,Money_Mentor_Fee_Amount__c from Agreed_Payment_Amount_Itmen__c ];
+         
+         System.debug('lstAPAIList After query======>'+lstAPAIList);
+        
+        Map<Id, list<Agreed_Payment_Amount_Itmen__c>>agItemTestMap =new Map<Id, list<Agreed_Payment_Amount_Itmen__c>>();
+        agItemTestMap.Put(pe.Id,lstAPAIList);
+        
+        Map<String, string> NextDateAmt = CalculateMonthlyPayment.NextPaymentDueDate(exDate, pe,lstAPAIList);
+        Decimal retAmount = CalculateMonthlyPayment.CalculatePaymentExpected(exDate, pe,lstAPAIList);
+        Decimal exAmount = CalculateMonthlyPayment.CalculatePaymentExpectedCO(exDate, pe,agItemTestMap);
+        
+        List<Agreed_Payment_Amount_Itmen__c> AgItemTestList = CalculateMonthlyPayment.agreedInitialAmountItemList(exDate, lstAPAIList);
+      //  Decimal retAmt = cp.CalculatePaymentExpected(pe.Id, exDate);
+      //  Decimal exAmt = cp.CalculatePaymentExpectedCO(pe.Id, exDate);
+        Map<string,string>retMap = CalculateMonthlyPayment.CalculatePaymentExpectedPA(exDate, pe,lstAPAIList);
+        Decimal payRec = cp.CalculatePaymentReceived(pe.Id);
+        Map<Decimal,List<Payment_Received__c>>eftTestMap = cp.CalculateEFTPayment(pe,exDate,pRecList, lstAPAList,lstAPAIList);
+        Test.stopTest();
+    
+       
+    }
+     static testmethod void myTestMethod3(){
+         
+           Date payStartDate = Date.newInstance(2022, 1, 1);
+        
+        list<Agreed_Payment_Amount_Itmen__c> lstAPAIList = new list<Agreed_Payment_Amount_Itmen__c>();
+        List<Payment_Received__c>pRecList = new List<Payment_Received__c>();
+        list<Agreed_Payment_Amount__c>lstAPAList = new list<Agreed_Payment_Amount__c>();
+         
+        pmdm__Program__c pr=new pmdm__Program__c();
+        pr.name = 'Orderly Payment of Debts';
+        pr.pmdm__Status__c='Active';
+        insert pr;
+        
+        pmdm__ProgramCohort__c pc=new pmdm__ProgramCohort__c();
+        pc.name = 'Calgary Cohort';
+        pc.pmdm__Status__c ='Active';
+        pc.pmdm__Program__c =pr.id;
+        
+        insert pc;
+        
+        Contact con =new Contact();
+        con.firstName = 'first';
+        con.LastName = 'last';
+        insert con;
+        
+        pmdm__ProgramEngagement__c pe = new pmdm__ProgramEngagement__c();    
+        
+        pe.Name='Test' ;
+        pe.pmdm__Stage__c='Active File'; 
+        pe.pmdm__Contact__c=con.id;
+        pe.Payment_Order__c='Electronic Funds Transfer (EFT)';
+        pe.Judicial_Centre__c='Calgary';
+        pe.pmdm__ProgramCohort__c=pc.id ;
+        pe.pmdm__Program__c=pr.id;
+        pe.X1st_Payment_Day__c = '10';
+        pe.Number_of_EFTs__c = 2;
+        pe.Total_Outstanding_Debt_Remaining__c = 10000;
+        pe.Payment_Frequency__c ='Bi-Weekly';
+        pe.Bi_Weekly_Group__c = 'B';
+        pe.Payment_Start_Date__c = payStartDate;
+        
+        insert pe;
+        
+        Agreed_Payment_Amount__c lstAP = new Agreed_Payment_Amount__c();
+        
+        lstAP.Program_Engagement__c =pe.id;
+        lstAP.Active_Agreed_Payment_Amount__c = true;
+        lstAP.Contact__c =con.id;
+        
+        insert lstAP;
+        lstAPAList.add(lstAP);
+ 
+        
+        Agreed_Payment_Amount_Itmen__c lstAPAI  = new Agreed_Payment_Amount_Itmen__c();
+        
+        lstAPAI.Total_Payment__c = 600;
+        lstAPAI.Agreed_Payment_Amount__c= lstAP.Id;
+        lstAPAI.Payment_Start_Date__c = Date.newInstance(2022,1, 1);
+        lstAPAI.Payment_End_Date__c = Date.newInstance(2022, 12,31);
+        lstAPAI.Payment_Item_Type__c = 'Initial Agreed Payment Amount';
+        lstAPAIList.add(lstAPAI);
+              
+         Agreed_Payment_Amount_Itmen__c lstPA = new Agreed_Payment_Amount_Itmen__c();
+         
+         lstPA.Total_Payment__c = 600;
+         lstPA.Agreed_Payment_Amount__c= lstAP.Id;
+         lstPA.Payment_Start_Date__c = Date.newInstance(2022,2, 1);
+         lstPA.Payment_End_Date__c = Date.newInstance(2022,9,31);
+         lstPA.Payment_Item_Type__c = 'Payment Agreement';
+         lstAPAIList.add(lstPA);
+         
+          if(lstAPAIList!=Null && lstAPAIList.size()>0){
+            insert lstAPAIList;
+        }
+        
+        Payment_Received__c pRec = new  Payment_Received__c();
+        pRec.Program_Engagement__c = pe.id;
+        pRec.Amount__c = 500;
+        pRec.DateReceived__c = Date.newInstance(2022,8,5);
+        pRec.Payment_Mode__c = 'EFT Payment';
+        pRec.Status__c = 'Received';
+         
+         if(pRecList!=Null && pRecList.size()>0){
+            insert pRecList;
+        }
+         Test.startTest();
+        
+        CalculateMonthlyPayment cp = new CalculateMonthlyPayment();
+        Date exDate = Date.newInstance(2022,8, 26);
+         
+         lstAPAIList =[Select Total_Payment__c,Agreed_Payment_Amount__c,Payment_Start_Date__c,Payment_End_Date__c,Payment_Item_Type__c,Payment_to_Creditors__c,Money_Mentor_Fee_Amount__c from Agreed_Payment_Amount_Itmen__c ];
+         
+         System.debug('lstAPAIList After query======>'+lstAPAIList);
+        
+        Map<Id, list<Agreed_Payment_Amount_Itmen__c>>agItemTestMap =new Map<Id, list<Agreed_Payment_Amount_Itmen__c>>();
+        agItemTestMap.Put(pe.Id,lstAPAIList);
+        
+        Map<String, string> NextDateAmt = CalculateMonthlyPayment.NextPaymentDueDate(exDate, pe,lstAPAIList);
+        Decimal retAmount = CalculateMonthlyPayment.CalculatePaymentExpected(exDate, pe,lstAPAIList);
+        Decimal exAmount = CalculateMonthlyPayment.CalculatePaymentExpectedCO(exDate, pe,agItemTestMap);
+        
+        List<Agreed_Payment_Amount_Itmen__c> AgItemTestList = CalculateMonthlyPayment.agreedInitialAmountItemList(exDate, lstAPAIList);
+      //  Decimal retAmt = cp.CalculatePaymentExpected(pe.Id, exDate);
+      //  Decimal exAmt = cp.CalculatePaymentExpectedCO(pe.Id, exDate);
+        Map<string,string>retMap = CalculateMonthlyPayment.CalculatePaymentExpectedPA(exDate, pe,lstAPAIList);
+        Decimal payRec = cp.CalculatePaymentReceived(pe.Id);
+        Map<Decimal,List<Payment_Received__c>>eftTestMap = cp.CalculateEFTPayment(pe,exDate,pRecList, lstAPAList,lstAPAIList);
+        Test.stopTest();
+    
+    }
+    
+    static testmethod void myTestMethod4(){
+         
+           Date payStartDate = Date.newInstance(2022, 1, 1);
+        
+        list<Agreed_Payment_Amount_Itmen__c> lstAPAIList = new list<Agreed_Payment_Amount_Itmen__c>();
+        List<Payment_Received__c>pRecList = new List<Payment_Received__c>();
+        list<Agreed_Payment_Amount__c>lstAPAList = new list<Agreed_Payment_Amount__c>();
+        
+        pmdm__Program__c pr=new pmdm__Program__c();
+        pr.name = 'Orderly Payment of Debts';
+        pr.pmdm__Status__c='Active';
+        insert pr;
+        
+        pmdm__ProgramCohort__c pc=new pmdm__ProgramCohort__c();
+        pc.name = 'Calgary Cohort';
+        pc.pmdm__Status__c ='Active';
+        pc.pmdm__Program__c =pr.id;
+        
+        insert pc;
+        
+        Contact con =new Contact();
+        con.firstName = 'first';
+        con.LastName = 'last';
+        insert con;
+        
+        pmdm__ProgramEngagement__c pe = new pmdm__ProgramEngagement__c();    
+        
+        pe.Name='Test' ;
+        pe.pmdm__Stage__c='Active File'; 
+        pe.pmdm__Contact__c=con.id;
+        pe.Payment_Order__c='Electronic Funds Transfer (EFT)';
+        pe.Judicial_Centre__c='Calgary';
+        pe.pmdm__ProgramCohort__c=pc.id ;
+        pe.Number_of_EFTs__c = 2;
+        pe.pmdm__Program__c=pr.id;
+        pe.X2nd_Payment_Day__c = '25';
+        pe.Total_Outstanding_Debt_Remaining__c = 10000;
+        pe.Payment_Frequency__c ='Monthly';
+     //   pe.Bi_Weekly_Group__c = 'B';
+        pe.Payment_Start_Date__c = payStartDate;
+        
+        insert pe;
+        
+        Agreed_Payment_Amount__c lstAP = new Agreed_Payment_Amount__c();
+        
+        lstAP.Program_Engagement__c =pe.id;
+        lstAP.Active_Agreed_Payment_Amount__c = False;
+        lstAP.Contact__c =con.id;
+        
+        insert lstAP;
+        lstAPAList.add(lstAP);
+        Agreed_Payment_Amount__c lstAP1= new Agreed_Payment_Amount__c();
+        
+        lstAP1.Program_Engagement__c =pe.id;
+        lstAP1.Active_Agreed_Payment_Amount__c = False;
+        lstAP1.Contact__c =con.id;
+        
+        insert lstAP1;
+        
+        Agreed_Payment_Amount_Itmen__c lstAPAI  = new Agreed_Payment_Amount_Itmen__c();
+        
+        lstAPAI.Total_Payment__c = 600;
+        lstAPAI.Agreed_Payment_Amount__c= lstAP.Id;
+        lstAPAI.Payment_Start_Date__c = Date.newInstance(2022,1, 1);
+        lstAPAI.Payment_End_Date__c = Date.newInstance(2022, 12,31);
+        lstAPAI.Payment_Item_Type__c = 'Initial Agreed Payment Amount';
+        lstAPAIList.add(lstAPAI);
+              
+         Agreed_Payment_Amount_Itmen__c lstPA = new Agreed_Payment_Amount_Itmen__c();
+         
+         lstPA.Total_Payment__c = 600;
+         lstPA.Agreed_Payment_Amount__c= lstAP.Id;
+         lstPA.Payment_Start_Date__c = Date.newInstance(2022,2, 1);
+         lstPA.Payment_End_Date__c = Date.newInstance(2022,9,31);
+         lstPA.Payment_Item_Type__c = 'Payment Agreement';
+         lstAPAIList.add(lstPA);
+         
+          if(lstAPAIList!=Null && lstAPAIList.size()>0){
+            insert lstAPAIList;
+        }
+        
+        Payment_Received__c pRec = new  Payment_Received__c();
+        pRec.Program_Engagement__c = pe.id;
+        pRec.Amount__c = 500;
+        pRec.DateReceived__c = Date.newInstance(2022,8,5);
+        pRec.Payment_Mode__c = 'EFT Payment';
+        pRec.Status__c = 'Received';
+         
+         if(pRecList!=Null && pRecList.size()>0){
+            insert pRecList;
+        }
+         Test.startTest();
+        
+        CalculateMonthlyPayment cp = new CalculateMonthlyPayment();
+        Date exDate = Date.newInstance(2022,8, 26);
+        
+        lstAPAIList =[Select Total_Payment__c,Agreed_Payment_Amount__c,Payment_Start_Date__c,Payment_End_Date__c,Payment_Item_Type__c,Payment_to_Creditors__c,Money_Mentor_Fee_Amount__c from Agreed_Payment_Amount_Itmen__c ];
+         
+         System.debug('lstAPAIList After query======>'+lstAPAIList);
+        
+        Map<Id, list<Agreed_Payment_Amount_Itmen__c>>agItemTestMap =new Map<Id, list<Agreed_Payment_Amount_Itmen__c>>();
+        agItemTestMap.Put(pe.Id,lstAPAIList);
+        
+        Map<String, string> NextDateAmt = CalculateMonthlyPayment.NextPaymentDueDate(exDate, pe,lstAPAIList);
+        Decimal retAmount = CalculateMonthlyPayment.CalculatePaymentExpected(exDate, pe,lstAPAIList);
+        Decimal exAmount = CalculateMonthlyPayment.CalculatePaymentExpectedCO(exDate, pe,agItemTestMap);
+        
+        List<Agreed_Payment_Amount_Itmen__c> AgItemTestList = CalculateMonthlyPayment.agreedInitialAmountItemList(exDate, lstAPAIList);
+      //  Decimal retAmt = cp.CalculatePaymentExpected(pe.Id, exDate);
+       // Decimal exAmt = cp.CalculatePaymentExpectedCO(pe.Id, exDate);
+        Map<string,string>retMap = CalculateMonthlyPayment.CalculatePaymentExpectedPA(exDate, pe,lstAPAIList);
+        Decimal payRec = cp.CalculatePaymentReceived(pe.Id);
+        Map<Decimal,List<Payment_Received__c>>eftTestMap = cp.CalculateEFTPayment(pe,exDate,pRecList, lstAPAList,lstAPAIList);
+        Test.stopTest();
+    
+    }
+    
+    static testmethod void myTestMethod5(){
+         
+           Date payStartDate = Date.newInstance(2022, 1, 1);
+        
+        list<Agreed_Payment_Amount_Itmen__c> lstAPAIList = new list<Agreed_Payment_Amount_Itmen__c>();
+        List<Payment_Received__c>pRecList = new List<Payment_Received__c>();
+        list<Agreed_Payment_Amount__c>lstAPAList = new list<Agreed_Payment_Amount__c>();
+        
+        pmdm__Program__c pr=new pmdm__Program__c();
+        pr.name = 'Orderly Payment of Debts';
+        pr.pmdm__Status__c='Active';
+        insert pr;
+        
+        pmdm__ProgramCohort__c pc=new pmdm__ProgramCohort__c();
+        pc.name = 'Calgary Cohort';
+        pc.pmdm__Status__c ='Active';
+        pc.pmdm__Program__c =pr.id;
+        
+        insert pc;
+        
+        Contact con =new Contact();
+        con.firstName = 'first';
+        con.LastName = 'last';
+        insert con;
+        
+        pmdm__ProgramEngagement__c pe = new pmdm__ProgramEngagement__c();    
+        
+        pe.Name='Test' ;
+        pe.pmdm__Stage__c='Active File'; 
+        pe.pmdm__Contact__c=con.id;
+        pe.Payment_Order__c='Electronic Funds Transfer (EFT)';
+        pe.Judicial_Centre__c='Calgary';
+        pe.pmdm__ProgramCohort__c=pc.id ;
+        pe.pmdm__Program__c=pr.id;
+        pe.X1st_Payment_Day__c ='5';
+        pe.X2nd_Payment_Day__c ='25';
+        pe.Number_of_EFTs__c = 2;
+        pe.Total_Outstanding_Debt_Remaining__c = 10000;
+        pe.Payment_Frequency__c ='Bi-Weekly';
+        pe.Bi_Weekly_Group__c = 'A';
+        pe.Payment_Start_Date__c = payStartDate;
+        
+        insert pe;
+        
+        Agreed_Payment_Amount__c lstAP = new Agreed_Payment_Amount__c();
+        
+        lstAP.Program_Engagement__c =pe.id;
+        lstAP.Active_Agreed_Payment_Amount__c = True;
+        lstAP.Contact__c =con.id;
+        
+        insert lstAP;
+        lstAPAList.add(lstAP);
+      
+        
+        Agreed_Payment_Amount_Itmen__c lstAPAI  = new Agreed_Payment_Amount_Itmen__c();
+        
+        lstAPAI.Total_Payment__c = 600;
+        lstAPAI.Agreed_Payment_Amount__c= lstAP.Id;
+        lstAPAI.Payment_Start_Date__c = Date.newInstance(2022,9, 1);
+        lstAPAI.Payment_End_Date__c = Date.newInstance(2022, 12,31);
+        lstAPAI.Payment_Item_Type__c = 'Initial Agreed Payment Amount';
+        lstAPAIList.add(lstAPAI);
+              
+         Agreed_Payment_Amount_Itmen__c lstPA = new Agreed_Payment_Amount_Itmen__c();
+         
+         lstPA.Total_Payment__c = 600;
+         lstPA.Agreed_Payment_Amount__c= lstAP.Id;
+         lstPA.Payment_Start_Date__c = Date.newInstance(2022,9, 1);
+         lstPA.Payment_End_Date__c = Date.newInstance(2022,9,31);
+         lstPA.Payment_Item_Type__c = 'Payment Agreement';
+         lstAPAIList.add(lstPA);
+         
+          if(lstAPAIList!=Null && lstAPAIList.size()>0){
+            insert lstAPAIList;
+        }
+        
+        Payment_Received__c pRec = new  Payment_Received__c();
+        pRec.Program_Engagement__c = pe.id;
+        pRec.Amount__c = 500;
+        pRec.DateReceived__c = Date.newInstance(2022,8,5);
+        pRec.Payment_Mode__c = 'EFT Payment';
+        pRec.Status__c = 'Received';
+         
+         if(pRecList!=Null && pRecList.size()>0){
+            insert pRecList;
+        }
+         Test.startTest();
+        
+        CalculateMonthlyPayment cp = new CalculateMonthlyPayment();
+        
+        Date exDate = Date.newInstance(2022,8, 5);
+        Date exDate1 = Date.newInstance(2022,8, 25);
+        
+        lstAPAIList =[Select Total_Payment__c,Agreed_Payment_Amount__c,Payment_Start_Date__c,Payment_End_Date__c,Payment_Item_Type__c,Payment_to_Creditors__c,Money_Mentor_Fee_Amount__c from Agreed_Payment_Amount_Itmen__c ];
+         
+         System.debug('lstAPAIList After query======>'+lstAPAIList);
+        
+        Map<Id, list<Agreed_Payment_Amount_Itmen__c>>agItemTestMap =new Map<Id, list<Agreed_Payment_Amount_Itmen__c>>();
+        agItemTestMap.Put(pe.Id,lstAPAIList);
+        
+        Map<String, string> NextDateAmt = CalculateMonthlyPayment.NextPaymentDueDate(exDate, pe,lstAPAIList);
+        Decimal retAmount = CalculateMonthlyPayment.CalculatePaymentExpected(exDate, pe,lstAPAIList);
+        Decimal exAmount = CalculateMonthlyPayment.CalculatePaymentExpectedCO(exDate, pe,agItemTestMap);
+        
+        List<Agreed_Payment_Amount_Itmen__c> AgItemTestList = CalculateMonthlyPayment.agreedInitialAmountItemList(exDate, lstAPAIList);
+     
+      // Decimal retAmt = cp.CalculatePaymentExpected(pe.Id, exDate);
+      //  Decimal exAmt = cp.CalculatePaymentExpectedCO(pe.Id, exDate);
+        
+        Map<string,string>retMap = CalculateMonthlyPayment.CalculatePaymentExpectedPA(exDate, pe,lstAPAIList);
+        Decimal payRec = cp.CalculatePaymentReceived(pe.Id);
+        Map<Decimal,List<Payment_Received__c>>eftTestMap = cp.CalculateEFTPayment(pe,exDate,pRecList, lstAPAList,lstAPAIList);
+         Map<Decimal,List<Payment_Received__c>>eftTestMap1 = cp.CalculateEFTPayment(pe,exDate1,pRecList, lstAPAList,lstAPAIList);
+        Test.stopTest();
+    
+    }
+    
+    static testmethod void myTestMethod6(){
+         
+        Date payStartDate = Date.newInstance(2022, 1, 1);
+        
+        list<Agreed_Payment_Amount_Itmen__c> lstAPAIList = new list<Agreed_Payment_Amount_Itmen__c>();
+        List<Payment_Received__c>pRecList = new List<Payment_Received__c>();
+        list<Agreed_Payment_Amount__c>lstAPAList = new list<Agreed_Payment_Amount__c>();
+        
+        pmdm__Program__c pr=new pmdm__Program__c();
+        pr.name = 'Orderly Payment of Debts';
+        pr.pmdm__Status__c='Active';
+        insert pr;
+        
+        pmdm__ProgramCohort__c pc=new pmdm__ProgramCohort__c();
+        pc.name = 'Calgary Cohort';
+        pc.pmdm__Status__c ='Active';
+        pc.pmdm__Program__c =pr.id;
+        
+        insert pc;
+        
+        Contact con =new Contact();
+        con.firstName = 'first';
+        con.LastName = 'last';
+        insert con;
+        
+        pmdm__ProgramEngagement__c pe = new pmdm__ProgramEngagement__c();    
+        
+        pe.Name='Test' ;
+        pe.pmdm__Stage__c='Active File'; 
+        pe.pmdm__Contact__c=con.id;
+        pe.Payment_Order__c='Electronic Funds Transfer (EFT)';
+        pe.Judicial_Centre__c='Calgary';
+        pe.pmdm__ProgramCohort__c=pc.id ;
+        pe.pmdm__Program__c=pr.id;
+        pe.Number_of_EFTs__c = 2;
+        pe.Total_Outstanding_Debt_Remaining__c = 460;
+        pe.Payment_Frequency__c ='Bi-Weekly';
+        pe.Bi_Weekly_Group__c = 'B';
+        pe.Payment_Start_Date__c = payStartDate;
+        
+        insert pe;
+        
+        Agreed_Payment_Amount__c lstAP = new Agreed_Payment_Amount__c();
+        
+        lstAP.Program_Engagement__c =pe.id;
+        lstAP.Active_Agreed_Payment_Amount__c = True;
+        lstAP.Contact__c =con.id;
+        
+        insert lstAP;
+        lstAPAList.add(lstAP);
+      
+        
+        Agreed_Payment_Amount_Itmen__c lstAPAI  = new Agreed_Payment_Amount_Itmen__c();
+        
+        
+        lstAPAI.Agreed_Payment_Amount__c= lstAP.Id;
+        lstAPAI.Total_Payment__c = 1200;
+        lstAPAI.Payment_Start_Date__c = Date.newInstance(2022,2, 1);
+        lstAPAI.Payment_End_Date__c = Date.newInstance(2022, 12,31);
+        lstAPAI.Payment_Item_Type__c = 'Initial Agreed Payment Amount';
+        lstAPAIList.add(lstAPAI);
+              
+         Agreed_Payment_Amount_Itmen__c lstPA = new Agreed_Payment_Amount_Itmen__c();
+         
+         lstPA.Total_Payment__c = 600;
+         lstPA.Agreed_Payment_Amount__c= lstAP.Id;
+         lstPA.Payment_Start_Date__c = Date.newInstance(2022,9, 1);
+         lstPA.Payment_End_Date__c = Date.newInstance(2022,9,31);
+         lstPA.Payment_Item_Type__c = 'Payment Agreement';
+         lstAPAIList.add(lstPA);
+         
+          if(lstAPAIList!=Null && lstAPAIList.size()>0){
+            insert lstAPAIList;
+        }
+        
+        Payment_Received__c pRec = new  Payment_Received__c();
+        pRec.Program_Engagement__c = pe.id;
+        pRec.Amount__c = 500;
+        pRec.DateReceived__c = Date.newInstance(2022,8,5);
+        pRec.Payment_Mode__c = 'EFT Payment';
+        pRec.Status__c = 'Received';
+         
+         if(pRecList!=Null && pRecList.size()>0){
+            insert pRecList;
+        }
+         Test.startTest();
+        
+        lstAPAIList =[Select Total_Payment__c,Agreed_Payment_Amount__c,Payment_Start_Date__c,Payment_End_Date__c,Payment_Item_Type__c,Payment_to_Creditors__c,Money_Mentor_Fee_Amount__c from Agreed_Payment_Amount_Itmen__c ];
+         
+         System.debug('lstAPAIList After query======>'+lstAPAIList);
+        
+        CalculateMonthlyPayment cp = new CalculateMonthlyPayment();
+        Date exDate = Date.newInstance(2022,8, 26);
+      
+       Map<Decimal,List<Payment_Received__c>>eftTestMap = cp.CalculateEFTPayment(pe,exDate,pRecList, lstAPAList,lstAPAIList);
+        Test.stopTest();
+    
+    }
+    
+    static testmethod void NextPaymentTest(){
+         
+           Date payStartDate = Date.newInstance(2022, 1, 10);
+        
+        list<Agreed_Payment_Amount_Itmen__c> lstAPAIList = new list<Agreed_Payment_Amount_Itmen__c>();
+        List<Payment_Received__c>pRecList = new List<Payment_Received__c>();
+        list<Agreed_Payment_Amount__c>lstAPAList = new list<Agreed_Payment_Amount__c>();
+        
+        pmdm__Program__c pr=new pmdm__Program__c();
+        pr.name = 'Orderly Payment of Debts';
+        pr.pmdm__Status__c='Active';
+        insert pr;
+        
+        pmdm__ProgramCohort__c pc=new pmdm__ProgramCohort__c();
+        pc.name = 'Calgary Cohort';
+        pc.pmdm__Status__c ='Active';
+        pc.pmdm__Program__c =pr.id;
+        
+        insert pc;
+        
+        Contact con =new Contact();
+        con.firstName = 'first';
+        con.LastName = 'last';
+        insert con;
+        
+        pmdm__ProgramEngagement__c pe = new pmdm__ProgramEngagement__c();    
+        
+        pe.Name='Test' ;
+        pe.pmdm__Stage__c='Active File'; 
+        pe.pmdm__Contact__c=con.id;
+        pe.Payment_Order__c='Electronic Funds Transfer (EFT)';
+        pe.Judicial_Centre__c='Calgary';
+        pe.pmdm__ProgramCohort__c=pc.id ;
+        pe.pmdm__Program__c=pr.id;
+        pe.X1st_Payment_Day__c ='12';
+        pe.X2nd_Payment_Day__c ='25';
+        pe.Number_of_EFTs__c = 2;
+        pe.Total_Outstanding_Debt_Remaining__c = 360;
+        pe.Payment_Frequency__c ='Monthly';
+       // pe.Bi_Weekly_Group__c = 'A';
+        pe.Payment_Start_Date__c = payStartDate;
+        
+        insert pe;
+        
+        Agreed_Payment_Amount__c lstAP = new Agreed_Payment_Amount__c();
+        
+        lstAP.Program_Engagement__c =pe.id;
+        lstAP.Active_Agreed_Payment_Amount__c = True;
+        lstAP.Contact__c =con.id;
+        
+        insert lstAP;
+        lstAPAList.add(lstAP);
+      
+        
+        Agreed_Payment_Amount_Itmen__c lstAPAI  = new Agreed_Payment_Amount_Itmen__c();
+        
+        lstAPAI.Total_Payment__c = 600;
+        lstAPAI.Agreed_Payment_Amount__c= lstAP.Id;
+        lstAPAI.Payment_Start_Date__c = Date.newInstance(2022,1, 1);
+        lstAPAI.Payment_End_Date__c = Date.newInstance(2022, 12,31);
+        lstAPAI.Payment_Item_Type__c = 'Initial Agreed Payment Amount';
+        lstAPAIList.add(lstAPAI);
+              
+         Agreed_Payment_Amount_Itmen__c lstPA = new Agreed_Payment_Amount_Itmen__c();
+         
+         lstPA.Total_Payment__c = 600;
+         lstPA.Agreed_Payment_Amount__c= lstAP.Id;
+         lstPA.Payment_Start_Date__c = Date.newInstance(2022,9, 1);
+         lstPA.Payment_End_Date__c = Date.newInstance(2022,9,31);
+         lstPA.Payment_Item_Type__c = 'Payment Agreement';
+         lstAPAIList.add(lstPA);
+         
+          if(lstAPAIList!=Null && lstAPAIList.size()>0){
+            insert lstAPAIList;
+        }
+        
+        Payment_Received__c pRec = new  Payment_Received__c();
+        pRec.Program_Engagement__c = pe.id;
+        pRec.Amount__c = 500;
+        pRec.DateReceived__c = Date.newInstance(2022,8,5);
+        pRec.Payment_Mode__c = 'EFT Payment';
+        pRec.Status__c = 'Received';
+         
+         if(pRecList!=Null && pRecList.size()>0){
+            insert pRecList;
+        }
+         Test.startTest();
+        
+        CalculateMonthlyPayment cp = new CalculateMonthlyPayment();
+        
+        Date exDate = Date.newInstance(2022,1, 1);
+        Date exDate1 = Date.newInstance(2022,2, 10);
+        
+        lstAPAIList =[Select Total_Payment__c,Agreed_Payment_Amount__c,Payment_Start_Date__c,Payment_End_Date__c,Payment_Item_Type__c,Payment_to_Creditors__c,Money_Mentor_Fee_Amount__c from Agreed_Payment_Amount_Itmen__c ];
+         
+         System.debug('lstAPAIList After query======>'+lstAPAIList);
+        
+        Map<Id, list<Agreed_Payment_Amount_Itmen__c>>agItemTestMap =new Map<Id, list<Agreed_Payment_Amount_Itmen__c>>();
+        agItemTestMap.Put(pe.Id,lstAPAIList);
+        
+        Map<String, string> NextDateAmt = CalculateMonthlyPayment.NextPaymentDueDate(exDate, pe,lstAPAIList);
+        Decimal retAmount = CalculateMonthlyPayment.CalculatePaymentExpected(exDate, pe,lstAPAIList);
+        Decimal exAmount = CalculateMonthlyPayment.CalculatePaymentExpectedCO(exDate, pe,agItemTestMap);
+        
+        List<Agreed_Payment_Amount_Itmen__c> AgItemTestList = CalculateMonthlyPayment.agreedInitialAmountItemList(exDate, lstAPAIList);
+     
+      // Decimal retAmt = cp.CalculatePaymentExpected(pe.Id, exDate);
+      //  Decimal exAmt = cp.CalculatePaymentExpectedCO(pe.Id, exDate);
+        
+        Map<string,string>retMap = CalculateMonthlyPayment.CalculatePaymentExpectedPA(exDate, pe,lstAPAIList);
+        Decimal payRec = cp.CalculatePaymentReceived(pe.Id);
+        Map<Decimal,List<Payment_Received__c>>eftTestMap = cp.CalculateEFTPayment(pe,exDate,pRecList, lstAPAList,lstAPAIList);
+         Map<Decimal,List<Payment_Received__c>>eftTestMap1 = cp.CalculateEFTPayment(pe,exDate1,pRecList, lstAPAList,lstAPAIList);
+        Test.stopTest();
+    
+    }
+
+}

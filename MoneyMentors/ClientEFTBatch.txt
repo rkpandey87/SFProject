@@ -1,0 +1,986 @@
+global class ClientEFTBatch implements Database.Batchable<sObject>,Database.stateful {
+    
+    Date exDate;
+    Boolean testMode;
+    Integer exMonth;
+    Integer exYear;
+    String Client_EFT_File;
+    String Client_CSV_File = 'Date, ProgramEngagement ID, Client Name, OPD File Number, Amount, Routing Number, Account Number\n';
+    String FileTitle;
+    
+    String Detail_Record;
+    Integer peSize;
+    Integer SuccpeSize=0;
+    integer Cent=0; 
+     
+   
+    
+    List<EFTFileDetail__mdt>EFTFiledetail=new List<EFTFileDetail__mdt>(); 
+      
+    String EFT_ID_Number;
+    
+    String ATB_Data_Centre ;
+
+    Decimal TotalAmount=0.00;
+    Decimal tAmount=0.00;
+    String Amount;
+
+    EFTFile__c et=new EFTFile__c();
+    EFTFile__c ef = new EFTFile__c(); 
+    
+    List<ContentDocumentLink>eftFileList =New List<ContentDocumentLink>();
+    List<Payment_Received__c>payRecList=new List<Payment_Received__c>();
+        
+    EFTFile__c eft = new EFTFile__c();
+    List<Payment_Received__c>EFTErrorList = New List<Payment_Received__c>();
+    
+    List<Client_EFT__c>ClientEFTList=New List<Client_EFT__c>();
+    Client_EFT__c ClientEFT;
+    
+    List<Payment_Received__c>ReceiveList = New List<Payment_Received__c>();
+    
+    
+    Map<Decimal,List<Payment_Received__c>> receiveMap=New Map<Decimal,List<Payment_Received__c>>();
+    Map<String, List<Payment_Received__c>> recEFTMap = New Map<String, List<Payment_Received__c>>();
+
+    Set<ID>PeIdSet = new Set<ID>();
+    Set<ID>ClientIdSet = new Set<ID>();
+    Set<String>peStages =New Set<String>();
+    
+    List<Agreed_Payment_Amount__c>APRecordsList = New List<Agreed_Payment_Amount__c>();  
+    List<Agreed_Payment_Amount_Itmen__c>APIRecordsList = New List<Agreed_Payment_Amount_Itmen__c>();
+    List<Payment_Received__c>PRRecordsList = New  List<Payment_Received__c>();
+    List<Client_EFT__c> ceList = New  List<Client_EFT__c>();
+    
+    
+    String EFTError;        
+    String Routing_Number;
+    String Account_Number;
+    String OriginatorsCrossReferenceNumber; 
+    string ContactName; 
+     String  ConName2;
+    
+    String OPDFileNumber;
+ 
+    
+    String conId;
+    String AgreedPaymentId;
+    String peId;
+    Integer payMod;
+    Integer payDays;
+    Date payStartDate;
+    
+    Integer DayofDate;
+    
+    
+    Date todayDate = Date.today();
+    Integer todayDateYear = todayDate.year();
+    Date startDate = Date.newInstance(todayDateYear, 1, 1);
+    
+    
+    string thisYear = String.valueOf(todayDateYear);
+    string CurrentYear=thisYear.substring(2,4);
+    String thisCentury=thisYear.substring(0,2);
+    
+    Integer DayofToday=todayDate.day();
+    Datetime fileCreatedDate;
+    
+    Integer fileDay;        
+    Integer fileMonth;
+    Integer fileYear;
+    Integer fileHour;
+    Integer fileMinute;
+  
+    Integer noOfDays;
+    String  strnoOfDays;
+    String Julian_Date;
+
+    
+    String FileSegmentNumber;
+    
+    String Rnumber;
+    String AccNumber;
+    
+ 
+    
+    String FileCreateDate;
+    String RinFileCreatedDate;
+    
+    String fileDayStr;
+    String fileMonthStr;
+    string fileYearStr;
+    string fileHourStr;
+    string fileMinuteStr;
+    
+    String FileCreateDateTime;
+    String fileCreationNumber;
+    ContentDocumentLink cDe1;    
+    
+     global ClientEFTBatch(){
+        
+        this.exDate=System.today();
+        this.testMode=False;
+        
+        et=new EFTFile__c(Name='ClientEFTFile');
+        insert et;
+        fileCreationNumber = et.File_Number__c;
+        system.debug('et'+et.Id);
+        
+        peStages =New Set<String>{'Affidavit Creation','Admin Review','Affidavit and NC To Court','Notice to Creditors','Client/Counsellor Confirmation','Consolidation','Active File','File Closing'};
+        
+        // Get ATB Data Centre and EFT ID Number 
+        
+        EFTFiledetail=[Select Id,ATB_Data_Centre__c,EFT_ID_Number__c,Institutional_ID_Number_for_Returns__c,Account_Number_for_Returns__c from EFTFileDetail__mdt];
+   
+        EFT_ID_Number =EFTFiledetail[0].EFT_ID_Number__c;
+        
+        ATB_Data_Centre =EFTFiledetail[0].ATB_Data_Centre__c;
+        
+      
+    }
+    
+    global ClientEFTBatch(Date exDate, boolean testMode ){
+        
+        this.exDate=exDate;
+        this.testMode=testMode;
+        
+        et=new EFTFile__c(Name='ClientEFTFile');
+        insert et;
+        fileCreationNumber = et.File_Number__c;
+        system.debug('et'+et.Id);
+        
+        peStages =New Set<String>{'Affidavit Creation','Admin Review','Affidavit and NC To Court','Notice to Creditors','Client/Counsellor Confirmation','Consolidation','Active File','File Closing'};
+        
+        // Get ATB Data Centre and EFT ID Number 
+        
+        EFTFiledetail=[Select Id,ATB_Data_Centre__c,EFT_ID_Number__c,Institutional_ID_Number_for_Returns__c,Account_Number_for_Returns__c from EFTFileDetail__mdt];
+   
+        EFT_ID_Number =EFTFiledetail[0].EFT_ID_Number__c;
+        
+        ATB_Data_Centre =EFTFiledetail[0].ATB_Data_Centre__c;
+        
+      
+    }
+    global Database.QueryLocator start(Database.BatchableContext bc){
+        
+        String query ='select Id, pmdm__Stage__c,pmdm__Contact__c,Payout_Amount__c,Total_Outstanding_Debt_Remaining__c, Last_Disbursement_Date__c, Disbursement_Fee__c, X1st_Payment_Day__c, X2nd_Payment_Day__c,Legacy_OPD_File_Number__c,Payment_Order__c, Payment_Start_Date__c, Payment_Frequency__c, Bi_Weekly_Group__c from pmdm__ProgramEngagement__c WHERE pmdm__Stage__c IN:peStages AND Payment_Order__c=\'Electronic Funds Transfer (EFT)\' AND Payment_Start_Date__c<=: exDate AND Payout_Amount__c!=Null AND Payout_Amount__c>0  ';
+        
+        return Database.getQueryLocator(query);
+        
+    }
+    
+   global void execute(Database.BatchableContext bc, List<pmdm__ProgramEngagement__c> scope){
+             
+
+        
+        eft=[Select Id,CreatedDate,File_Number__c from EFTFile__c where Id =:et.Id];
+        
+        fileCreatedDate = eft.CreatedDate;
+        fileDay = fileCreatedDate.day();
+        fileDayStr = String.valueOf(fileDay).leftPad(2,'0');
+        
+        fileMonth = fileCreatedDate.month();
+        
+        fileMonthStr = String.valueOf(fileMonth).leftPad(2,'0');
+        fileYear = fileCreatedDate.year();
+        
+        fileYearStr=String.valueOf(fileYear);
+        
+        fileYearStr = fileYearStr.substring(2,4);
+        
+        fileHour = fileCreatedDate.hour();
+        fileHourStr = String.valueOf(fileHour).leftPad(2,'0');  
+        
+        fileMinute = fileCreatedDate.minute();
+        fileMinuteStr = String.valueOf(fileMinute).leftPad(2,'0');
+        
+         FileCreateDateTime = fileYearStr+fileMonthStr+fileDayStr+fileHourStr+fileMinuteStr;
+         fileCreationNumber =(eft.File_Number__c);
+        
+        system.debug('FileCreateDateTime'+FileCreateDateTime);
+        
+        fileCreationNumber=fileCreationNumber.leftPad(10,'0');  
+        
+        //Update EFT Record Name as per Client EFT File Name 
+       
+       if(testMode == False){
+           
+           eft.name='ATB73321'+'_'+FileCreateDateTime+fileCreationNumber+ATB_Data_Centre+EFT_ID_Number+'.CPA1464'; 
+           eft.File_Type__c ='FTP';
+       }
+       else{
+           eft.name ='Client CSV Test File'+'-'+ exDate ;
+       }
+        update eft; 
+        
+        // File Unique Number(FCN)
+        
+        fileCreationNumber=fileCreationNumber.replaceFirst('^0+', '').leftPad(4,'0');
+        
+        system.debug('fileCreationNumber...'+fileCreationNumber);
+        
+       //Retrieve all records of Payment Agreement, Payement Agreement item, Payment received and client EFT objects 
+       
+        for(pmdm__ProgramEngagement__c pe:scope){
+            
+            if(pe!=Null && pe.Payment_Start_Date__c!=Null ) { 
+                
+                PeIdSet.Add(pe.Id);
+                ClientIdSet.Add(pe.pmdm__Contact__c);
+                
+                
+            }
+            
+        }
+        
+        System.debug('PeIdSet=====>'+PeIdSet);
+         System.debug('ClientIdSet=====>'+ClientIdSet);
+         
+         // Retrieve Payment Received Records 
+        
+        Map<Id,List<Payment_Received__c>>MaptoPRRecords = New Map<Id,List<Payment_Received__c>>(); 
+      
+        List<Payment_Received__c> lstPaymentRecevied = [SELECT id,
+                                                        Amount__c,
+                                                        DateReceived__c,
+                                                        Program_Engagement__c,
+                                                        Status__c,
+                                                        Program_Engagement__r.pmdm__Contact__c
+                                                        FROM Payment_Received__c 
+                                                        WHERE Status__c='Received' 
+                                                        AND Program_Engagement__c =:PeIdSet                                                        
+                                                        AND DateReceived__c<=:exDate ];   
+       
+        system.debug(' lstPaymentRecevied ---->'+lstPaymentRecevied);
+        if (lstPaymentRecevied.size()>0) {
+            for (Payment_Received__c pr : lstPaymentRecevied) {
+                if(MaptoPRRecords.containsKey(pr.Program_Engagement__c)) {
+                    MaptoPRRecords.get(pr.Program_Engagement__c).add(pr);
+                }
+                else {
+                    MaptoPRRecords.put(pr.Program_Engagement__c, new List<Payment_Received__c>{pr}); 
+                }
+            }
+        }        
+         // Retrieve Payment Agreement amount  Records 
+         
+        Map<Id,List<Agreed_Payment_Amount__c>>MaptoAPRecords = New Map<Id,List<Agreed_Payment_Amount__c>>();
+        list<Agreed_Payment_Amount__c> lstAPA = [Select Id, Name, 
+                                                       Contact__c,
+                                                       Current_Total_Payment_Amount__c, 
+                                                       Program_Engagement__c, 
+                                                       Active_Agreed_Payment_Amount__c 
+                                                       from Agreed_Payment_Amount__c  
+                                                       where Program_Engagement__c =:PeIdSet 
+                                                       AND Active_Agreed_Payment_Amount__c=True];  
+        
+        system.debug(' lstAPA ---->'+lstAPA);
+        
+        if (lstAPA.size()>0) {
+            for (Agreed_Payment_Amount__c apa : lstAPA) {
+                if(MaptoAPRecords.containsKey(apa.Program_Engagement__c)) {
+                    MaptoAPRecords.get(apa.Program_Engagement__c).add(apa);
+                }
+                else {
+                    MaptoAPRecords.put(apa.Program_Engagement__c, new List<Agreed_Payment_Amount__c>{apa}); 
+                }
+            }
+        }  
+        
+         // Retrieve Payment Agreement amount item  Records 
+         
+        Map<Id,List<Agreed_Payment_Amount_Itmen__c>>MaptoAPIRecords = New Map<Id,List<Agreed_Payment_Amount_Itmen__c>>();
+         
+        list<Agreed_Payment_Amount_Itmen__c> lstAPAI = [SELECT Id,Total_Payment__c,                                                                
+                                                        Payment_Start_Date__c, 
+                                                        Payment_End_Date__c,
+                                                        Agreed_Payment_Amount__r.Program_Engagement__c,
+                                                        Program_Months__c,
+                                                        Payment_Item_Type__c
+                                                        FROM Agreed_Payment_Amount_Itmen__c 
+                                                        WHERE Agreed_Payment_Amount__r.Program_Engagement__c =:PeIdSet 
+                                                        AND Agreed_Payment_Amount__r.Active_Agreed_Payment_Amount__c = True
+                                                        Order by CreatedDate];  
+        
+        system.debug(' lstAPAI ---->'+lstAPAI);
+        
+        if (lstAPAI.size()>0) {
+            for (Agreed_Payment_Amount_Itmen__c apai : lstAPAI) {
+                if(MaptoAPIRecords.containsKey(apai.Agreed_Payment_Amount__r.Program_Engagement__c)) {
+                    MaptoAPIRecords.get(apai.Agreed_Payment_Amount__r.Program_Engagement__c).add(apai);
+                }
+                else {
+                    MaptoAPIRecords.put(apai.Agreed_Payment_Amount__r.Program_Engagement__c, new List<Agreed_Payment_Amount_Itmen__c>{apai}); 
+                }
+            }
+        }  
+               
+        // Retriev Client EFT Records 
+        
+        Map<Id,List<Client_EFT__c>>MaptoClientEFTRecords = New Map<Id,List<Client_EFT__c>>();
+         
+        list<Client_EFT__c> Ceft = [Select Id,Contact__c, Contact_Name__c,
+                                   Program_Engagement__c, 
+                                   Account_Type__c,
+                                   Routing_Number__c, 
+                                   Account_Number__c 
+                                   from Client_EFT__c where  Program_Engagement__c =:PeIdSet ];  
+        
+        system.debug(' Client EFT ---->'+Ceft);
+        
+        if (Ceft.size()>0) {
+            for (Client_EFT__c cef : Ceft) {
+                if(MaptoClientEFTRecords.containsKey(cef.Program_Engagement__c)) {
+                    MaptoClientEFTRecords.get(cef.Program_Engagement__c).add(cef);
+                }
+                else {
+                    MaptoClientEFTRecords.put(cef.Program_Engagement__c, new List<Client_EFT__c>{cef}); 
+                }
+            }
+        } 
+        
+        System.debug('MaptoAPRecords=====>'+MaptoAPRecords);
+        System.debug('MaptoAPIRecords=====>'+MaptoAPIRecords);
+        System.debug('MaptoClientEFTRecords=====>'+MaptoClientEFTRecords);
+   
+        // Create EFT File Header 
+        
+    
+        system.debug('scope list is'+scope);
+        
+        peSize= scope.size();
+        
+        system.debug('peSize'+peSize);
+   
+        system.debug('scope--->'+scope);
+        
+        for(pmdm__ProgramEngagement__c pme:scope){   
+            
+            //Loop through PE Records in order to Create Segment Record
+            
+            if(pme!=Null && pme.pmdm__Contact__c!=Null ){
+                 peId  = pme.id;
+                 conId = pme.pmdm__Contact__c;
+                 OPDFileNumber = pme.Legacy_OPD_File_Number__c;
+                   
+                }
+            
+            system.debug('conId....'+conId);
+            system.debug('peId....'+peId);
+            
+            // Clear Payment Received, Agreed Payment amount and Agreed Payment amount item Lists before retriev records
+            
+            PRRecordsList = New  List<Payment_Received__c>();
+            APRecordsList = New List<Agreed_Payment_Amount__c>();
+            APIRecordsList = New List<Agreed_Payment_Amount_Itmen__c>();
+            
+            
+             // Get PaymentReceived, Payment agreement amount and payment agreed amount item list for PE  
+            
+            If(MaptoPRRecords!=Null && MaptoPRRecords.containsKey(pme.Id)){
+                
+                PRRecordsList = MaptoPRRecords.get(pme.Id);
+            }
+            
+            If(MaptoAPRecords!=Null && MaptoAPRecords.containsKey(pme.Id)){
+                
+                APRecordsList = MaptoAPRecords.get(pme.Id);
+            }
+            
+            If(MaptoAPIRecords!=Null && MaptoAPIRecords.containsKey(pme.Id)){
+                
+                APIRecordsList = MaptoAPIRecords.get(pme.Id);
+            }
+            
+            // Call CalculateEFTPayment method of CalculateMonthlyPayment class in order to get expected Payment & EFT Payment Error
+             
+            System.debug('pme============>'+pme);
+            System.debug('exDate============>'+exDate);
+            System.debug('APRecordsList============>'+APRecordsList);
+            System.debug('PRRecordsList============>'+PRRecordsList);
+            System.debug('APIRecordsList============>'+APIRecordsList);
+            
+            
+            CalculateMonthlyPayment cp= new CalculateMonthlyPayment();            
+            receiveMap = (Map<Decimal,List<Payment_Received__c>>)cp.CalculateEFTPayment(pme, exDate,PRRecordsList,APRecordsList,APIRecordsList);
+            Set<Decimal>tAmountSet = receiveMap.keySet();
+            List<Decimal>tAmountList= New List<Decimal>();
+            tAmountList.addall(tAmountSet);                 
+            TotalAmount = tAmountList.get(0);
+            system.debug('TotalAmount-->'+TotalAmount);
+            
+            if(receiveMap!=Null && receiveMap.containsKey(TotalAmount)){
+                
+                // get error list return CalculateEFTPayment Method from CalculateMonthlyPayment Class                
+                
+                ReceiveList = receiveMap.get(TotalAmount);   
+            
+            }
+            
+            system.debug('TotalAmount.....'+ TotalAmount);
+            system.debug('ReceiveList.....'+ ReceiveList);
+            system.debug('EFTErrorList.....'+ EFTErrorList);
+        
+            if(TotalAmount !=Null){
+                tAmount=(TotalAmount*100).SetScale(0);                        
+            }
+            
+            // Clear Client EFT Record List
+            
+             ceList = New List<Client_EFT__c>();
+            
+           // Retrieve Correct Client EFT active record
+           
+           
+             If(MaptoClientEFTRecords!=Null && MaptoClientEFTRecords.containsKey(pme.Id)){
+              
+               ceList = MaptoClientEFTRecords.get(pme.Id);
+            }
+       
+            
+            If(ceList!=Null && ceList.size()==1 ){
+            
+            system.debug('ClientEFTList[0].....'+ceList[0]);
+                
+              String ConName =String.valueOf(ceList[0].Contact_Name__c);
+                
+               String  ConName1= ConName.left(30);
+                ConName2 = ConName1.replaceAll (',', ' ');
+                
+                ContactName =String.valueOf(ConName2).leftPad(30, ' ');
+                
+                 Amount=String.valueOf(tAmount).leftPad(10, '0');
+               // FileSegmentNumber =String.valueof(SegNo).leftPad(4,'0'); 
+                
+                system.debug('ContactName====>'+ ConName);
+                system.debug('ContactName====>'+ ConName1);
+                system.debug('ContactName====>'+ ConName2);
+                system.debug('ContactName====>'+ ContactName);
+                
+                system.debug('Amount=====>'+Amount);
+          
+                 Rnumber = String.valueof(ceList[0].Routing_Number__c);
+                 AccNumber  = String.valueof(ceList[0].Account_Number__c); 
+                  
+                system.debug('Rnumber length -->'+Rnumber.length());
+                system.debug('AccNumber length()--->'+AccNumber.length());
+                system.debug('tAmount--->'+tAmount);
+            
+             
+                system.debug('ReceiveList Size '+ ReceiveList.Size());
+              
+            If(ReceiveList.Size()==0){
+                
+            // Check on Rounting Number and Account Details filtered client EFT Details 
+                
+            if(Rnumber.length()==8 && (AccNumber.length()>=7 && AccNumber.length()<=12)) {
+              
+            //Create Client EFT Segments Records
+            
+          
+            Client_CSV_File+=String.valueof(exDate)+','+string.valueof(pme.id)+','+ConName2+','+OPDFileNumber + ',' + TotalAmount + ',' + Rnumber + ',' + AccNumber+'\n';                              
+          
+                 }             
+                
+                else {
+                    If(ReceiveList.Size()==0){                    
+                    EFTError = 'Incorrect Data found in Client EFT ';                    
+                    Payment_Received__c payerror=new Payment_Received__c();
+                    payerror.Program_Engagement__c=pme.id;
+                    payerror.EFTFile__c=eft.id;
+                    payerror.Client__c=pme.pmdm__Contact__c; 
+                    payerror.DateReceived__c = exDate;
+                    payerror.Payment_Mode__c='EFT Payment';
+                    payerror.Status__c='EFT Error';
+                    payerror.EFT_Error_Description__c=EFTError;
+                    ReceiveList.add(payerror);
+                    }
+                }
+                 
+              }
+                
+                //Again Check Receive list Size && Add Details Record in Client EFT File 
+               
+                If(ReceiveList.Size()==0){
+                    
+                    //Create Payment Received Success Record 
+                    
+                    Payment_Received__c pr=new Payment_Received__c();
+                    pr.Program_Engagement__c=pme.id;
+                    pr.Client__c=pme.pmdm__Contact__c;
+                    pr.EFTFile__c=eft.id;
+                    
+                    pr.Amount__c=TotalAmount;
+                    pr.DateReceived__c = exDate;
+                    pr.Payment_Mode__c='EFT Payment';
+                    pr.Status__c='Received';
+                    payRecList.add(pr);
+                }
+            }
+             
+            else If(ceList!=Null && ceList.size()>1) {
+               
+                // check if multiple client EFT Records exists, Then create Error 
+               
+                If(ReceiveList.Size()==0){
+                    
+                    EFTError = 'More Than One Client EFT record found. ';                    
+                    Payment_Received__c payerror=new Payment_Received__c();
+                    payerror.Program_Engagement__c=pme.id;
+                    payerror.EFTFile__c=eft.id;
+                    payerror.Client__c=pme.pmdm__Contact__c;
+                    payerror.DateReceived__c = exDate;
+                    payerror.Payment_Mode__c='EFT Payment';
+                    payerror.Status__c='EFT Error';
+                    payerror.EFT_Error_Description__c=EFTError;
+                    ReceiveList.add(payerror);
+                }
+            }
+             else {
+                 If(ReceiveList.Size()==0){                      
+                    EFTError = 'No Client EFT record found. ';                    
+                    Payment_Received__c payerror=new Payment_Received__c();
+                    payerror.Program_Engagement__c=pme.id;
+                    payerror.EFTFile__c=eft.id;
+                    payerror.Client__c=pme.pmdm__Contact__c;
+                    payerror.DateReceived__c = exDate ;
+                    payerror.Payment_Mode__c='EFT Payment';
+                    payerror.Status__c='EFT Error';
+                    payerror.EFT_Error_Description__c=EFTError;
+                    ReceiveList.add(payerror);
+                 }
+                }
+            if(ReceiveList!=Null && ReceiveList.size()>0){
+                peSize--;
+            }
+            if(ReceiveList.Size()>0 && ReceiveList[0].EFT_Error_Description__c !='This date doesnot match with payment date' && ReceiveList[0].EFT_Error_Description__c != 'No Payment Due' ){
+                EFTErrorList.AddAll(ReceiveList);
+                
+            }
+            system.debug('EFTErrorList after add receive list---->'+EFTErrorList);
+ 
+        }
+
+        system.debug('Client_EFT_File===>'+ Client_EFT_File);
+        system.debug('Client_CSV_File===>'+ Client_CSV_File);
+    }
+          
+    global void finish(Database.BatchableContext  bc){
+        
+        
+        ef=[Select id,CreatedDate, ACK_File_Name__c, IVF_File_Name__c, RIN_File_Name__c,File_Number__c from EFTFile__c where id=:et.Id];        
+        
+        system.debug('fileCreatedDate'+ef.CreatedDate);
+        system.debug('fileNumber'+ef.File_Number__c); 
+         
+        fileCreationNumber = ef.File_Number__c;
+        
+        fileCreationNumber=fileCreationNumber.leftPad(10,'0');
+        system.debug('fileCreationNumber....'+fileCreationNumber);
+        
+        
+        FileTitle = 'ATB73321'+'_'+FileCreateDateTime+fileCreationNumber+ATB_Data_Centre+EFT_ID_Number+'.CPA1464'; 
+        String FileCreateDate = fileYearStr+fileMonthStr+fileDayStr+'??'+'??';
+        String RinFileCreatedDate = fileYearStr+fileMonthStr+fileDayStr;
+        //Insert Response File Name 
+        ef.ACK_File_Name__c = 'ATB73321'+'_'+FileCreateDate+fileCreationNumber+ATB_Data_Centre+EFT_ID_Number+'_ACK.TXT';
+        ef.IVF_File_Name__c = 'ATB73321'+'_'+FileCreateDate+fileCreationNumber+ATB_Data_Centre+EFT_ID_Number+'_IVF.TXT';
+        
+               // Insert Payment Received EFT Error Records List
+        if(testMode == False){
+         
+        if(EFTErrorList.Size()!=Null && EFTErrorList.Size()>0  ){ 
+            
+            Insert EFTErrorList;            
+            for(Payment_Received__c pre:EFTErrorList){
+                pre.EFTFile__c =eft.id;
+            }
+            Update EFTErrorList ;           
+            
+        }
+         // Insert Payment Received EFT Success Record List
+        if(payRecList.Size()!=Null && payRecList.Size()>0){
+            insert payRecList;
+        } 
+        
+        system.debug('payRecList.....' + payRecList);  
+                    
+        Client_EFT_File = createEFTFile(Client_CSV_File, payRecList);
+   
+        system.debug('Client_EFT_File===>'+ Client_EFT_File);
+        system.debug('Client_CSV_File===>'+ Client_CSV_File);
+        
+        system.debug('payRecList===>'+ payRecList);
+
+        
+            ContentDocumentLink cDe = InsertEFTFile(Client_EFT_File, '.txt', FileTitle, et.id);
+            
+            if(payRecList!=Null && payRecList.Size()>0){
+                insert cDe; 
+                eftFileList.add(cDe);
+                ef.EFT_Status__c = 'Ready to Send';
+                update ef;
+                //update payRecList;
+            }
+            
+        }
+        //  Create CSV File
+        
+        
+        if(testMode == False){
+            
+            cDe1 = InsertEFTFile(Client_CSV_File, '.csv', 'Client CSV File'+'-'+exDate, et.id);
+        }
+        
+        else{
+            cDe1 = InsertEFTFile(Client_CSV_File, '.csv', 'Client Test CSV File'+'-'+exDate, et.id);
+        }
+        eftFileList.add(cDe1); 
+        
+       
+        // Insert File List in EFT File Record
+        
+        system.debug('eftFileList--->'+eftFileList);
+        
+        if(eftFileList!=Null && eftFileList.size()>0){
+            Database.insert(eftFileList,false);
+        }   
+    }
+    
+    public ContentDocumentLink InsertEFTFile(String fileBody, String FileType, String FileTitle, Id FileRecordId){
+        
+        
+        ContentVersion conVer = new ContentVersion();
+        conVer.ContentLocation = 'S'; 
+        conVer.PathOnClient = 'Test.TXT'; 
+        conVer.Title = FileTitle;  
+        conVer.Description = 'This is Client EFT Related Details File' ;         
+        conVer.VersionData = Blob.valueof(fileBody);       
+        insert conVer;
+        system.debug(' conVer----'+ conVer);
+        
+        
+        Id conDoc = [SELECT ContentDocumentId FROM ContentVersion WHERE Id =:conVer.Id].ContentDocumentId;        
+        ContentDocumentLink cDe = new ContentDocumentLink();
+        cDe.ContentDocumentId = conDoc;
+        cDe.LinkedEntityId = FileRecordId;
+        cDe.ShareType = 'I'; 
+        
+        return cDe;
+
+} 
+    
+
+     public string createEFTFile(String csvfile, List<Payment_Received__c>pRecList){
+         
+         
+         List<Payment_Received__c>updatePayRecList=new List<Payment_Received__c>();      
+         
+         Map<String, List<Payment_Received__c>> retEFTMap = New Map<String, List<Payment_Received__c>>();
+         
+         List<EFTFileDetail__mdt>EFTFiledetail=new List<EFTFileDetail__mdt>(); 
+         
+         EFTFiledetail= [Select Id,ATB_Data_Centre__c,EFT_ID_Number__c,Institutional_ID_Number_for_Returns__c,Account_Number_for_Returns__c from EFTFileDetail__mdt];
+         
+         String EFT_ID_Number =EFTFiledetail[0].EFT_ID_Number__c;
+        
+         // String EFT_ID_Number ='10839';
+         
+         String ATB_Data_Centre =EFTFiledetail[0].ATB_Data_Centre__c;
+         
+         String Originators_ID = ATB_Data_Centre+EFT_ID_Number;
+         
+        // String Institutional_ID_Number='021907609';
+        // String AccNumber_for_Returns = '652591179';
+         
+         String Institutional_ID_Number=EFTFiledetail[0].Institutional_ID_Number_for_Returns__c;
+         String AccNumber_for_Returns = EFTFiledetail[0].Account_Number_for_Returns__c;
+ 
+         AccNumber_for_Returns = AccNumber_for_Returns.rightPad(12,' ');
+         
+         String CPA_Code ='350';
+         String Direct_Clearer_ID ='2199';
+         String Routing_Number;
+         String Account_Number;
+         
+         String Client_EFT_File;
+         String Client_CSV_File = 'OPD File Number, Amount, Routing Number, Account Number\n';
+         String OPDFileNumber;
+         String Header_Record;        
+         String Detail_Record;        
+         String Trailer_Record;
+         String FileTitle;
+ 
+         Integer DayofDate;
+         Integer DayofToday;
+
+         Date todayDate = Date.today();
+         
+         Decimal TotalDebit=0.00;
+         Decimal TotalAmount=0.00;
+         Decimal tAmount=0.00;
+         
+         Integer NoOfDebit=0;
+         Integer todayDateYear = todayDate.year();
+         
+         string thisYear = String.valueOf(todayDateYear);
+         string CurrentYear=thisYear.substring(2,4);
+         String thisCentury=thisYear.substring(0,2);
+         
+         DayofToday= todayDate.day(); 
+         Datetime fileCreatedDate;
+         
+         Integer fileDay;
+         Integer fileMonth;
+         Integer fileYear;
+         Integer fileHour;
+         Integer fileMinute;
+         String fileHourStr;
+         String fileMinuteStr;
+         
+         String FileSegmentNumber;
+         
+         Integer peSize;
+         integer Cent=0;        
+         Integer rem=0;
+         Integer res=0;        
+         integer countt=0;        
+         
+         if(thisCentury =='20'){
+             Cent = 0;
+         }
+         else if(thisCentury =='21'){
+             Cent = 1;
+         }
+         else if(thisCentury =='22'){
+             Cent = 2;
+         }
+         else if(thisCentury =='23'){
+             Cent = 3;
+         }
+         else if(thisCentury =='24'){
+             Cent = 4;
+         }
+         else if(thisCentury =='25'){
+             Cent = 5;
+         }
+         
+         
+        Integer noOfDays = startDate.daysBetween( todayDate)+1;
+        strnoOfDays=String.valueof(noOfDays).leftPad(3, '0');
+         
+         System.debug('noOfDays' +noOfDays);
+         
+         // Create 6 digit Julian Date
+         
+         String Julian_Date=Cent+CurrentYear+strnoOfDays;
+         
+         Integer RecNo = 1;
+         Integer SegNo = 1;
+         
+         String RCount=String.valueOf(RecNo).leftPad(9, '0'); 
+         
+         /*........Create an EFT File Object New Record In order to Store client EFT File..........*/
+         
+         
+         EFTFile__c eft=[Select Id,CreatedDate,File_Number__c from EFTFile__c where Id =:et.Id];
+         
+         fileCreatedDate = eft.CreatedDate;
+         fileDay = fileCreatedDate.day();
+         fileDayStr = String.valueOf(fileDay).leftPad(2,'0');
+         
+         fileMonth = fileCreatedDate.month();
+         
+         String fileMonthStr = String.valueOf(fileMonth).leftPad(2,'0');
+         fileYear = fileCreatedDate.year();
+         
+         string fileYearStr=String.valueOf(fileYear);
+         
+         fileYearStr = fileYearStr.substring(2,4);
+         
+         fileHour = fileCreatedDate.hour();
+         fileHourStr = String.valueOf(fileHour).leftPad(2,'0');  
+         
+         fileMinute = fileCreatedDate.minute();
+         fileMinuteStr = String.valueOf(fileMinute).leftPad(2,'0');
+         
+         String FileCreateDateTime = fileYearStr+fileMonthStr+fileDayStr+fileHourStr+fileMinuteStr;
+         String fileCreationNumber =(eft.File_Number__c);
+         
+         system.debug('FileCreateDateTime'+FileCreateDateTime);
+         
+         fileCreationNumber=fileCreationNumber.leftPad(10,'0');  
+         
+         //Update EFT Record Name as per Client EFT File Name 
+         
+         eft.name='ATB73321'+'_'+FileCreateDateTime+fileCreationNumber+ATB_Data_Centre+EFT_ID_Number+'.CPA1464'; 
+         eft.File_Type__c ='FTP';
+         update eft; 
+         
+         // File Unique Number(FCN)
+         
+         fileCreationNumber=fileCreationNumber.replaceFirst('^0+', '').leftPad(4,'0');
+         
+         system.debug('fileCreationNumber...'+fileCreationNumber);
+         
+         // Create EFT File Header 
+         
+         Header_Record ='A'+ RCount+ Originators_ID +fileCreationNumber+ Julian_Date+ ATB_Data_Centre +'                    ' +'CAD'+ '                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ';
+         
+         Client_EFT_File=Header_Record+'\n'; 
+         
+         system.debug('Header_Record---->'+Header_Record.length());
+         
+         
+         if(countt==0){
+             RecNo++;
+             RCount=String.valueOf(RecNo).leftPad(9, '0'); 
+             Client_EFT_File+='D'+ RCount+ Originators_ID +fileCreationNumber;            
+         } 
+         
+         system.debug('Client_EFT_File---->'+Client_EFT_File);
+         
+         system.debug('CSV File---->'+csvfile);
+         
+         List<string>csvFileList = csvfile.split('\n'); 
+         
+         csvFileList.remove(0);
+         peSize =csvFileList.size();
+         
+         system.debug('CSV File---->'+csvfile);
+         
+         for(String Str:csvFileList){  
+             
+             //Loop through csvFile Records in order to Create Segment Record
+             
+             List<String> csvfileRecord = Str.split(',');
+             
+             String peId = csvfileRecord.get(1);
+             string ContactName = csvfileRecord.get(2);
+            // ContactName = ContactName.replace(',', ' ');
+             //ContactName.left(30);
+             ContactName = (ContactName).leftPad(30, ' ');
+             
+             TotalAmount = Decimal.valueof(csvfileRecord.get(4));
+             
+             tAmount=(TotalAmount*100).SetScale(0); 
+             
+             String Amount=String.valueOf(tAmount).leftPad(10, '0');
+             FileSegmentNumber =String.valueof(SegNo).leftPad(4,'0'); 
+             
+             Routing_Number =(csvfileRecord.get(5)).leftPad(9,'0');                
+             Account_Number = (csvfileRecord.get(6)).rightPad(12,' ');
+             
+             system.debug('peId--->'+peId);
+             system.debug('ContactName--->'+ContactName);
+             system.debug('TotalAmount--->'+TotalAmount);
+             system.debug('tAmount--->'+tAmount);
+             
+             system.debug('Routing_Number lenght -->'+Routing_Number.length());
+             system.debug('Account_Number length--->'+Account_Number.length());
+             
+
+             OriginatorsCrossReferenceNumber = fileCreationNumber+RecNo+SegNo;
+             OriginatorsCrossReferenceNumber =OriginatorsCrossReferenceNumber.leftPad(19,'0');    
+            
+             system.debug('OriginatorsCrossReferenceNumber--->'+OriginatorsCrossReferenceNumber);
+               
+            //Create Client EFT Segments Records
+            
+            Detail_Record=CPA_Code+Amount+Julian_Date+ Routing_Number +Account_Number+Direct_Clearer_ID+ATB_Data_Centre+fileCreationNumber+EFT_ID_Number+FileSegmentNumber+'000'+'  '+'Money Mentors'+ContactName+'                 '+'Money Mentors'+'          '+OriginatorsCrossReferenceNumber+Institutional_ID_Number+AccNumber_for_Returns+'               '+'                      '+'  '+'00000000000';             
+          
+             //  Client_CSV_File+=OPDFileNumber + ',' + TotalAmount + ',' + Rnumber + ',' + AccNumber+'\n';  
+                
+                TotalDebit+=TotalAmount;
+                NoOfDebit++;
+                countt++;
+                SegNo++;          
+                
+          
+          
+                
+                // Add Details Record in Client EFT File 
+               
+               
+                    Client_EFT_File+=Detail_Record;
+                
+                 system.debug('Detail_Record---->'+  Detail_Record);
+                  system.debug('Client EFT File---->'+  Client_EFT_File);
+            
+             //Update Payment Records 
+             
+             if(pRecList!=Null && pRecList.size()>0){
+                    
+                    for(Payment_Received__c pR:pRecList){
+                        if(pR.Program_Engagement__c == peId){
+                            
+                            pR.EFTFile_LineNum__c=Integer.Valueof(RCount);
+                            pR.EFTFile_SegmentNum__c=Integer.Valueof(FileSegmentNumber);
+                            pR.Originators_Cross_Reference_Number__c = OriginatorsCrossReferenceNumber;
+                            updatePayRecList.add(pR);
+                       }
+                    }
+                }
+           
+             
+             // Add Details Record when segments Number is Multiple of 6
+                              
+
+            res = countt/6;
+            
+            if(countt>0 && math.mod(countt, 6)==0 && peSize !=(res*6)){
+                Client_EFT_File+='\n';                
+                RecNo++;             
+                RCount=String.valueOf(RecNo).leftPad(9, '0'); 
+                Client_EFT_File+='D'+ RCount+Originators_ID+fileCreationNumber;
+            
+                  }
+ 
+        }
+            
+        system.debug ('updatePayRecList======>'+updatePayRecList);
+         
+         if(updatePayRecList!=Null && updatePayRecList.size()>0){
+             
+            Update  updatePayRecList;
+         }
+        
+         
+         
+         /*-----Add Space in Details Record for remaining Segments---------------------->*/
+        
+       rem = math.mod(peSize, 6);
+        integer j ; 
+        
+        if(rem!=0 ){
+            rem=6-rem;
+            for(j=0; j<rem;j++){
+                Client_EFT_File+='                                                                                                                                                                                                                                                '; 
+                system.debug('J..'+j);
+            }
+            system.debug('rem...' +rem );
+        }
+        
+        Client_EFT_File+='\n';
+        RecNo++;
+        TotalDebit=(TotalDebit*100).SetScale(0);
+        RCount=String.valueOf(RecNo).leftPad(9, '0');
+        
+        String Imp_TotalDebit =String.valueOf(TotalDebit).leftPad(14,'0');
+        String Imp_NoOfDebit = String.valueOf(NoOfDebit).leftPad(8,'0');
+        system.debug(' Imp_TotalDebit' + Imp_TotalDebit);
+        system.debug(' Imp_NoOfDebit' + Imp_NoOfDebit);
+        
+        //Create Client EFT Trailer Record
+        
+        Trailer_Record='Z'+RCount+Originators_ID+fileCreationNumber+Imp_TotalDebit+Imp_NoOfDebit+'00000000000000'+'00000000'+'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    '+'\n';                
+            
+        Client_EFT_File+=Trailer_Record; 
+         
+      //   retEFTMap.put(Client_EFT_File, updatePayRecList );
+         
+            
+        return Client_EFT_File;
+    }
+    
+}

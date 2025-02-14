@@ -1,0 +1,175 @@
+@isTest
+public class UpdatePEDefaultStatusTest {
+    
+    static testMethod void test1(){
+        
+        Date payStartDate = Date.newInstance(2022, 1, 19);
+        Date DateReviewed = Date.newInstance(2022, 7, 12);
+        
+        List<pmdm__ProgramEngagement__c>peList = New List<pmdm__ProgramEngagement__c>();
+        
+        List<UpdatePEDefaultStatus.PeStatusDetails> peStatusList = new  List<UpdatePEDefaultStatus.PeStatusDetails>();          
+        
+        Id AffidavitRecordId = Schema.SObjectType.Affidavit_Debts__c.getRecordTypeInfosByName().get('Schedule A Debt').getRecordTypeId();
+        
+        
+        pmdm__Program__c pr=new pmdm__Program__c();
+        pr.name = 'Orderly Payment of Debts';
+        pr.pmdm__Status__c='Active';
+        insert pr;
+        
+        pmdm__ProgramCohort__c pc=new pmdm__ProgramCohort__c();
+        pc.name = 'Calgary Cohort';
+        pc.pmdm__Status__c ='Active';
+        pc.pmdm__Program__c =pr.id;
+        
+        insert pc;
+        
+        Contact con =new Contact();
+        con.firstName = 'first';
+        con.LastName = 'last';
+        
+        insert con;
+        
+        pmdm__ProgramEngagement__c pe = new pmdm__ProgramEngagement__c();    
+        
+        pe.Name='Test' ;
+        pe.pmdm__Stage__c='Active File'; 
+        pe.pmdm__Contact__c=con.id;
+        pe.Legacy_OPD_File_Number__c = '987651';
+        pe.Default_Status__c ='Low Risk';
+        pe.Payment_Order__c='Electronic Funds Transfer (EFT)';
+        pe.Judicial_Centre__c='Calgary';
+        pe.pmdm__ProgramCohort__c=pc.id ;
+        pe.pmdm__Program__c=pr.id;
+        pe.Number_of_EFTs__c=2;
+        pe.Disbursement_Fee__c = '10%';
+        pe.Total_Outstanding_Debt_Remaining__c = 10000;
+        pe.Payment_Frequency__c ='Monthly';
+        pe.Payment_Start_Date__c = payStartDate;
+        
+        //  insert pe;
+        
+        peList.add(pe);
+        if(peList!=Null && peList.size()>0){
+            insert peList;
+        }
+        Affidavit_Debts__c af = new Affidavit_Debts__c();
+        af.Contact__c =con.id;
+        af.Current_Affidavit_Debt_Record__c = True;
+        af.Program_Engagement__c = peList[0].Id;
+        af.RecordTypeId = AffidavitRecordId;
+        af.Date_Reviewed__c =  DateReviewed;
+        af.Percentage_of_SL__c = Null;
+        
+        insert af;
+        
+         Affidavit_Debt_Items__c afi = new Affidavit_Debt_Items__c();
+        
+        afi.Amount_Owed__c = 10000;
+        afi.Affidavit_Debt__c = af.Id;
+        afi.Student_Loan__c = True;
+        afi.Orginal_or_Added_Debt__c = 'Orginal';
+        
+        
+        Attachment attach=new Attachment();       
+        attach.Name='UnitTestAttachment.csv';
+        Blob bodyBlob=Blob.valueOf('987651'+','+'High Risk');
+        attach.body=bodyBlob;
+        attach.parentId=peList[0].id;
+        
+        PageReference pageRef = Page.UploadPEStatusFile;
+        Test.setCurrentPage(pageRef);         
+        
+        ApexPages.StandardSetController stdCtr = new ApexPages.StandardSetController(peList);
+        
+        UpdatePEDefaultStatus ctr = new UpdatePEDefaultStatus(stdCtr);
+        
+        ctr.PeAttachment =attach;
+        ctr.peStatusList = peStatusList;
+        
+        test.startTest();   
+        
+        ctr.updatePEStatus(); 
+        ctr.close();
+        ctr.getFileDownload();
+        Ctr.download();
+        
+        test.stopTest();
+        
+    }
+    static testMethod void test2(){
+        
+        Date payStartDate = Date.newInstance(2022, 1, 19);
+        
+        
+        List<pmdm__ProgramEngagement__c>peList = New List<pmdm__ProgramEngagement__c>();
+        
+        List<UpdatePEDefaultStatus.PeStatusDetails> peStatusList = new  List<UpdatePEDefaultStatus.PeStatusDetails>();          
+        
+        pmdm__Program__c pr=new pmdm__Program__c();
+        pr.name = 'Orderly Payment of Debts';
+        pr.pmdm__Status__c='Active';
+        insert pr;
+        
+        pmdm__ProgramCohort__c pc=new pmdm__ProgramCohort__c();
+        pc.name = 'Calgary Cohort';
+        pc.pmdm__Status__c ='Active';
+        pc.pmdm__Program__c =pr.id;
+        
+        insert pc;
+        
+        Contact con =new Contact();
+        con.firstName = 'first';
+        con.LastName = 'last';
+        insert con;
+        
+        pmdm__ProgramEngagement__c pe = new pmdm__ProgramEngagement__c();    
+        
+        pe.Name='Test' ;
+        pe.pmdm__Stage__c='Active File'; 
+        pe.pmdm__Contact__c=con.id;
+        pe.Payment_Order__c='Electronic Funds Transfer (EFT)';
+        pe.Judicial_Centre__c='Calgary';
+        pe.pmdm__ProgramCohort__c=pc.id ;
+        pe.pmdm__Program__c=pr.id;
+        pe.Disbursement_Fee__c = 'Discounted 10%';
+        pe.Number_of_EFTs__c=2;
+        pe.Total_Outstanding_Debt_Remaining__c = 10000;
+        pe.Payment_Frequency__c ='Monthly';
+        pe.Payment_Start_Date__c = payStartDate;
+        
+        //  insert pe;
+        
+        peList.add(pe);
+        if(peList!=Null && peList.size()>0){
+            insert peList;
+        }
+        
+        Attachment attach=new Attachment();       
+        attach.Name='UnitTestAttachment.csv';
+        Blob bodyBlob=Blob.valueOf('Unit Test Attachment Body');
+        attach.body=bodyBlob;
+        attach.parentId=peList[0].id;
+        
+        PageReference pageRef = Page.UploadPEStatusFile;
+        Test.setCurrentPage(pageRef);         
+        
+        ApexPages.StandardSetController stdCtr = new ApexPages.StandardSetController(peList);
+        
+        UpdatePEDefaultStatus ctr = new UpdatePEDefaultStatus(stdCtr);
+        
+        ctr.PeAttachment =attach;
+        ctr.peStatusList = peStatusList;
+        
+        test.startTest();   
+        
+        ctr.updatePEStatus(); 
+        ctr.close();
+        ctr.getFileDownload();
+        Ctr.download();
+        
+        test.stopTest();
+        
+    }
+}

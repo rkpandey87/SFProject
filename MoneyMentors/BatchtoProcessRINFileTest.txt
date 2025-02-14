@@ -1,0 +1,106 @@
+@isTest
+public class BatchtoProcessRINFileTest {
+    
+    static testMethod void TestMethod1(){
+        
+        
+        Date payStartDate = Date.newInstance(2022, 1, 1);
+        List<FTP_Detail__mdt>ftList=new List<FTP_Detail__mdt>();
+        
+        pmdm__Program__c pr=new pmdm__Program__c();
+        pr.name = 'Orderly Payment of Debts';
+        pr.pmdm__Status__c='Active';
+        insert pr;
+        
+        pmdm__ProgramCohort__c pc=new pmdm__ProgramCohort__c();
+        pc.name = 'Calgary Cohort';
+        pc.pmdm__Status__c ='Active';
+        pc.pmdm__Program__c =pr.id;
+        
+        insert pc;
+        
+        Contact con =new Contact();
+        con.firstName = 'first';
+        con.LastName = 'last';
+        insert con;
+        
+        pmdm__ProgramEngagement__c pe = new pmdm__ProgramEngagement__c();    
+        
+        pe.Name='Test' ;
+        pe.pmdm__Stage__c='Active File'; 
+        pe.pmdm__Contact__c=con.id;
+        pe.Payment_Order__c='Electronic Funds Transfer (EFT)';
+        pe.Judicial_Centre__c='Calgary';
+        pe.pmdm__ProgramCohort__c=pc.id ;
+        pe.pmdm__Program__c=pr.id;
+        pe.Number_of_EFTs__c = 2;        
+        pe.Total_Outstanding_Debt_Remaining__c = 10000;
+        pe.Payment_Frequency__c ='Monthly';
+        pe.Payment_Start_Date__c = payStartDate;
+        
+        insert pe;
+        
+        EFTFile__c ef = new EFTFile__c();
+        
+        ef.Name = 'TestEFTFile1';
+        ef.RIN_File_Name__c = 'RINFileName_RIN.TEXT'; 
+        ef.File_Type__c = 'FTP';
+        
+        
+        insert ef;
+        
+        
+        List<Payment_Received__c>prList = new List<Payment_Received__c>();
+        Date rdate = date.newInstance(2022, 7, 2);
+        Payment_Received__c pRec = new Payment_Received__c();
+        pRec.Program_Engagement__c = pe.id;
+        pRec.Client__c = con.Id;
+        pRec.EFTFile__c = ef.id;
+        pRec.Amount__c =544;
+        pRec.Status__c = 'Received';
+        pRec.Originators_Cross_Reference_Number__c = '0000000000000035222';
+        pRec.DateReceived__c =rdate;
+        pRec.Payment_Mode__c ='EFT payment';
+        
+        prList.add(pRec);
+        
+        Payment_Received__c pRec1 = new Payment_Received__c();
+        pRec1.Program_Engagement__c = pe.id;
+        pRec1.Client__c = con.Id;
+        pRec1.EFTFile__c = ef.id;
+        pRec1.Amount__c =328;
+        pRec1.Status__c = 'Disbursed';
+        pRec1.Originators_Cross_Reference_Number__c = '0000000000000035221';
+        pRec1.DateReceived__c =rdate;
+        pRec1.Payment_Mode__c ='EFT payment';
+        
+        prList.add(pRec1);
+        
+        if(prList!=Null && prList.size()>0){
+            insert prList;
+        }
+        
+        List<FTP_Detail__mdt> testMetadata = (List<FTP_Detail__mdt>)Json.deserialize('[{"SObject_Name__c": "FTP_Detail__mdt","Label": "FTP File","Content_Type__c" : "application/json","fileName__c": "file1","username__c" : "NetSutra","password__c" : "NetSutra123","ftp_host__c" : "SFTP","path__c" : "https://mm-ftpapi.qrupia.com:8000/upload","setMethod__c" : "POST","Port_Number__c" : "22","Server_Name__c" : "FTP" }]', List<FTP_Detail__mdt>.class); 
+        
+        system.debug('testMetadata------->'+testMetadata);
+        
+        
+        Test.setMock(HttpCalloutMock.class, new MockFileHttpResponseGenerator());
+        
+        Test.startTest();
+        
+        
+        BatchtoProcessRINFile br= new BatchtoProcessRINFile();
+        Database.executeBatch(br, prList.size() );
+        
+        ScheduleToProcessRINFile sh = new ScheduleToProcessRINFile();
+        String sch = '0 0 23 * * ?'; 
+        system.schedule('RINFile Test Schedule', sch, sh); 
+        
+        
+        
+        Test.stopTest();
+        
+    } 
+    
+}

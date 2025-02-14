@@ -1,0 +1,148 @@
+public class ClientEFTProcess_Controller {
+    
+    public string selectedDate{get;set;}
+    public string selectedMonth{get;set;}
+    public string selectedYear{get;set;}
+    public string errMsg{get;set;}
+    public string lastRunOn{get;set;}
+    public Boolean isDisabled{get;set;}
+   
+    
+    public ClientEFTProcess_Controller(ApexPages.StandardSetController controller) {
+        
+        Date dt = system.today();
+        selectedDate = string.valueOf(dt.Day());
+        selectedYear = string.valueOf(dt.Year());
+        selectedMonth = string.valueOf(dt.month());
+        isDisabled = false;
+        errMsg ='';
+       
+    }
+    
+    public ClientEFTProcess_Controller () {
+        // Date dt = system.today();
+        //  selectedYear = dt.Year();
+        //  selectedMonth = dt.month();
+    }
+
+    
+    public List<SelectOption> getYearList(){
+        List<SelectOption> selectOptions = new List<SelectOption>();
+        
+        Date dt = system.today();
+        
+        Integer startYear = dt.Year()-1;
+        
+        Integer lastYear = dt.Year()+1;
+        
+        for (integer i = startYear; i <= lastYear; i++) {
+            selectOptions.add(new SelectOption(string.valueOf(startYear), string.valueOf(startYear)));
+            startYear ++;
+        }           
+        return selectOptions; 
+    }
+    
+    public pageReference submit() {
+        errMsg  = '';
+        try {
+            Integer month = Integer.valueOf(selectedMonth);
+            Integer year = Integer.valueOf(selectedYear );
+            Integer day = Integer.valueOf(selectedDate);
+            Date startDate = date.newInstance(year, month, day);
+            
+            Id rid = Database.executeBatch(new ClientEFTBatch(startDate, false));
+            system.debug('Batch Id ====='+rid);       
+            
+            string filterId = '';
+            List<ListView> lstView = [SELECT Id FROM ListView WHERE SObjectType = 'EFTFile__c' and Name = 'All' ];
+            if(lstView.size() > 0) {
+                filterId = lstView[0].Id;
+            }
+            if(string.isNotBlank(filterId)) {
+                PageReference pr = new PageReference('/lightning/o/EFTFile__c/list?filterName='+filterId);
+                return pr;
+            }
+            return null;
+        }
+        catch (Exception ex) {
+            errMsg = 'Exception in executing batch.';
+        }
+        return null;
+    }
+    
+   public pageReference testsubmit() {
+        errMsg  = '';
+        try {
+            Integer month = Integer.valueOf(selectedMonth);
+            Integer year = Integer.valueOf(selectedYear );
+            Integer day = Integer.valueOf(selectedDate);
+            Date startDate = date.newInstance(year, month, day);
+            
+           // Id rid = Database.executeBatch(new BatchtoCreateCSVFile(startDate));
+            Id rid = Database.executeBatch(new ClientEFTBatch(startDate, True));
+            system.debug('Batch Id ====='+rid);       
+            
+            string filterId = '';
+            List<ListView> lstView = [SELECT Id FROM ListView WHERE SObjectType = 'EFTFile__c' and Name = 'All' ];
+            if(lstView.size() > 0) {
+                filterId = lstView[0].Id;
+            }
+            if(string.isNotBlank(filterId)) {
+                PageReference pr = new PageReference('/lightning/o/EFTFile__c/list?filterName='+filterId);
+                return pr;
+            }
+            return null;
+        }
+        catch (Exception ex) {
+            errMsg = 'Exception in executing batch.';
+        }
+        return null;
+    }
+    public pageReference close() {                        
+        string filterId = '';
+        List<ListView> lstView = [SELECT Id FROM ListView WHERE SObjectType = 'EFTFile__c' and Name = 'All' ];
+        if(lstView.size() > 0) {
+            filterId = lstView[0].Id;
+        }
+        if(string.isNotBlank(filterId)) {
+            PageReference pr = new PageReference('/lightning/o/EFTFile__c/list?filterName='+filterId);
+            return pr;
+        } 
+        return null;
+    }
+    
+    
+    @AuraEnabled
+    Public static void processBatch(Id recordId, string yr, string mm) {
+        system.debug('processBatch ===================>');                    
+        system.debug('recordId ===================>'+recordId);
+        system.debug('yr ===================>'+yr);
+        system.debug('mm ===================>'+mm);
+        
+        Integer month = Integer.valueOf(mm);
+        Integer year = Integer.valueOf(yr);
+        Date startDate = date.newInstance(year, month, 1);
+        system.debug('startDate ===================>'+startDate);
+        
+        if (string.isNotBlank(recordId)) {
+            system.debug('Not Blank ===================>');
+            Schema.SObjectType sobjectType = recordId.getSObjectType();
+            String sobjectName = sobjectType.getDescribe().getName();               
+            
+            if (string.isNotBlank(yr) && string.isNotBlank(mm)) {
+                
+                
+                    Id rid = Database.executeBatch(new ClientEFTBatch(startDate,false));
+                    system.debug('Batch Id ====='+rid);
+                                      
+            }
+        }
+        
+    }
+    
+    
+   
+    
+     
+    
+}

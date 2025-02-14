@@ -1,0 +1,6 @@
+ if(SessionTimeMap!=Null && SessionTimeMap.containsKey(pr.pmdm__SessionStart__c)) {
+                    SessionTimeMap.get(pr.pmdm__SessionStart__c).add(pr);
+                }
+                else {
+                    SessionTimeMap.put(pr.pmdm__SessionStart__c, new List<pmdm__SessionStart__c>{ps}); 
+                }

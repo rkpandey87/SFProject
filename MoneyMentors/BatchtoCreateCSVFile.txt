@@ -1,0 +1,1109 @@
+global class BatchtoCreateCSVFile implements Database.Batchable<sObject>,Database.stateful {
+    
+    Date exDate;
+    Integer exMonth;
+    Integer exYear;
+    
+    Date FirstDate;
+    Date LastDate;
+    Integer totalDays;
+    
+    
+    String Client_EFT_File;
+   
+  //  String Monthly_CSV_File= 'Date, ProgramEngagement ID, Client Name, OPD File Number, Amount, Routing Number, Account Number\n';
+    
+    String Monthly_CSV_File= 'Date, OPD File Number, Running Trust Balance,Total Outstanding Debt, Expected Payment, 1st Payment Day, 2nd Payment Day, Payout Amount, Last Disbursement Date,Stage\n';
+    
+    String FileTitle;
+    String CSVFileTitle;
+        
+      
+    Decimal TotalAmount=0.00;
+    Decimal tAmount=0.00;
+    String Amount;
+
+    EFTFile__c et=new EFTFile__c();
+    EFTFile__c ef = new EFTFile__c(); 
+    
+    List<ContentDocumentLink>eftFileList =New List<ContentDocumentLink>();
+    List<Payment_Received__c>payRecList=new List<Payment_Received__c>();
+        
+    EFTFile__c eft = new EFTFile__c();
+    List<Payment_Received__c>EFTErrorList = New List<Payment_Received__c>();
+    
+    List<Client_EFT__c>ClientEFTList=New List<Client_EFT__c>();
+    Client_EFT__c ClientEFT;
+    
+    List<Payment_Received__c>ReceiveList = New List<Payment_Received__c>();
+    
+    Map<Decimal,List<Payment_Received__c>> receiveMap=New Map<Decimal,List<Payment_Received__c>>();
+    Map<String, List<Payment_Received__c>> recEFTMap = New Map<String, List<Payment_Received__c>>();
+
+    Set<ID>PeIdSet = new Set<ID>();
+    Set<ID>ClientIdSet = new Set<ID>();
+    Set<String>peStages =New Set<String>();
+    
+    List<Agreed_Payment_Amount__c>APRecordsList = New List<Agreed_Payment_Amount__c>();
+    List<Payment_Received__c>PRRecordsList = New  List<Payment_Received__c>();
+    List<Agreed_Payment_Amount_Itmen__c>APIRecordsList = New List<Agreed_Payment_Amount_Itmen__c>();
+ 
+    
+    List<Client_EFT__c> ceList = New  List<Client_EFT__c>();
+    List<Date>exMonthDateList = New List<Date>();
+    
+    
+    String EFTError;        
+    String Routing_Number;
+    String Account_Number;
+    String OriginatorsCrossReferenceNumber; 
+    string ContactName; 
+     String  ConName2;
+    
+    String OPDFileNumber;
+ 
+    
+    String conId;
+    String AgreedPaymentId;
+    String peId;
+    Integer payMod;
+    Integer payDays;
+    Date payStartDate;  
+    Integer DayofDate;    
+    String Rnumber;
+    String AccNumber;
+ 
+    String fileCreationNumber; 
+        
+    
+    
+    global BatchtoCreateCSVFile(Date exDate ){
+        
+        this.exDate=exDate;
+        
+        exMonth =exDate.month();
+        exYear =exDate.year();
+        
+        FirstDate =Date.newInstance(exYear, exMonth, 1);
+        
+        totalDays =Date.daysInMonth(exYear, exMonth);
+        LastDate = Date.newInstance(exYear, exMonth, totalDays);
+        
+           // Create a List of Months Dates 
+     
+    /*   for(integer i=1;i<=totalDays;i++){
+           
+           exMonthDateList.add(date.newInstance(exYear, exMonth, i));
+       } */
+       
+       system.debug('exMonthDateList=====>'+exMonthDateList);
+        
+       CSVFileTitle = 'Client CSV File'+'-'+ exDate ;        
+        
+        et=new EFTFile__c(Name=CSVFileTitle);
+        insert et;
+        fileCreationNumber = et.File_Number__c;
+        system.debug('et'+et.Id);
+         
+        peStages =New Set<String>{'Affidavit Creation','Admin Review','Affidavit and NC To Court','Notice to Creditors','Client/Counsellor Confirmation','Consolidation','Active File','File Closing'};
+
+           }
+    global Database.QueryLocator start(Database.BatchableContext bc){
+        
+        String query ='select Id, pmdm__Stage__c,pmdm__Contact__c,Running_Trust_Balance__c,Payout_Amount__c,Total_Outstanding_Debt_Remaining__c, Last_Disbursement_Date__c, Disbursement_Fee__c, X1st_Payment_Day__c, X2nd_Payment_Day__c,Legacy_OPD_File_Number__c,Payment_Order__c, Payment_Start_Date__c, Payment_Frequency__c, Bi_Weekly_Group__c from pmdm__ProgramEngagement__c WHERE pmdm__Stage__c IN:peStages AND Payment_Order__c=\'Electronic Funds Transfer (EFT)\' AND Payment_Start_Date__c<=:exDate AND Payout_Amount__c!=Null AND Payout_Amount__c>0  ';
+        
+        return Database.getQueryLocator(query);
+        
+    }
+    
+   global void execute(Database.BatchableContext bc, List<pmdm__ProgramEngagement__c> scope){
+             
+
+        
+        eft=[Select Id,CreatedDate,File_Number__c from EFTFile__c where Id =:et.Id];
+ 
+        
+       //Retrieve all records of Payment Agreement, Payement Agreement item, Payment received and client EFT objects 
+       
+        for(pmdm__ProgramEngagement__c pe:scope){
+            
+            if(pe!=Null && pe.Payment_Start_Date__c!=Null ) { 
+                
+                PeIdSet.Add(pe.Id);
+                ClientIdSet.Add(pe.pmdm__Contact__c);
+                
+                
+            }
+            
+        }
+        
+        System.debug('PeIdSet=====>'+PeIdSet);
+         System.debug('ClientIdSet=====>'+ClientIdSet);
+       
+         // Retrieve Payment Received Records 
+        
+        Map<Id,List<Payment_Received__c>>MaptoPRRecords = New Map<Id,List<Payment_Received__c>>(); 
+      
+        List<Payment_Received__c> lstPaymentRecevied = [SELECT id,
+                                                        Amount__c,
+                                                        DateReceived__c,
+                                                        Program_Engagement__c,
+                                                        Status__c,
+                                                        Program_Engagement__r.pmdm__Contact__c
+                                                        FROM Payment_Received__c 
+                                                        WHERE Status__c='Received' 
+                                                        AND Program_Engagement__c =:PeIdSet                                                        
+                                                        AND DateReceived__c<=:FirstDate ];   
+       
+        system.debug(' lstPaymentRecevied ---->'+lstPaymentRecevied);
+        if (lstPaymentRecevied.size()>0) {
+            for (Payment_Received__c pr : lstPaymentRecevied) {
+                if(MaptoPRRecords.containsKey(pr.Program_Engagement__c)) {
+                    MaptoPRRecords.get(pr.Program_Engagement__c).add(pr);
+                }
+                else {
+                    MaptoPRRecords.put(pr.Program_Engagement__c, new List<Payment_Received__c>{pr}); 
+                }
+            }
+        }      
+       
+       
+         // Retrieve Payment Agreement amount  Records 
+         
+        Map<Id,List<Agreed_Payment_Amount__c>>MaptoAPRecords = New Map<Id,List<Agreed_Payment_Amount__c>>();
+        list<Agreed_Payment_Amount__c> lstAPA = [Select Id, Name, 
+                                                       Contact__c,
+                                                       Current_Total_Payment_Amount__c, 
+                                                       Program_Engagement__c, 
+                                                       Active_Agreed_Payment_Amount__c 
+                                                       from Agreed_Payment_Amount__c  
+                                                       where Program_Engagement__c =:PeIdSet 
+                                                       AND Active_Agreed_Payment_Amount__c=True];  
+        
+        system.debug(' lstAPA ---->'+lstAPA);
+        
+        if (lstAPA.size()>0) {
+            for (Agreed_Payment_Amount__c apa : lstAPA) {
+                if(MaptoAPRecords.containsKey(apa.Program_Engagement__c)) {
+                    MaptoAPRecords.get(apa.Program_Engagement__c).add(apa);
+                }
+                else {
+                    MaptoAPRecords.put(apa.Program_Engagement__c, new List<Agreed_Payment_Amount__c>{apa}); 
+                }
+            }
+        }  
+        
+         // Retrieve Payment Agreement amount item  Records 
+         
+        Map<Id,List<Agreed_Payment_Amount_Itmen__c>>MaptoAPIRecords = New Map<Id,List<Agreed_Payment_Amount_Itmen__c>>();
+         
+        list<Agreed_Payment_Amount_Itmen__c> lstAPAI = [SELECT Id,Total_Payment__c,                                                                
+                                                        Payment_Start_Date__c, 
+                                                        Payment_End_Date__c,
+                                                        Agreed_Payment_Amount__r.Program_Engagement__c,
+                                                        Program_Months__c,
+                                                        Payment_Item_Type__c
+                                                        FROM Agreed_Payment_Amount_Itmen__c 
+                                                        WHERE Agreed_Payment_Amount__r.Program_Engagement__c =:PeIdSet 
+                                                        AND Agreed_Payment_Amount__r.Active_Agreed_Payment_Amount__c = True
+                                                        Order by CreatedDate];  
+        
+        system.debug(' lstAPAI ---->'+lstAPAI);
+        
+        if (lstAPAI.size()>0) {
+            for (Agreed_Payment_Amount_Itmen__c apai : lstAPAI) {
+                if(MaptoAPIRecords.containsKey(apai.Agreed_Payment_Amount__r.Program_Engagement__c)) {
+                    MaptoAPIRecords.get(apai.Agreed_Payment_Amount__r.Program_Engagement__c).add(apai);
+                }
+                else {
+                    MaptoAPIRecords.put(apai.Agreed_Payment_Amount__r.Program_Engagement__c, new List<Agreed_Payment_Amount_Itmen__c>{apai}); 
+                }
+            }
+        }  
+               
+        // Retriev Client EFT Records 
+        
+        Map<Id,List<Client_EFT__c>>MaptoClientEFTRecords = New Map<Id,List<Client_EFT__c>>();
+         
+        list<Client_EFT__c> Ceft = [Select Id,Contact__c, Contact_Name__c,
+                                         Program_Engagement__c,
+                                         Account_Type__c,
+                                         Routing_Number__c, 
+                                         Account_Number__c 
+                                         from Client_EFT__c where  Program_Engagement__c =:PeIdSet];  
+        
+        system.debug(' Client EFT ---->'+Ceft);
+        
+        if (Ceft.size()>0) {
+            for (Client_EFT__c cef : Ceft) {
+                if(MaptoClientEFTRecords.containsKey(cef.Program_Engagement__c)) {
+                    MaptoClientEFTRecords.get(cef.Program_Engagement__c).add(cef);
+                }
+                else {
+                    MaptoClientEFTRecords.put(cef.Program_Engagement__c, new List<Client_EFT__c>{cef}); 
+                }
+            }
+        } 
+        
+       System.debug('MaptoAPRecords=====>'+MaptoAPRecords);
+        System.debug('MaptoPRRecords=====>'+MaptoPRRecords);
+        System.debug('MaptoAPIRecords=====>'+MaptoAPIRecords);
+        System.debug('MaptoClientEFTRecords=====>'+MaptoClientEFTRecords);
+   
+        // Create EFT File Header 
+        
+    
+        system.debug('scope list is'+scope);
+        
+       
+       // Run loop through PE List in order to create every date CSV File and add in the Monthly CSV File 
+      
+    //   for(Date dt:exMonthDateList){
+           
+           system.debug('exDate=========>'+exDate);
+   
+           System.debug('MaptoPRRecords=====>'+MaptoPRRecords);
+           System.debug('MaptoAPRecords=====>'+MaptoAPRecords);
+           System.debug('MaptoAPIRecords=====>'+MaptoAPIRecords);
+           System.debug('MaptoClientEFTRecords=====>'+MaptoClientEFTRecords);
+           
+           Client_EFT_File=createCSVFile(scope, exDate,MaptoPRRecords,MaptoAPRecords,MaptoAPIRecords,MaptoClientEFTRecords);
+           
+           
+           system.debug('Client_EFT_File=====>'+Client_EFT_File);
+           
+           if(Client_EFT_File !=Null){
+               
+               Monthly_CSV_File+=Client_EFT_File;
+           }
+           system.debug('Monthly_CSV_File=====>'+Monthly_CSV_File);
+     //  }
+
+      //  system.debug('Monthly_CSV_File===>'+ Monthly_CSV_File);
+       
+    }
+          
+    global void finish(Database.BatchableContext  bc){
+                    
+        if(payRecList.Size()!=Null && payRecList.Size()>0){
+          //  insert payRecList;
+        } 
+        
+        system.debug('payRecList.....' + payRecList);  
+                    
+     
+        system.debug('Client_CSV_File===>'+ Monthly_CSV_File);
+        
+        system.debug('payRecList===>'+ payRecList);
+
+         
+     
+
+        if(payRecList!=Null && payRecList.Size()>0){
+          //   insert cDe; 
+          //  eftFileList.add(cDe);
+         //   ef.EFT_Status__c = 'Ready to Send';
+          //  update ef;
+            //update payRecList;
+        }
+      
+        //  Create CSV File
+       
+     //   CSVFileTitle = 'Monthly Client CSV File'+'-'+'('+' '+FirstDate+' '+'-'+' '+ LastDate+' '+')';
+           
+        CSVFileTitle = 'Client CSV File'+'-'+exDate;
+        
+        ContentDocumentLink cDe1 = InsertEFTFile(Monthly_CSV_File, '.csv', CSVFileTitle, et.id);
+        
+        eftFileList.add(cDe1); 
+        
+       
+        // Insert File List in EFT File Record
+        
+        system.debug('eftFileList--->'+eftFileList);
+        
+        if(eftFileList!=Null && eftFileList.size()>0){
+            Database.insert(eftFileList,false);
+        }   
+    }
+    
+    public ContentDocumentLink InsertEFTFile(String fileBody, String FileType, String FileTitle, Id FileRecordId){
+        
+        
+        ContentVersion conVer = new ContentVersion();
+        conVer.ContentLocation = 'S'; 
+        conVer.PathOnClient = 'Test.TXT'; 
+        conVer.Title = FileTitle;  
+        conVer.Description = 'This is client CSV file for Specific Date' ;         
+        conVer.VersionData = Blob.valueof(fileBody);       
+        insert conVer;
+        system.debug(' conVer----'+ conVer);
+        
+        
+        Id conDoc = [SELECT ContentDocumentId FROM ContentVersion WHERE Id =:conVer.Id].ContentDocumentId;        
+        ContentDocumentLink cDe = new ContentDocumentLink();
+        cDe.ContentDocumentId = conDoc;
+        cDe.LinkedEntityId = FileRecordId;
+        cDe.ShareType = 'I'; 
+        
+        return cDe;
+
+} 
+    
+
+     public string createCSVFile(List<pmdm__ProgramEngagement__c> peList, Date dt,Map<Id,List<Payment_Received__c>>MaptoPRRecords,Map<Id,List<Agreed_Payment_Amount__c>>MaptoAPRecords,Map<Id,List<Agreed_Payment_Amount_Itmen__c>>MaptoAPIRecords,Map<Id,List<Client_EFT__c>>MaptoClientEFTRecords){
+         
+         String Client_CSV_File ;
+         
+         
+         for(pmdm__ProgramEngagement__c pme:peList){   
+            
+            //Loop through PE Records in order to Create Segment Record
+            
+            if(pme!=Null && pme.pmdm__Contact__c!=Null ){
+                 peId  = pme.id;
+                 conId = pme.pmdm__Contact__c;
+                 OPDFileNumber = pme.Legacy_OPD_File_Number__c;
+                   
+                }
+            
+            system.debug('conId....'+conId);
+            system.debug('peId....'+peId);
+            
+            // Clear Payment Received, Agreed Payment amount and Agreed Payment amount item Lists before retriev records
+            
+         
+           // re- inialize all list 
+           
+             PRRecordsList = New  List<Payment_Received__c>();
+             APRecordsList = New List<Agreed_Payment_Amount__c>();
+             APIRecordsList = New List<Agreed_Payment_Amount_Itmen__c>();
+             ceList = New  List<Client_EFT__c>();
+             
+             // Get PaymentReceived, Payment agreement amount and payment agreed amount item list for PE 
+             
+       
+             If(MaptoPRRecords!=Null && MaptoPRRecords.containsKey(pme.Id)){
+                 
+                 PRRecordsList = MaptoPRRecords.get(pme.Id);
+             }   
+             
+              If(MaptoAPRecords!=Null && MaptoAPRecords.containsKey(pme.Id)){
+              
+                APRecordsList = MaptoAPRecords.get(pme.Id);
+            }
+            
+             If(MaptoAPIRecords!=Null && MaptoAPIRecords.containsKey(pme.Id)){
+              
+                APIRecordsList = MaptoAPIRecords.get(pme.Id);
+            }
+            
+            // Call CalculateEFTPayment method of CalculateMonthlyPayment class in order to get expected Payment & EFT Payment Error
+             
+            System.debug('pme============>'+pme);
+            System.debug('exDate============>'+dt);
+            System.debug('PRRecordsList============>'+PRRecordsList);
+            System.debug('APRecordsList============>'+APRecordsList);
+            System.debug('APIRecordsList============>'+APIRecordsList);
+            
+            
+           // CalculateMonthlyPayment cp= new CalculateMonthlyPayment();            
+            receiveMap = (Map<Decimal,List<Payment_Received__c>>)CalculateExpectedEFTPayment(pme, dt,APRecordsList,APIRecordsList);
+            Set<Decimal>tAmountSet = receiveMap.keySet();
+            List<Decimal>tAmountList= New List<Decimal>();
+            tAmountList.addall(tAmountSet);                 
+            TotalAmount = tAmountList.get(0);
+            system.debug('TotalAmount-->'+TotalAmount);
+            
+            if(receiveMap!=Null && receiveMap.containsKey(TotalAmount)){
+                
+                // get error list return CalculateEFTPayment Method from CalculateMonthlyPayment Class                
+                
+                ReceiveList = receiveMap.get(TotalAmount);   
+            
+            }
+            
+            system.debug('TotalAmount.....'+ TotalAmount);
+            system.debug('ReceiveList.....'+ ReceiveList);
+            system.debug('EFTErrorList.....'+ EFTErrorList);
+        
+            if(TotalAmount !=Null){
+                tAmount=(TotalAmount*100).SetScale(0);                        
+            }
+            
+            // Clear Client EFT Record List
+            
+             ceList = New List<Client_EFT__c>();
+            
+           // Retrieve Correct Client EFT active record
+           
+           
+             If(MaptoClientEFTRecords!=Null && MaptoClientEFTRecords.containsKey(pme.Id)){
+              
+               ceList = MaptoClientEFTRecords.get(pme.Id);
+            }
+       
+            
+            If(ceList!=Null && ceList.size()==1 ){
+            
+            system.debug('ClientEFTList[0].....'+ceList[0]);
+                
+              String ConName =String.valueOf(ceList[0].Contact_Name__c);
+                
+               String  ConName1= ConName.left(30);
+                ConName2 = ConName1.replaceAll (',', ' ');
+                
+                ContactName =String.valueOf(ConName2).leftPad(30, ' ');
+                
+                 Amount=String.valueOf(tAmount).leftPad(10, '0');
+               // FileSegmentNumber =String.valueof(SegNo).leftPad(4,'0'); 
+                
+                system.debug('ContactName====>'+ ConName);
+                system.debug('ContactName====>'+ ConName1);
+                system.debug('ContactName====>'+ ConName2);
+                system.debug('ContactName====>'+ ContactName);
+                
+                system.debug('Amount=====>'+Amount);
+          
+                 Rnumber = String.valueof(ceList[0].Routing_Number__c);
+                 AccNumber  = String.valueof(ceList[0].Account_Number__c); 
+                  
+                system.debug('Rnumber length -->'+Rnumber.length());
+                system.debug('AccNumber length()--->'+AccNumber.length());
+                system.debug('tAmount--->'+tAmount);
+            
+             
+                system.debug('ReceiveList Size '+ ReceiveList.Size());
+              
+            If(ReceiveList.Size()==0){
+                
+            // Check on Rounting Number and Account Details filtered client EFT Details 
+                
+            if(Rnumber.length()==8 && (AccNumber.length()>=7 && AccNumber.length()<=12)) {
+              
+            //Create Client EFT Segments Records
+           
+                if(Client_CSV_File!=Null){
+                    
+                  //  Client_CSV_File+=String.valueof(dt)+','+string.valueof(pme.id)+','+ConName2+','+OPDFileNumber + ',' + TotalAmount + ',' + Rnumber + ',' + AccNumber+'\n';                              
+                    
+                     Client_CSV_File+=String.valueof(exDate)+','+OPDFileNumber+','+pme.Running_Trust_Balance__c+','+pme.Total_Outstanding_Debt_Remaining__c + ',' + TotalAmount + ',' + pme.X1st_Payment_Day__c + ',' + pme.X2nd_Payment_Day__c +',' + pme.Payout_Amount__c +',' + pme.Last_Disbursement_Date__c +',' + pme.pmdm__Stage__c+'\n'; 
+                } 
+                else{
+                   
+                    //Client_CSV_File =String.valueof(dt)+','+string.valueof(pme.id)+','+ConName2+','+OPDFileNumber + ',' + TotalAmount + ',' + Rnumber + ',' + AccNumber+'\n';                              
+                    
+                    Client_CSV_File=String.valueof(exDate)+','+OPDFileNumber+','+pme.Running_Trust_Balance__c+','+pme.Total_Outstanding_Debt_Remaining__c + ',' + TotalAmount + ',' + pme.X1st_Payment_Day__c + ',' + pme.X2nd_Payment_Day__c +',' + pme.Payout_Amount__c +',' + pme.Last_Disbursement_Date__c +',' + pme.pmdm__Stage__c+'\n'; 
+                }
+                
+                 }             
+                
+                else {
+                    If(ReceiveList.Size()==0){                    
+                    EFTError = 'Incorrect Data found in Client EFT ';                    
+                    Payment_Received__c payerror=new Payment_Received__c();
+                    payerror.Program_Engagement__c=pme.id;
+                    payerror.EFTFile__c=eft.id;
+                    payerror.Client__c=pme.pmdm__Contact__c; 
+                    payerror.DateReceived__c = exDate;
+                    payerror.Payment_Mode__c='EFT Payment';
+                    payerror.Status__c='EFT Error';
+                    payerror.EFT_Error_Description__c=EFTError;
+                    ReceiveList.add(payerror);
+                    }
+                }
+                 
+              }
+                
+                //Again Check Receive list Size && Add Details Record in Client EFT File 
+               
+                If(ReceiveList.Size()==0){
+                        
+                    //Create Payment Received Success Record 
+                    
+                    Payment_Received__c pr=new Payment_Received__c();
+                    pr.Program_Engagement__c=pme.id;
+                    pr.Client__c=pme.pmdm__Contact__c;
+                    pr.EFTFile__c=eft.id;
+                    
+                    pr.Amount__c=TotalAmount;
+                    pr.DateReceived__c = exDate;
+                    pr.Payment_Mode__c='EFT Payment';
+                    pr.Status__c='Received';
+                    //      pr.Originators_Cross_Reference_Number__c = OriginatorsCrossReferenceNumber;
+                    payRecList.add(pr);
+                }
+            }
+             
+             else If(ceList!=Null && ceList.size()>1) {
+                If(ReceiveList.Size()==0){
+                    
+                    EFTError = 'More Than One Client EFT record found. ';                    
+                    Payment_Received__c payerror=new Payment_Received__c();
+                    payerror.Program_Engagement__c=pme.id;
+                    payerror.EFTFile__c=eft.id;
+                    payerror.Client__c=pme.pmdm__Contact__c;
+                    payerror.DateReceived__c = exDate;
+                    payerror.Payment_Mode__c='EFT Payment';
+                    payerror.Status__c='EFT Error';
+                    payerror.EFT_Error_Description__c=EFTError;
+                    ReceiveList.add(payerror);
+                }
+            }
+             else {
+                 If(ReceiveList.Size()==0){                      
+                    EFTError = 'No Client EFT record found. ';                    
+                    Payment_Received__c payerror=new Payment_Received__c();
+                    payerror.Program_Engagement__c=pme.id;
+                    payerror.EFTFile__c=eft.id;
+                    payerror.Client__c=pme.pmdm__Contact__c;
+                    payerror.DateReceived__c = exDate ;
+                    payerror.Payment_Mode__c='EFT Payment';
+                    payerror.Status__c='EFT Error';
+                    payerror.EFT_Error_Description__c=EFTError;
+                    ReceiveList.add(payerror);
+                 }
+                }
+           /* if(ReceiveList!=Null && ReceiveList.size()>0){
+              //  peSize--;
+            } */
+            if(ReceiveList.Size()>0 && ReceiveList[0].EFT_Error_Description__c !='This date doesnot match with payment date' && ReceiveList[0].EFT_Error_Description__c != 'No Payment Due' ){
+                EFTErrorList.AddAll(ReceiveList);
+                
+            }
+            system.debug('EFTErrorList after add receive list---->'+EFTErrorList);
+ 
+        }  
+               
+        return Client_CSV_File;
+    }
+    
+    
+    public Map<Decimal,List<Payment_Received__c>> CalculateExpectedEFTPayment(pmdm__ProgramEngagement__c pme, Date exDate,List<Agreed_Payment_Amount__c>apAmountList, List<Agreed_Payment_Amount_Itmen__c>payItemList){
+        
+        Date payStartDate;
+        Integer DayofDate;
+        Integer yrOfDate;
+        Integer payMod;
+        Integer payDays;
+        Date receiveDate;
+        Date ExpectedPaymentMonthDate;
+        
+        Integer NoOfDaysInMonth ;
+        Date FirstdateofMonth;
+        Date LastdateofMonth;
+        Integer NoOfRemaingDays;
+        Date FirstExpectedPaymentDate;
+        Date LastExpectedPaymentDate;
+        Date BiWeeklyPaymentDate; 
+        Date FirstMonthDate;
+        
+        Integer exDay;
+        String exDayStr;
+        Integer exMonth;
+        Integer exYear;
+        Integer NoofDayinExMonth;
+        
+        Date LastDisburDate;
+        Integer LastDisburDay;
+        Integer LastDisburMonth;
+        Integer LastDisburYear;
+        Date LastDateofDisbMonth;
+        Integer NextMonthofDisbursDate;
+        
+        Integer totalDaysinDisMonth;
+        
+        //Decimal totalOutStandingAmount;
+        Decimal InterestAmount;
+        Decimal DisbursFee;
+        Decimal ActualPayoutAmount;
+        
+        
+        String EFTError;
+        String AgreedPaymentId;
+        
+        Decimal TotalAmount=0.00;
+        Decimal EFTAmount=0.00;
+        Decimal TotalRecAmount=0.00;
+        
+        
+        Date todayDate = Date.today();
+        Integer toDay = todayDate.day();
+        Integer toMonth = todayDate.month();
+        Integer toYear = todayDate.year();
+        Decimal paymentReceived =0.00;
+        Decimal CurrMonthPaymentReceived =0.00;
+        //Decimal PaymentPayout=0.00;
+        
+        
+        // List< Agreed_Payment_Amount__c> apAmountList=new List< Agreed_Payment_Amount__c>();
+        List< Agreed_Payment_Amount__c> apAmount;
+        
+        List<Payment_Received__c>payRecList = New List<Payment_Received__c>();    
+        List<Payment_Received__c>payRecErrorList = New List<Payment_Received__c>();
+        List<Payment_Received__c>paymentReceivedList = New List<Payment_Received__c>();
+        
+        
+        
+        // List<Agreed_Payment_Amount_Itmen__c>payItemList = New List<Agreed_Payment_Amount_Itmen__c>();    
+        Map<Decimal,List<Payment_Received__c>> returnMap=New Map<Decimal,List<Payment_Received__c>>();
+        
+        
+        List<Date>StartDateList = new List<Date>();
+        Integer StartDateListSize;
+        List<Date>InitialStartDateList = new List<Date>();
+        Map<Date,Decimal>startDateMap = new Map<Date,Decimal>();
+        Date paymentStartDate;
+        
+        
+        System.debug('pme=====>'+pme);
+        System.debug('exDate=====>'+exDate);
+        System.debug('apAmountList=====>'+apAmountList);
+        System.debug('apAmountList=====>'+payItemList);
+        
+        exDay = exDate.day();
+        exMonth = exDate.month();
+        exYear = exDate.year();
+        NoofDayinExMonth = date.daysInMonth(exYear, exMonth);
+        
+        
+        // Create Payment Error 
+        
+        Payment_Received__c payerror=new Payment_Received__c();
+        
+        EFTError= 'EFT Payment Error';                           
+        payerror.Program_Engagement__c=pme.id;
+        payerror.Client__c=pme.pmdm__Contact__c;
+        payerror.DateReceived__c = exDate;
+        payerror.Payment_Mode__c='EFT Payment';
+        payerror.Status__c='EFT Error';
+        payerror.EFT_Error_Description__c=EFTError;
+        
+        system.debug('payerror======>'+payerror);
+        
+      //  payRecErrorList.add(payerror);
+        
+        // Decimal ExpectedPayment =0.00;
+        
+        system.debug('pme------>'+pme);
+        
+        if(pme!=Null){
+            if(pme.Payment_Start_Date__c!=Null ) {  
+                if(pme.Payment_Frequency__c=='Monthly' ){
+                    
+                   // PaymentPayout = pme.Payout_Amount__c;
+                    payStartDate = pme.Payment_Start_Date__c;
+                    DayofDate = payStartDate.day(); 
+                    yrOfDate = payStartDate.year();
+                    
+                    // Normalize as per the month 
+                    
+                    If(pme.X1st_Payment_Day__c == 'Last Day of Month'){
+                        
+                        pme.X1st_Payment_Day__c = string.valueOf(NoofDayinExMonth);
+                    }
+                    
+                    If(pme.X2nd_Payment_Day__c == 'Last Day of Month'){
+                        
+                        pme.X2nd_Payment_Day__c = string.valueOf(NoofDayinExMonth);
+                    }
+                    
+                    // set Null value to 0
+                    If(pme.X1st_Payment_Day__c == Null){
+                        
+                        pme.X1st_Payment_Day__c = '0';
+                    }
+                    
+                    If(pme.X2nd_Payment_Day__c == Null){
+                        
+                        pme.X2nd_Payment_Day__c = '0';
+                    }
+                    
+                    if(exDay == NoofDayinExMonth){
+                        
+                        if(Integer.valueof(pme.X1st_Payment_Day__c) > exDay){
+                            pme.X1st_Payment_Day__c = string.valueOf(exDay);
+                        }
+                        
+                        if(Integer.valueof(pme.X2nd_Payment_Day__c) > exDay){
+                            pme.X2nd_Payment_Day__c = string.valueOf(exDay);
+                        }
+                    }
+                    
+                    
+                    // Check if Both Payment Day is Null
+                    
+                    if(pme.X1st_Payment_Day__c=='0' && pme.X2nd_Payment_Day__c=='0'){
+                        
+                        if(payRecErrorList.size()==0){                            
+                            payRecErrorList.add(payerror);
+                        } 
+                        
+                    }
+                    
+                    else if (pme.X1st_Payment_Day__c == pme.X2nd_Payment_Day__c ){
+                        
+                        
+                        if(exDay ==Integer.valueOf(pme.X1st_Payment_Day__c)){
+                            ExpectedPaymentMonthDate = Date.newInstance(exYear, exMonth, exDay);
+                            system.debug('PaymentOfMonthDate---->'+ExpectedPaymentMonthDate);
+                        }
+                        else {
+                            ExpectedPaymentMonthDate = Null;
+                        }
+                        
+                    }
+                    
+                    else if (pme.X1st_Payment_Day__c!='0' && pme.X2nd_Payment_Day__c=='0' ) {
+                        
+                        if(exDay ==Integer.valueOf(pme.X1st_Payment_Day__c)){
+                            ExpectedPaymentMonthDate = Date.newInstance(exYear, exMonth, exDay);
+                            system.debug('PaymentOfMonthDate---->'+ExpectedPaymentMonthDate);
+                        }
+                        else {
+                            ExpectedPaymentMonthDate = Null;
+                        }
+                    }
+                    
+                    else if (pme.X1st_Payment_Day__c=='0' && pme.X2nd_Payment_Day__c!='0' ) {
+                        
+                        if(exDay ==Integer.valueOf(pme.X2nd_Payment_Day__c)){
+                            ExpectedPaymentMonthDate = Date.newInstance(exYear, exMonth, exDay);
+                            system.debug('PaymentOfMonthDate---->'+ExpectedPaymentMonthDate);
+                        }
+                        else {
+                            ExpectedPaymentMonthDate = Null;
+                        }
+                    }
+                    
+                    else if (pme.X1st_Payment_Day__c!='0' && pme.X2nd_Payment_Day__c!='0' ) {
+                        
+                        if(exDay ==Integer.valueOf(pme.X1st_Payment_Day__c)){
+                            ExpectedPaymentMonthDate = Date.newInstance(exYear, exMonth, exDay);
+                            system.debug('1stPaymentOfMonthDate---->'+ExpectedPaymentMonthDate);
+                        }
+                        else if(exDay ==Integer.valueOf(pme.X2nd_Payment_Day__c)){
+                            
+                            ExpectedPaymentMonthDate = Date.newInstance(exYear, exMonth, exDay);
+                            system.debug('2ndPaymentOfMonthDate---->'+ExpectedPaymentMonthDate);
+                            
+                        } 
+                        else {
+                            ExpectedPaymentMonthDate = Null;
+                        }
+                    } 
+                    
+                    
+                    //    ExpectedPaymentMonthDate = Date.newInstance(exYear, exMonth, DayofDate);
+                    FirstMonthDate = Date.newInstance(exYear, exMonth, 1);
+                    
+                    system.debug('ExpectedPaymentMonthDate---->'+ExpectedPaymentMonthDate);
+                    system.debug('PrevMonthPaymentDate---->'+ FirstMonthDate);
+                    
+                    
+                    //   system.debug('paymentReceivedList--->'+paymentReceivedList);
+                   // system.debug('PaymentPayout--->'+PaymentPayout);
+                    
+                    
+                    if(payStartDate<=exDate && exDate == ExpectedPaymentMonthDate){
+                        
+                        
+                        
+                        if( apAmountList !=Null && apAmountList.size() ==1 ){
+                            
+                            AgreedPaymentId = apAmountList[0].id;
+                            
+                            system.debug('AgreedPaymentId....'+ AgreedPaymentId);
+                            
+                            
+                            if(payItemList !=Null && payItemList.size()>0 ){
+                                
+                                for(Agreed_Payment_Amount_Itmen__c pt:payItemList){
+                                    
+                                    if(pt.Payment_Start_Date__c!=Null &&pt.Payment_Start_Date__c <=exDate && pt.Total_Payment__c !=Null){
+                                        
+                                        If( pt.Payment_Item_Type__c == 'Payment Agreement' && pt.Payment_End_Date__c!=Null && pt.Payment_End_Date__c >=exDate  ){
+                                            
+                                            paymentStartDate = Date.valueOf(pt.Payment_Start_Date__c);
+                                            
+                                            StartDateList.add(paymentStartDate);
+                                            
+                                            startDateMap.put(paymentStartDate, pt.Total_Payment__c) ; 
+                                            
+                                            //  StartDateListSize = StartDateList.size();
+                                            
+                                            system.debug('StartDateList ----->'+ StartDateList);
+                                        }
+                                        
+                                        
+                                        else if ( pt.Payment_Item_Type__c == 'Initial Agreed Payment Amount' && StartDateList.size() == 0 ){
+                                            
+                                            paymentStartDate = Date.valueOf(pt.Payment_Start_Date__c);
+                                            
+                                            InitialStartDateList.add(paymentStartDate);
+                                            startDateMap.put(paymentStartDate, pt.Total_Payment__c) ;                         
+                                            system.debug('InitialStartDateList--->'+ InitialStartDateList);
+                                        } 
+                                        
+                                    }
+                                }
+                                system.debug('StartDateList ----->'+ StartDateList);
+                                //   system.debug('InitialStartDateList--->'+ InitialStartDateList);
+                                system.debug('startDateMap ----->'+ startDateMap);
+                                
+                                
+                                
+                                if(InitialStartDateList!=Null && StartDateList.size()==0 && InitialStartDateList.size()>0){
+                                    
+                                    // Sort on basis of Initial Payment Start Date
+                                    
+                                    InitialStartDateList.sort();
+                                    
+                                    StartDateList.addAll(InitialStartDateList);
+                                }
+                                system.debug('StartDateList ----->'+ StartDateList);
+                                
+                                if(StartDateList!=Null && StartDateList.Size()>0){
+                                    // StartDateList.sort();
+                                    
+                                    system.debug('StartDateList size is'+StartDateList.size());
+                                    
+                                    receiveDate = StartDateList.get(StartDateList.size()-1);
+                                }  
+                                else {
+                                    if(payRecErrorList.size()==0){
+                                      payRecErrorList.add(payerror);
+                                    } 
+                                }
+                                
+                                if(startDateMap!=Null && startDateMap.containsKey(receiveDate)){
+                                    
+                                    TotalAmount= startDateMap.get(receiveDate);
+                                    
+                                    // Set Total Payment as per Expected Date 
+                                    
+                                    if((exDay == Integer.valueOf(pme.X1st_Payment_Day__c)) ||(exDay == Integer.valueOf(pme.X2nd_Payment_Day__c)) ){
+                                        
+                                        if(pme.X1st_Payment_Day__c== '0'){
+                                            TotalAmount = TotalAmount;
+                                        }
+                                        
+                                        else if(pme.X2nd_Payment_Day__c== '0'){
+                                            TotalAmount = TotalAmount;
+                                        }
+                                        else if(pme.X1st_Payment_Day__c== pme.X2nd_Payment_Day__c){
+                                            TotalAmount = TotalAmount;
+                                        }
+                                        
+                                        else{
+                                            TotalAmount = (TotalAmount/2).setScale(2);
+                                        }
+                                        
+                                    }
+                                    
+                                    
+                                    
+                                }
+                                
+                                
+                            }
+                            
+                            else {
+                                if(payRecErrorList.size()==0){                               
+                                    payRecErrorList.add(payerror);
+                                    
+                                }
+                            }
+                        }                    
+                        else if(apAmountList !=Null && apAmountList.size()>1 ) {
+                            if(payRecErrorList.size()==0){
+                                 payRecErrorList.add(payerror);
+                            }
+                        } 
+                        
+                        else {
+                            if(payRecErrorList.size()==0){
+                                
+                                payRecErrorList.add(payerror);
+                            }
+                        } 
+                    }
+                    
+                    else{
+                        if(payRecErrorList.size()==0  ){
+                            
+                            payRecErrorList.add(payerror);                          
+                        } 
+                    }                    
+                }               
+                
+                else if( pme.Payment_Frequency__c=='Bi-Weekly' ){
+                    
+                   // PaymentPayout = pme.Payout_Amount__c;
+                    payStartDate = pme.Payment_Start_Date__c;
+                    DayofDate = payStartDate.day(); 
+                    yrOfDate = payStartDate.year();
+                    
+                    if(pme.Bi_Weekly_Group__c =='A'){
+                        payStartDate = Date.newInstance(yrOfDate,01,07);
+                    }
+                    else if(pme.Bi_Weekly_Group__c =='B'){
+                        payStartDate = Date.newInstance(yrOfDate,01,14);
+                    }
+                    
+                 //   PaymentPayout = pme.Payout_Amount__c;
+                    
+                    payDays = payStartDate.daysBetween(exDate);
+                    payMod = math.mod(payDays, 14);
+                    
+                    system.debug('payStartDate-->'+payStartDate);
+                    system.debug('PE Pay Start Date-->'+pme.Payment_Start_Date__c);
+                    
+                    if( pme.Payment_Start_Date__c <=exDate && payMod == 0){
+                        
+                        BiWeeklyPaymentDate = exDate;
+                        
+                        FirstMonthDate = Date.newInstance( exYear, exMonth, 1);
+                        
+                        system.debug('BiWeeklyPaymentDate---->'+BiWeeklyPaymentDate);
+                        system.debug('FirstMonthDate---->'+ FirstMonthDate);
+                        
+                      //  system.debug('PaymentPayout--->'+PaymentPayout);
+                        
+                        if(apAmountList !=Null && apAmountList.size()==1){
+                            
+                            AgreedPaymentId = apAmountList[0].id;
+                            
+                            system.debug('AgreedPaymentId....'+ AgreedPaymentId);                    
+                            
+                            
+                            if(payItemList !=Null && payItemList.size()>0 ){
+                                
+                                for(Agreed_Payment_Amount_Itmen__c pt:payItemList){
+                                    
+                                    if(pt.Payment_Start_Date__c!=Null && pt.Payment_Start_Date__c <=exDate && pt.Total_Payment__c !=Null){
+                                        
+                                        If( pt.Payment_Item_Type__c == 'Payment Agreement' && pt.Payment_End_Date__c!=Null && pt.Payment_End_Date__c >=exDate  ){
+                                            
+                                            paymentStartDate = Date.valueOf(pt.Payment_Start_Date__c);
+                                            
+                                            StartDateList.add(paymentStartDate);
+                                            
+                                            startDateMap.put(paymentStartDate, pt.Total_Payment__c) ;                         
+                                        }
+                                        
+                                        else if ( pt.Payment_Item_Type__c == 'Initial Agreed Payment Amount' && StartDateList.size()==0 ){
+                                            
+                                            paymentStartDate = Date.valueOf(pt.Payment_Start_Date__c);
+                                            
+                                            InitialStartDateList.add(paymentStartDate);
+                                            startDateMap.put(paymentStartDate, pt.Total_Payment__c) ;                         
+                                            
+                                        }
+                                    }
+                                }
+                                system.debug('StartDateList ----->'+ StartDateList);
+                                system.debug('startDateMap ----->'+ startDateMap);
+                                if(InitialStartDateList!=Null && StartDateList.size()==0 && InitialStartDateList.size()>0){
+                                    
+                                    // Sort on basis of Initial Payment Start Date
+                                    
+                                    InitialStartDateList.sort();
+                                    
+                                    StartDateList.addAll(InitialStartDateList);
+                                }
+                                if(StartDateList!=Null && StartDateList.Size()>0){
+                                    
+                                    //  StartDateList.sort();
+                                    
+                                    system.debug('StartDateList size is'+StartDateList.size());
+                                    
+                                    receiveDate = StartDateList.get(StartDateList.size()-1);
+                                }
+                                else {
+                                    if(payRecErrorList.size()==0){
+                                        payRecErrorList.add(payerror);
+                                    } 
+                                    
+                                }
+                                
+                                if(startDateMap!=Null && startDateMap.containsKey(receiveDate)){
+                                    
+                                    TotalAmount= startDateMap.get(receiveDate);                                                        
+                                    
+                                }
+                                
+                                
+                            }
+                            else {
+                                if(payRecErrorList.size()==0){
+                                   
+                                    payRecErrorList.add(payerror);
+                                    
+                                }     
+                            }
+                        }
+                        else if(apAmountList !=Null && apAmountList.size()>1 ) {
+                            if(payRecErrorList.size()==0){
+                                payRecErrorList.add(payerror);
+                            }
+                        } 
+                        
+                        else {
+                            if(payRecErrorList.size()==0){
+                                
+                                payRecErrorList.add(payerror);
+                            }  
+                        } 
+                        
+                        
+                        
+                    }  
+                    else{
+                        if(payRecErrorList.size()==0  ){
+                                    
+                            payRecErrorList.add(payerror);                          
+                        } 
+                    }
+                } 
+            }
+        }
+        
+        system.debug('TotalAmount----->'+TotalAmount);
+        system.debug('payRecErrorList----->'+ payRecErrorList);
+        
+        
+        //system.debug('PaymentPayout--->'+PaymentPayout);
+        
+        If(TotalAmount !=Null  ){
+            if(TotalAmount>0 ){
+              //  if(TotalAmount> PaymentPayout ){
+             //       EFTAmount = PaymentPayout;
+              //  }
+             //  else{
+                    EFTAmount = TotalAmount;
+             //   }
+                system.debug('EFTAmount--->'+EFTAmount);
+                returnMap.put(EFTAmount,payRecErrorList);
+            }
+            else{
+                if(payRecErrorList.size()==0  ){
+                   payRecErrorList.add(payerror);                          
+                } 
+                returnMap.put(0,payRecErrorList);
+            }
+        }
+        else {
+            system.debug('payRecErrorList-->'+payRecErrorList.size());
+            if(payRecErrorList.size()==0  ){
+                
+                payRecErrorList.add(payerror);                          
+            } 
+            returnMap.put(0,payRecErrorList);
+            
+        }
+        system.debug('payRecErrorList-->'+payRecErrorList.size());
+        
+        return returnMap;
+    }
+}

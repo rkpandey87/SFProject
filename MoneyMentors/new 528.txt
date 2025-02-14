@@ -1,0 +1,144 @@
+public class ServiceSessionTriggerHandler {
+    
+    public static void handleAfterInsert(List<pmdm__ServiceSession__c> newRecordsList){
+        // if program ='suiting' and '1 hr session'
+        // Look for 2 hr shift (Duration (Hours) = 2.00 ), Volunteer Job='Personal Shopper',
+        // which starts at start time of session or ends when the session ends
+        
+       Map<String,String>SessionProgramMap = new Map<String,String>(); 
+        Map<DateTime,List<pmdm__ServiceSession__c>>SessionTimeMap = new Map<DateTime,List<pmdm__ServiceSession__c>>();
+        Map<DateTime,List<GW_Volunteers__Volunteer_Shift__c>>ShiftTimeMap = new Map<DateTime,List<GW_Volunteers__Volunteer_Shift__c>>();
+        List<pmdm__ServiceSession__c>listSessions = new List<pmdm__ServiceSession__c>();
+         // retrieve session program 
+        for(pmdm__ServiceSession__c pms: [Select Id, pmdm__ServiceSchedule__r.pmdm__Service__r.pmdm__Program__r.Name from pmdm__ServiceSession__c where Id In:newRecordsList  ]){
+            SessionProgramMap.put(pms.Id,pms.pmdm__ServiceSchedule__r.pmdm__Service__r.pmdm__Program__r.Name );
+        }
+        system.debug('#SessionProgramMap===>'+SessionProgramMap);
+        system.debug('#SessionProgramMap Size===>'+SessionProgramMap.size());
+        
+        //first Loop 
+        for(pmdm__ServiceSession__c record : newRecordsList) {
+            System.debug('inside loop===>');
+            //get session hours 
+            Long sessioninMiliSeconds = 0;
+            Integer SessionHour =0;
+            String progamName='suiting';
+            
+            set<DateTime>SessionStartTimeSet = new set<DateTime>();
+            set<DateTime>SessionEndTimeSet = new set<DateTime>();
+            if(record.pmdm__SessionStart__c !=Null && record.pmdm__SessionEnd__c!=Null){
+                sessioninMiliSeconds = record.pmdm__SessionEnd__c.getTime() - record.pmdm__SessionStart__c.getTime();
+                SessionHour = Integer.valueof(sessioninMiliSeconds / (1000 * 60 * 60));
+            }
+            System.debug('##sessioninMiliSeconds ====>'+sessioninMiliSeconds);
+            System.debug('SessionHour ====>'+SessionHour);
+            
+            // get program name of particular session
+            system.debug('##progamName1====>'+record.pmdm__ServiceSchedule__r.pmdm__Service__r.pmdm__Program__r.Name);
+            if(SessionProgramMap!=null && SessionProgramMap.containsKey(record.Id)){
+                progamName = SessionProgramMap.get(record.Id);
+            }
+            System.debug('##progamName2 ====>'+progamName);
+            if(progamName =='suiting' && SessionHour ==1){
+                System.debug('#SessionTimeMap1 ====>'+SessionTimeMap);
+                if(record.pmdm__SessionStart__c !=Null ){
+                    if(SessionTimeMap!=Null && SessionTimeMap.containsKey(record.pmdm__SessionStart__c)) {
+                        SessionTimeMap.get(record.pmdm__SessionStart__c).add(record);
+                    }
+                    else {
+                        SessionTimeMap.put(record.pmdm__SessionStart__c, new List<pmdm__ServiceSession__c>{record}); 
+                    }
+                }
+                System.debug('#SessionTimeMap After Start Date ====>'+SessionTimeMap);
+                
+                if(record.pmdm__SessionEnd__c !=Null ){
+                    DateTime sessionEndDate =(record.pmdm__SessionEnd__c).addHours(-2);
+                    System.debug('##sessionEndDate===>'+sessionEndDate);
+                    if(SessionTimeMap!=Null && SessionTimeMap.containsKey(sessionEndDate)) {
+                        SessionTimeMap.get(sessionEndDate).add(record);
+                    }
+                    else {
+                        SessionTimeMap.put(sessionEndDate, new List<pmdm__ServiceSession__c>{record}); 
+                    }
+                }
+                System.debug('#SessionTimeMap After End Date ====>'+SessionTimeMap);
+                
+            }
+        }
+        List<GW_Volunteers__Volunteer_Shift__c>VolunteerShiftList = new List<GW_Volunteers__Volunteer_Shift__c>();
+        // retrieve GW_Volunteers__Volunteer_Shift__c record on basis of Volunteer Job='Personal Shopper', and shift Duration (Hours) = 2.00
+        if(SessionTimeMap!=Null && SessionTimeMap.size()>0){
+            VolunteerShiftList = [select id, GW_Volunteers__Duration__c,
+                                  GW_Volunteers__Start_Date_Time__c,
+                                  GW_Volunteers__Volunteer_Job__c,
+                                  GW_Volunteers__Volunteer_Job__r.Name 
+                                  from GW_Volunteers__Volunteer_Shift__c 
+                                  where GW_Volunteers__Volunteer_Job__r.Name = 'Personal Shopper' 
+                                  AND GW_Volunteers__Duration__c =2
+                                  AND GW_Volunteers__Start_Date_Time__c IN:SessionTimeMap.keySet()];
+            
+        }
+        
+        system.debug('##VolunteerShiftList====>'+VolunteerShiftList);
+        system.debug('##VolunteerShiftList Size====>'+VolunteerShiftList.Size());
+        
+        if(VolunteerShiftList!=Null && VolunteerShiftList.size()>0){
+            for(GW_Volunteers__Volunteer_Shift__c ShiftRecord :VolunteerShiftList ){
+                 if(ShiftTimeMap!=Null && ShiftTimeMap.containsKey(ShiftRecord.GW_Volunteers__Start_Date_Time__c)) {
+                    ShiftTimeMap.get(ShiftRecord.GW_Volunteers__Start_Date_Time__c).add(ShiftRecord);
+                }
+                else {
+                    ShiftTimeMap.put(ShiftRecord.GW_Volunteers__Start_Date_Time__c, new List<GW_Volunteers__Volunteer_Shift__c>{ShiftRecord}); 
+                }  
+            }
+            
+            system.debug('##ShiftTimeMap====>'+ShiftTimeMap);
+            system.debug('##ShiftTimeMap Size====>'+ShiftTimeMap.Size());
+        }
+        
+         //2nd Loop 
+        for(pmdm__ServiceSession__c rec : newRecordsList) {
+            System.debug('Inside 2nd Loop===>');
+            if(rec.pmdm__SessionStart__c !=Null){
+                if(ShiftTimeMap!=Null && ShiftTimeMap.size()>0 && ShiftTimeMap.containsKey(rec.pmdm__SessionStart__c)){
+                    pmdm__ServiceSession__c  sessionRec = new pmdm__ServiceSession__c();
+                    sessionRec.id = rec.Id;
+                    List<GW_Volunteers__Volunteer_Shift__c> LstshiftRec = ShiftTimeMap.get(rec.pmdm__SessionStart__c);
+                    if(LstshiftRec!=Null && LstshiftRec.size()>0){
+                        sessionRec.Volunteer_Shift__c = LstshiftRec[0].id;
+                    }
+                    LstshiftRec.remove(0);
+                    //update the map 
+                    ShiftTimeMap.put(rec.pmdm__SessionStart__c,LstshiftRec);
+                    System.debug('ShiftTimeMap===>'+ShiftTimeMap);
+               
+                    listSessions.add(sessionRec);
+                }
+            }
+            
+             if(rec.pmdm__SessionStart__c !=Null){
+                if(ShiftTimeMap!=Null && ShiftTimeMap.size()>0 && ShiftTimeMap.containsKey(rec.pmdm__SessionStart__c)){
+                    pmdm__ServiceSession__c  sessionRec = new pmdm__ServiceSession__c();
+                    sessionRec.id = rec.Id;
+                    List<GW_Volunteers__Volunteer_Shift__c> LstshiftRec = ShiftTimeMap.get(rec.pmdm__SessionStart__c);
+                    if(LstshiftRec!=Null && LstshiftRec.size()>0){
+                        sessionRec.Volunteer_Shift__c = LstshiftRec[0].id;
+                        LstshiftRec.remove(0);
+                        //update the map 
+                        ShiftTimeMap.put(rec.pmdm__SessionStart__c,LstshiftRec);
+                    }
+                    
+                    System.debug('ShiftTimeMap===>'+ShiftTimeMap);
+               
+                    listSessions.add(sessionRec);
+                }
+            }
+            if(listSessions!=Null && listSessions.size()>0){
+                update listSessions;
+            }
+            
+        }
+                
+    }
+    
+}

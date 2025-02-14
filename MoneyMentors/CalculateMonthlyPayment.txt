@@ -1,0 +1,1762 @@
+public class CalculateMonthlyPayment {    
+    
+    Date payStartDate;
+    Integer DayofDate;
+    Integer yrOfDate;
+    Integer payMod;
+    Integer payDays;
+    Date receiveDate;
+    Date ExpectedPaymentMonthDate;
+    
+    Integer NoOfDaysInMonth ;
+    Date FirstdateofMonth;
+    Date LastdateofMonth;
+    Integer NoOfRemaingDays;
+    Date FirstExpectedPaymentDate;
+    Date LastExpectedPaymentDate;
+    Date BiWeeklyPaymentDate; 
+    Date FirstMonthDate;
+    
+    Integer exDay;
+    String exDayStr;
+    Integer exMonth;
+    Integer exYear;
+    Integer NoofDayinExMonth;
+    
+    Date LastDisburDate;
+    Integer LastDisburDay;
+    Integer LastDisburMonth;
+    Integer LastDisburYear;
+    Date LastDateofDisbMonth;
+    Integer NextMonthofDisbursDate;
+    
+    Integer totalDaysinDisMonth;
+    
+    //Decimal totalOutStandingAmount;
+    Decimal InterestAmount;
+    Decimal DisbursFee;
+    Decimal ActualPayoutAmount;
+    
+    
+    String EFTError;
+    String AgreedPaymentId;
+    
+    Decimal TotalAmount=0.00;
+    Decimal EFTAmount=0.00;
+    Decimal TotalRecAmount=0.00;
+   
+    
+    Date todayDate = Date.today();
+    Integer toDay = todayDate.day();
+    Integer toMonth = todayDate.month();
+    Integer toYear = todayDate.year();
+    Decimal paymentReceived =0.00;
+    Decimal CurrMonthPaymentReceived =0.00;
+    Decimal PaymentPayout=0.00;
+    
+    List< Agreed_Payment_Amount__c> apAmountList=new List< Agreed_Payment_Amount__c>();
+    List< Agreed_Payment_Amount__c> apAmount;
+    
+    List<Payment_Received__c>payRecList = New List<Payment_Received__c>();    
+    List<Payment_Received__c>payRecErrorList = New List<Payment_Received__c>();
+    List<Payment_Received__c>paymentReceivedList = New List<Payment_Received__c>();
+    
+    Payment_Received__c payerror=new Payment_Received__c();
+    
+    List<Agreed_Payment_Amount_Itmen__c>payItemList = New List<Agreed_Payment_Amount_Itmen__c>();    
+    Map<Decimal,List<Payment_Received__c>> returnMap=New Map<Decimal,List<Payment_Received__c>>();
+    
+    List<Date>StartDateList = new List<Date>();
+    Integer StartDateListSize;
+    List<Date>InitialStartDateList = new List<Date>();
+    Map<Date,Decimal>startDateMap = new Map<Date,Decimal>();
+    Date paymentStartDate;
+    
+    
+    
+    //this method is used to get total expected Monthly Amount when Payment item type is 'Initial Agreed Payment Amount'
+    
+    public static Decimal CalculatePaymentExpectedCO(Date exDate, pmdm__ProgramEngagement__c pme, Map<Id,List<Agreed_Payment_Amount_Itmen__c>> mapPeIdToAgreedPayment){  
+        
+        Date payStartDate;
+        Integer DayofDate;
+        Integer yrOfDate;
+        
+        Integer payMod;
+        Integer payDays;
+        Date receiveDate;
+        
+        Date ExpectedPaymentMonthDate;
+        Integer NoOfDaysInMonth ;
+        Date FirstdateofMonth;
+        Date LastdateofMonth;
+        Integer NoOfRemaingDays;
+        
+        Date FirstExpectedPaymentDate;
+        Date LastExpectedPaymentDate;
+        
+       
+        
+        Integer exDay = exDate.day();
+        Integer exMonth =exDate.month();
+        Integer exYear=exDate.year();
+        
+        String AgreedPaymentId;
+        Decimal TotalAmount=0.00;
+        Decimal TotalRecAmount=0.00;
+        
+        Decimal EFTAmount=0.00;
+        Decimal PaymentPayout=0.00;
+
+        
+        List<Payment_Received__c>payRecList = New List<Payment_Received__c>();
+        List<Agreed_Payment_Amount_Itmen__c>payItemList = New List<Agreed_Payment_Amount_Itmen__c>();
+        
+        List<Date>StartDateList = new List<Date>();
+        List<Date>InitialStartDateList = new List<Date>();
+        
+        Map<Date,Decimal>startDateMap = new Map<Date,Decimal>();
+        Date paymentStartDate;
+        
+        
+        if(pme != null) {
+            // Total_Payment__c,                                                                
+            //Payment_Start_Date__c, 
+            // Payment_End_Date__c,
+            //Agreed_Payment_Amount__r.Program_Engagement__c
+            
+            if(pme.Payment_Start_Date__c!=Null && pme.Payment_Start_Date__c<=exDate){
+                
+                if(mapPeIdToAgreedPayment.containsKey(pme.Id)) {
+                    payItemList = mapPeIdToAgreedPayment.get(pme.Id);
+                }
+                
+                if(pme.Payment_Frequency__c=='Monthly' ){
+                    
+                    PaymentPayout = pme.Payout_Amount_For_Arrear__c;
+                    payStartDate = pme.Payment_Start_Date__c;
+                    DayofDate = payStartDate.day();
+                    yrOfDate = payStartDate.year();
+                    
+                    ExpectedPaymentMonthDate = Date.newInstance(exYear, exMonth, DayofDate);
+                    
+                    NoOfDaysInMonth = Date.daysInMonth(exYear, exMonth);
+                    FirstdateofMonth = Date.newInstance(exYear, exMonth, 1);
+                    LastdateofMonth = Date.newInstance(exYear, exMonth, NoOfDaysInMonth);
+                    
+                    if(payItemList !=Null && payItemList.size()>0 ){
+                        
+                        for(Agreed_Payment_Amount_Itmen__c pt:payItemList){
+                            
+                            If(pt.Payment_Item_Type__c=='Initial Agreed Payment Amount' && pt.Payment_Start_Date__c!=Null && pt.Payment_to_Creditors__c !=Null){
+                                
+                                if(pt.Payment_Start_Date__c<=exDate){
+                                    paymentStartDate = Date.valueOf(pt.Payment_Start_Date__c);
+                                    
+                                    StartDateList.add(paymentStartDate);
+                                    startDateMap.put(paymentStartDate, pt.Payment_to_Creditors__c) ;
+                                }
+                            }
+                        }
+                        system.debug('StartDateList ----->'+ StartDateList);
+                        system.debug('startDateMap ----->'+ startDateMap);
+                        
+                        if(StartDateList!=Null && StartDateList.Size()>0){
+                        StartDateList.sort();
+                        receiveDate = StartDateList.get(StartDateList.size()-1);
+                        }
+                                               
+                        if(startDateMap!=Null && startDateMap.containsKey(receiveDate)){
+                            
+                            TotalAmount= startDateMap.get(receiveDate);
+                            
+                        }
+                        
+                    }
+                    
+                }
+                
+                else if(pme.Payment_Frequency__c=='Bi-Weekly' ){
+                    
+                    PaymentPayout = pme.Payout_Amount_For_Arrear__c;
+                    payStartDate = pme.Payment_Start_Date__c;
+                    DayofDate = payStartDate.day();
+                    yrOfDate = payStartDate.year();
+                    
+                    if(pme.Bi_Weekly_Group__c =='A'){
+                        payStartDate = Date.newInstance(yrOfDate,01,07);
+                    }
+                    else if(pme.Bi_Weekly_Group__c =='B'){
+                        payStartDate = Date.newInstance(yrOfDate,01,14);
+                    }
+                    FirstdateofMonth = Date.newInstance(exYear, exMonth, 1);
+                    NoOfDaysInMonth = Date.daysInMonth(exYear, exMonth);
+                    LastdateofMonth = Date.newInstance(exYear, exMonth, NoOfDaysInMonth);
+                    
+                    //  payStartDate = pme.Payment_Start_Date__c;   
+                    
+                    payDays = payStartDate.daysBetween(FirstdateofMonth);
+                    
+                    payMod = math.mod(payDays, 14);
+                    if(payMod == 0){
+                        FirstExpectedPaymentDate = FirstdateofMonth;  
+                    }
+                    else{
+                        NoOfRemaingDays = (14-payMod);
+                        FirstExpectedPaymentDate = FirstdateofMonth.addDays(NoOfRemaingDays);
+                    }
+                    
+                    LastExpectedPaymentDate = FirstExpectedPaymentDate.addDays(28);
+                    
+                    
+                    system.debug('payStartDate..' + payStartDate);
+                    system.debug('payDays..' + payDays);
+                    system.debug('payMode..' + payMod);
+                    system.debug('DayofDate..' + DayofDate);
+                    system.debug('Day of exDate..' + exDate);
+                    
+                    if(payItemList !=Null && payItemList.size()>0 ){
+                        
+                        for(Agreed_Payment_Amount_Itmen__c pt:payItemList){
+                            
+                           If(pt.Payment_Item_Type__c=='Initial Agreed Payment Amount' && pt.Payment_Start_Date__c!=Null && pt.Payment_to_Creditors__c !=Null){
+                                
+                                if(pt.Payment_Start_Date__c<=exDate){
+                                    paymentStartDate = Date.valueOf(pt.Payment_Start_Date__c);
+                                    
+                                    StartDateList.add(paymentStartDate);
+                                    startDateMap.put(paymentStartDate, pt.Payment_to_Creditors__c) ;
+                                }
+                            }
+                        }
+                        system.debug('StartDateList ----->'+ StartDateList);
+                        system.debug('startDateMap ----->'+ startDateMap);
+                        if(StartDateList!=Null && StartDateList.Size()>0){
+                        StartDateList.sort();
+                        receiveDate = StartDateList.get(StartDateList.size()-1);
+                        }                         
+                       
+                        if(startDateMap!=Null && startDateMap.containsKey(receiveDate)){
+                            
+                            TotalAmount= startDateMap.get(receiveDate);
+                            
+                            if(LastExpectedPaymentDate <= LastdateofMonth){
+                                
+                                TotalAmount=TotalAmount*3;
+                            }
+                            else {
+                                
+                                TotalAmount=TotalAmount*2;
+                            }
+                            
+                        }
+                        
+                    }
+                    
+                    
+                }            
+                
+                system.debug('PaymentPayout====>'+PaymentPayout);
+                
+                if(PaymentPayout < TotalAmount){
+                    
+                    EFTAmount = PaymentPayout;
+                }
+                else{
+                    EFTAmount = TotalAmount;
+                }
+            }
+            
+            
+        }
+        return EFTAmount;
+    }
+    
+    //this method is used to get total expected Monthly Amount on basis of Payment item type is 'Payment Agreement' or 'Initial Agreed Payment Amount'
+    
+    public static Decimal CalculatePaymentExpected(Date exDate, pmdm__ProgramEngagement__c pme,List<Agreed_Payment_Amount_Itmen__c> payItemList){  
+       
+        system.debug('$$ exDate ===========>'+exDate);
+        system.debug('$$ pme ===========>'+pme);
+        system.debug('$$ payItemList ===========>'+payItemList);
+        
+        Date payStartDate;
+        Integer DayofDate;
+        Integer yrOfDate;
+        
+        Integer payMod;
+        Integer payDays;
+        Date receiveDate;
+        
+        Date ExpectedPaymentMonthDate;
+        Integer NoOfDaysInMonth ;
+        Date FirstdateofMonth;
+        Date LastdateofMonth;
+        Integer NoOfRemaingDays;
+        
+        Date FirstExpectedPaymentDate;
+        Date LastExpectedPaymentDate;
+        
+        Integer exDay = exDate.day();
+        Integer exMonth =exDate.month();
+        Integer exYear=exDate.year();
+        
+        String AgreedPaymentId;
+        Decimal TotalAmount=0.00;
+        Decimal TotalRecAmount=0.00;
+        
+        List<Payment_Received__c>payRecList = New List<Payment_Received__c>();
+       
+        List<Date>StartDateList = new List<Date>();
+        List<Date>InitialStartDateList = new List<Date>();
+        Map<Date,Decimal>startDateMap = new Map<Date,Decimal>();
+        Date paymentStartDate;
+
+        if(pme != null) {
+                       
+            if(pme.Payment_Start_Date__c!=Null && pme.Payment_Start_Date__c<=exDate){
+  
+                if(pme.Payment_Frequency__c=='Monthly' ){
+                    
+                    payStartDate = pme.Payment_Start_Date__c;
+                    
+                    DayofDate = payStartDate.day();                          
+                    
+                    ExpectedPaymentMonthDate = Date.newInstance(exYear, exMonth, DayofDate);
+                    
+                    NoOfDaysInMonth = Date.daysInMonth(exYear, exMonth);
+                    
+                    FirstdateofMonth = Date.newInstance(exYear, exMonth, 1);
+                   
+                    LastdateofMonth = Date.newInstance(exYear, exMonth, NoOfDaysInMonth);
+                    
+                    if(payItemList !=Null && payItemList.size()>0 ){                        
+                        
+                        for(Agreed_Payment_Amount_Itmen__c pt:payItemList){                            
+                            
+                            if(pt.Payment_Start_Date__c!=Null  && pt.Total_Payment__c !=Null){                                
+                                
+                                If( pt.Payment_Item_Type__c == 'Payment Agreement' && pt.Payment_End_Date__c!=Null && pt.Payment_Start_Date__c <=exDate && pt.Payment_End_Date__c >= exDate) {
+                                    paymentStartDate = Date.valueOf(pt.Payment_Start_Date__c);
+                                    StartDateList.add(paymentStartDate);
+                                    startDateMap.put(paymentStartDate, pt.Total_Payment__c) ;                    
+                                }                                
+                                
+                                else if ( pt.Payment_Item_Type__c == 'Initial Agreed Payment Amount' && StartDateList.size()==0 && pt.Payment_Start_Date__c <=exDate){                                    
+                                    paymentStartDate = Date.valueOf(pt.Payment_Start_Date__c);                                 
+                                    InitialStartDateList.add(paymentStartDate);
+                                    startDateMap.put(paymentStartDate, pt.Total_Payment__c) ;                                    
+                                }
+                            }
+                        }
+                        
+                        if( StartDateList.size()==0 && InitialStartDateList!=Null && InitialStartDateList.size()>0){
+                            StartDateList.addAll(InitialStartDateList);
+                        }
+                        
+                        if(StartDateList!=Null && StartDateList.Size()>0){
+                            StartDateList.sort();                            
+                            receiveDate = StartDateList.get(StartDateList.size()-1);
+                             system.debug('$$ receiveDate ===========>'+receiveDate);
+                        }
+                                                 
+                        if(startDateMap!=Null && startDateMap.containsKey(receiveDate)){                            
+                            TotalAmount= startDateMap.get(receiveDate);                            
+                        }
+                    }   
+                    system.debug('$$ TotalAmount ===========>'+TotalAmount);
+                    return TotalAmount;
+                }
+                
+                else if(pme.Payment_Frequency__c=='Bi-Weekly' ){
+                    
+                    payStartDate = pme.Payment_Start_Date__c;
+                    DayofDate = payStartDate.day();
+                    yrOfDate = payStartDate.year();
+                    
+                    if(pme.Bi_Weekly_Group__c =='A'){
+                        payStartDate = Date.newInstance(yrOfDate,01,07);
+                    }
+                    else if(pme.Bi_Weekly_Group__c =='B'){
+                        payStartDate = Date.newInstance(yrOfDate,01,14);
+                    }
+                    FirstdateofMonth = Date.newInstance(exYear, exMonth, 1);
+                    NoOfDaysInMonth = Date.daysInMonth(exYear, exMonth);
+                    LastdateofMonth = Date.newInstance(exYear, exMonth, NoOfDaysInMonth);
+                    
+                    //  payStartDate = pme.Payment_Start_Date__c;   
+                    
+                    payDays = (payStartDate.daysBetween(FirstdateofMonth));
+                    
+                    payDays = payDays;
+                    
+                   payMod = math.mod(payDays, 14);
+                    if(payMod == 0){
+                        FirstExpectedPaymentDate = FirstdateofMonth;  
+                    }
+                    else{
+                        NoOfRemaingDays = (14-payMod);
+                        FirstExpectedPaymentDate = FirstdateofMonth.addDays(NoOfRemaingDays);
+                    }
+                    
+                    LastExpectedPaymentDate = FirstExpectedPaymentDate.addDays(28);
+                    
+                    
+                    system.debug('payStartDate..' + payStartDate);
+                    system.debug('payDays..' + payDays);
+                    system.debug('payMode..' + payMod);
+                    system.debug('DayofDate..' + DayofDate);
+                    system.debug('Day of exDate..' + exDate);
+                    
+                    if(payItemList !=Null && payItemList.size()>0 ){
+                        
+                        for(Agreed_Payment_Amount_Itmen__c pt:payItemList){
+                            
+                            if(pt.Payment_Start_Date__c!=Null && pt.Payment_Start_Date__c <=exDate && pt.Total_Payment__c !=Null){
+                                
+                                If( pt.Payment_Item_Type__c == 'Payment Agreement' && pt.Payment_End_Date__c!=Null && pt.Payment_End_Date__c >=exDate  ){
+                                    
+                                    paymentStartDate = Date.valueOf(pt.Payment_Start_Date__c);
+                                    
+                                    StartDateList.add(paymentStartDate);
+                                    
+                                    startDateMap.put(paymentStartDate, pt.Total_Payment__c) ;                         
+                                }
+                                
+                                else if ( pt.Payment_Item_Type__c == 'Initial Agreed Payment Amount' && StartDateList.size()==0 ){
+                                    
+                                    paymentStartDate = Date.valueOf(pt.Payment_Start_Date__c);
+                                    
+                                    InitialStartDateList.add(paymentStartDate);
+                                    
+                                    startDateMap.put(paymentStartDate, pt.Total_Payment__c) ;                         
+                                    
+                                }
+                            }
+                        }
+                        system.debug('StartDateList ----->'+ StartDateList);
+                        system.debug('startDateMap ----->'+ startDateMap);
+                        
+                         if(InitialStartDateList!=Null && StartDateList.size()==0 && InitialStartDateList.size()>0){
+                            StartDateList.addAll(InitialStartDateList);
+                        }
+                        if(StartDateList!=Null && StartDateList.Size()>0){
+                            StartDateList.sort();
+                            
+                            system.debug('StartDateList size is'+StartDateList.size());
+                            
+                            receiveDate = StartDateList.get(StartDateList.size()-1);
+                        }
+                                             
+                        
+                        if(startDateMap!=Null && startDateMap.containsKey(receiveDate)){
+                            
+                            TotalAmount= startDateMap.get(receiveDate);
+                            
+                            if(LastExpectedPaymentDate <= LastdateofMonth){
+                                
+                                TotalAmount=TotalAmount*3;
+                            }
+                            else {
+                                
+                                TotalAmount=TotalAmount*2;
+                            }
+                            
+                        }
+                        
+                    }
+                    
+                    
+                }            
+                
+            }
+            
+            
+        }
+        system.debug('$$ TotalAmount ===========>'+TotalAmount);
+        return TotalAmount;
+    }
+    
+    //This method return Amount agreed item ID with Expected Payment Amount
+    
+    public static Map<String,String> CalculatePaymentExpectedPA(Date exDate, pmdm__ProgramEngagement__c pme,List<Agreed_Payment_Amount_Itmen__c> payItemList){  
+       
+        system.debug('$$ exDate ===========>'+exDate);
+        system.debug('$$ pme ===========>'+pme);
+        system.debug('$$ payItemList ===========>'+payItemList);
+        
+        Date payStartDate;
+        Integer DayofDate;
+        Integer yrOfDate;
+        
+        Integer payMod;
+        Integer payDays;
+        Date receiveDate;
+        
+        Date ExpectedPaymentMonthDate;
+        Integer NoOfDaysInMonth ;
+        Date FirstdateofMonth;
+        Date LastdateofMonth;
+        Integer NoOfRemaingDays;
+        
+        Date FirstExpectedPaymentDate;
+        Date LastExpectedPaymentDate;
+        
+        Integer exDay = exDate.day();
+        Integer exMonth =exDate.month();
+        Integer exYear=exDate.year();
+        
+        String AgreedPaymentId;
+        Decimal TotalAmount;
+        Decimal TotalRecAmount=0.00;
+        
+        Decimal EFTAmount;
+        Decimal PaymentPayout;
+        
+        Agreed_Payment_Amount_Itmen__c  apItem = new Agreed_Payment_Amount_Itmen__c();
+        apItem = Null;  
+        
+        List<Payment_Received__c>payRecList = New List<Payment_Received__c>();
+       
+        List<Date>StartDateList = new List<Date>();
+        List<Date>InitialStartDateList = new List<Date>();
+       // Map<Date,Decimal>startDateMap = new Map<Date,Decimal>();
+        Map<Date,Agreed_Payment_Amount_Itmen__c>startDateMap = new Map<Date,Agreed_Payment_Amount_Itmen__c>();
+        Map<String,String>retAmountMap = new Map<String,String>();
+        Date paymentStartDate;
+
+        if(pme != null) {
+                       
+            if(pme.Payment_Start_Date__c!=Null && pme.Payment_Start_Date__c<=exDate){
+  
+                if(pme.Payment_Frequency__c=='Monthly' ){
+                    system.debug('$$ pme ===========>1');
+                    PaymentPayout = pme.Payout_Amount_For_Arrear__c;
+
+                    payStartDate = pme.Payment_Start_Date__c;
+                    
+                    DayofDate = payStartDate.day();                          
+                    
+                    ExpectedPaymentMonthDate = Date.newInstance(exYear, exMonth, DayofDate);
+                    
+                    NoOfDaysInMonth = Date.daysInMonth(exYear, exMonth);
+                    
+                    FirstdateofMonth = Date.newInstance(exYear, exMonth, 1);
+                   
+                    LastdateofMonth = Date.newInstance(exYear, exMonth, NoOfDaysInMonth);
+                    
+                    if(payItemList !=Null && payItemList.size()>0 ){                        
+                        system.debug('$$ pme ===========>2');
+                        for(Agreed_Payment_Amount_Itmen__c pt:payItemList){                            
+                            system.debug('## Payment_to_Creditors__c = '+pt.Payment_to_Creditors__c);
+                            if(pt.Payment_Start_Date__c!=Null  && pt.Payment_to_Creditors__c !=Null){                                
+                                
+                                If( pt.Payment_Item_Type__c == 'Payment Agreement' && pt.Payment_End_Date__c!=Null && pt.Payment_Start_Date__c <=exDate && pt.Payment_End_Date__c >= exDate) {
+                                    paymentStartDate = Date.valueOf(pt.Payment_Start_Date__c);
+                                    StartDateList.add(paymentStartDate);
+                                    startDateMap.put(paymentStartDate, pt) ;                    
+                                }                                
+                                           
+                            }
+                        }                                            
+                        
+                        if(StartDateList!=Null && StartDateList.Size()>0){
+                           // StartDateList.sort();                            
+                            receiveDate = StartDateList.get(StartDateList.size()-1);
+                        }
+                                                 
+                        if(startDateMap!=Null && startDateMap.containsKey(receiveDate)){                            
+                            apItem= startDateMap.get(receiveDate);                            
+                        }
+                       
+                    }   
+                    if(apItem!=Null && apItem.Payment_to_Creditors__c!=Null){
+                        system.debug('$$ pme ===========>3');
+                        system.debug('$$ apItem ===========>'+apItem);
+                        system.debug('$$ Amount ===========>'+apItem.Payment_to_Creditors__c);
+                        system.debug('$$ Id ===========>'+apItem.Id);
+                        
+                        system.debug('PaymentPayout====>'+PaymentPayout);
+                        
+                        TotalAmount = apItem.Payment_to_Creditors__c;
+                       system.debug('## TotalAmount = '+TotalAmount);
+                        if(PaymentPayout < TotalAmount){
+                            
+                            EFTAmount = PaymentPayout;
+                            
+                            retAmountMap.put('Id',Null);
+                            retAmountMap.put('Amount',String.valueof(EFTAmount));
+                        }
+                        else{
+                            
+                            EFTAmount = TotalAmount;
+                           
+                            retAmountMap.put('Id',apItem.Id);
+                            retAmountMap.put('Amount',String.valueof(EFTAmount));
+                        }
+                       
+                    }
+                      
+                    system.debug('$$retAmountMap========>'+retAmountMap);
+                    
+                    return retAmountMap;
+                }
+                
+                else if(pme.Payment_Frequency__c=='Bi-Weekly' ){
+                    
+                    PaymentPayout = pme.Payout_Amount_For_Arrear__c;
+                    payStartDate = pme.Payment_Start_Date__c;
+                    DayofDate = payStartDate.day();
+                    yrOfDate = payStartDate.year();
+                    
+                    if(pme.Bi_Weekly_Group__c =='A'){
+                        payStartDate = Date.newInstance(yrOfDate,01,07);
+                    }
+                    else if(pme.Bi_Weekly_Group__c =='B'){
+                        payStartDate = Date.newInstance(yrOfDate,01,14);
+                    }
+                    FirstdateofMonth = Date.newInstance(exYear, exMonth, 1);
+                    NoOfDaysInMonth = Date.daysInMonth(exYear, exMonth);
+                    LastdateofMonth = Date.newInstance(exYear, exMonth, NoOfDaysInMonth);
+                    
+                    //  payStartDate = pme.Payment_Start_Date__c;   
+                    
+                    payDays = (payStartDate.daysBetween(FirstdateofMonth));
+                    
+                    payDays = payDays;
+                    
+                   payMod = math.mod(payDays, 14);
+                    if(payMod == 0){
+                        FirstExpectedPaymentDate = FirstdateofMonth;  
+                    }
+                    else{
+                        NoOfRemaingDays = (14-payMod);
+                        FirstExpectedPaymentDate = FirstdateofMonth.addDays(NoOfRemaingDays);
+                    }
+                    
+                    LastExpectedPaymentDate = FirstExpectedPaymentDate.addDays(28);
+                    
+                    
+                    system.debug('payStartDate..' + payStartDate);
+                    system.debug('payDays..' + payDays);
+                    system.debug('payMode..' + payMod);
+                    system.debug('DayofDate..' + DayofDate);
+                    system.debug('Day of exDate..' + exDate);
+                    
+                    if(payItemList !=Null && payItemList.size()>0 ){
+                        
+                        for(Agreed_Payment_Amount_Itmen__c pt:payItemList){
+                            
+                            if(pt.Payment_Start_Date__c!=Null && pt.Payment_Start_Date__c <=exDate && pt.Payment_to_Creditors__c !=Null){
+                                
+                                If( pt.Payment_Item_Type__c == 'Payment Agreement' && pt.Payment_End_Date__c!=Null && pt.Payment_End_Date__c >=exDate  ){
+                                    
+                                    paymentStartDate = Date.valueOf(pt.Payment_Start_Date__c);
+                                    
+                                    StartDateList.add(paymentStartDate);
+                                    
+                                    startDateMap.put(paymentStartDate, pt) ;                         
+                                }
+                                                            
+                            }
+                        }
+                        system.debug('StartDateList ----->'+ StartDateList);
+                        system.debug('startDateMap ----->'+ startDateMap);
+                        
+                        if(StartDateList!=Null && StartDateList.Size()>0){
+                          //  StartDateList.sort();
+                            
+                            system.debug('StartDateList size is'+StartDateList.size());
+                            
+                            receiveDate = StartDateList.get(StartDateList.size()-1);
+                        }
+                                             
+                        
+                        if(startDateMap!=Null && startDateMap.containsKey(receiveDate)){
+                            
+                            apItem= startDateMap.get(receiveDate);
+                            
+                            TotalAmount =apItem.Payment_to_Creditors__c;
+                            
+                            }
+                        if(TotalAmount!=Null){
+                            if(LastExpectedPaymentDate <= LastdateofMonth){
+                                
+                                TotalAmount=TotalAmount*3;
+                            }
+                            else {
+                                
+                                TotalAmount=TotalAmount*2;
+                            }
+                        }
+                            system.debug('PaymentPayout====>'+PaymentPayout);
+                            
+                            if(apItem!=Null && apItem.Payment_to_Creditors__c!=Null){                             
+                                if(PaymentPayout < TotalAmount){
+                                    
+                                    EFTAmount = PaymentPayout;
+                                    
+                                    retAmountMap.put('Id',Null);
+                                    retAmountMap.put('Amount',String.valueof(EFTAmount));
+                                }
+                                else{
+                                    EFTAmount = TotalAmount;
+                                    
+                                   
+                                    retAmountMap.put('Id',apItem.Id);
+                                    retAmountMap.put('Amount',String.valueof(EFTAmount));
+                                }
+                            }
+                       
+                      
+                        
+                    }
+                                
+                
+           
+                    
+                    system.debug('$$retAmountMap========>'+retAmountMap);
+                    
+                    return retAmountMap;
+                } 
+                
+            }
+            
+            
+        }
+        system.debug('$$ retAmountMap ===========>'+retAmountMap);
+        return retAmountMap;
+    }
+      
+    //this method is used to calculate Total Payment for ClientEFT Batch
+    
+    public Map<Decimal,List<Payment_Received__c>> CalculateEFTPayment(pmdm__ProgramEngagement__c pme, Date exDate,List<Payment_Received__c>paymentReceivedList,List<Agreed_Payment_Amount__c>apAmountList, List<Agreed_Payment_Amount_Itmen__c>payItemList){
+        
+        System.debug('pme=====>'+pme);
+        System.debug('exDate=====>'+exDate);
+         System.debug('paymentReceivedList=====>'+paymentReceivedList);
+        System.debug('apAmountList=====>'+apAmountList);
+        System.debug('apAmountList=====>'+payItemList);
+        
+        exDay = exDate.day();
+        exMonth = exDate.month();
+        exYear = exDate.year();
+        NoofDayinExMonth = date.daysInMonth(exYear, exMonth);
+        
+        //Get Last Disburment Date
+        
+        if(pme.Last_Disbursement_Date__c!=Null){
+            
+            LastDisburDate =pme.Last_Disbursement_Date__c;
+            LastDisburDay =LastDisburDate.day();
+            
+            LastDisburMonth =LastDisburDate.month();
+            LastDisburYear =LastDisburDate.year();
+            
+            totalDaysinDisMonth = date.daysInMonth(LastDisburYear, LastDisburMonth);
+            LastDateofDisbMonth =date.newInstance(LastDisburYear, LastDisburMonth, totalDaysinDisMonth);
+            NextMonthofDisbursDate = (LastDisburDate.addMonths(1)).month();
+        }
+        
+        system.debug('LastDisburDate======>'+LastDisburDate);
+        system.debug('LastDisburDay======>'+LastDisburDay);
+        system.debug('LastDisburMonth======>'+LastDisburMonth);
+        system.debug('LastDisburYear======>'+LastDisburYear);
+        system.debug('NextMonthofDisbursDate======>'+NextMonthofDisbursDate);
+        
+        //Get Total Outstanding Debt Remaining Amount       
+        
+      //  if(pme!=Null && pme.Total_Outstanding_Debt_Remaining__c!=Null){
+       //     totalOutStandingAmount =pme.Total_Outstanding_Debt_Remaining__c;
+      //  } 
+        
+       
+        // Decimal ExpectedPayment =0.00;
+      
+        system.debug('pme------>'+pme);
+        
+        if(pme!=Null){
+            if(pme.Payment_Start_Date__c!=Null ) {  
+                if(pme.Payment_Frequency__c=='Monthly' ){
+                    
+                    PaymentPayout = pme.Payout_Amount__c;
+                    payStartDate = pme.Payment_Start_Date__c;
+                    DayofDate = payStartDate.day(); 
+                    yrOfDate = payStartDate.year();
+                    
+                     // Normalize as per the month 
+                    
+                    If(pme.X1st_Payment_Day__c == 'Last Day of Month'){
+                        
+                        pme.X1st_Payment_Day__c = string.valueOf(NoofDayinExMonth);
+                    }
+                    
+                    If(pme.X2nd_Payment_Day__c == 'Last Day of Month'){
+                        
+                        pme.X2nd_Payment_Day__c = string.valueOf(NoofDayinExMonth);
+                    }
+                    
+                    // set Null value to 0
+                     If(pme.X1st_Payment_Day__c == Null){
+                        
+                        pme.X1st_Payment_Day__c = '0';
+                    }
+                    
+                    If(pme.X2nd_Payment_Day__c == Null){
+                        
+                        pme.X2nd_Payment_Day__c = '0';
+                    }
+                    
+                    if(exDay == NoofDayinExMonth){
+                        
+                        if(Integer.valueof(pme.X1st_Payment_Day__c) > exDay){
+                            pme.X1st_Payment_Day__c = string.valueOf(exDay);
+                        }
+                        
+                        if(Integer.valueof(pme.X2nd_Payment_Day__c) > exDay){
+                            pme.X2nd_Payment_Day__c = string.valueOf(exDay);
+                        }
+                    }
+                    
+                    // Check if Both Payment Day is Null
+                    
+                    if(pme.X1st_Payment_Day__c=='0' && pme.X2nd_Payment_Day__c=='0'){
+                        
+                        if(payRecErrorList.size()==0){
+                            EFTError= 'EFT Payment Day is not set!';                           
+                            payerror.Program_Engagement__c=pme.id;
+                            payerror.Client__c=pme.pmdm__Contact__c;
+                            payerror.DateReceived__c = exDate;
+                            payerror.Payment_Mode__c='EFT Payment';
+                            payerror.Status__c='EFT Error';
+                            payerror.EFT_Error_Description__c=EFTError;
+                            payRecErrorList.add(payerror);
+                        } 
+                        
+                    }
+                    
+                    else if (pme.X1st_Payment_Day__c == pme.X2nd_Payment_Day__c ){
+                        
+                        
+                      if(exDay ==Integer.valueOf(pme.X1st_Payment_Day__c)){
+                                ExpectedPaymentMonthDate = Date.newInstance(exYear, exMonth, exDay);
+                                system.debug('PaymentOfMonthDate---->'+ExpectedPaymentMonthDate);
+                            }
+                        else {
+                            ExpectedPaymentMonthDate = Null;
+                        }
+                        
+                    }
+                    
+                    else if (pme.X1st_Payment_Day__c!='0' && pme.X2nd_Payment_Day__c=='0' ) {
+                         
+                        if(exDay ==Integer.valueOf(pme.X1st_Payment_Day__c)){
+                                ExpectedPaymentMonthDate = Date.newInstance(exYear, exMonth, exDay);
+                                system.debug('PaymentOfMonthDate---->'+ExpectedPaymentMonthDate);
+                            }
+                        else {
+                            ExpectedPaymentMonthDate = Null;
+                        }
+                    }
+                    
+                    else if (pme.X1st_Payment_Day__c=='0' && pme.X2nd_Payment_Day__c!='0' ) {
+                        
+                        if(exDay ==Integer.valueOf(pme.X2nd_Payment_Day__c)){
+                            ExpectedPaymentMonthDate = Date.newInstance(exYear, exMonth, exDay);
+                            system.debug('PaymentOfMonthDate---->'+ExpectedPaymentMonthDate);
+                        }
+                        else {
+                            ExpectedPaymentMonthDate = Null;
+                        }
+                    }
+                    
+                    else if (pme.X1st_Payment_Day__c!='0' && pme.X2nd_Payment_Day__c!='0' ) {
+                        
+                        if(exDay ==Integer.valueOf(pme.X1st_Payment_Day__c)){
+                            ExpectedPaymentMonthDate = Date.newInstance(exYear, exMonth, exDay);
+                            system.debug('1stPaymentOfMonthDate---->'+ExpectedPaymentMonthDate);
+                        }
+                        else if(exDay ==Integer.valueOf(pme.X2nd_Payment_Day__c)){
+                            
+                            ExpectedPaymentMonthDate = Date.newInstance(exYear, exMonth, exDay);
+                            system.debug('2ndPaymentOfMonthDate---->'+ExpectedPaymentMonthDate);
+                            
+                        } 
+                        else {
+                            ExpectedPaymentMonthDate = Null;
+                        }
+                    } 
+                       
+                    
+                //    ExpectedPaymentMonthDate = Date.newInstance(exYear, exMonth, DayofDate);
+                    FirstMonthDate = Date.newInstance(exYear, exMonth, 1);
+                    
+                    system.debug('ExpectedPaymentMonthDate---->'+ExpectedPaymentMonthDate);
+                    system.debug('PrevMonthPaymentDate---->'+ FirstMonthDate);
+                    
+                 
+                 //   system.debug('paymentReceivedList--->'+paymentReceivedList);
+                    system.debug('PaymentPayout--->'+PaymentPayout);
+                    
+                   
+                    // Calculate payment received Amount 
+                    
+                    if(LastDisburDate!=Null && exMonth == NextMonthofDisbursDate){
+                        
+                        if(paymentReceivedList !=Null && paymentReceivedList.size()>0 ){
+                            
+                            for(Payment_Received__c pr : paymentReceivedList ){
+                                
+                                if(pr.DateReceived__c<=LastDateofDisbMonth && pr.Amount__c!=Null){
+                                    
+                                    paymentReceived+=pr.Amount__c;
+                                    
+                                    
+                                }
+                                if(pr.Amount__c!=Null && pr.DateReceived__c>LastDateofDisbMonth && pr.DateReceived__c<=exDate  ){
+                                    
+                                    CurrMonthPaymentReceived+=pr.Amount__c;
+                                
+                                        }
+                                
+                            }
+                        }
+                        
+                    }
+                    
+                    
+                    system.debug('paymentReceived--->'+paymentReceived);
+                    
+           
+                    if(payStartDate<=exDate && exDate == ExpectedPaymentMonthDate ){
+                     
+                                   
+                        
+                        if( apAmountList !=Null && apAmountList.size() ==1 ){
+                            
+                            AgreedPaymentId = apAmountList[0].id;
+                            
+                            system.debug('AgreedPaymentId....'+ AgreedPaymentId);
+                            
+                         
+                            if(payItemList !=Null && payItemList.size()>0 ){
+                                
+                                for(Agreed_Payment_Amount_Itmen__c pt:payItemList){
+                                    
+                                    if(pt.Payment_Start_Date__c!=Null &&pt.Payment_Start_Date__c <=exDate && pt.Total_Payment__c !=Null){
+                                        
+                                        If( pt.Payment_Item_Type__c == 'Payment Agreement' && pt.Payment_End_Date__c!=Null && pt.Payment_End_Date__c >=exDate  ){
+                                            
+                                            paymentStartDate = Date.valueOf(pt.Payment_Start_Date__c);
+                                            
+                                            StartDateList.add(paymentStartDate);
+                                            
+                                            startDateMap.put(paymentStartDate, pt.Total_Payment__c) ; 
+                                            
+                                            //  StartDateListSize = StartDateList.size();
+                                            
+                                             system.debug('StartDateList ----->'+ StartDateList);
+                                        }
+                                        
+                                        
+                                        else if ( pt.Payment_Item_Type__c == 'Initial Agreed Payment Amount' && StartDateList.size() == 0 ){
+                                            
+                                            paymentStartDate = Date.valueOf(pt.Payment_Start_Date__c);
+                                            
+                                            InitialStartDateList.add(paymentStartDate);
+                                            startDateMap.put(paymentStartDate, pt.Total_Payment__c) ;                         
+                                             system.debug('InitialStartDateList--->'+ InitialStartDateList);
+                                        } 
+                                        
+                                    }
+                                }
+                                system.debug('StartDateList ----->'+ StartDateList);
+                             //   system.debug('InitialStartDateList--->'+ InitialStartDateList);
+                                system.debug('startDateMap ----->'+ startDateMap);
+                               
+                                
+                                
+                                if(InitialStartDateList!=Null && StartDateList.size()==0 && InitialStartDateList.size()>0){
+                                    
+                                    // Sort on basis of Initial Payment Start Date
+                                    
+                                    InitialStartDateList.sort();
+                                    
+                                    StartDateList.addAll(InitialStartDateList);
+                                }
+                                system.debug('StartDateList ----->'+ StartDateList);
+                                
+                                if(StartDateList!=Null && StartDateList.Size()>0){
+                                   // StartDateList.sort();
+                                    
+                                    system.debug('StartDateList size is'+StartDateList.size());
+                                    
+                                    receiveDate = StartDateList.get(StartDateList.size()-1);
+                                }  
+                                else {
+                                    if(payRecErrorList.size()==0){
+                                        EFTError= 'Incorrect details found in the payment amount line item.';                           
+                                        payerror.Program_Engagement__c=pme.id;
+                                        payerror.Client__c=pme.pmdm__Contact__c;
+                                        payerror.DateReceived__c = exDate;
+                                        payerror.Payment_Mode__c='EFT Payment';
+                                        payerror.Status__c='EFT Error';
+                                        payerror.EFT_Error_Description__c=EFTError;
+                                        payRecErrorList.add(payerror);
+                                    } 
+                                }
+                                
+                                if(startDateMap!=Null && startDateMap.containsKey(receiveDate)){
+                                    
+                                    TotalAmount= startDateMap.get(receiveDate);
+                                    
+                                    // Set Total Payment as per Expected Date 
+                                    
+                                    if((exDay == Integer.valueOf(pme.X1st_Payment_Day__c)) ||(exDay == Integer.valueOf(pme.X2nd_Payment_Day__c)) ){
+                                        
+                                        if(pme.X1st_Payment_Day__c== '0'){
+                                            TotalAmount = TotalAmount;
+                                        }
+                                        
+                                        else if(pme.X2nd_Payment_Day__c== '0'){
+                                            TotalAmount = TotalAmount;
+                                        }
+                                        else if(pme.X1st_Payment_Day__c== pme.X2nd_Payment_Day__c){
+                                            TotalAmount = TotalAmount;
+                                        }
+                                        
+                                        else{
+                                            TotalAmount = (TotalAmount/2).setScale(2);
+                                        }
+                                        
+                                    }
+                                  
+                                    
+                                                                     
+                                }
+                                
+                                
+                            }
+                            
+                            else {
+                                if(payRecErrorList.size()==0){
+                                    EFTError= 'No Agreed Payment Amount line item found for this date.';                                  
+                                    payerror.Program_Engagement__c=pme.id;
+                                    payerror.Client__c=pme.pmdm__Contact__c;
+                                    payerror.DateReceived__c = exDate;
+                                    payerror.Payment_Mode__c='EFT Payment';
+                                    payerror.Status__c='EFT Error';
+                                    payerror.EFT_Error_Description__c=EFTError;
+                                    payRecErrorList.add(payerror);
+                                    
+                                }
+                            }
+                        }                    
+                        else if(apAmountList !=Null && apAmountList.size()>1 ) {
+                            if(payRecErrorList.size()==0){
+                                EFTError= 'More Than one Active Agreed Payment Amount Found.';                      
+                                payerror.Program_Engagement__c=pme.id;
+                                payerror.Client__c=pme.pmdm__Contact__c;
+                                payerror.DateReceived__c = exDate;
+                                payerror.Payment_Mode__c='EFT Payment';
+                                payerror.Status__c='EFT Error';
+                                payerror.EFT_Error_Description__c=EFTError;
+                                payRecErrorList.add(payerror);
+                            }
+                        } 
+                        
+                        else {
+                            if(payRecErrorList.size()==0){
+                                EFTError = 'No Active Agreed Payment Amount Found.';                           
+                                payerror.Program_Engagement__c=pme.id;
+                                payerror.Client__c=pme.pmdm__Contact__c;
+                                payerror.DateReceived__c = exDate;
+                                payerror.Payment_Mode__c='EFT Payment';
+                                payerror.Status__c='EFT Error';
+                                payerror.EFT_Error_Description__c=EFTError;
+                                payRecErrorList.add(payerror);
+                            }
+                        } 
+                    }
+                    
+                    else{
+                        if(payRecErrorList.size()==0  ){
+                            EFTError= 'This date doesnot match with payment date';                
+                            payerror.Program_Engagement__c=pme.id;
+                            payerror.Client__c=pme.pmdm__Contact__c;
+                            payerror.Payment_Mode__c='EFT Payment';
+                            payerror.DateReceived__c = exDate;
+                            payerror.Status__c='EFT Error';
+                            payerror.EFT_Error_Description__c=EFTError;        
+                            payRecErrorList.add(payerror);                          
+                        } 
+                    }                    
+                }               
+                
+                else if( pme.Payment_Frequency__c=='Bi-Weekly' ){
+                    
+                    PaymentPayout = pme.Payout_Amount__c;
+                    payStartDate = pme.Payment_Start_Date__c;
+                    DayofDate = payStartDate.day(); 
+                    yrOfDate = payStartDate.year();
+                    
+                    if(pme.Bi_Weekly_Group__c =='A'){
+                        payStartDate = Date.newInstance(yrOfDate,01,07);
+                    }
+                    else if(pme.Bi_Weekly_Group__c =='B'){
+                        payStartDate = Date.newInstance(yrOfDate,01,14);
+                    }
+                    
+                    PaymentPayout = pme.Payout_Amount__c;
+                    
+                    payDays = payStartDate.daysBetween(exDate);
+                    payMod = math.mod(payDays, 14);
+                    
+                    system.debug('payStartDate-->'+payStartDate);
+                    system.debug('PE Pay Start Date-->'+pme.Payment_Start_Date__c);
+                    
+                    if( pme.Payment_Start_Date__c <=exDate && payMod == 0){
+                        
+                        BiWeeklyPaymentDate = exDate;
+                        
+                        FirstMonthDate = Date.newInstance( exYear, exMonth, 1);
+                        
+                        system.debug('BiWeeklyPaymentDate---->'+BiWeeklyPaymentDate);
+                        system.debug('FirstMonthDate---->'+ FirstMonthDate);
+ 
+                        system.debug('PaymentPayout--->'+PaymentPayout);
+                          
+                       // Calculate Total Received Amount 
+                        
+                        if(LastDisburDate!=Null && exMonth == NextMonthofDisbursDate){
+                        
+                        if(paymentReceivedList !=Null && paymentReceivedList.size()>0 ){
+                            
+                            for(Payment_Received__c pr : paymentReceivedList ){
+                                
+                                if(pr.DateReceived__c<=LastDateofDisbMonth && pr.Amount__c!=Null){
+                                    
+                                    paymentReceived+=pr.Amount__c;
+                                    
+                                    
+                                }
+                                 if(pr.Amount__c!=Null && pr.DateReceived__c>LastDateofDisbMonth && pr.DateReceived__c<=exDate  ){
+                                    
+                                    CurrMonthPaymentReceived+=pr.Amount__c;
+                                
+                                        }
+                                
+                            }
+                        }
+                        
+                    }
+                      system.debug('paymentReceived ====>'+paymentReceived);  
+      
+                        
+                        if(apAmountList !=Null && apAmountList.size()==1){
+                            
+                            AgreedPaymentId = apAmountList[0].id;
+                            
+                            system.debug('AgreedPaymentId....'+ AgreedPaymentId);                    
+                                        
+                            
+                            if(payItemList !=Null && payItemList.size()>0 ){
+                                
+                                for(Agreed_Payment_Amount_Itmen__c pt:payItemList){
+                                    
+                                    if(pt.Payment_Start_Date__c!=Null && pt.Payment_Start_Date__c <=exDate && pt.Total_Payment__c !=Null){
+                                        
+                                        If( pt.Payment_Item_Type__c == 'Payment Agreement' && pt.Payment_End_Date__c!=Null && pt.Payment_End_Date__c >=exDate  ){
+                                            
+                                            paymentStartDate = Date.valueOf(pt.Payment_Start_Date__c);
+                                            
+                                            StartDateList.add(paymentStartDate);
+                                            
+                                            startDateMap.put(paymentStartDate, pt.Total_Payment__c) ;                         
+                                        }
+                                        
+                                        else if ( pt.Payment_Item_Type__c == 'Initial Agreed Payment Amount' && StartDateList.size()==0 ){
+                                            
+                                            paymentStartDate = Date.valueOf(pt.Payment_Start_Date__c);
+                                            
+                                            InitialStartDateList.add(paymentStartDate);
+                                            startDateMap.put(paymentStartDate, pt.Total_Payment__c) ;                         
+                                            
+                                        }
+                                    }
+                                }
+                                system.debug('StartDateList ----->'+ StartDateList);
+                                system.debug('startDateMap ----->'+ startDateMap);
+                                if(InitialStartDateList!=Null && StartDateList.size()==0 && InitialStartDateList.size()>0){
+                                     
+                                    // Sort on basis of Initial Payment Start Date
+                                    
+                                    InitialStartDateList.sort();
+                                                                       
+                                    StartDateList.addAll(InitialStartDateList);
+                                }
+                                if(StartDateList!=Null && StartDateList.Size()>0){
+                                  
+                                    //  StartDateList.sort();
+                                    
+                                    system.debug('StartDateList size is'+StartDateList.size());
+                                    
+                                    receiveDate = StartDateList.get(StartDateList.size()-1);
+                                }
+                                else {
+                                    if(payRecErrorList.size()==0){
+                                        EFTError= 'Incorrect details found in the payment amount line item.';                           
+                                        payerror.Program_Engagement__c=pme.id;
+                                        payerror.Client__c=pme.pmdm__Contact__c;
+                                        payerror.DateReceived__c = exDate;
+                                        payerror.Payment_Mode__c='EFT Payment';
+                                        payerror.Status__c='EFT Error';
+                                        payerror.EFT_Error_Description__c=EFTError;
+                                        payRecErrorList.add(payerror);
+                                    } 
+                                    
+                                }
+                                
+                                if(startDateMap!=Null && startDateMap.containsKey(receiveDate)){
+                                    
+                                    TotalAmount= startDateMap.get(receiveDate);                                                        
+                                    
+                                }
+                                
+                                
+                            }
+                            else {
+                                if(payRecErrorList.size()==0){
+                                    EFTError= 'No Agreed Payment Amount line item found for this date.';                            
+                                    payerror.Program_Engagement__c=pme.id;
+                                    payerror.Client__c=pme.pmdm__Contact__c;
+                                    payerror.DateReceived__c = exDate;
+                                    payerror.Payment_Mode__c='EFT Payment';
+                                    payerror.Status__c='EFT Error';
+                                    payerror.EFT_Error_Description__c=EFTError;
+                                    payRecErrorList.add(payerror);
+                                    
+                                }     
+                            }
+                        }
+                        else if(apAmountList !=Null && apAmountList.size()>1 ) {
+                            if(payRecErrorList.size()==0){
+                                EFTError= 'More Than one Active Agreed Payment Amount Found.';                      
+                                payerror.Program_Engagement__c=pme.id;
+                                payerror.Client__c=pme.pmdm__Contact__c;
+                                payerror.DateReceived__c = exDate;
+                                payerror.Payment_Mode__c='EFT Payment';
+                                payerror.Status__c='EFT Error';
+                                payerror.EFT_Error_Description__c=EFTError;
+                                payRecErrorList.add(payerror);
+                            }
+                        } 
+                        
+                        else {
+                            if(payRecErrorList.size()==0){
+                                EFTError = 'No Active Agreed Payment Amount Found';                       
+                                payerror.Program_Engagement__c=pme.id;
+                                payerror.Client__c=pme.pmdm__Contact__c;
+                                payerror.DateReceived__c = exDate;
+                                payerror.Payment_Mode__c='EFT Payment';
+                                payerror.Status__c='EFT Error';
+                                payerror.EFT_Error_Description__c=EFTError;
+                                payRecErrorList.add(payerror);
+                            }  
+                        } 
+                        
+                        
+                        
+                    }  
+                    else{
+                        if(payRecErrorList.size()==0  ){
+                            EFTError= 'This date doesnot match with payment date';                
+                            payerror.Program_Engagement__c=pme.id;
+                            payerror.Client__c=pme.pmdm__Contact__c;
+                            payerror.Payment_Mode__c='EFT Payment';
+                            payerror.DateReceived__c = exDate;
+                            payerror.Status__c='EFT Error';
+                            payerror.EFT_Error_Description__c=EFTError;        
+                            payRecErrorList.add(payerror);                          
+                        } 
+                    }
+                } 
+            }
+        }
+        
+        system.debug('TotalAmount----->'+TotalAmount);
+        system.debug('payRecErrorList----->'+ payRecErrorList);
+        
+      
+        system.debug('PaymentPayout--->'+PaymentPayout);
+        
+        If(TotalAmount !=Null  ){
+            if(TotalAmount>0 ){
+                
+                if(LastDisburMonth!=Null && exMonth ==NextMonthofDisbursDate){
+                    
+                    // Get actual Payout Amount 
+                    // For Example 
+                    // LD = 5/12/2022  - 8/01/2023 - calculate 
+                    // LD = 5/01/2023  - 8/01/2023 - Not calculate
+                    // LD = 5/02/2023 -  8/02/2023 - Not calculate
+                                    
+                    system.debug('pme====>'+pme);
+                    system.debug('paymentReceived====>'+paymentReceived);
+                    system.debug('CurrMonthPaymentReceived====>'+CurrMonthPaymentReceived);
+                   // system.debug('totalOutStandingAmount====>'+totalOutStandingAmount);
+                    
+                    ActualPayoutAmount = PayoutUtility.CalculatePayoutAmount( pme, paymentReceived,CurrMonthPaymentReceived);  
+                    
+                    system.debug('ActualPayoutAmount====>'+ActualPayoutAmount);
+                    system.debug('TotalAmount====>'+TotalAmount);
+                    
+                    if(TotalAmount> ActualPayoutAmount ){
+                        EFTAmount = ActualPayoutAmount;
+                    }
+                    else{
+                        EFTAmount = TotalAmount;
+                    }
+                }
+                else {
+                    
+                if(TotalAmount> PaymentPayout ){
+                    EFTAmount = PaymentPayout;
+                }
+                else{
+                    EFTAmount = TotalAmount;
+                }
+                }
+                system.debug('EFTAmount--->'+EFTAmount);
+                returnMap.put(EFTAmount,payRecErrorList);
+            }
+            else{
+                if(payRecErrorList.size()==0  ){
+                    EFTError= 'No Payment Due';                
+                    payerror.Program_Engagement__c=pme.id;
+                    payerror.Client__c=pme.pmdm__Contact__c;
+                    payerror.Payment_Mode__c='EFT Payment';
+                    payerror.DateReceived__c = exDate;
+                    payerror.Status__c='EFT Error';
+                    payerror.EFT_Error_Description__c=EFTError;        
+                    payRecErrorList.add(payerror);                          
+                } 
+                returnMap.put(0,payRecErrorList);
+            }
+        }
+        else {
+            system.debug('payRecErrorList-->'+payRecErrorList.size());
+            if(payRecErrorList.size()==0  ){
+                EFTError= 'Total Payment is Not Found in Agreed Payment Amount Line item.';                
+                payerror.Program_Engagement__c=pme.id;
+                payerror.Client__c=pme.pmdm__Contact__c;
+                payerror.Payment_Mode__c='EFT Payment';
+                payerror.DateReceived__c = exDate;
+                payerror.Status__c='EFT Error';
+                payerror.EFT_Error_Description__c=EFTError;        
+                payRecErrorList.add(payerror);                          
+            } 
+            returnMap.put(0,payRecErrorList);
+            
+        }
+        system.debug('payRecErrorList-->'+payRecErrorList.size());
+        
+        return returnMap;
+    }
+    
+    
+  public Decimal CalculatePaymentReceived(Id peId){
+        
+        payRecList = [ Select Id, Amount__c, DateReceived__c,Status__c, Program_Engagement__c from Payment_Received__c where Program_Engagement__c =:peId AND Status__c ='Received' ];
+        
+        for(Payment_Received__c pr : payRecList ){
+            if(pr.Amount__c!=Null && pr.Amount__c<=0){
+                TotalRecAmount+=0;
+            }
+            else{
+                TotalRecAmount+=pr.Amount__c;
+            }
+        }
+        
+        system.debug('TotalRecAmount......' + TotalRecAmount);
+        
+        return TotalRecAmount; 
+        
+    }
+    
+    //this method return Next Payment Due Date for a Expected Date and PE
+    
+    public static Map<string,string> nextPaymentDueDate(Date exDate, pmdm__ProgramEngagement__c pme,List<Agreed_Payment_Amount_Itmen__c> payItemList){  
+        
+        system.debug('$$ exDate ===========>'+exDate);
+        system.debug('$$ pme ===========>'+pme);
+        system.debug('$$ payItemList ===========>'+payItemList);
+        
+        Date payStartDate;
+        Integer DayofDate;
+        Integer yrOfDate;
+        
+        Integer payMod;
+        Integer payDays;
+        Date receiveDate;
+        
+        Date ExpectedPaymentMonthDate;
+        Integer NoOfDaysInMonth ;
+        Date FirstdateofMonth;
+        Date LastdateofMonth;
+        Integer NoOfRemaingDays;
+        Date NextPaymentDate ; 
+        
+        Date FirstExpectedPaymentDate;
+        Date LastExpectedPaymentDate;
+        Date FistPaymentDate;
+        Date SecondPaymentDate;
+        Integer FirstPayDay;
+        Integer SecondPayDay;
+        
+        Integer exDay = exDate.day();
+        Integer exMonth =exDate.month();
+        Integer exYear=exDate.year();
+        
+        Integer NoofDayinExMonth = date.daysInMonth(exYear, exMonth);
+        
+        String AgreedPaymentId;
+        Decimal TotalAmount;
+      
+        
+        List<Date>StartDateList = new List<Date>();
+        List<Date>InitialStartDateList = new List<Date>();
+        Map<Date,Decimal>startDateMap = new Map<Date,Decimal>();
+        Map<string,string> mapNextDueDateAmount = new Map<string,string>();
+        Date paymentStartDate;
+        
+        
+        // Normalize as per the month 
+        
+        If(pme.X1st_Payment_Day__c == 'Last Day of Month'){
+            
+            pme.X1st_Payment_Day__c = string.valueOf(NoofDayinExMonth);
+        }
+        
+        If(pme.X2nd_Payment_Day__c == 'Last Day of Month'){
+            
+            pme.X2nd_Payment_Day__c = string.valueOf(NoofDayinExMonth);
+        }
+        
+        // set Null value to 0
+        
+        If(pme.X1st_Payment_Day__c == Null){
+            
+            pme.X1st_Payment_Day__c = '0';
+        }
+        
+        If(pme.X2nd_Payment_Day__c == Null){
+            
+            pme.X2nd_Payment_Day__c = '0';
+        }
+        
+        if(exDay == NoofDayinExMonth){
+            
+            if(Integer.valueof(pme.X1st_Payment_Day__c) > exDay){
+                pme.X1st_Payment_Day__c = string.valueOf(exDay);
+            }
+            
+            if(Integer.valueof(pme.X2nd_Payment_Day__c) > exDay){
+                pme.X2nd_Payment_Day__c = string.valueOf(exDay);
+            }
+        }
+        
+        
+        // Get 1stPayment and 2ndPayment Day
+        
+         FirstPayDay =Integer.valueof(pme.X1st_Payment_Day__c);
+  
+         SecondPayDay =Integer.valueOf(pme.X2nd_Payment_Day__c);
+        
+        // Create 1st and 2nd Payment Date 
+        
+        FistPaymentDate =Date.newInstance(exYear, exMonth,FirstPayDay );
+        
+        SecondPaymentDate = Date.newInstance(exYear, exMonth,SecondPayDay );
+        
+         DayofDate = (pme.Payment_Start_Date__c).day(); 
+        
+        if(pme != null && pme.Payment_Start_Date__c!=Null) {
+             
+                if(pme.Payment_Frequency__c=='Monthly' ){
+                    
+                 if(pme.Payment_Start_Date__c > exDate){
+                    
+                    if(FirstPayDay!=0 && SecondPayDay!=0 ){
+                        
+                        if(FirstPayDay>= DayofDate || SecondPayDay>=DayofDate){
+                            
+                            if(FirstPayDay >=DayofDate && FirstPayDay<= SecondPayDay  ){
+                                NextPaymentDate =FistPaymentDate;
+                            }
+                            else if(SecondPayDay>=DayofDate && SecondPayDay<=FirstPayDay){
+                                NextPaymentDate =SecondPaymentDate;
+                            }
+                            else if(FirstPayDay >DayofDate || SecondPayDay >DayofDate){
+                                
+                                if(FirstPayDay>DayofDate && FirstPayDay<=SecondPayDay){
+                                    NextPaymentDate =FistPaymentDate;
+                                }
+                                else{
+                                    NextPaymentDate =SecondPaymentDate;
+                                }
+                            }
+                            
+                        }
+                        else{
+                            if(FirstPayDay< DayofDate || SecondPayDay< DayofDate){
+                                
+                                if(FirstPayDay< DayofDate && SecondPayDay>= DayofDate){
+                                    
+                                    NextPaymentDate =SecondPaymentDate;
+                                }
+                                else if(SecondPayDay< DayofDate && FirstPayDay >= DayofDate){
+                                    NextPaymentDate =FistPaymentDate;
+                                }
+                                else if(FirstPayDay< DayofDate && SecondPayDay< DayofDate ){
+                                   
+                                    if(FirstPayDay<= SecondPayDay){
+                                        
+                                        NextPaymentDate =FistPaymentDate.addMonths(1);
+                                    }
+                                    else{
+                                        NextPaymentDate =SecondPaymentDate.addMonths(1);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else if(FirstPayDay!=0 || SecondPayDay!=0 ){
+                        if(FirstPayDay!=0 && FirstPayDay>= DayofDate){
+                            NextPaymentDate =FistPaymentDate;
+                        }
+                        else if(SecondPayDay!=0 && SecondPayDay>=DayofDate){
+                            NextPaymentDate = SecondPaymentDate;
+                        }
+                        else{
+                            NextPaymentDate =FistPaymentDate.addMonths(1);
+                        }
+                    }
+                    
+                }
+                                      
+                else{
+                   if(FirstPayDay!=0 && SecondPayDay!=0 ){
+                       
+                        if(FirstPayDay>= exDay || SecondPayDay>=exDay){
+                            
+                            if(FirstPayDay == SecondPayDay && FirstPayDay >exDay){
+                                NextPaymentDate =FistPaymentDate;
+                            }
+                            else if(FirstPayDay ==SecondPayDay && FirstPayDay==exDay){
+                                
+                                NextPaymentDate =FistPaymentDate.addMonths(1);
+                            }
+                            else if(FirstPayDay ==exDay && SecondPayDay>exDay){
+                                NextPaymentDate =SecondPaymentDate;
+                            }
+                            else if(FirstPayDay ==exDay && SecondPayDay<exDay){
+                                NextPaymentDate =SecondPaymentDate.addMonths(1);
+                            }
+                            else if(SecondPayDay ==exDay && FirstPayDay<exDay){
+                                NextPaymentDate =FistPaymentDate.addMonths(1);
+                            }
+                            else if (SecondPayDay ==exDay && FirstPayDay >exDay){
+                                NextPaymentDate =FistPaymentDate;
+                            }
+                            
+                            else if(FirstPayDay> exDay){
+                                NextPaymentDate =FistPaymentDate;
+                            }
+                            else{
+                                NextPaymentDate =SecondPaymentDate;
+                            }
+                        }
+                        else{
+                            
+                            if(FirstPayDay<= SecondPayDay){
+                                
+                                NextPaymentDate =FistPaymentDate.addMonths(1);
+                            }
+                            else{
+                                NextPaymentDate =SecondPaymentDate.addMonths(1);
+                            }
+                            
+                        }
+                    }
+                    else if(FirstPayDay!=0 || SecondPayDay!=0 ){
+                        
+                        if(FirstPayDay!=0 && FirstPayDay>= exDay){
+                            NextPaymentDate =FistPaymentDate;
+                        }
+                        else if(SecondPayDay!=0 && SecondPayDay>=exDay){
+                            NextPaymentDate = SecondPaymentDate;
+                        }
+                        else{
+                            NextPaymentDate =FistPaymentDate.addMonths(1);
+                        }
+                    }
+                }
+           }
+     
+                
+                else if(pme.Payment_Frequency__c=='Bi-Weekly' ){
+                         
+                    payStartDate = pme.Payment_Start_Date__c;
+                    DayofDate = payStartDate.day();
+                    yrOfDate = payStartDate.year();
+                    
+                    if(pme.Bi_Weekly_Group__c =='A'){
+                        payStartDate = Date.newInstance(yrOfDate,01,07);
+                    }
+                    else if(pme.Bi_Weekly_Group__c =='B'){
+                        payStartDate = Date.newInstance(yrOfDate,01,14);
+                    }
+                    FirstdateofMonth = Date.newInstance(exYear, exMonth, 1);
+                    NoOfDaysInMonth = Date.daysInMonth(exYear, exMonth);
+                    LastdateofMonth = Date.newInstance(exYear, exMonth, NoOfDaysInMonth);
+                    
+                    //  payStartDate = pme.Payment_Start_Date__c;   
+                    
+                    payDays = (payStartDate.daysBetween(FirstdateofMonth));
+                    
+                    payDays = payDays;
+                    
+                   payMod = math.mod(payDays, 14);
+                    if(payMod == 0){
+                        FirstExpectedPaymentDate = FirstdateofMonth;  
+                    }
+                    else{
+                        NoOfRemaingDays = (14-payMod);
+                        FirstExpectedPaymentDate = FirstdateofMonth.addDays(NoOfRemaingDays);
+    
+                    }
+                    
+                    Integer FirstPaymentDay = FirstExpectedPaymentDate.day();
+                        
+                    if(payStartDate > exDate){
+                        NextPaymentDate = payStartDate;
+                    }
+                   
+                    if(exDay < FirstPaymentDay){
+                            NextPaymentDate = FirstExpectedPaymentDate; 
+                        }
+                        else if(exDay >= FirstPaymentDay && exDay < (FirstPaymentDay+14)){
+                            NextPaymentDate = FirstExpectedPaymentDate.addDays(14);
+                            
+                        }
+                        else {
+                            NextPaymentDate = FirstExpectedPaymentDate.addDays(28);
+                        }
+                       
+                }
+                    
+                }            
+                
+            
+             if(NextPaymentDate!=Null){
+                if(payItemList !=Null && payItemList.size()>0 ){                        
+                        
+                        for(Agreed_Payment_Amount_Itmen__c pt:payItemList){                            
+                            
+                            if(pt.Payment_Start_Date__c!=Null  && pt.Total_Payment__c !=Null){                                
+                                
+                                If( pt.Payment_Item_Type__c == 'Payment Agreement' && pt.Payment_End_Date__c!=Null && pt.Payment_Start_Date__c <=NextPaymentDate && pt.Payment_End_Date__c >=NextPaymentDate) {
+                                    paymentStartDate = Date.valueOf(pt.Payment_Start_Date__c);
+                                    StartDateList.add(paymentStartDate);
+                                    startDateMap.put(paymentStartDate, pt.Total_Payment__c) ;                    
+                                }                                
+                                
+                                else if ( pt.Payment_Item_Type__c == 'Initial Agreed Payment Amount' && StartDateList.size()==0 && pt.Payment_Start_Date__c <=NextPaymentDate){                                    
+                                    paymentStartDate = Date.valueOf(pt.Payment_Start_Date__c);                                 
+                                    InitialStartDateList.add(paymentStartDate);
+                                    startDateMap.put(paymentStartDate, pt.Total_Payment__c) ;                                    
+                                }
+                            }
+                        }
+                        
+                        if( StartDateList.size()==0 && InitialStartDateList!=Null && InitialStartDateList.size()>0){
+                            StartDateList.addAll(InitialStartDateList);
+                        }
+                        
+                  if(StartDateList!=Null && StartDateList.Size()>0){
+                      StartDateList.sort();                            
+                      receiveDate = StartDateList.get(StartDateList.size()-1);
+                  }                                                                        
+                  
+                    if(startDateMap!=Null && startDateMap.containsKey(receiveDate)){                            
+                        TotalAmount= startDateMap.get(receiveDate);                            
+                    }
+                      
+                    if(TotalAmount!=Null && pme.Payment_Frequency__c =='Monthly'){
+                        if(pme.X1st_Payment_Day__c== '0'){
+                            TotalAmount = TotalAmount;
+                        }
+                        
+                        else if(pme.X2nd_Payment_Day__c== '0'){
+                            TotalAmount = TotalAmount;
+                        }
+                        else if(pme.X1st_Payment_Day__c== pme.X2nd_Payment_Day__c){
+                            TotalAmount = TotalAmount;
+                        }
+                        
+                        else{
+                            TotalAmount = (TotalAmount/2).setScale(2);
+                        }
+                    }                    
+                            
+
+               mapNextDueDateAmount.put('date',string.valueOf(NextPaymentDate) );
+               mapNextDueDateAmount.put('amount',string.valueOf(TotalAmount ));
+               system.debug('$$ TotalAmount ===========>'+TotalAmount);
+              return mapNextDueDateAmount;
+              } 
+             }
+        system.debug('$$ returnNextDueDateAmountMap ===========>'+mapNextDueDateAmount);
+        return mapNextDueDateAmount;
+    }
+    
+    
+    public static List<Agreed_Payment_Amount_Itmen__c> agreedInitialAmountItemList(Date exDate, List<Agreed_Payment_Amount_Itmen__c> payItemList){
+        
+        List<Agreed_Payment_Amount_Itmen__c> retInitialItemList = New List<Agreed_Payment_Amount_Itmen__c>(); 
+        List<Date>StartDateList = New List<Date>();
+        Map<Date, Agreed_Payment_Amount_Itmen__c>retMap = New Map<Date, Agreed_Payment_Amount_Itmen__c>();
+        Agreed_Payment_Amount_Itmen__c Agitem;
+        
+        if(payItemList!=Null && payItemList.size()>0){
+            for(Agreed_Payment_Amount_Itmen__c apItem :payItemList){                                
+                if(apItem.Payment_Start_Date__c!=Null && apItem.Payment_Item_Type__c =='Initial Agreed Payment Amount'  ){                    
+                    retMap.put( apItem.Payment_Start_Date__c,apItem );                    
+                    if(apItem.Payment_Start_Date__c>=exDate){
+                        retInitialItemList.add(apItem);
+                    }
+                    else {
+                        StartDateList.Add(apItem.Payment_Start_Date__c);                        
+                    }                    
+                }                
+            }
+            system.debug('retMap========>'+retMap);
+            system.debug('StartDateList========>'+StartDateList);
+            
+            if(StartDateList!=Null && StartDateList.Size()>0){
+                StartDateList.sort();
+                Date selDate = StartDateList.get(StartDateList.size()-1);
+                If(retMap!=Null && retMap.ContainsKey(selDate)){
+                    Agitem = retMap.get(selDate);
+                    retInitialItemList.Add(Agitem);
+                }                                
+            }
+            system.debug('Agitem=========>'+Agitem);
+            system.debug('retInitialItemList=========>'+retInitialItemList);
+        }
+        return retInitialItemList;                
+    }
+    
+    
+}

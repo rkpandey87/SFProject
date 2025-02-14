@@ -1,0 +1,55 @@
+<apex:page standardController="EDIFiles__c" extensions="CreatEDIFileRecord" recordSetVar="aa" showHeader="false" sidebar="false" >
+    
+    <apex:includeLightning />   
+    <apex:slds />    
+    <apex:form > 
+        <apex:pageBlock >
+            <apex:pageMessages />
+            
+            <center>
+                <div class="slds-form-element slds-has-error">
+                    <h1>
+                        <b> Upload EDI File</b>
+                    </h1>
+                    <br/>
+                    <div>
+                      <center><p>
+                          Use this section to upload payments made directly into the bank account.
+                          Provide a comma separated file in following format </p>
+                          <br/>
+                         <p> OPD File Number, Amount, Date Payment Received</p>
+                          <br/>
+                         <p> Date is in mm/dd/yyyy format. Example: <br/>
+                          4/12/2022 for 12th Apr 2022<br/>
+                          12/1/2022 for 1st Dec 2022.</p>
+                          <br/>
+                         <p> and is optional. If no date is provided then today's date is assumed.<br/>
+                          <apex:outputlink value="{!ContentURL}"> Click here to download a sample CSV file</apex:outputlink>
+                          </p>
+                        
+                          </center>
+                    </div>
+                     
+                     <br/>
+                    <div class="slds-form-element__control">
+                        <div class="slds-file-selector slds-file-selector_files">
+                            <div class="slds-file-selector__dropzone">
+                                <apex:inputfile value="{!EdiAttachment.body}" filename="{!EdiAttachment.name}"  accept=".csv"  ></apex:inputfile>   
+                                <!--  <input type="file" class="slds-file-selector__input slds-assistive-text"  id="file-upload-input-115" aria-describedby="error-116" aria-labelledby="file-selector-primary-label-113 file-selector-secondary-label114"  />-->
+                                <label class="slds-file-selector__body" for="file-upload-input-115" id="file-selector-secondary-label114">
+                                    
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <br/>
+                    <div class="slds-col slds-size_6-of-12 slds-small-size--6-of-12 slds-medium-size--6-of-12">                        
+                        <apex:commandButton styleClass="slds-button slds-button_brand" value="Save" action="{!saveEDIFile}" />
+                        <apex:commandButton styleClass="slds-button slds-button_brand" value="Cancel" action="{!close}"  style="width: 100px;"  />
+                    </div>
+                </div>                
+            </center>             
+        </apex:pageBlock>
+    </apex:form> 
+ 
+</apex:page>

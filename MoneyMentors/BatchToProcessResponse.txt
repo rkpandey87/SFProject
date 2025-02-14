@@ -1,0 +1,544 @@
+global class BatchToProcessResponse implements Database.Batchable<sObject>,Database.AllowsCallouts {
+    
+    String fileId;
+    String fileType;
+    String fileName;
+    String fileTitle;
+    String ACKFileName;
+    String IVFFileName;
+    String RINFileName;
+    Blob ResFileBody;
+    
+    
+    global Database.QueryLocator start(Database.BatchableContext BC){
+        
+        //Get all EFT files where EFT Status in not null, Not RIN Processed and ACK Rejected
+        
+        String query = 'Select Id, Name, File_Number__c, ACK_File_Name__c, IVF_File_Name__c, RIN_File_Name__c, File_Type__c, EFT_Status__c from EFTFile__c WHERE (EFT_Status__c !=Null AND EFT_Status__c!=\'RIN Processed\') AND EFT_Status__c!=\'IVF Processed\' AND EFT_Status__c !=\'ACK Rejected\'' ;
+        
+        return Database.getQueryLocator(query);
+        
+    }
+    
+    global void execute(Database.Batchablecontext BC, list<EFTFile__c> scope){
+        
+        
+        Set<Id> docIdSet=new Set<Id>();
+        Set<Id> payUpdateRecSet=new Set<Id>();
+        String EFTStatus;
+        String AckStatus;
+        String AckStatusCode;
+        String IVFStatus;
+        String IVFStatusCode;
+        String RINStatus;
+        String RINStatusCode;
+        integer fileSize;
+        String fileType;
+        
+        String SegAmount;
+        decimal DecSegAmount;
+        
+        string OriginatorsCrossReferenceNumber;
+        
+        String RinSegAmount;
+        decimal RinDecSegAmount;
+        string RinOriginatorsCrossReferenceNumber;
+        String RinfileId;
+        Map<string, string>rinFileMap=New Map<string, string>();
+        
+        //    List<string>docTitleList =new List<string>();
+        
+        List<Payment_Received__c>payUpdateRecList=new List<Payment_Received__c>();        
+        
+        map<id,Payment_Received__c>payUpdateMap = new map<id,Payment_Received__c>();
+        map<id,Payment_Received__c>payAccMap = new map<id,Payment_Received__c>();
+        
+        List<Payment_Received__c>payAccList=new List<Payment_Received__c>();
+        List<ContentDocumentLink> docList = New List<ContentDocumentLink>();
+        
+        List<EFTFile__c>eFTList=new List<EFTFile__c>();
+        ContentVersion cv;
+        
+        system.debug('scope--->'+scope);
+        system.debug('scope Size--->'+scope.size());
+        
+        // Run loop through selected EFT Records
+        
+        for(EFTFile__c ef:scope){
+            
+            docIdSet.add(ef.id);
+            EFTStatus = ef.EFT_Status__c;
+            eFTList.add(ef);
+            fileId = ef.id;
+            FileType = ef.File_Type__c;
+            fileTitle =ef.Name;
+            ACKFileName =ef.ACK_File_Name__c;
+            IVFFileName =ef.IVF_File_Name__c;
+            RINFileName =ef.RIN_File_Name__c;
+            
+            if( EFTStatus =='Ready to Send' ){
+                
+                docList=[SELECT Id, LinkedEntityId, ContentDocumentId, Visibility,
+                         ContentDocument.Title, ContentDocument.createdDate,
+                         ContentDocument.FileType FROM ContentDocumentLink WHERE LinkedEntityId =:fileId AND ContentDocument.Title !='Client CSV File' ];
+                
+                system.debug('DocList...'+docList);
+                system.debug('Doc List Size...'+docList.size());
+                
+                if(docList!=Null && docList.size()>0){
+                    
+                    cv=[SELECT Checksum,ContentBodyId,
+                        ContentDocumentId,ContentLocation,
+                        Title,VersionData,VersionNumber,IsMajorVersion
+                        FROM ContentVersion WHERE ContentDocumentId =:docList[0].ContentDocumentId];
+                    
+                    // Call FTPServiceHandler, ProcessFtpFile in order to Process Upload API Request 
+                    
+                    HttpResponse FileRes = FTPServiceHandler.ProcessFtpFile(cv, FileType);
+                    
+                    System.debug('File Res---->'+FileRes);
+                    
+                    
+                    // Update EFT record status to 'sent' when Api upload request response is success
+                    
+                    if(FileRes.getStatusCode() == 200){
+                        //    EFTFile__c et = [Select Id,Name, File_Number__c,EFT_Status__c from EFTFile__c where Id =:fileId];
+                        ef.EFT_Status__c='Sent';
+                        ef.FTP_API_Response__c = createFTPAPIResponse(FileRes);                          
+                        system.debug('Requested File Uploaded Successfully');
+                        
+                    } 
+                    else{
+                        ef.FTP_API_Response__c = createFTPAPIResponse(FileRes); 
+                    }
+                    update ef;
+                    
+                }
+            }
+            else if( EFTStatus =='Sent' ){
+                
+                // Call FTPServiceHandler, getATBFile in order to Process Download API Request 
+                // Save Requested Response file body in the EFT Record 
+                
+                // Get ACK File
+                
+                HttpResponse FileRes= FTPServiceHandler.getATBFile(ACKFileName, FileType ); 
+                
+                if(FileRes.getStatusCode() == 200){
+                    
+                    ResFileBody = getResponseFileBody(FileRes);
+                    
+                    //insert ACK file in the EFT Record 
+                    if(ResFileBody!=Null && ResFileBody.size()>0){
+                        
+                        // Update ACK File Name
+                        
+                        ACKFileName = updateResponseFileName(FileRes); 
+                        
+                        InsertResponseFile( ResFileBody, ACKFileName, fileId);
+                        
+                        //Function to process ACK
+                        //EFTFile Status should be change to 
+                        //       doctitleList.Add(fileName);
+                        
+                        ACKFileProcess(ResFileBody, ef);
+                        ef.FTP_API_Response__c = createFTPAPIResponse(FileRes); 
+                        ef.ACK_File_Name__c =ACKFileName;
+                    }
+                    
+                }
+                else {
+                    ef.FTP_API_Response__c = createFTPAPIResponse(FileRes);  
+                }
+                
+                Update ef;
+                
+            }
+            // Get IVF File
+            else if (EFTStatus =='ACK Accepted' ){
+                
+                //   IVFFileName = IVFFileName+'.TXT';
+                HttpResponse FileRes = FTPServiceHandler.getATBFile(IVFFileName, FileType );
+                //  fileName = IVFFileName.remove('.TXT');
+                if(FileRes.getStatusCode() == 200){
+                    
+                    ResFileBody = getResponseFileBody(FileRes);
+                    //insert IVF file in the EFT Record 
+                    if(ResFileBody!=Null && ResFileBody.size()>0){
+                        
+                        IVFFileName = updateResponseFileName(FileRes);                         
+                        InsertResponseFile( ResFileBody, IVFFileName, fileId);
+                        
+                        //function to process IVF File and Changes Status as per response 
+                        
+                        IVFFileProcess(ResFileBody, ef);
+                        
+                        ef.FTP_API_Response__c = createFTPAPIResponse(FileRes);
+                        ef.IVF_File_Name__c = updateResponseFileName(FileRes); 
+                    }
+                    
+                }
+                else {
+                    ef.FTP_API_Response__c = createFTPAPIResponse(FileRes); 
+                }
+                
+                update ef;
+            }
+            
+        } 
+        
+    }
+    global void finish(Database.Batchablecontext BC){
+        
+        
+        
+    }
+    //This function is used to update response file Name
+    
+    public String updateResponseFileName(HttpResponse res){
+        
+        String resfileName;
+        String JsonString;
+        
+        if (res.getStatusCode() == 200) {
+            
+            System.debug('Response--->' + res);
+            
+            // Process Response in order to retrive response file body and return 
+            
+            JsonString = res.getBody();
+            system.debug('JsonString--->'+ JsonString);
+            
+            Map<String, Object> fileNameMap = (Map<String, Object>) JSON.deserializeUntyped(JsonString);
+            
+            system.debug( 'fileNameMap--->'+  fileNameMap);
+            
+            Object ATBList=(Object)fileNameMap.get('files');                  
+            System.debug('ATBList...'+ ATBList); 
+            
+            string FilebodyIndex=String.valueOf(ATBList);
+            system.debug('FilebodyIndex..'+FilebodyIndex);
+            
+            List<String>FilebodyIndex1 = FilebodyIndex.split(',');
+            system.debug('FilebodyIndex1..'+FilebodyIndex1);
+            
+            string filebodyContent =FilebodyIndex1.get(1);
+            system.debug('filebodyContent'+filebodyContent);
+            
+            List<string>fileContent = filebodyContent.split('=');
+            resfileName = fileContent.get(1);
+            
+        }  
+        
+        return resfileName;
+    }      
+    
+    
+    // This function is used to Process Http Response file body    
+    
+    public Blob getResponseFileBody(HttpResponse res){
+        
+        blob resfile;  
+        
+        if (res.getStatusCode() == 200) {
+            
+            System.debug('File As Response' + res.getBody());
+            
+            // Process Response in order to retrive response file body and return 
+            
+            
+            Map<String, Object> results = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
+            
+            system.debug( 'results'+  results);
+            
+            Object ATBList=(Object)results.get('files');                  
+            System.debug('ATBList...'+ ATBList); 
+            
+            string FilebodyIndex=String.valueOf(ATBList);
+            system.debug('FilebodyIndex..'+FilebodyIndex);
+            
+            List<String>FilebodyIndex1 = FilebodyIndex.split(',');
+            system.debug('FilebodyIndex1..'+FilebodyIndex1);
+            
+            string filebodyContent =FilebodyIndex1.get(0);
+            system.debug('filebodyContent'+filebodyContent);
+            
+            List<string>fileContent = filebodyContent.split('=');
+            string originalFile = fileContent.get(1);
+            
+            originalFile = originalFile.removeEnd('})');
+            resfile = EncodingUtil.base64Decode(originalFile) ;
+            
+        }  
+        
+        return resfile;
+    }      
+    
+    
+    // This function is used to insert response file into EFT Record
+    
+    public string createFTPAPIResponse(HttpResponse res){
+        
+        string FTPAPIResponse;
+        DateTime ResTime = System.now();
+        Integer ResCode = res.getStatusCode();
+        String ResMessage = res.getStatus();
+        
+        system.debug('Response File Body---->'+ res);
+        system.debug('Response File Body ---->'+ res.getBody());
+        
+        try { 
+            
+            if(ResCode == 501){
+                FTPAPIResponse = string.valueOf(ResTime)+' '+':'+' '+ String.valueOf(ResCode)+','+ResMessage; 
+                
+                
+            } 
+            else{
+                Map<String, Object> results = (Map<String, Object>)JSON.deserializeUntyped(res.getBody());
+                system.debug( 'results'+  results);
+                
+                Object ResFile=(Object)results.get('message');                  
+                System.debug('ATBList...'+ ResFile); 
+                
+                string ResFileMessage=String.valueOf(ResFile);
+                system.debug('FilebodyIndex..'+ResFileMessage);
+                
+                
+                
+                FTPAPIResponse = string.valueOf(ResTime)+' '+':'+' '+ String.valueOf(ResCode)+','+ResFileMessage;
+                
+                
+            }
+        }
+        catch (Exception e) {         
+            System.debug('Error:' + e.getMessage() + 'LN:' + e.getLineNumber()+res.getBody() );           
+            
+            //  FTPAPIResponse = e.getMessage();
+        }
+        
+        Return FTPAPIResponse;
+    }
+    
+    
+    
+    public void InsertResponseFile(Blob fileBody, String fname, Id FileRecordId){
+        
+        ContentVersion recCV = new ContentVersion();
+        
+        recCV.VersionData = fileBody;
+        recCV.ContentLocation = 'S';
+        recCV.Title = fname;
+        recCV.PathOnClient = fname +'.TXT';             
+        insert recCV;      
+        
+        Id conDoc = [SELECT ContentDocumentId FROM ContentVersion WHERE Id =:recCV.Id].ContentDocumentId; 
+        ContentDocumentLink cdl = new ContentDocumentLink();
+        cdl.ContentDocumentId = conDoc;
+        cdl.ShareType = 'I';
+        cdl.LinkedEntityId =FileRecordId ;
+        insert cdl;  
+        
+        
+    } 
+    
+    
+    public void ACKFileProcess(Blob ACKFile, EFTFile__c eftRecord){
+        
+        Blob ackBlob;
+        String ackString;
+        String ackStatus;
+        String AckStatusCode;
+        List<Payment_Received__c>payUpdateRecList=new List<Payment_Received__c>();
+        
+        
+        ackBlob =  ACKFile;
+        ackString = EncodingUtil.base64Decode(EncodingUtil.base64Encode(ackBlob)).toString();
+        
+        List<string>ackfileList=ackString.split('\n');
+        system.debug('ackfileList....'+ackfileList);
+        
+        string AckfileContent=ackfileList.get(0);          
+        system.debug('ackContent...'+AckfileContent);
+        
+        fileType=AckfileContent.substring(1,4);
+        system.debug('fileType'+fileType);
+        
+        ackStatus=AckfileContent.substring(332, 335);
+        //  AckStatusCode=ackString.substring(345, 565);
+        
+        if(AckStatus =='ACC'){
+            
+            eftRecord.EFT_Status__c='ACK Accepted';
+            // EFTStatus ='ACK Accepted';
+            update eftRecord;
+            system.debug('ACK File Status is Accepted');
+            
+        }
+        else{ 
+            
+            eftRecord.EFT_Status__c='ACK Rejected';
+            
+            // EFTStatus ='ACK Rejected';
+            
+            AckStatusCode=ackString.substring(345, 565);
+            
+            system.debug('AckStatusCode....'+AckStatusCode);
+            
+            List<Payment_Received__c> prList=[Select Id, Status__c, EFTFile__c from Payment_Received__c where EFTFile__c =:eftRecord.Id];
+            system.debug('prList....'+prList);
+            
+            for(Payment_Received__c pr:prList){
+                
+                pr.Status__c='EFT Error';
+                pr.EFT_Error_Description__c=AckStatusCode;
+                payUpdateRecList.add(pr);
+                
+                
+            }   
+            if(payUpdateRecList!=Null && payUpdateRecList.size()>0){
+                update payUpdateRecList;
+            }
+            update eftRecord;
+        } 
+        
+        
+        
+    }
+    
+    public void IVFFileProcess(Blob IVFFile, EFTFile__c eftRecord){
+        
+        Blob ivfBlob;
+        String ivfString;
+        String ivfStatus;
+        String ivfStatusCode;
+        
+        String SegAmount;
+        decimal DecSegAmount;    
+        string OriginatorsCrossReferenceNumber;
+        
+        Set<Id> docIdSet=new Set<Id>(); 
+        Set<String>OrgNumSet =New Set<String>();
+        
+        map<id,Payment_Received__c>payUpdateMap = new map<id,Payment_Received__c>();
+        List<Payment_Received__c>payUpdateRecList=new List<Payment_Received__c>();
+        List<Payment_Received__c>newPAList =new List<Payment_Received__c>();
+        List<Payment_Received__c>negPayList =new List<Payment_Received__c>();
+        List<Payment_Received__c> prList =new List<Payment_Received__c>();
+        Map<String,List<Payment_Received__c>>MaptoPRRecords = New Map<String,List<Payment_Received__c>>();
+        
+        ivfBlob =  IVFFile;
+        ivfString = EncodingUtil.base64Decode(EncodingUtil.base64Encode(ivfBlob)).toString();    
+        List<string>ivffileList=ivfString.split('\n');
+        
+        if(eftRecord!=Null){
+            
+            prList=[Select Id,Name, Program_Engagement__c,Client__c,Status__c, Payment_Mode__c,EFTFile__c,Amount__c,Originators_Cross_Reference_Number__c,
+                    EFTFile_LineNum__c, EFTFile_SegmentNum__c from Payment_Received__c where EFTFile__c =:eftRecord.Id AND Originators_Cross_Reference_Number__c !=Null ];
+            
+            
+        }
+        
+        System.debug('prList====>'+prList);
+        
+        if(prList.size()>0){
+            
+            for(Payment_Received__c pr:prList){
+                
+                if(MaptoPRRecords.containsKey(pr.Originators_Cross_Reference_Number__c)) {
+                    
+                    MaptoPRRecords.get(pr.Originators_Cross_Reference_Number__c).add(pr);
+                }
+                else {
+                    MaptoPRRecords.put(pr.Originators_Cross_Reference_Number__c, new List<Payment_Received__c>{pr}); 
+                }
+            }
+        }
+        
+        System.debug('MaptoPRRecords====>'+MaptoPRRecords);
+        
+        for(string iv:ivffileList){ 
+            
+            system.debug('IVFFile Record...'+iv);
+            ivfStatus=iv.substring(332, 335);
+            
+            system.debug('IVF Record Status is'+IVFStatus);  
+            
+            ivfStatusCode = iv.substring(345, 565);
+            OriginatorsCrossReferenceNumber = iv.substring(81,100);
+            
+            SegAmount = iv.substring(127,137);
+            
+            SegAmount.replaceFirst( '^0+', '');
+            DecSegAmount = Decimal.valueOf(SegAmount);
+            DecSegAmount=DecSegAmount/100;
+            DecSegAmount.SetScale(2);
+            
+            system.debug('Originators CrossReference Number ....'+OriginatorsCrossReferenceNumber);
+            
+            
+            system.debug('SegAmount ....'+SegAmount);
+            system.debug('DecSegAmount ....'+DecSegAmount); 
+            system.debug('IVF Status ....'+IVFStatus); 
+            system.debug('IVF Status Code....'+IVFStatusCode);
+            
+            if(IVFStatus =='REJ'){
+                
+                negPayList = new List<Payment_Received__c>();
+                
+                system.debug('negPayList after clear===>'+negPayList);
+                
+                
+                if(OriginatorsCrossReferenceNumber!=Null){
+                    
+                    if(MaptoPRRecords!=Null && MaptoPRRecords.containsKey(OriginatorsCrossReferenceNumber)){
+                        
+                        negPayList = MaptoPRRecords.get(OriginatorsCrossReferenceNumber);
+                        
+                    }
+                }
+                
+                system.debug('negPayList....'+negPayList);
+                
+                //Check Negative Payment Exists or Not 
+                
+                system.debug('negPayList Size=======>'+negPayList.size());
+                
+                if(negPayList!=Null && negPayList.size()!=0 && negPayList.size()==1){
+                    
+                    // Create New Negative Payment Amount
+                    
+                    Payment_Received__c newPA=new Payment_Received__c();  
+                    
+                    newPA.Program_Engagement__c = negPayList[0].Program_Engagement__c;
+                    newPA.Client__c = negPayList[0].Client__c;
+                    newPA.EFTFile__c =negPayList[0].EFTFile__c;
+                    newPA.Payment_Mode__c ='NSF EFT';
+                    newPA.DateReceived__c = System.today();
+                    newPA.Amount__c = -(negPayList[0].Amount__c);
+                    newPA.Status__c = 'Received';
+                    newPA.Originators_Cross_Reference_Number__c = negPayList[0].Originators_Cross_Reference_Number__c;
+                    newPA.Notes__c =negPayList[0].Status__c+' '+ 'Payment'+' ' +negPayList[0].Name+' ' +'is reversed';
+                    newPA.EFTFile_LineNum__c = negPayList[0].EFTFile_LineNum__c;
+                    newPA.EFTFile_SegmentNum__c = negPayList[0].EFTFile_SegmentNum__c;
+                    newPA.EFT_Error_Description__c = IVFStatusCode;
+                    
+                    payUpdateRecList.add(newPA);    
+                    
+                }
+                
+                
+            }  
+            
+        }
+        eftRecord.EFT_Status__c = 'IVF Processed';
+        Update eftRecord;
+        
+        if(payUpdateRecList!=Null && payUpdateRecList.Size()>0){
+            insert payUpdateRecList;
+        }
+        
+        
+    }
+    
+}

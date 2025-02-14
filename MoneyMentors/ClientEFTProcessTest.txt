@@ -1,0 +1,86 @@
+@isTest
+public class ClientEFTProcessTest {
+    
+    static testMethod void test1()
+    {
+        List<EFTFile__c>eftList = New List<EFTFile__c>();
+        List<pmdm__ProgramEngagement__c>peList = New List<pmdm__ProgramEngagement__c>();
+        Date payStartDate = Date.newInstance(2022, 1, 1);
+        
+        pmdm__Program__c pr=new pmdm__Program__c();
+        pr.name = 'Orderly Payment of Debts';
+        pr.pmdm__Status__c='Active';
+        insert pr;
+        
+        pmdm__ProgramCohort__c pc=new pmdm__ProgramCohort__c();
+        pc.name = 'Calgary Cohort';
+        pc.pmdm__Status__c ='Active';
+        pc.pmdm__Program__c =pr.id;
+        
+        insert pc;
+        
+        Contact con =new Contact();
+        con.firstName = 'first';
+        con.LastName = 'last';
+        insert con;
+        
+        pmdm__ProgramEngagement__c pe = new pmdm__ProgramEngagement__c();    
+        
+        pe.Name='Test' ;
+        pe.pmdm__Stage__c='Active File'; 
+        pe.pmdm__Contact__c=con.id;
+        pe.Legacy_OPD_File_Number__c = '987651';
+        pe.Default_Status__c ='Low Risk';
+        pe.Payment_Order__c='Electronic Funds Transfer (EFT)';
+        pe.Judicial_Centre__c='Calgary';
+        pe.pmdm__ProgramCohort__c=pc.id ;
+        pe.pmdm__Program__c=pr.id;
+        pe.Number_of_EFTs__c=2;
+        pe.Disbursement_Fee__c = '10%';
+        pe.Total_Outstanding_Debt_Remaining__c = 10000;
+        pe.Payment_Frequency__c ='Monthly';
+        pe.Payment_Start_Date__c = payStartDate;
+        
+       //  insert pe;
+         
+         peList.add(pe);
+         if(peList!=Null && peList.size()>0){
+             insert peList;
+         }
+        
+        EFTFile__c ef = new EFTFile__c(Name ='EFTTestFile');
+        
+        eftList.add(ef);
+        
+        PageReference pageRef = Page.ClientEFTProcess;
+        
+        Test.setCurrentPage(pageRef);
+       
+        
+        //  pageRef.getParameters().put('id', String.valueOf(obj.Id));
+        
+        ApexPages.StandardSetController stdCtr = new ApexPages.StandardSetController(eftList);
+        
+        ClientEFTProcess_Controller ce = new ClientEFTProcess_Controller(stdCtr);
+  
+        test.startTest();   
+   
+        Date todayDate = system.today();
+         string yr = string.valueOf(todayDate.year());
+        string mm = string.valueOf(todayDate.month());
+        
+       
+        
+       List<SelectOption> getYearList = ce.getYearList();
+        
+        pageReference p1= ce.submit();
+         pageReference p2= ce.testsubmit();
+        pageReference p3= ce.close();
+         
+        ClientEFTProcess_Controller.processBatch(peList[0].id,  yr,  mm);
+        
+        test.stopTest();
+    }
+   
+    
+}

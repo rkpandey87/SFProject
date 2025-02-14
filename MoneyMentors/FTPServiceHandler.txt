@@ -1,0 +1,269 @@
+public class FTPServiceHandler{
+    
+    // this method is used to process Http file Upload Request 
+    
+    public static HttpResponse ProcessFtpFile(ContentVersion conVer, String ServerName)
+    {    
+        
+        List<FTP_Detail__mdt>ftpdetail=new List<FTP_Detail__mdt>();
+        
+        String Username; 
+        String Password;
+        String Port;
+        String ftpType;
+        String ftpHost;
+        String contentType;      
+        Integer statusCode;
+        string fileName;
+        string FilePath;
+        String endPoint;
+        String base64Key;
+        String logonType;
+        String FileBody;
+        
+        system.debug('ContentVersion' + conVer);
+        system.debug('ServerName' + ServerName);
+        HttpResponse res1 = New HttpResponse() ;
+        
+        List<EftWrapper> eftList = new List<EftWrapper>();
+        
+        if (ServerName == Null || ServerName != 'FTP' ){
+            res1.setStatusCode(501);
+            res1.setStatus('Server Name is not FTP ');
+            
+            return res1;
+            
+        } 
+        
+        HttpRequest req = new HttpRequest();
+        HttpResponse res = new HttpResponse();
+        Http http = new Http(); 
+        
+        //retrieve FTP server details from Meta data
+        
+        ftpdetail = [Select Id,username__c,password__c,Server_Name__c, 
+                     Port_Number__c,ftp_type__c,ftp_host__c,Content_Type__c,
+                     logon_type__c,setEndpoint__c,base64_key__c 
+                     from FTP_Detail__mdt where Server_Name__c=:ServerName ];
+        
+        Username = ftpdetail[0].username__c; 
+        Password = ftpdetail[0].password__c;
+        Port = ftpdetail[0].Port_Number__c;
+        ftpType = ftpdetail[0].ftp_type__c;
+        ftpHost = ftpdetail[0].ftp_host__c;
+        contentType = ftpdetail[0].Content_Type__c;
+        endPoint =ftpdetail[0].setEndpoint__c;
+        logonType =ftpdetail[0].logon_type__c;
+        base64Key = ftpdetail[0].base64_key__c;
+        
+        
+        System.debug('Port '+Port);
+        System.debug('ftpType '+ftpType);
+        System.debug('username '+username);
+        System.debug('contentType '+contentType);
+        System.debug('ftpHost '+ftpHost);
+        System.debug('endPoint '+endPoint);
+        System.debug('logonType '+logonType);
+        System.debug('base64Key '+base64Key);
+        
+        blob b = conVer.VersionData;
+        
+        // Assign value to FileBody, FilePath and fileName 
+        
+        FileBody = EncodingUtil.base64Encode(b);
+        FilePath = '/';
+        fileName = conVer.Title;
+        
+        eftList.add(new EftWrapper(fileName, FilePath, FileBody ));
+        
+        try {      
+            
+            
+            // Set API Request Header
+            
+            req.setHeader('username',  Username);
+            
+           //  req.setHeader('password', Password);
+            
+            req.setHeader('port', Port);
+            
+            // req.setHeader('Content-Type', contentType);
+            
+            req.setHeader('Content-Type', 'application/json');
+            req.setHeader('ftp-host', ftpHost);
+            req.setHeader('ftp-type', ftpType);         
+            req.setHeader('logon-type', logonType);         
+            req.setHeader('base64-key', base64Key);                 
+            req.setMethod('POST');
+            req.setTimeout(60000);
+            
+            // Set HttpEndpoint 
+            
+            req.setEndpoint(endPoint+'upload');
+            
+            // Set HttpRequestbody
+            
+            req.setBody(JSON.serialize(eftList)); 
+            
+            system.debug('request---->'+req);
+            
+            system.debug('setBody---->'+JSON.serialize(eftList));
+            
+            
+            
+            // send Http Request 
+            
+            res = http.send(req);                
+            statusCode =res.getStatusCode();                                    
+            
+            System.debug('File Upload Response' +  res);  
+            System.debug('File Upload Response Body' + res.getBody());                  
+            
+        }
+        catch (Exception e) {         
+            System.debug('Error:' + e.getMessage() + 'LN:' + e.getLineNumber() );           
+        }
+        return res;
+    }
+    
+    // this method is used to process Http file download Request
+    
+    public static HttpResponse getATBFile(String fname, String ServerName){
+        
+        string fileName;
+        string FilePath;
+        String FileBody;
+        List<FTP_Detail__mdt>ftpdetail=new List<FTP_Detail__mdt>(); 
+        List<EftWrapper> getEFtList = new List<EftWrapper>();
+        HttpResponse res2 = New HttpResponse() ;
+        // check fileName is blank or server name is not blank  
+        
+        if(fname == Null){
+            
+            res2.setStatusCode(501);
+            res2.setStatus('NULL in Filename');
+            
+            return res2;
+        } 
+        else if (ServerName == Null || ServerName != 'FTP' ){
+            res2.setStatusCode(501);
+            res2.setStatus('ServerName is not FTP ');
+            
+            return res2;
+            
+        } 
+        
+        else{ 
+            
+            // Set FilePath and FileName Values 
+            
+            FilePath = '/Inbox';
+            fileName = fname;
+            
+            getEFtList.add(new EftWrapper(fileName, FilePath ));
+            
+            String Username; 
+            String Password;
+            String Port;
+            String ftpType;
+            String ftpHost;
+            String contentType;
+            String endPoint;
+            String base64Key;
+            String logonType;
+            Integer statusCode;
+            
+            //retrieve FTP server details from Meta data
+            
+            ftpdetail= [Select Id,username__c,password__c,Server_Name__c, 
+                        Port_Number__c,ftp_type__c,ftp_host__c,Content_Type__c,
+                        logon_type__c,setEndpoint__c,base64_key__c 
+                        from FTP_Detail__mdt where Server_Name__c =:ServerName ];
+            
+            Username = ftpdetail[0].username__c; 
+            Password = ftpdetail[0].password__c;
+            Port = ftpdetail[0].Port_Number__c;
+            ftpType = ftpdetail[0].ftp_type__c;
+            ftpHost = ftpdetail[0].ftp_host__c;
+            contentType = ftpdetail[0].Content_Type__c;
+            endPoint =ftpdetail[0].setEndpoint__c;
+            logonType =ftpdetail[0].logon_type__c;
+            base64Key = ftpdetail[0].base64_key__c; 
+            
+            System.debug('Port '+Port);
+            System.debug('ftpType '+ftpType);
+            System.debug('username '+username);
+            System.debug('contentType '+contentType);
+            System.debug('ftpHost '+ftpHost);
+            System.debug('endPoint '+endPoint);
+            System.debug('logonType '+logonType);
+            System.debug('base64Key '+base64Key);
+            
+            HttpRequest req = new HttpRequest();
+            HttpResponse res = new HttpResponse();
+            Http http = new Http();
+            // blob resfile;
+            
+            
+            try {
+                // set HttpRequest Header 
+                
+                //  req.setHeader('Content-Type', contentType);
+                req.setHeader('Content-Type', 'application/json');
+                req.setHeader('username', Username);
+                //   req.setHeader('password', Password);
+                req.setHeader('port', Port);            
+                req.setHeader('ftp-host', ftpHost);
+                req.setHeader('ftp-type', ftpType);             
+                req.setHeader('logon-type', logonType);         
+                req.setHeader('base64-key', base64Key);                      
+                req.setMethod('POST');
+                req.setTimeout(80000);
+                req.setBody(JSON.serialize(getEFtList));
+                
+                // set HttpRequest Endpoint 
+                req.setEndpoint(endPoint+'download');
+                
+                system.debug('request---->'+req);
+                system.debug('request---->'+JSON.serialize(getEFtList));
+                
+                
+                // send request and receive response
+                res = http.send(req);
+                
+                system.debug('res--->'+ res );                                               
+                System.debug('File As Response Body' + res.getBody());
+                
+                // Process Response in order to retrive response file body and return         
+                
+            }
+            
+            catch (Exception e){         
+                System.debug('Error:' + e.getMessage() + 'LN:' + e.getLineNumber() );           
+            }
+            return res;
+        }
+    }
+    // this wrapper class is used to Http Request body    
+    
+    public class EftWrapper{
+        
+        public string filename { get; set;}
+        public string path  { get; set;}       
+        public string base64content{get; set;}
+        
+        public EftWrapper(string file, string path, string body){
+            this.filename = file;
+            this.path = path;
+            this.base64content = body;    
+            
+        }   
+        public EftWrapper(string file, string path){
+            this.filename = file;
+            this.path = path;
+            
+        }
+        
+    }    
+    
+}

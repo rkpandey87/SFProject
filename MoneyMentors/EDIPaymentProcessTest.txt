@@ -1,0 +1,237 @@
+@isTest
+public class EDIPaymentProcessTest {
+    
+    static testMethod void test1()
+    {
+        EDIFiles__c ed = new EDIFiles__c(Status__c = 'New');
+        //insert cs;
+        
+        String Str = '9876534'+','+'560'+','+'4/8/2022'+'\n';
+        Str +='  '+','+'  '+','+'  '+'\n';
+        Str +='6893499'+','+'443.78'+','+'04/31/2022'+'\n';
+        Str +='06893499'+','+'0'+','+' '+'\n';
+        Str += '  '+','+'  '+','+'  '+'\n';
+        Str +='123456789'+','+'443.78'+','+' ';
+        
+        Attachment attach=new Attachment();       
+        attach.Name='UnitTestAttachment.csv';
+        Blob bodyBlob=Blob.valueOf(Str);
+        attach.body=bodyBlob;
+        attach.parentId=ed.id;
+        //insert attach;
+        
+        List<EDIFiles__c> ediList=New List<EDIFiles__c>() ;
+        ediList.add(ed);
+        
+      //  System.assertEquals(0, attachments.size());
+        
+        PageReference pageRef = Page.UploadEDIFilePage;
+        Test.setCurrentPage(pageRef);
+    //    pageRef.getParameters().put('id', String.valueOf(obj.Id));
+        
+        ApexPages.StandardSetController stdCtr = new ApexPages.StandardSetController(ediList);
+        
+        CreatEDIFileRecord ctr = new CreatEDIFileRecord(stdCtr);
+        ctr.EdiAttachment =attach;
+        ctr.objEDIFile =ed;
+        ctr.converid='';
+        ctr.errMsg =' ';
+        
+        test.startTest();   
+        ctr.saveEDIFile(); 
+        ctr.close();
+        ctr.getEDISampleFile();
+        
+        
+        test.stopTest();
+    }
+     static testMethod void test2()    
+     {
+        EDIFiles__c ed = new EDIFiles__c(Status__c = 'New');
+        //insert cs;
+        
+        
+       String Str = '9876534'+','+'560'+','+'4/8/2022'+'\n';
+         Str +=' '+','+' '+','+' '+'\n';
+         Str +='6893499'+','+'443.78'+','+'04/31/2022'+'\n';
+         Str +='06893499'+','+'0'+','+' '+'\n';
+         Str += ' ,  ,  '+'\n';
+         Str +='123456789'+','+'443.78'+','+' '+'\n';
+         
+         
+         Attachment attach=new Attachment();       
+         attach.Name='UnitTestAttachment2.xls';
+         Blob bodyBlob=Blob.valueOf(Str);
+         attach.body=bodyBlob;
+         attach.parentId=ed.id;
+        //insert attach;
+        
+        List<EDIFiles__c> ediList=New List<EDIFiles__c>() ;
+        ediList.add(ed);
+        
+      //  System.assertEquals(0, attachments.size());
+        
+        PageReference pageRef = Page.UploadEDIFilePage;
+        Test.setCurrentPage(pageRef);
+    //    pageRef.getParameters().put('id', String.valueOf(obj.Id));
+        
+        ApexPages.StandardSetController stdCtr = new ApexPages.StandardSetController(ediList);
+        
+        CreatEDIFileRecord ctr = new CreatEDIFileRecord(stdCtr);
+        ctr.EdiAttachment =attach;
+        ctr.objEDIFile =ed;
+        ctr.converid='';
+        ctr.errMsg =' ';
+        
+        test.startTest();   
+        ctr.saveEDIFile(); 
+        ctr.close();
+        ctr.getEDISampleFile();
+        
+        
+        test.stopTest();
+    }
+    static testMethod void test3()    
+     {
+         Date payStartDate = Date.newInstance(2022, 1, 19);
+         
+         List<pmdm__ProgramEngagement__c>peList=new List<pmdm__ProgramEngagement__c>();
+         pmdm__ProgramEngagement__c pe = new pmdm__ProgramEngagement__c();
+          pmdm__ProgramEngagement__c pe1 = new pmdm__ProgramEngagement__c();
+         List<Contact> conList = new List<Contact>();
+         
+         pmdm__Program__c pr=new pmdm__Program__c();
+         pr.name = 'Orderly Payment of Debts';
+         pr.pmdm__Status__c='Active';
+         insert pr;
+         
+         pmdm__ProgramCohort__c pc=new pmdm__ProgramCohort__c();
+         pc.name = 'Calgary Cohort';
+         pc.pmdm__Status__c ='Active';
+         pc.pmdm__Program__c =pr.id;
+         
+         insert pc;
+         EFTFile__c 	fe=new EFTFile__c();
+         fe.Name='EFTFiles';
+         insert fe;
+        
+        for(Integer i=0;i<2;i++){
+            conList.add(new Contact(firstname='first',
+                                    lastname='last'+i));
+        }
+        if(conList!=Null && conList.size()>0){
+            
+            insert conList;
+        
+        }
+       
+        
+        // create PE Records 
+       
+        for(Contact con : conList) {
+            peList.add(new pmdm__ProgramEngagement__c(Name='Test', pmdm__Stage__c='Active File', 
+                                                      pmdm__Contact__c=con.id,
+                                                      Payment_Order__c='Electronic Funds Transfer (EFT)',
+                                                      Judicial_Centre__c='Calgary',
+                                                      pmdm__ProgramCohort__c=pc.id, 
+                                                      pmdm__Program__c=pr.id,
+                                                      Number_of_EFTs__c = 2,
+                                                      Disbursement_Fee__c = '10%',
+                                                      Total_Outstanding_Debt_Remaining__c = 10000,
+                                                      Payment_Frequency__c ='Monthly',
+                                                      Payment_Start_Date__c = payStartDate));
+        }
+         pe.Name='Test'; 
+         pe.pmdm__Stage__c='Active File';
+         pe.pmdm__Contact__c=conList[0].id;
+         pe.Payment_Order__c='Electronic Funds Transfer (EFT)';
+         pe.Judicial_Centre__c='Calgary';
+         pe.pmdm__ProgramCohort__c=pc.id;
+         pe.pmdm__Program__c=pr.id;
+         pe.Number_of_EFTs__c=2;
+         pe.Disbursement_Fee__c = 'Discounted 10%';
+         pe.Legacy_OPD_File_Number__c = '6893499';
+         pe.Total_Outstanding_Debt_Remaining__c = 10000;
+         pe.Payment_Frequency__c ='Monthly';
+         pe.Payment_Start_Date__c = payStartDate;
+         
+         peList.add(pe);
+             
+         pe1.Name='Test'; 
+         pe1.pmdm__Stage__c='Active File';
+         pe.pmdm__Contact__c=conList[1].id;
+         pe1.Payment_Order__c='Electronic Funds Transfer (EFT)';
+         pe1.Judicial_Centre__c='Calgary';
+         pe1.pmdm__ProgramCohort__c=pc.id;
+         pe1.pmdm__Program__c=pr.id;
+         pe1.Number_of_EFTs__c=2;
+         pe.Legacy_OPD_File_Number__c = '06893499';
+         pe1.Total_Outstanding_Debt_Remaining__c = 10000;
+         pe1.Payment_Frequency__c ='Monthly';
+         pe1.Payment_Start_Date__c = payStartDate;
+         
+          peList.add(pe1);
+         
+         if(peList!=Null && peList.size()>0){
+             insert peList;
+         }
+         
+        EDIFiles__c ed = new EDIFiles__c(Status__c = 'New');
+        insert ed;
+        
+        String Str = '9876534'+','+'560'+','+'4/8/2022'+'\n';
+        Str +='  '+','+'  '+','+'  '+'\n';
+        Str +='6893499'+','+'443.78'+','+'04/30/2022'+'\n';
+        Str +='06893499'+','+'560'+','+'4/8/2022'+'\n';
+        Str += '  '+','+'  '+','+'  '+'\n';
+        Str +='123456789'+','+'443.78'+','+' ';
+         
+        ContentVersion conVer = new ContentVersion();
+        conVer.ContentLocation = 'S'; 
+        conVer.PathOnClient = 'Test.TXT'; 
+        conVer.Title = 'EDIFileTitle';  
+        conVer.Description = 'This is EDI File' ;         
+        conVer.VersionData = Blob.valueof(Str);       
+        insert conVer;
+        system.debug(' conVer----'+ conVer);
+        
+        
+        Id conDoc = [SELECT ContentDocumentId FROM ContentVersion WHERE Id =:conVer.Id].ContentDocumentId;        
+        ContentDocumentLink cDe = new ContentDocumentLink();
+        cDe.ContentDocumentId = conDoc;
+        cDe.LinkedEntityId = ed.id;
+        cDe.ShareType = 'I'; 
+        
+       Insert cDe;
+
+        
+      /*  Attachment attach=new Attachment();       
+        attach.Name='UnitTestAttachment.csv';
+        Blob bodyBlob=Blob.valueOf(Str);
+        attach.body=bodyBlob;
+        attach.parentId=ed.id;
+        insert attach; */
+        
+        List<EDIFiles__c> ediList=New List<EDIFiles__c>() ;
+        ediList.add(ed);
+         
+      /*   if( ediList!=Null &&  ediList.size()>0){
+             Insert ediList;
+         }*/
+         
+        List<String> ediList1=New List<String>() ;
+         
+     /*    for(EDIFiles__c edi :[select Id  from EDIFiles__c where Status__c='New' 
+                              AND Status__c!='Processed' ]) {
+                                 
+                                  ediList1.add(edi.id);
+                              } */
+         
+         ediList1.add(ed.id);
+        
+        test.startTest(); 
+        EDIPaymentProcess.EDIProcess(ediList1);
+        test.stopTest();
+    }
+
+}

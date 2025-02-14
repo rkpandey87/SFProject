@@ -1,0 +1,105 @@
+@isTest
+public class BatchToProcessResponseTest {
+    
+    static testMethod void TestMethod1(){
+        
+        EFTFile__c ef = new EFTFile__c();
+         List<FTP_Detail__mdt>ftList=new List<FTP_Detail__mdt>();
+         
+        ef.Name = 'TestEFTFile';
+        //  ef.ACK_File_Name__c= 'TestEFTFile';
+        ef.EFT_Status__c = 'Ready to Send';
+        ef.File_Type__c = 'FTP';
+        
+        insert ef;
+        
+        ContentVersion conVer = new ContentVersion();
+        conVer.ContentLocation = 'S'; 
+        conVer.PathOnClient = 'Test.TXT'; 
+        conVer.Title = 'EFTFileTitle';  
+        conVer.Description = 'This is Client EFT Related Details File' ;         
+        conVer.VersionData = Blob.valueof('EFTfileBody');       
+        insert conVer;
+        
+        
+        List<FTP_Detail__mdt> testMetadata = (List<FTP_Detail__mdt>)Json.deserialize('[{"SObject_Name__c": "FTP_Detail__mdt","Label": "FTP File","Content_Type__c" : "application/json","fileName__c": "file1","username__c" : "NetSutra","password__c" : "NetSutra123","ftp_host__c" : "SFTP","path__c" : "https://mm-ftpapi.qrupia.com:8000/upload","setMethod__c" : "POST","Port_Number__c" : "22","Server_Name__c" : "FTP" }]', List<FTP_Detail__mdt>.class); 
+
+        system.debug('testMetadata------->'+testMetadata);
+        
+        Id conDoc = [SELECT ContentDocumentId FROM ContentVersion WHERE Id =:conVer.Id].ContentDocumentId;        
+        ContentDocumentLink cDe = new ContentDocumentLink();
+        cDe.ContentDocumentId = conDoc;
+        cDe.LinkedEntityId = ef.Id;
+        cDe.ShareType = 'I'; 
+        
+        insert cDe;
+        
+        Test.setMock(HttpCalloutMock.class, new MockFileHttpResponseGenerator());
+        
+        Test.startTest();
+             
+        BatchToProcessResponse br= new BatchToProcessResponse();
+        Database.executeBatch(br,1);
+        
+        Test.stopTest();
+       
+       }
+     static testMethod void TestMethod2(){
+        
+         EFTFile__c ef = new EFTFile__c();
+         List<FTP_Detail__mdt>ftList=new List<FTP_Detail__mdt>();
+         ef.Name = 'TestEFTFile';
+         ef.ACK_File_Name__c= 'TestEFTFile_ACK.TXT';
+         ef.EFT_Status__c = 'Sent';
+         ef.File_Type__c = 'FTP';
+         
+         insert ef;
+         
+         List<FTP_Detail__mdt> testMetadata = (List<FTP_Detail__mdt>)Json.deserialize('[{"SObject_Name__c": "FTP_Detail__mdt","Label": "FTP File","Content_Type__c" : "application/json","fileName__c": "file1","username__c" : "NetSutra","password__c" : "NetSutra123","ftp_host__c" : "SFTP","path__c" : "https://mm-ftpapi.qrupia.com:8000/upload","setMethod__c" : "POST","Port_Number__c" : "22","Server_Name__c" : "FTP" }]', List<FTP_Detail__mdt>.class); 
+         
+         system.debug('testMetadata------->'+testMetadata);
+         
+         
+         Test.setMock(HttpCalloutMock.class, new MockFileHttpResponseGenerator());
+         
+         Test.startTest();
+         
+         BatchToProcessResponse br= new BatchToProcessResponse();
+         Database.executeBatch(br,1);
+         
+         Test.stopTest();
+         
+    }
+    static testMethod void TestMethod3(){
+        
+        EFTFile__c ef = new EFTFile__c();
+        List<FTP_Detail__mdt>ftList=new List<FTP_Detail__mdt>();
+        ef.Name = 'TestEFTFile';
+        ef.IVF_File_Name__c= 'TestEFTFile_IVF.TXT';
+        ef.EFT_Status__c = 'ACK Accepted';
+        ef.File_Type__c = 'FTP';
+        
+        insert ef;
+        
+         List<FTP_Detail__mdt> testMetadata = (List<FTP_Detail__mdt>)Json.deserialize('[{"SObject_Name__c": "FTP_Detail__mdt","Label": "FTP File","Content_Type__c" : "application/json","fileName__c": "file1","username__c" : "NetSutra","password__c" : "NetSutra123","ftp_host__c" : "SFTP","path__c" : "https://mm-ftpapi.qrupia.com:8000/upload","setMethod__c" : "POST","Port_Number__c" : "22","Server_Name__c" : "FTP" }]', List<FTP_Detail__mdt>.class); 
+         
+         system.debug('testMetadata------->'+testMetadata);
+ 
+        Test.setMock(HttpCalloutMock.class, new MockFileHttpResponseGenerator());
+        
+        Test.startTest();
+          
+        BatchToProcessResponse br= new BatchToProcessResponse();
+        Database.executeBatch(br,1);
+        
+        ScheduledFileResponseBatch sh = new ScheduledFileResponseBatch();
+        String sch = '0 0 23 * * ?'; 
+        system.schedule('Response Batch File Test Schedule', sch, sh); 
+        
+        Test.stopTest();
+       
+    } 
+    
+  
+
+}

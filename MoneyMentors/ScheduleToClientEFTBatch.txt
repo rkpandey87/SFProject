@@ -1,0 +1,11 @@
+public class ScheduleToClientEFTBatch implements Schedulable  {
+  
+      public void execute(SchedulableContext sc) {
+          
+          ClientEFTBatch batch = new ClientEFTBatch( );
+          Database.executeBatch(batch);
+         
+      }
+
+
+}
