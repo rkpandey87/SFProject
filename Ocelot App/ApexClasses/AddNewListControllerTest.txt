@@ -1,0 +1,35 @@
+@istest
+public class AddNewListControllerTest {
+    
+    static testMethod void test() {
+        String name= ''; 
+        //BatchToSyncContactList
+        Ocelot_Settings__mdt objSample = Ocelot_Settings__mdt.getInstance('OcelotSetting');
+        List<CronTrigger> lstJob = new List<CronTrigger>();
+        lstJob = [SELECT ID,CronJobDetail.Name FROM CronTrigger 
+                  WHERE CronJobDetail.Name  LIKE '%BatchToSyncContactList%'];
+        
+          List<API_Credentials__c>apiLst = new List<API_Credentials__c>();
+        API_Credentials__c apiCred= new API_Credentials__c();
+        apiCred.Chatbot_UUID__c= 'Test1';
+        apiLst.add(apiCred);
+        insert apiLst;
+        
+        
+        // and state= 'Waiting'
+        Test.startTest();
+        AddNewListController.getSettingsRecords();
+        AddNewListController.setFrequecyValue('testFreq1');
+        AddNewListController.reScheduledJob('No Sync');
+        AddNewListController.reScheduledJob('Daily');
+        AddNewListController.reScheduledJob('Twice Daily');
+        Test.stopTest();
+        
+         List<API_Credentials__c> apiCredLst = [SELECT Id FROM API_Credentials__c where Id!=NULL];
+        system.assert(apiCredLst.size()>0, 'Inserted api credentails records should be 1'); 
+        
+        List<Ocelot_Settings__mdt> ocelotMeta= [Select Id from Ocelot_Settings__mdt where Id!=NULL];
+        system.assert(ocelotMeta.size()>0, 'Inserted metadata records should be 1');
+        
+    }
+}

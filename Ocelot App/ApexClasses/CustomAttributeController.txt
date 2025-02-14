@@ -1,0 +1,235 @@
+public with sharing class CustomAttributeController {
+    
+    @AuraEnabled
+    public static List<String> fetchReportColumn(String conId){
+        List<String> lstVal= new List<String>();
+        List<String> lstValTest= new List<String>(); 
+        List<Contact_Lists__c> conLst= [Select Id
+                                        ,Report_ID__c
+                                        ,Report_Name__c
+                                        from Contact_Lists__c where Id=:conId];
+        String reportId;
+        if(!test.isRunningTest()){
+            reportId= conLst[0].Report_ID__c;
+            Reports.ReportDescribeResult reportInfo = Reports.ReportManager.describeReport(reportId);
+            Reports.ReportExtendedMetadata reportMeta = reportInfo.getReportExtendedMetadata();
+            Map<String, Reports.DetailColumn> columnData = reportMeta.getDetailColumnInfo();
+            for(Reports.DetailColumn column: columnData.values()) {            
+                lstVal.add(+column.getLabel());
+            }
+        }else{
+            lstValTest= new List<String>();
+            String test1= 'Id, Phone, FirstName, LastName, Email\n';
+            lstValTest.add(test1);
+            return lstValTest;
+        }
+        return lstVal;
+    }
+    
+    @AuraEnabled
+    public static List<WrapperAttribute> getAttributeList(String docId){
+        List<WrapperAttribute> waList = new List<WrapperAttribute>();        
+        List<wrapperApi> lstPick = new List<wrapperApi>();
+        
+        List<String> rmList;
+        rmList = fetchReportColumn(docId);
+        ContentVersion cv= new  ContentVersion();
+        
+        Map<String,String> mapColName= new Map<String,String>();
+        
+        List<Contact_Attributes__c> existingContAttrLst=  [SELECT Id
+                                                           , Name__c
+                                                           , Mapped_to__c
+                                                           FROM Contact_Attributes__c 
+                                                           where Contact_List_ID__c =:docId 
+                                                           order by Mapped_to__c];
+        if(existingContAttrLst.size()>0){          
+            for(Contact_Attributes__c conAtrr: existingContAttrLst){
+                string mapto = (string.isBlank(conAtrr.Mapped_to__c) )? '' : conAtrr.Mapped_to__c;
+                mapColName.put(conAtrr.Name__c,mapto);  
+            }
+        } 
+        
+        
+        Integer count = 0;
+        
+        for(string str : rmList) {
+            
+            lstPick.add(getAPIWrapper(str,string.valueOf(count)));  
+            
+            count++;
+        }
+        
+        Map<string, WrapperAttribute> mapWrp = bindWrapper(lstPick);
+        
+        if(rmList!=NULL && rmList.size()>0){
+            string val = '';
+            string val1 = '';
+            string val2 = '';
+            string val3 = '';
+            string val4 = '';
+            
+            if(rmList.size() == 1){val = '0';}            
+            if(rmList.size() == 2){val = '0'; val1 = '1';}
+            if(rmList.size() == 3){val = '0'; val1 = '1'; val2 = '2';}
+            if(rmList.size() == 4){val = '0'; val1 = '1'; val2 = '2'; val3 = '3';}
+            if(rmList.size() >= 5){val = '0'; val1 = '1'; val2 = '2'; val3 = '3'; val4 = '4';}
+            
+            mapWrp.get('SF_ID').selectedReportColumn = val; 
+            mapWrp.get('Phone').selectedReportColumn = val1;                                
+            mapWrp.get('First_name').selectedReportColumn = val2;
+            mapWrp.get('Last_name').selectedReportColumn = val3;
+            mapWrp.get('Email').selectedReportColumn = val4;
+            
+            if(mapColName.containsKey('SF_ID')) {val = mapColName.get('SF_ID');}                
+            mapWrp.get('SF_ID').selectedReportColumn = val;
+            if(mapColName.containsKey('Phone')){val1 = mapColName.get('Phone');}
+            mapWrp.get('Phone').selectedReportColumn = val1;                                
+            
+            if(mapColName.containsKey('First_name')) { val2 = mapColName.get('First_name'); } 
+            mapWrp.get('First_name').selectedReportColumn = val2;
+            
+            if(mapColName.containsKey('Last_name')) {val3 =  mapColName.get('Last_name');}
+            mapWrp.get('Last_name').selectedReportColumn = val3;
+            
+            if(mapColName.containsKey('Email')) { val4 = mapColName.get('Email');}
+            mapWrp.get('Email').selectedReportColumn = val4;
+            
+        }
+        
+        
+        return mapWrp.values();
+    }
+    
+    public static Map<string, WrapperAttribute> bindWrapper(List<wrapperApi> lstPick) {
+        Map<string, WrapperAttribute> mapWrp = new Map<string,WrapperAttribute>();
+        mapWrp.put('SF_ID', getWrapperAttribute(lstPick, '0',true,'Salesforce ID', 'SF_ID', true, true ) );
+        mapWrp.put('Phone', getWrapperAttribute(lstPick, '1',true,'Phone', 'Phone', true, true ) );
+        mapWrp.put('First_name', getWrapperAttribute(lstPick, '2',false,'First Name', 'First_name', false, false ) );
+        mapWrp.put('Last_name', getWrapperAttribute(lstPick, '3',false,'Last Name', 'Last_name', false, false ) );
+        mapWrp.put('Email', getWrapperAttribute(lstPick, '4',false,'Email', 'Email', false, false ) );
+        
+        return mapWrp;
+    }
+    
+    @AuraEnabled
+    public static string submitAttribute(string itemData, string conListId) {     
+        String listname = '';
+        string retMsg = 'SUCCESS';
+        try {
+            List<Contact_Lists__c> lst = [select id, List_Name__c,MapAttributeDate__c,Custom_Mapping__c from Contact_Lists__c where id=:conListId limit 1];
+            if(lst.size() > 0) {listname = lst[0].List_Name__c;}
+            if(string.isNotBlank(itemData)) {
+                
+                List<Object> lstItemData = (List<Object>)JSON.deserializeUntyped(itemData); 
+                List<Contact_Attributes__c> lstCA = new List<Contact_Attributes__c>();
+                for(Object itemObj : lstItemData) {                        
+                    Map<String, Object> mapItem = (Map<String, Object>) itemObj;
+                    
+                    string attributeType = 'hello';
+                    string selectedReportColumn = string.valueOf(mapItem.get('selectedReportColumn'));                    
+                    string name = string.valueOf(mapItem.get('name'));
+                    string displayName = string.valueOf(mapItem.get('displayName'));                    
+                    Boolean required = Boolean.valueOf(mapItem.get('required'));
+                    Boolean unique = Boolean.valueOf(mapItem.get('unique'));                    
+                    //string name = string.valueOf(mapItem.get('name'));
+                    if(name == 'SF_ID') { attributeType = 'Text';}
+                    if(name == 'Phone') { attributeType = 'PhoneNumber';}
+                    if(name == 'First_name') { attributeType = 'FirstName';}
+                    if(name == 'Last_name') { attributeType = 'LastName';}
+                    if(name == 'Email') { attributeType = 'Email';}
+                    
+                    Contact_Attributes__c ca = new Contact_Attributes__c();
+                    ca.Name__c = name;
+                    ca.DisplayName__c = displayName;
+                    ca.Required__c = required;
+                    ca.Unique__c= unique;
+                    ca.Contact_List_ID__c= conListId;
+                    ca.List_Name__c= listname;
+                    ca.Mapped_to__c= selectedReportColumn;
+                    if(name == 'SF_ID'){ ca.Type__c= 'Custom';}else{ca.Type__c= 'Standard';}
+                    ca.Atttibute_Type__c= attributeType;                                          
+                    lstCA.add(ca);
+                }
+                if(lstCA.size() > 0 ) { 
+                    List<Contact_Attributes__c> lstForDelete=  [SELECT Id FROM Contact_Attributes__c where Contact_List_ID__c =:conListId];                    
+                    if(lstForDelete.size()>0){
+                        delete lstForDelete;
+                    }                                        
+                    insert lstCA;
+                }
+                if(lst.size() > 0) {
+                    lst[0].Custom_Mapping__c=true;
+                    lst[0].MapAttributeDate__c = system.now();
+                    update lst; }
+            }
+            
+            
+            
+        }
+        catch(Exception ex) {
+            retMsg = 'FAIL : '+ex.getMessage();
+        }
+        return 'SUCCESS';
+    }
+    
+    @AuraEnabled
+    public static string getListName(string conListId) {     
+        String listname = '';
+        string retMsg = 'SUCCESS';
+        try {
+            List<Contact_Lists__c> lst = [select id, List_Name__c,Report_Name__c from Contact_Lists__c where id=:conListId limit 1];
+            if(lst.size() > 0) {listname = lst[0].Report_Name__c;}
+        }
+        catch(Exception ex) {
+            retMsg = 'FAIL : '+ex.getMessage();
+        }
+        return listname ;
+    }
+    
+    public class WrapperAttribute {
+        @AuraEnabled
+        public List<wrapperApi> reportColumn{get;set;}        
+        @AuraEnabled
+        public string selectedReportColumn{get;set;}        
+        @AuraEnabled
+        public Boolean flag{get;set;} 
+        @AuraEnabled
+        public string displayName{get;set;}        
+        @AuraEnabled
+        public string name{get;set;}        
+        @AuraEnabled
+        public Boolean required{get;set;}        
+        @AuraEnabled
+        public Boolean unique{get;set;}
+        @AuraEnabled
+        public string errorMsg{get;set;}
+    }
+    
+    public class wrapperApi {
+        @AuraEnabled
+        public string label{get;set;}
+        @AuraEnabled
+        public string value{get;set;}               
+    }
+    
+    public static wrapperApi getAPIWrapper(string label, string val) {
+        wrapperApi api = new wrapperApi();
+        api.label = label;  
+        api.value = val;
+        return api;
+    }
+    
+    public static WrapperAttribute getWrapperAttribute(List<wrapperApi> lst, string selectedRC,boolean flag, string displayName, string name, Boolean required, Boolean unique  ) {
+        WrapperAttribute wa = new WrapperAttribute();
+        wa.reportColumn = lst;     
+        wa.selectedReportColumn = selectedRC;
+        wa.flag =flag;
+        wa.displayName = displayName;       
+        wa.name = name;      
+        wa.required = required;       
+        wa.unique = unique;
+        return wa;
+    }
+    
+}

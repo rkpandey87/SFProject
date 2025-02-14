@@ -1,0 +1,12 @@
+@isTest
+global class OcelotPostInstallMock implements HttpCalloutMock {
+    
+    global HTTPResponse respond(HTTPRequest req) {
+        HttpResponse res = new HttpResponse();
+        res.setHeader('Content-Type', 'application/json');
+        res.setBody('{"size":21,"totalSize":21,"done":true,"queryLocator":null,"entityTypeName":"InstalledSubscriberPackage","records":[{"attributes":{"type":"InstalledSubscriberPackage","url":"/services/data/v59.0/tooling/sobjects/InstalledSubscriberPackage/0A34P000000VNBoSAO"},"Id":"0A34P000000VNBoSAO","SubscriberPackageId":"0331a0000009kg4AAA","SubscriberPackage":{"attributes":{"type":"SubscriberPackage","url":"/services/data/v59.0/tooling/sobjects/SubscriberPackage/0331a0000009kg4AAA"},"NamespacePrefix":"relateiq","Name":"Ocelot App"},"SubscriberPackageVersion":{"attributes":{"type":"SubscriberPackageVersion","url":"/services/data/v59.0/tooling/sobjects/SubscriberPackageVersion/04t1a000000AWcDAAW"},"Id":"04t1a000000AWcDAAW","Name":"SalesforceIQ Inbox","MajorVersion":2,"MinorVersion":0,"PatchVersion":0,"BuildNumber":2,"ReleaseState":"Released","IsBeta":false}}]}');
+        res.setStatusCode(200);
+        return res;
+        
+    }
+}

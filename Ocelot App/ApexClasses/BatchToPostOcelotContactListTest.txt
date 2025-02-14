@@ -1,0 +1,606 @@
+@isTest
+public class BatchToPostOcelotContactListTest {
+    
+    @isTest 
+    static void testPostBatch(){
+        String parentId;
+        List<String> csvRowValues = new List<String>();
+        String repHeader=  '"Contact ID","Mobile","First Name","Last Name","Email","Created By","Created Date"\n';
+        String csvColumn= '"0035h00001cnkpq","9999911111","ocelot1","record1","oceemail1@gmail.com","Rajeev Pandey","8/23/2023"\n';
+        csvColumn+= '"0035h00001cnkpr","9999922222","ocelot2","record2","oceemail2@gmail.com","Rajeev Pandey","8/23/2023"\n';
+        csvColumn+= '"0035h00001cnkps","9999933333","ocelot3","record3","oceemail3@gmail.com","Rajeev Pandey","8/23/2023"\n';
+        
+        String csvFile = repHeader +csvColumn;
+        
+        
+        blob bl = blob.valueOf('Unit.Test');
+        bl = Blob.valueOf(csvFile);
+        
+        
+        List<Contact_Lists__c> contactList= new List<Contact_Lists__c>();
+        Contact_Lists__c contLst= new Contact_Lists__c();
+        contLst.List_Name__c= 'Ocelot Contact Report';
+        contLst.MapAttributeDate__c= system.now();
+        contLst.Custom_Mapping__c= true;
+        contLst.Report_Name__c= 'Ocelot Contact Report';
+        //contLst.Report_ID__c= '00OHs0000091sHWMAY';
+        contLst.Schedule_Sync__c= true;
+        contactList.add(contLst);
+        insert contactList;
+        
+        
+        Set<String> conListIdSet= new Set<String>();
+        String conListRecId;
+        conListRecId = contactList[0].id;
+        conListIdSet.add(conListRecId);
+        
+        String lstName= contactList[0].List_Name__c;
+        
+        
+        List<Contact_Attributes__c> existingConAtrbLst= new List<Contact_Attributes__c>();
+        Contact_Attributes__c con = new Contact_Attributes__c();
+        con.Name__c = 'SF_ID';
+        con.DisplayName__c = 'Salesforce ID';
+        con.Required__c = True;
+        con.Unique__c=True;
+        con.Contact_List_ID__c= contactList[0].Id;
+        con.List_Name__c= 'Test1';
+        con.Mapped_to__c= '0';
+        existingConAtrbLst.add(con);
+        
+        
+        Contact_Attributes__c conPh = new Contact_Attributes__c();
+        conPh.Name__c = 'Phone';
+        conPh.DisplayName__c = 'Phone';
+        conPh.Required__c = True;
+        conPh.Unique__c=True;
+        conPh.Contact_List_ID__c= contactList[0].Id;
+        conPh.List_Name__c= 'Test1';
+        conPh.Mapped_to__c= '2';        
+        existingConAtrbLst.add(conPh);
+        
+        Contact_Attributes__c conFn = new Contact_Attributes__c();
+        conFn.Name__c = 'First_name';
+        conFn.DisplayName__c = 'First Name';
+        conFn.Required__c = false;
+        conFn.Unique__c=false;
+        conFN.Contact_List_ID__c= contactList[0].Id;
+        conFn.List_Name__c= 'Test1';
+        conFn.Mapped_to__c= '4';
+        existingConAtrbLst.add(conFn);
+        
+        Contact_Attributes__c conLn = new Contact_Attributes__c();
+        conLn.Name__c = 'Last_name';
+        conLn.DisplayName__c = 'Last Name';
+        conLn.Required__c = false;
+        conLn.Unique__c=false;
+        conLn.Contact_List_ID__c= contactList[0].Id;
+        conLn.List_Name__c= 'Test1';
+        conLn.Mapped_to__c= '1';
+        existingConAtrbLst.add(conLn);
+        
+        Contact_Attributes__c conEml = new Contact_Attributes__c();
+        conEml.Name__c = 'Email';
+        conEml.DisplayName__c = 'Email';
+        conEml.Required__c = false;
+        conEml.Unique__c=false;
+        conEml.Contact_List_ID__c= contactList[0].Id;
+        conEml.List_Name__c= 'Test1';
+        conEml.Mapped_to__c= '3';
+        existingConAtrbLst.add(conEml);
+        insert existingConAtrbLst;
+        
+        List<Contact_Attributes__c> NullConLstRecInAtrbLst= new List<Contact_Attributes__c>();
+        Contact_Attributes__c nullConAtrb = new Contact_Attributes__c();
+        nullConAtrb.Name__c = 'SF_ID';
+        nullConAtrb.DisplayName__c = 'Salesforce ID';
+        nullConAtrb.Required__c = True;
+        nullConAtrb.Unique__c=True;
+        nullConAtrb.Contact_List_ID__c= Null;
+        nullConAtrb.List_Name__c= 'Test2';
+        nullConAtrb.Mapped_to__c= '2';
+        nullConAtrb.Type__c= 'Standard';
+        nullConAtrb.Atttibute_Type__c= 'Text';
+        NullConLstRecInAtrbLst.add(nullConAtrb);
+        insert NullConLstRecInAtrbLst;
+        Map<String, Integer> conAttrb= new Map<String, Integer>();
+        conAttrb.put(existingConAtrbLst[0].Name__c, Integer.valueOf(existingConAtrbLst[0].Mapped_to__c));
+        
+        Map<Id,Map<String, Integer>> conAttMap = new Map<Id,Map<String, Integer>>();
+        conAttMap.put(existingConAtrbLst[0].id, conAttrb);
+        
+        ContentVersion cVersion = new ContentVersion();
+        cVersion.ContentLocation = 'S';                         
+        cVersion.PathOnClient =csvFile; 
+        cVersion.VersionData = Blob.valueOf(csvFile);     
+        Insert cVersion;
+        
+        Id conDocument = [SELECT ContentDocumentId FROM ContentVersion WHERE Id =:cVersion.Id].ContentDocumentId;
+        List<String> rmList= new List<String>();
+        ContentDocumentLink  cDocLink = new ContentDocumentLink();
+        cDocLink.ContentDocumentId = conDocument;            
+        cDocLink.LinkedEntityId = contactList[0].id;                    
+        cDocLink.ShareType = 'V';                             
+        cDocLink.Visibility = 'AllUsers';                  
+        Insert cDocLink;
+        
+        blob blb = cVersion.VersionData;
+        String reportstr = EncodingUtil.base64Decode(EncodingUtil.base64Encode(blb)).toString();
+        List<string>fileList=reportstr.split('\n');
+        rmList= fileList[0].split(','); 
+        
+        List<OcelotCalloutHandler.ResWrapper> resLst= new  List<OcelotCalloutHandler.ResWrapper> ();
+        
+        
+        List<Error_Log__c>errList = new List<Error_Log__c>();
+        Error_Log__c elog= new Error_Log__c();
+        elog.API_EndPoint__c= 'https://api.ocelotbot.com/api/v1//contact-list';
+        elog.Requested_Method__c= 'POST';
+        elog.Type__c= 'Exception Log';
+        errList.add(elog);
+        
+        Error_Log__c eApilog= new Error_Log__c();
+        eApilog.API_EndPoint__c= 'https://api.ocelotbot.com/api/v1//contact-list';
+        eApilog.Requested_Method__c= 'POST';
+        eApilog.Type__c= 'API Log';
+        errList.add(eApilog);
+        insert errList; 
+        
+        Test.setMock(HttpCalloutMock.class, new BatchMockResponseGenerator());
+        
+        Test.startTest();
+        
+        
+        BatchToPostOcelotContactList b2 = new BatchToPostOcelotContactList(conListRecId); 
+        Id jobid2=  Database.executeBatch(b2,200);
+        
+        OcelotCalloutHandler.setLastSyncDate(conListIdSet);
+        OcelotCalloutHandler.getConListCSVFileData(conListRecId,lstName);
+        OcelotCalloutHandler.creatAPILog(resLst);
+        Test.stopTest();
+        
+        List<Contact_Lists__c> contList = [SELECT Id FROM Contact_Lists__c where Id!=NULL];
+        system.assert(contList.size() > 0, 'Inserted Contact Lists records should be 1'); 
+        List<Contact_Attributes__c> contAtrblist = [SELECT Id FROM Contact_Attributes__c where Id!=NULL];
+        system.assert(contAtrblist.size() > 4, 'Inserted Contact attribute records should be 5');
+        
+    }
+    
+    @isTest
+    static void testPostBatch1(){
+        String parentId;
+        List<String> csvRowValues = new List<String>();
+        String repHeader=  '"Contact ID","Mobile"\n';
+        String csvColumn= '"0035h00001cnkpq","9999911111"\n';
+        csvColumn+= '"0035h00001cnkpr","9999922222"\n';
+        csvColumn+= '"0035h00001cnkps","9999933333"\n';
+        csvColumn+= '"0035h00001cnkpt","9999922224"\n';
+        csvColumn+= '"0035h00001cnkpu","9999933335"\n';
+        csvColumn+= '"0035h00001cnkpv","9999933336"\n';
+        csvColumn+= '"0035h00001cnkpw","9999922227"\n';
+        csvColumn+= '"0035h00001cnkpx","9999933338"\n';
+        csvColumn+= '"0035h00001cnkpy","9999922229"\n';
+        csvColumn+= '"0035h00001cnkpz","9999933310"\n';
+        
+        
+        
+        String csvFile = repHeader +csvColumn;
+        
+        blob bl = blob.valueOf('Unit.Test');
+        bl = Blob.valueOf(csvFile);
+        
+        
+        List<Contact_Lists__c> contactList= new List<Contact_Lists__c>();
+        Contact_Lists__c contLst= new Contact_Lists__c();
+        contLst.List_Name__c= 'Ocelot Contact Report';
+        contLst.MapAttributeDate__c= system.now();
+        contLst.Custom_Mapping__c= true;
+        contLst.Report_Name__c= 'Ocelot Contact Report';
+        
+        contLst.Schedule_Sync__c= true;
+        contactList.add(contLst);
+        insert contactList;
+        
+        List<Contact_Attributes__c> ConAtrbLst= new List<Contact_Attributes__c>();
+        Contact_Attributes__c con = new Contact_Attributes__c();
+        con.Name__c = 'SF_ID';
+        con.DisplayName__c = 'Salesforce ID';
+        con.Required__c = True;
+        con.Unique__c=True;
+        con.Contact_List_ID__c= contactList[0].Id;
+        con.List_Name__c= 'Test1';
+        
+        ConAtrbLst.add(con);
+        
+        
+        Contact_Attributes__c conPh = new Contact_Attributes__c();
+        conPh.Name__c = 'Phone';
+        conPh.DisplayName__c = 'Phone';
+        conPh.Required__c = True;
+        conPh.Unique__c=True;
+        conPh.Contact_List_ID__c= contactList[0].Id;
+        conPh.List_Name__c= 'Test1';
+        
+        ConAtrbLst.add(conPh);
+        
+        insert ConAtrbLst;
+        
+        
+        ContentVersion cVersion = new ContentVersion();
+        cVersion.ContentLocation = 'S';                         
+        cVersion.PathOnClient =csvFile; 
+        cVersion.VersionData = Blob.valueOf(csvFile);     
+        Insert cVersion;
+        
+        Id conDocument = [SELECT ContentDocumentId FROM ContentVersion WHERE Id =:cVersion.Id].ContentDocumentId;
+        List<String> rmList= new List<String>();
+        ContentDocumentLink  cDocLink = new ContentDocumentLink();
+        cDocLink.ContentDocumentId = conDocument;            
+        cDocLink.LinkedEntityId = contactList[0].id;                    
+        cDocLink.ShareType = 'V';                             
+        cDocLink.Visibility = 'AllUsers';                  
+        Insert cDocLink;
+        
+        blob blb = cVersion.VersionData;
+        String reportstr = EncodingUtil.base64Decode(EncodingUtil.base64Encode(blb)).toString();
+        List<string>fileList=reportstr.split('\n');
+        rmList= fileList[0].split(','); 
+        Integer listSize=0;
+        Integer Start=0;
+        listSize= rmList.size();
+        Integer Lstlimit=9;
+        
+        Test.startTest(); 
+        BatchToPostOcelotContactList b = new BatchToPostOcelotContactList(''); 
+        Id jobid=  Database.executeBatch(b,200); 
+        Test.stopTest();
+        
+        List<Contact_Lists__c> contList = [SELECT Id FROM Contact_Lists__c where Id!=NULL];
+        system.assert(contList.size() > 0, 'Inserted Contact Lists records should be 1'); 
+        List<Contact_Attributes__c> contAtrblist = [SELECT Id FROM Contact_Attributes__c where Id!=NULL];
+        system.assert(contAtrblist.size() > 1, 'Inserted Contact attribute records should be 2');
+    }
+    
+    @isTest
+    static void testPostBatch2(){
+        String parentId;
+        List<String> csvRowValues = new List<String>();
+        String repHeader=  '"Contact ID","Mobile","First Name","Last Name"\n';
+        String csvColumn= '"0035h00001cnkpq","9999911111","ocelot1","record1"\n';
+        csvColumn+= '"0035h00001cnkpr","9999922222","ocelot2","record2"\n';
+        csvColumn+= '"0035h00001cnkps","9999933333","ocelot3","record3"\n';
+        csvColumn+= '"0035h00001cnkpt","9999922222","ocelot4","record4"\n';
+        csvColumn+= '"0035h00001cnkpu","9999933333","ocelot5","record5"\n';
+        csvColumn+= '"0035h00001cnkpv","9999922222","ocelot6","record6"\n';
+        String csvFile = repHeader +csvColumn;
+        
+        blob bl = blob.valueOf('Unit.Test');
+        bl = Blob.valueOf(csvFile);
+       
+        
+        List<Contact_Lists__c> contactList= new List<Contact_Lists__c>();
+        Contact_Lists__c contLst= new Contact_Lists__c();
+        contLst.List_Name__c= 'Ocelot Contact Report';
+        contLst.MapAttributeDate__c= system.now();
+        contLst.Custom_Mapping__c= true;
+        contLst.Report_Name__c= 'Ocelot Contact Report';
+        
+        contLst.Schedule_Sync__c= true;
+        contactList.add(contLst);
+        insert contactList;
+        
+        String conId= contactList[0].id;
+        List<Contact_Attributes__c> ConAtrbLst= new List<Contact_Attributes__c>();
+        Contact_Attributes__c con = new Contact_Attributes__c();
+        con.Name__c = 'SF_ID';
+        con.DisplayName__c = 'Salesforce ID';
+        con.Required__c = True;
+        con.Unique__c=True;
+        con.Contact_List_ID__c= contactList[0].Id;
+        con.List_Name__c= 'Test1';
+        
+        ConAtrbLst.add(con);
+        
+        
+        Contact_Attributes__c conPh = new Contact_Attributes__c();
+        conPh.Name__c = 'Phone';
+        conPh.DisplayName__c = 'Phone';
+        conPh.Required__c = True;
+        conPh.Unique__c=True;
+        conPh.Contact_List_ID__c= contactList[0].Id;
+        conPh.List_Name__c= 'Test1';
+        
+        ConAtrbLst.add(conPh);
+        
+        
+        Contact_Attributes__c conFn = new Contact_Attributes__c();
+        conFn.Name__c = 'First_name';
+        conFn.DisplayName__c = 'First Name';
+        conFn.Required__c = false;
+        conFn.Unique__c=false;
+        conFN.Contact_List_ID__c= contactList[0].Id;
+        conFn.List_Name__c= 'Test1';
+        
+        ConAtrbLst.add(conFn);
+        
+        Contact_Attributes__c conLn = new Contact_Attributes__c();
+        conLn.Name__c = 'Last_name';
+        conLn.DisplayName__c = 'Last Name';
+        conLn.Required__c = false;
+        conLn.Unique__c=false;
+        conLn.Contact_List_ID__c= contactList[0].Id;
+        conLn.List_Name__c= 'Test1';
+        
+        ConAtrbLst.add(conLn);
+        
+        insert ConAtrbLst;
+        
+        ContentVersion cVersion = new ContentVersion();
+        cVersion.ContentLocation = 'S';                         
+        cVersion.PathOnClient =csvFile; 
+        cVersion.VersionData = Blob.valueOf(csvFile);     
+        Insert cVersion;
+        
+        Id conDocument = [SELECT ContentDocumentId FROM ContentVersion WHERE Id =:cVersion.Id].ContentDocumentId;
+        List<String> rmList= new List<String>();
+        ContentDocumentLink  cDocLink = new ContentDocumentLink();
+        cDocLink.ContentDocumentId = conDocument;            
+        cDocLink.LinkedEntityId = contactList[0].id;                    
+        cDocLink.ShareType = 'V';                             
+        cDocLink.Visibility = 'AllUsers';                  
+        Insert cDocLink;
+        
+        blob blb = cVersion.VersionData;
+        String reportstr = EncodingUtil.base64Decode(EncodingUtil.base64Encode(blb)).toString();
+        List<string>fileList=reportstr.split('\n');
+        rmList= fileList[0].split(','); 
+        
+        
+        
+        Test.startTest(); 
+        BatchToPostOcelotContactList b = new BatchToPostOcelotContactList(''); 
+        Id jobid=  Database.executeBatch(b,200); 
+        Test.stopTest();
+        List<Contact_Lists__c> contList = [SELECT Id FROM Contact_Lists__c where Id!=NULL];
+        system.assert(contList.size() > 0, 'Inserted Contact Lists records should be 1'); 
+        List<Contact_Attributes__c> contAtrblist = [SELECT Id FROM Contact_Attributes__c where Id!=NULL];
+        system.assert(contAtrblist.size() > 3, 'Inserted Contact attribute records should be 4');
+    }
+    
+    @isTest
+    static void testPostBatch3(){
+        String parentId;
+        List<String> csvRowValues = new List<String>();
+        String repHeader=  '"Contact ID","Mobile","First Name"\n';
+        String csvColumn= '"0035h00001cnkpq","9999911111","ocelot1"\n';
+        csvColumn+= '"0035h00001cnkpr","9999922222","ocelot2"\n';
+        csvColumn+= '"0035h00001cnkps","9999933333","ocelot3"\n';
+        csvColumn+= '"0035h00001cnkpt","9999922222","ocelot4"\n';
+        csvColumn+= '"0035h00001cnkpu","9999933333","ocelot5"\n';
+        csvColumn+= '"0035h00001cnkpv","9999922222","ocelot6"\n';
+        csvColumn+= '"0035h00001cnkpw","9999933333","ocelot7"\n';
+        csvColumn+= '"0035h00001cnkpx","9999922222","ocelot8"\n';
+        csvColumn+= '"0035h00001cnkpy","9999933333","ocelot9"\n';
+        
+        
+        
+        String csvFile = repHeader +csvColumn;
+        
+        blob bl = blob.valueOf('Unit.Test');
+        bl = Blob.valueOf(csvFile);
+        system.debug('##bl===> '+bl);
+        
+        List<Contact_Lists__c> contactList= new List<Contact_Lists__c>();
+        Contact_Lists__c contLst= new Contact_Lists__c();
+        contLst.List_Name__c= 'Ocelot Contact Report';
+        contLst.Report_Name__c= 'Ocelot Contact Report';
+        contLst.MapAttributeDate__c= system.now();
+        contLst.Custom_Mapping__c= true;
+        contLst.Schedule_Sync__c= true;
+        contactList.add(contLst);
+        insert contactList;
+        
+        String conId= contactList[0].id;
+        List<Contact_Attributes__c> ConAtrbLst= new List<Contact_Attributes__c>();
+        Contact_Attributes__c con = new Contact_Attributes__c();
+        con.Name__c = 'SF_ID';
+        con.DisplayName__c = 'Salesforce ID';
+        con.Required__c = True;
+        con.Unique__c=True;
+        con.Contact_List_ID__c= contactList[0].Id;
+        con.List_Name__c= 'Test1';
+        //  con.Mapped_to__c= '0';
+        ConAtrbLst.add(con);
+        
+        
+        Contact_Attributes__c conPh = new Contact_Attributes__c();
+        conPh.Name__c = 'Phone';
+        conPh.DisplayName__c = 'Phone';
+        conPh.Required__c = True;
+        conPh.Unique__c=True;
+        conPh.Contact_List_ID__c= contactList[0].Id;
+        conPh.List_Name__c= 'Test1';
+        // conPh.Mapped_to__c= '1' ;
+        ConAtrbLst.add(conPh);
+        
+        
+        Contact_Attributes__c conFn = new Contact_Attributes__c();
+        conFn.Name__c = 'First_name';
+        conFn.DisplayName__c = 'First Name';
+        conFn.Required__c = false;
+        conFn.Unique__c=false;
+        conFN.Contact_List_ID__c= contactList[0].Id;
+        conFn.List_Name__c= 'Test1';
+        // conFn.Mapped_to__c= '2';
+        ConAtrbLst.add(conFn);
+        
+        ContentVersion cVersion = new ContentVersion();
+        cVersion.ContentLocation = 'S';                         
+        cVersion.PathOnClient =csvFile; 
+        cVersion.VersionData = Blob.valueOf(csvFile);     
+        Insert cVersion;
+        
+        Id conDocument = [SELECT ContentDocumentId FROM ContentVersion WHERE Id =:cVersion.Id].ContentDocumentId;
+        List<String> rmList= new List<String>();
+        ContentDocumentLink  cDocLink = new ContentDocumentLink();
+        cDocLink.ContentDocumentId = conDocument;            
+        cDocLink.LinkedEntityId = contactList[0].id;                    
+        cDocLink.ShareType = 'V';                             
+        cDocLink.Visibility = 'AllUsers';                  
+        Insert cDocLink;
+        
+        blob blb = cVersion.VersionData;
+        String reportstr = EncodingUtil.base64Decode(EncodingUtil.base64Encode(blb)).toString();
+        List<string>fileList=reportstr.split('\n');
+        rmList= fileList[0].split(','); 
+        
+        
+        Contact_Attributes__c conLn = new Contact_Attributes__c();
+        conLn.Name__c = 'Last_name';
+        conLn.DisplayName__c = 'Last Name';
+        conLn.Required__c = false;
+        conLn.Unique__c=false;
+        conLn.Contact_List_ID__c= contactList[0].Id;
+        conLn.List_Name__c= 'Test1';
+        //  conLn.Mapped_to__c= '3';
+        ConAtrbLst.add(conLn);
+        
+        Contact_Attributes__c conEml = new Contact_Attributes__c();
+        conEml.Name__c = 'Email';
+        conEml.DisplayName__c = 'Email';
+        conEml.Required__c = false;
+        conEml.Unique__c=false;
+        conEml.Contact_List_ID__c= contactList[0].Id;
+        conEml.List_Name__c= 'Test1';
+        //  conEml.Mapped_to__c= '4';
+        ConAtrbLst.add(conEml);
+        
+        insert ConAtrbLst;
+        
+        
+        
+        Test.startTest(); 
+        BatchToPostOcelotContactList b = new BatchToPostOcelotContactList(''); 
+        Id jobid=  Database.executeBatch(b,200); 
+        Test.stopTest();
+        
+        List<Contact_Lists__c> contList = [SELECT Id FROM Contact_Lists__c where Id!=NULL];
+        system.assert(contList.size() > 0, 'Inserted Contact Lists records should be 1'); 
+        List<Contact_Attributes__c> contAtrblist = [SELECT Id FROM Contact_Attributes__c where Id!=NULL];
+        system.assert(contAtrblist.size() > 2, 'Inserted Contact attribute records should be 3');
+    }
+    
+    @isTest
+    static void testPostBatch4(){
+        String parentId;
+        String repHeader=  '"Contact ID","Mobile","First Name","Last Name","Email"\n';
+        String csvColumn= '"0035h00001cnkpq","9999911111","ocelot1","record1","oceemail1@gmail.com"\n';
+        csvColumn+= '"0035h00001cnkpr","9999922222","ocelot2","record2","oceemail2@gmail.com"\n';
+        csvColumn+= '"0035h00001cnkps","9999933333","ocelot3","record3","oceemail3@gmail.com"\n';
+        
+        
+        
+        String csvFile = repHeader +csvColumn;
+        
+        blob bl = blob.valueOf('Unit.Test');
+        bl = Blob.valueOf(csvFile);
+        system.debug('##bl===> '+bl);
+        
+        List<Contact_Lists__c> contactList= new List<Contact_Lists__c>();
+        Contact_Lists__c contLst= new Contact_Lists__c();
+        contLst.List_Name__c= 'Ocelot Contact Report';
+        contLst.Report_Name__c= 'Ocelot Contact Report';
+        contLst.MapAttributeDate__c= system.now();
+        contLst.Custom_Mapping__c= true;
+        contLst.Schedule_Sync__c= true;
+        contactList.add(contLst);
+        insert contactList;
+        
+        String conId= contactList[0].id;
+        List<Contact_Attributes__c> ConAtrbLst= new List<Contact_Attributes__c>();
+        Contact_Attributes__c con = new Contact_Attributes__c();
+        con.Name__c = 'SF_ID';
+        con.DisplayName__c = 'Salesforce ID';
+        con.Required__c = True;
+        con.Unique__c=True;
+        con.Contact_List_ID__c= contactList[0].Id;
+        con.List_Name__c= 'Test1';
+        //  con.Mapped_to__c= '0';
+        ConAtrbLst.add(con);
+        
+        
+        Contact_Attributes__c conPh = new Contact_Attributes__c();
+        conPh.Name__c = 'Phone';
+        conPh.DisplayName__c = 'Phone';
+        conPh.Required__c = True;
+        conPh.Unique__c=True;
+        conPh.Contact_List_ID__c= contactList[0].Id;
+        conPh.List_Name__c= 'Test1';
+        // conPh.Mapped_to__c= '1' ;
+        ConAtrbLst.add(conPh);
+        
+        
+        Contact_Attributes__c conFn = new Contact_Attributes__c();
+        conFn.Name__c = 'First_name';
+        conFn.DisplayName__c = 'First Name';
+        conFn.Required__c = false;
+        conFn.Unique__c=false;
+        conFN.Contact_List_ID__c= contactList[0].Id;
+        conFn.List_Name__c= 'Test1';
+        // conFn.Mapped_to__c= '2';
+        ConAtrbLst.add(conFn);
+        
+        Contact_Attributes__c conLn = new Contact_Attributes__c();
+        conLn.Name__c = 'Last_name';
+        conLn.DisplayName__c = 'Last Name';
+        conLn.Required__c = false;
+        conLn.Unique__c=false;
+        conLn.Contact_List_ID__c= contactList[0].Id;
+        conLn.List_Name__c= 'Test1';
+        //conLn.Mapped_to__c= '1';
+        ConAtrbLst.add(conLn);
+        
+        Contact_Attributes__c conEml = new Contact_Attributes__c();
+        conEml.Name__c = 'Email';
+        conEml.DisplayName__c = 'Email';
+        conEml.Required__c = false;
+        conEml.Unique__c=false;
+        conEml.Contact_List_ID__c= contactList[0].Id;
+        conEml.List_Name__c= 'Test1';
+        //conEml.Mapped_to__c= '3';
+        ConAtrbLst.add(conEml);
+        insert ConAtrbLst;
+        
+        ContentVersion cVersion = new ContentVersion();
+        cVersion.ContentLocation = 'S';                         
+        cVersion.PathOnClient =csvFile; 
+        cVersion.VersionData = Blob.valueOf(csvFile);     
+        Insert cVersion;
+        
+        Id conDocument = [SELECT ContentDocumentId FROM ContentVersion WHERE Id =:cVersion.Id].ContentDocumentId;
+        List<String> rmList= new List<String>();
+        ContentDocumentLink  cDocLink = new ContentDocumentLink();
+        cDocLink.ContentDocumentId = conDocument;            
+        cDocLink.LinkedEntityId = contactList[0].id;                    
+        cDocLink.ShareType = 'V';                             
+        cDocLink.Visibility = 'AllUsers';                  
+        Insert cDocLink;
+        
+        blob blb = cVersion.VersionData;
+        String reportstr = EncodingUtil.base64Decode(EncodingUtil.base64Encode(blb)).toString();
+        List<string>fileList=reportstr.split('\n');
+        rmList= fileList[0].split(','); 
+        
+        
+        Test.startTest(); 
+        BatchToPostOcelotContactList b = new BatchToPostOcelotContactList(''); 
+        Id jobid=  Database.executeBatch(b,200); 
+        Test.stopTest();
+        
+        List<Contact_Lists__c> contList = [SELECT Id FROM Contact_Lists__c where Id!=NULL];
+        system.assert(contList.size() > 0, 'Inserted Contact Lists records should be 1'); 
+        List<Contact_Attributes__c> contAtrblist = [SELECT Id FROM Contact_Attributes__c where Id!=NULL];
+        system.assert(contAtrblist.size() > 4, 'Inserted Contact attribute records should be 5'); 
+    }
+    
+}

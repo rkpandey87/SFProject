@@ -1,0 +1,46 @@
+public class OcelotAppVesrionWrapper{
+
+    public Integer size;
+    public Integer totalSize;
+    public Boolean done;
+    public Object queryLocator;
+    public String entityTypeName;
+    public List<Records> records;
+
+    public class SubscriberPackage_Z {
+        public Attributes attributes;
+        public Object NamespacePrefix;
+        public String Name;
+    }
+
+    public class Attributes {
+        public String type;
+        public String url;
+    }
+
+    public class SubscriberPackage {
+        public Attributes attributes;
+        public String NamespacePrefix;
+        public String Name;
+    }
+
+    public class SubscriberPackageVersion {
+        public Attributes attributes;
+        public String Id;
+        public String Name;
+        public Integer MajorVersion;
+        public Integer MinorVersion;
+        public Integer PatchVersion;
+        public Integer BuildNumber;
+        public String ReleaseState;
+        public Boolean IsBeta;
+    }
+
+    public class Records {
+        public Attributes attributes;
+        public String Id;
+        public String SubscriberPackageId;
+        public SubscriberPackage SubscriberPackage;
+        public SubscriberPackageVersion SubscriberPackageVersion;
+    }
+}

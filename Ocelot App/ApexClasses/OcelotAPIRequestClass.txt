@@ -1,0 +1,132 @@
+Global with sharing class OcelotAPIRequestClass {
+    
+    public static List<OcelotCalloutHandler.ResWrapper> PostAPIRequest(String LabelType, String contactListId, OcelotWrapper.OcelotContact conWpr, OcelotContactListWrapper conLstWpr) {
+       
+        OcelotResWrapper ContactsAPIError = new OcelotResWrapper();
+        List<string>errList = new List<string>();
+        List<OcelotCalloutHandler.ResWrapper>resWpr = New List<OcelotCalloutHandler.ResWrapper>();
+        
+        Error_Log__c err = new Error_Log__c();
+        Http http = new Http();        
+        HttpResponse res = new HttpResponse();
+        HttpRequest req = new HttpRequest(); 
+        
+        String jsonText;
+        String settingName = 'OcelotSetting'; 
+        String endPoint ;
+        String baseURL; 
+        String ConListUrl;
+        String contactUrl;
+        String reqMethod ;
+        String contentType;
+        String API_Key;        
+        String ChatBot_UUID;
+        String cListId;
+        List<API_Credentials__c> Apilst = New  List<API_Credentials__c>();
+        Ocelot_Settings__mdt  OcelotSettingRec =  Ocelot_Settings__mdt.getInstance(settingName);
+        
+        
+        Apilst =[Select id,API_Key__c,Base_URL__c,Chatbot_UUID__c from API_Credentials__c limit 1];
+        
+        if(Apilst!=Null && Apilst.size()>0){
+            ChatBot_UUID =Apilst[0].Chatbot_UUID__c ;
+            API_Key = Apilst[0].API_Key__c ;
+            baseURL =Apilst[0].Base_URL__c;
+        }
+        ConListUrl = OcelotSettingRec.Contact_List_URL__c;
+        contactUrl =OcelotSettingRec.Contacts_URL__c;
+        contentType = OcelotSettingRec.Content_Type__c;
+        
+        
+        String Auth = ChatBot_UUID+':'+API_Key;
+        
+        String Base64Auth= 'Basic '+EncodingUtil.base64Encode(blob.valueof(Auth));
+        
+        
+        req.setHeader('Authorization', Base64Auth); 
+        req.setHeader('Content-Type', contentType);
+        
+        
+        if(LabelType =='List' && conLstWpr!=Null){
+            try{
+                jsonText = JSON.serialize(conLstWpr); 
+                endPoint =baseURL+ ConListUrl;
+                
+                reqMethod = OcelotSettingRec.PUT_Method__c;
+                req.setMethod(reqMethod);
+                req.setEndpoint(endPoint);
+                
+                req.setBody(jsonText);
+                res = http.send(req);
+                
+                if(res!=Null && (res.getStatusCode() ==201 || res.getStatusCode() ==200)){
+                    
+                    Map<String, Object> results = (Map<String, Object>) JSON.deserializeUntyped(res.getBody()); 
+                    
+                    cListId = (String)results.get('id');
+                    
+                    if(cListId!=Null){
+                        
+                        resWpr.add(new OcelotCalloutHandler.ResWrapper(req,res,cListId,''));
+                        
+                    }       
+                }
+                else{
+                    resWpr.add(new OcelotCalloutHandler.ResWrapper(req,res,'',''));
+                }  
+            }
+            catch(Exception e) {
+                
+                string errStr ;
+                errStr = 'Error:' + e.getMessage() + 'LN:' + e.getLineNumber() ;
+                resWpr.add(new OcelotCalloutHandler.ResWrapper(req,res,'',errStr));
+                
+            } 
+            return resWpr;
+        }
+        else if(LabelType =='Report' && string.isNotEmpty(contactListId)  && conLstWpr!=Null){
+            try{
+                jsonText = JSON.serialize(conWpr); 
+                endPoint =baseURL+ ConListUrl+'/'+contactListId+contactUrl;
+                
+                reqMethod = OcelotSettingRec.POST_Method__c;
+                req.setMethod(reqMethod);
+                req.setEndpoint(endPoint);
+                
+                req.setBody(jsonText);
+                res = http.send(req);
+                
+                if(res!=Null && res.getStatusCode() ==201){
+                    ContactsAPIError =(OcelotResWrapper) System.JSON.deserialize(res.getBody(), OcelotResWrapper.class); 
+                    
+                    if(ContactsAPIError!=Null){
+                        
+                        resWpr.add(new OcelotCalloutHandler.ResWrapper(req,res,'',''));
+                        
+                    }
+                    
+                    
+                }
+                else{
+                    
+                    resWpr.add(new OcelotCalloutHandler.ResWrapper(req,res,'',''));
+                    
+                }
+            }
+            catch(Exception e) {         
+                
+                string errStr ;
+                errStr = 'Error:' + e.getMessage() + 'LN:' + e.getLineNumber() ;
+                
+                
+                resWpr.add(new OcelotCalloutHandler.ResWrapper(req,res,'',errStr));
+                
+            } 
+            return resWpr;
+        }
+        
+        return resWpr;
+    }
+    
+    
+}

@@ -1,0 +1,25 @@
+public class OcelotResWrapper {
+    
+    public List<String> errors;
+    public Results results;
+	
+    public class Fields {
+		public String value;
+		public String type;
+		public String name;
+	}
+
+	public class RejectedData {
+		public List<Fields> fields;
+		public String error;
+	}
+
+	public class Results {
+		public Integer total;
+		public Integer rejected;
+		public List<RejectedData> rejectedData;
+	}
+
+	
+	
+}

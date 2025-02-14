@@ -1,0 +1,89 @@
+({
+     
+    	onLoad: function(component, event, helper){
+        
+        var repId = component.get("v.contactListId");
+        
+        var action = component.get("c.getAttributeList");        
+        action.setParams({
+            "docId": repId           
+        });
+        action.setCallback(this, function(response) {
+            var Values = response.getReturnValue();
+            component.set("v.WrapperAttribute", Values);
+            
+            
+        });
+        $A.enqueueAction(action);           
+    },
+    
+     showToast : function(title, message, error) {
+        let toastParams = {
+            title: title,
+            message: message, // Error message
+            type: error
+        };
+        let toastEvent = $A.get("e.force:showToast");
+        toastEvent.setParams(toastParams);
+        toastEvent.fire();
+    },
+    getListName : function(component, attributeData) {  
+        
+        var conListId = component.get('v.contactListId');
+       
+        var action = component.get("c.getListName");
+        action.setParams({            
+           conListId : conListId
+        });        
+        action.setCallback(this,function(response){
+            var state = response.getState();                        
+            var records = response.getReturnValue();
+            if( state === "SUCCESS") {  
+              component.set('v.ReportName',records);			
+                
+            }
+            else  { 
+                var errors = response.getError();
+                if (errors) {
+                    if (errors[0] && errors[0].message) {
+                        this.showErrorMsg(errors[0].message); 
+                    }
+                } else {
+                    this.showErrorMsg('List name not found');  
+                }
+            }
+        });        
+        $A.enqueueAction(action);
+    },
+    
+    submit : function(component, attributeData) {  
+        
+        var conListId = component.get('v.contactListId');
+       
+        var action = component.get("c.submitAttribute");
+        action.setParams({            
+            itemData : attributeData,
+            conListId : conListId
+        });        
+        action.setCallback(this,function(response){
+            var state = response.getState();                        
+            var records = response.getReturnValue();
+            if( state === "SUCCESS") {  
+                this.showToast('Success !', 'Record Inserted Successfully', 'success');  
+            }
+            else  { 
+                var errors = response.getError();
+                if (errors) {
+                    if (errors[0] && errors[0].message) {
+                        this.showErrorMsg(errors[0].message); 
+                    }
+                } else {
+                    this.showErrorMsg('Unknown error');  
+                }
+            }
+        });        
+        $A.enqueueAction(action);
+    },
+    
+    
+})

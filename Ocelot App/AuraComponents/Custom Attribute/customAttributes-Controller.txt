@@ -1,0 +1,124 @@
+({
+    doInit: function(component, event, helper) {
+        helper.onLoad(component, event, helper);  
+        helper.getListName(component, event, helper);
+    },
+    
+   handleSelectChange : function(component, event, helper) {
+
+      var val = event.getSource().get("v.value");  
+      var count = 0;
+        if(val != '' && typeof val != 'undefine') {
+            var lstWrapperAttribute = component.get("v.WrapperAttribute");
+            var lstAttribute = [];
+            for(var k in lstWrapperAttribute) { 
+                var selectedReportColumn = lstWrapperAttribute[k].selectedReportColumn;
+               console.log('selectedReportColumn ======'+selectedReportColumn);
+                if(val == selectedReportColumn) {
+                    count++;
+                    if(count >=2) {
+                        lstWrapperAttribute[k].selectedReportColumn = '';
+                        lstWrapperAttribute[k].errorMsg = 'Duplicate mapping';
+                    }
+                }
+                lstAttribute.push(lstWrapperAttribute[k]);component.set("v.WrapperAttribute", lstAttribute);
+            }
+            console.log('count ======'+count);
+            
+            if(count == 1) {
+                lstAttribute = [];
+                for(var k in lstWrapperAttribute) { 
+                var selectedReportColumn = lstWrapperAttribute[k].selectedReportColumn;
+               console.log('selectedReportColumn ======'+selectedReportColumn);
+                if(val == selectedReportColumn) {
+                    
+                        lstWrapperAttribute[k].errorMsg = '';
+                   
+                }
+                lstAttribute.push(lstWrapperAttribute[k]);component.set("v.WrapperAttribute", lstAttribute);
+            }
+            }
+            
+        }
+        
+        
+        
+    },
+    
+    saveAttribute : function(component, event, helper) {
+        var lstWrapperAttribute = component.get("v.WrapperAttribute");        
+        var lstAttribute = [];
+        var flag;
+        for(var k in lstWrapperAttribute) {
+           
+            var selectedReportColumn = lstWrapperAttribute[k].selectedReportColumn;
+            if(k ==0){
+                component.set("v.selectedVal1", lstWrapperAttribute[k].selectedReportColumn);            
+            }
+            if(k==1){
+                component.set("v.selectedVal2",lstWrapperAttribute[k].selectedReportColumn);
+            }
+            var name = lstWrapperAttribute[k].name;
+            var displayName = lstWrapperAttribute[k].displayName;
+            var required = lstWrapperAttribute[k].required;
+            var unique = lstWrapperAttribute[k].unique;
+          
+            lstAttribute.push({
+                'selectedReportColumn' : selectedReportColumn,
+                'flag':flag,
+                'name' : name,
+                'displayName' : displayName,
+                'required' : required,
+                'unique' : unique
+                });
+           
+            
+        }
+        
+        var attributeData = JSON.stringify(lstAttribute);
+       console.log(attributeData);
+        // *******    Implementing logic for Attribute: 1st two rows must be mapped   **************
+        var selectValue1 = component.get("v.selectedVal1");
+        var selectValue2 = component.get("v.selectedVal2"); 
+      
+        if (selectValue1== "" || selectValue2== ""){
+           
+            helper.showToast('Error !', "First two columns are not mapped! Both 'Salesforce ID' and 'Phone' must be mapped", 'error');
+          
+            
+        }else{
+            helper.submit(component,attributeData );  
+        }
+     
+    },
+    
+    cancel : function(component, event, helper) {
+        var evt = $A.get("e.force:navigateToComponent");
+        evt.setParams({
+            componentDef : "c:contactList"
+           
+        });
+        evt.fire();
+    },
+    handleSelect : function(component, event, helper) {
+        var selectedText = event.getSource().get("v.value"); // Get the selected text
+
+        // Call an Apex controller method to process the selected value
+        var action = component.get("c.assignValueFromApex");
+        action.setParams({ selectedText: selectedText });
+
+        action.setCallback(this, function(response) {
+            var state = response.getState();
+            if (state === "SUCCESS") {
+                // Handle success
+                // You can optionally update other attributes or perform additional actions
+            } else {
+                // Handle error
+                console.log("Error: " + state);
+            }
+        });
+
+        $A.enqueueAction(action);
+    }
+    
+})

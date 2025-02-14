@@ -1,0 +1,12 @@
+@isTest
+global class BatchMockResponseGenerator implements HttpCalloutMock {
+    
+    global HTTPResponse respond(HTTPRequest req) {
+        HttpResponse res = new HttpResponse();
+        res.setHeader('Content-Type', 'application/json');
+        res.setBody('{"id": "650c5a1bbb109605d46e5b9d","chatbotId": "32a6233b-52aa-4b7a-b716-900ea40b9fb3","userId": "public_api","name": "Test SF2","tags": ["test1"],"meta": {"source": "external"},"created": "2023-09-21T14:58:35.167Z","updated": "2023-09-21T14:58:35.167Z"}');
+        res.setStatusCode(201);
+        return res;
+        
+    }
+}

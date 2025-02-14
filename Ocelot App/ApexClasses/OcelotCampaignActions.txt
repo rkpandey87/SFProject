@@ -1,0 +1,130 @@
+@RestResource(urlMapping='/OcelotCampaignActions/*')
+global with sharing class OcelotCampaignActions {
+    
+    @HttpPost
+    global static void OcelotCampaignActions() {
+        List<Texting_Activity__c> testActivityLst= new List<Texting_Activity__c>();      
+        
+        List<Error_Log__c>errList = new List<Error_Log__c>();
+        List<OcelotCalloutHandler.ResWrapper>resWpr = New List<OcelotCalloutHandler.ResWrapper>();
+        string conIdStr;
+        List<string>conIdLst = new List<string>();
+        HttpResponse errRes = new HttpResponse();
+        HttpRequest errReq = new HttpRequest(); 
+        
+        RestRequest req = RestContext.request;
+        RestResponse res = RestContext.response;
+        RestContext.response.addHeader('Content-Type', 'application/json'); 
+        RestContext.response.responseBody = req.requestBody;   
+        String requestBody= req.requestBody.toString();
+        requestBody = requestBody.replace('dateTime', 'dateTime_Z');
+        
+        List<OcelotCampaignActionsWpr> OcelotActionswrp = new List<OcelotCampaignActionsWpr>();
+        List<OcelotCampaignActionsWpr.ContactFields> conlst = new List<OcelotCampaignActionsWpr.ContactFields>(); 
+        
+        OcelotActionswrp = (List<OcelotCampaignActionsWpr>)System.JSON.deserialize(requestBody, List<OcelotCampaignActionsWpr>.class);
+        if(OcelotActionswrp!=Null && OcelotActionswrp.size()>0){
+            for(OcelotCampaignActionsWpr wprLst: OcelotActionswrp){
+                Texting_Activity__c textActivity = new Texting_Activity__c();
+                if(wprLst !=Null){
+                    conlst = wprLst.ContactFields;
+                }
+                if(conlst!=Null && conlst.size()>0){
+                    for(OcelotCampaignActionsWpr.contactFields conField: conlst){
+                        if(conField.name!=Null && conField.name== 'SalesforceID'){
+                            String conId;
+                            if(String.isNotEmpty(conField.value)){
+                                conId = conField.value;
+                                if(conId.length() ==15 || conId.length() ==18 ){
+                                    try{
+                                        if(conId.startsWith('001') || conId.startsWith('003') || conId.startsWith('00Q') ){
+                                            
+                                            if(conId.startsWith('001')){
+                                                textActivity.Account__c= conField.value;
+                                                
+                                            }else if(conId.startsWith('003')){
+                                                textActivity.Contact__c= conField.value; 
+                                                
+                                            }else if(conId.startsWith('00Q')){
+                                                textActivity.Lead__c= conField.value;
+                                                
+                                            }
+                                            textActivity.eventId__c   = wprLst.eventId;
+                                            textActivity.triggerType__c= wprLst.triggerType; 
+                                            textActivity.dateTime__c= wprLst.dateTime_Z; 
+                                            textActivity.campaignId__c= wprLst.campaignId;
+                                            textActivity.message__c= wprLst.message;
+                                            textActivity.name__c= wprLst.name;
+                                            textActivity.status__c= wprLst.Status; 
+                                            testActivityLst.add(textActivity);
+                                        }
+                                        else{
+                                            if(String.isNotEmpty(conIdStr)){ conIdStr += conId +',';}
+                                            else{conIdStr = conId +',';}
+                                            
+                                        }
+                                        
+                                    }
+                                    
+                                    catch(Exception e) {
+                                        
+                                        List<string> eLst=New List<string>();
+                                        String errStr;
+                                        eLst= e.getMessage().split(':');
+                                        if(eLst!=Null && eLst.size()>1){errStr=eLst[1];}
+                                        else{errStr =e.getMessage();}
+                                        if(String.isNotEmpty(conIdStr)){ conIdStr += errStr +',';}
+                                        else{conIdStr = errStr +',';}                      
+                                    } 
+                                }
+                                else{
+                                    if(String.isNotEmpty(conIdStr)){ conIdStr += conId +',';}
+                                    else{conIdStr = conId +',';}
+                                }
+                                
+                                
+                            }
+                            break;
+                        }
+                        
+                    }
+                    
+                }
+                
+            }
+        }  
+        if(testActivityLst!=Null && testActivityLst.size()>0){
+            string errmsg;
+            
+            // Create Texting Activity when found correct Contact, Account or Lead Salesforce Id
+            Database.SaveResult[] results =Database.insert(testActivityLst, false);
+            
+            for(Database.SaveResult result : results) {
+                if(result.isSuccess()) {
+                }
+                else {
+                    if(string.isNotEmpty(errmsg) && result.getId() !=Null){
+                        errmsg += result.getId()+',';
+                    }
+                    else{errmsg = result.getId()+','; }
+                }
+                
+            }
+            if(string.isNotEmpty(conIdStr)){conIdStr +=errmsg;}
+            else{conIdStr =errmsg;}
+        } 
+        if(string.isNotEmpty(conIdStr)){
+            conIdStr = conIdStr.removeEnd(',');
+            conIdStr ='Texting Activity'+', '+conIdStr +' '+'is invalid or not found';
+            resWpr.add(new OcelotCalloutHandler.ResWrapper(errReq,errRes,'',conIdStr));
+            
+            errList.add(OcelotCalloutHandler.creatAPILog(resWpr) );  
+        }
+        
+        // Create Exception Log When  Correct Saleforce id not found or Null
+        if(errList !=Null && errList.size()>0){
+            insert errList;
+        }
+    }
+    
+}

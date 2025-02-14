@@ -1,0 +1,58 @@
+@RestResource(urlMapping='/OcelotErrorLogs/*')
+global with sharing class OcelotErrorLogs {
+    
+    global Static List<OcelotErrorLogsWpr> errorLogList= new List<OcelotErrorLogsWpr>(); 
+    @HttpPost
+    global static void OcelotErrorLogs() {
+        
+        RestRequest req = RestContext.request;
+        RestResponse res = RestContext.response;
+        
+        RestContext.response.addHeader('Content-Type', 'application/json');  
+        RestContext.response.responseBody = req.requestBody;      
+        String requestBody= req.requestBody.toString();        
+        
+        OcelotErrorLogsWpr OcelotErrLogWrp = new OcelotErrorLogsWpr(); 
+        OcelotErrLogWrp = (OcelotErrorLogsWpr)System.JSON.deserialize(requestBody,OcelotErrorLogsWpr.class);
+        
+        List<OcelotErrorLogsWpr> errorLogList= new List<OcelotErrorLogsWpr>();
+        dateTime ocilotErrlogTime= OcelotErrLogWrp.errorDateTime;
+        List<Error_Log__c> errLogLst= [Select createdDate
+                                       ,Type__c
+                                       ,Requested_Method__c
+                                       ,API_EndPoint__c
+                                       ,Request__c
+                                       ,Response__c  From Error_Log__c 
+                                       where createdDate>=: ocilotErrlogTime  order by createdDate];
+        
+        
+        String errorRequest;
+        String errorRequestFormated;        
+        
+        String errorResponse;
+        String errorResponseFormated;
+        
+        for(Error_Log__c ocelotErrlogObj: errLogLst){
+            OcelotErrLogWrp = new OcelotErrorLogsWpr();
+            
+            if(ocelotErrlogObj.Response__c!=null){
+                errorResponse= ocelotErrlogObj.Response__c;            
+                errorResponseFormated=errorResponse.replaceAll('\r\n', '');
+            }
+            if(ocelotErrlogObj.Request__c!=null){
+                errorRequest= ocelotErrlogObj.Request__c;
+                errorRequestFormated= errorRequest.replaceAll('\r\n', '');
+            }
+            
+            OcelotErrLogWrp.errorDateTime =  ocelotErrlogObj.createdDate;
+            OcelotErrLogWrp.type          =  ocelotErrlogObj.Type__c;
+            OcelotErrLogWrp.requestMethod =  ocelotErrlogObj.Requested_Method__c;
+            OcelotErrLogWrp.apiEndpoint   =  ocelotErrlogObj.API_EndPoint__c;
+            OcelotErrLogWrp.request       =  errorRequestFormated;
+            OcelotErrLogWrp.response      =  errorResponseFormated;
+            errorLogList.add(OcelotErrLogWrp);
+        }        
+        
+        RestContext.response.responseBody = Blob.valueOf(JSON.serialize(errorLogList));
+    }    
+}

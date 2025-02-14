@@ -1,0 +1,266 @@
+Global with sharing class BatchToPostOcelotContactList implements Database.Batchable<sObject>, Database.AllowsCallouts {
+    Global string query ='';
+    Global string fname;
+    Global string ListName;
+    Global string ReportName;
+    Global string OcelotConListId;
+    Global string ConListId;
+    public  string reportId;
+    public String repName; 
+    public string ObjId;
+    
+    public OcelotResWrapper ContactsAPIError = new OcelotResWrapper();
+    public OcelotResWrapper.Results WprerrRec = new OcelotResWrapper.Results();
+    public List<Error_Log__c>errList = new List<Error_Log__c>();
+    List<OcelotCalloutHandler.ResWrapper>resWpr = New List<OcelotCalloutHandler.ResWrapper>();
+    List<OcelotCalloutHandler.ResWrapper>resWpr1 = New List<OcelotCalloutHandler.ResWrapper>();
+    
+    List<Contact_Attributes__c>conAttList = new List<Contact_Attributes__c>();
+    Map<String, Integer> conAttMapByconListId = new Map<String, Integer>();
+    Map<Id,Map<String, Integer>> conAttMap = new Map<Id,Map<String, Integer>>();
+    Map<string,integer>ReportSizeMap= new Map<string, integer>(); 
+    
+    List<Contact_Lists__c> contactList = new List<Contact_Lists__c>();
+    public Set<String> ConListIdSet = new Set<String>();
+    
+    
+    List<Contact_Lists__c> delcontactList = new List<Contact_Lists__c>();
+    List<report> reportList = new List<report>();
+    Set<string>conIdSet = new  Set<string>();
+    
+    OcelotContactListWrapper cw = new OcelotContactListWrapper();
+    list<string>taglist = new list<string>();
+    List<OcelotContactListWrapper.AdditionalContactFields>conList = New List<OcelotContactListWrapper.AdditionalContactFields>();
+    
+    public BatchToPostOcelotContactList( String docId){
+        
+        List<string>reHeaderList= new List<string>(); 
+        Map<string,integer>ReportSizeMapbyconlst= new Map<string, integer>(); 
+        
+        
+        if(String.isNotEmpty(docId)){
+            ConListId =docId;          
+            conAttList =[Select Id,Contact_List_ID__c,List_Name__c,Name__c,Mapped_to__c from Contact_Attributes__c where Contact_List_ID__c=:ConListId];
+        }
+        else{
+            conAttList =[Select Id,Contact_List_ID__c,List_Name__c,Name__c,Mapped_to__c from Contact_Attributes__c where Contact_List_ID__c!=Null];
+        }
+        
+        if (conAttList!=Null && conAttList.size()>0) {
+            for (Contact_Attributes__c ca : conAttList) {
+                if(ca.Mapped_to__c !=Null){
+                    if(conAttMap.containsKey(ca.Contact_List_ID__c)) {
+                        conAttMap.get(ca.Contact_List_ID__c).put(ca.Name__c,Integer.valueof(ca.Mapped_to__c));
+                    }
+                    else {
+                        
+                        conAttMap.put(ca.Contact_List_ID__c, new Map<String,Integer>{ca.Name__c=>Integer.valueof(ca.Mapped_to__c)}); 
+                    }
+                }
+            }
+        }
+        
+        
+        ReportSizeMap = new Map<string,Integer>();
+        ReportSizeMap = OcelotCalloutHandler.reportColumnSizebyConlst(docId);
+        
+        
+        for(String clst :ReportSizeMap.keySet()){
+            
+            Map<String, Integer>MapbyCustId = new Map<String, Integer>();
+            Integer ColumnCount ;
+            if(ReportSizeMap!=Null && ReportSizeMap.containsKey(clst)){
+                ColumnCount = ReportSizeMap.get(clst); 
+            }
+            
+            If(conAttMap!=Null && conAttMap.containsKey(clst)) {
+                MapbyCustId = conAttMap.get(clst);
+            }
+           }
+        
+    }
+    public Database.QueryLocator start(Database.BatchableContext bc) {
+        
+        if(string.isBlank(query)) {
+            if(String.isEmpty(ConListId)){
+                if(!test.isRunningTest()){
+                    query = 'select id, List_Name__c, Report_Name__c, Report_ID__c,Schedule_Sync__c,MapAttributeDate__c, Custom_Mapping__c from Contact_Lists__c where (MapAttributeDate__c!=Null AND Custom_Mapping__c =True) ';
+                }
+                else{
+                    query = 'select id, List_Name__c, Report_Name__c, Report_ID__c,Schedule_Sync__c,MapAttributeDate__c, Custom_Mapping__c from Contact_Lists__c where (MapAttributeDate__c!=Null AND Custom_Mapping__c =True) LIMIT 1';
+                }
+            }
+            else {
+                query = 'select id, List_Name__c, Report_Name__c, Report_ID__c,Schedule_Sync__c,MapAttributeDate__c, Custom_Mapping__c from Contact_Lists__c where id=:ConListId AND (MapAttributeDate__c!=Null AND Custom_Mapping__c =True)';
+            }  
+        }
+        return Database.getQueryLocator(query); 
+        
+    }
+    public void execute(Database.BatchableContext bc, List<Contact_Lists__c> scope){
+        String conId;
+        Integer Start=0;
+        Integer recordsLimit;
+        if(!test.isRunningTest()){recordsLimit = 1000;}
+        else{recordsLimit = 2;}
+        Integer Lstlimit;
+        Integer listSize=0;
+        List<String>LstofRecords ;
+        string reportColumn ;
+        List<String>repcolList ;
+        List<string>fileList;
+        String reportName;
+        Map<String, Integer> conAttMapforLst = New Map<String, Integer>();
+        List<ContentDocumentLink> docList;
+        ContentVersion cv;
+        conAttMapByconListId = new Map<String, Integer>();
+        HttpResponse res = new HttpResponse();
+        HttpRequest req = new HttpRequest(); 
+        
+        
+        for(Contact_Lists__c con: scope){
+            if(con.List_Name__c!=Null){ListName = con.List_Name__c;}
+            if(con.Report_Name__c!=Null){ReportName = con.Report_Name__c;}
+            if(con.id !=Null){conId  = con.id;}
+            if(conAttMap!=Null && conAttMap.containsKey(conId)){conAttMapByconListId = conAttMap.get(conId) ; }
+            if(conId!=Null && ListName!=Null ){
+                if(conId!=Null && ListName!=Null){
+                    fileList = new List<string>();
+                    fileList = OcelotCalloutHandler.getConListCSVFileData(conId, ReportName );
+                    if(fileList.size()>0 && fileList[0] =='Skip' ){
+                     String errMsg = 'Error: Report size is more than maximum size supported! To reduce Report size, reduce number of columns or number of records';
+                        resWpr.add(new OcelotCalloutHandler.ResWrapper(req,res,'', errMsg));
+                        errList.add(OcelotCalloutHandler.creatAPILog(resWpr) );
+                    }
+                    else if(fileList.size()>0 && fileList[0] !='Skip' ){
+                        
+                    if(fileList[0]!=Null){reportColumn = fileList[0];}    
+                    if(String.isEmpty(ConListId) && con.Schedule_Sync__c!=Null && con.Schedule_Sync__c ==True){
+                        conIdSet.add(con.Id);
+                        resWpr = OcelotCalloutHandler.postContactList(conId, ListName,reportColumn,conAttMapByconListId);
+                    }
+                    else if(String.isNotEmpty(ConListId)){
+                        conIdSet.add(con.Id);
+                        resWpr = OcelotCalloutHandler.postContactList(conId, ListName,reportColumn,conAttMapByconListId); 
+                    }
+                    
+                    if(resWpr!=Null && resWpr.size()>0){
+                        req =resWpr[0].req;
+                        res =resWpr[0].res;
+                        OcelotConListId =resWpr[0].conlstId;
+                        
+                        if(String.isEmpty(OcelotConListId)){
+                            errList.add(OcelotCalloutHandler.creatAPILog(resWpr));
+                        }
+                        if(String.isNotEmpty(OcelotConListId)){
+                            docList = new List<ContentDocumentLink>();
+                            
+                            fileList.remove(0);
+                            
+                            if(fileList!=Null && fileList.size()>0){
+                                listSize = fileList.size();
+                                Lstlimit =recordsLimit;
+                            }
+                            if(listSize > Lstlimit ){
+                                while (Start < listSize){
+                                    LstofRecords = new List<String>();
+                                    for(integer i = Start; i<Lstlimit;i++ ){
+                                        LstofRecords.add(fileList[i]);
+                                    }
+                                     resWpr = OcelotCalloutHandler.readFileData(OcelotConListId,ListName, reportColumn, LstofRecords,conAttMapByconListId);
+                                    if(resWpr!=Null && resWpr.size()>0){
+                                        req =resWpr[0].req;
+                                        res =resWpr[0].res;
+                                        if(res!=Null && res.getStatusCode() ==201){
+                                            ContactsAPIError =(OcelotResWrapper)System.JSON.deserialize(res.getBody(), OcelotResWrapper.class);
+                                            if( ContactsAPIError!=Null){
+                                                WprerrRec = ContactsAPIError.results;   
+                                            }
+                                            if(ContactsAPIError!=Null && WprerrRec!=Null ){
+                                                
+                                                if(WprerrRec.rejected >0) {
+                                                    errList.add(OcelotCalloutHandler.creatAPILog(resWpr) );  
+                                                }
+                                                
+                                            }
+                                            
+                                        }
+                                        else {
+                                            
+                                            errList.add(OcelotCalloutHandler.creatAPILog(resWpr) );
+                                        }
+                                    }
+                                    
+                                    if(Lstlimit + recordsLimit <= listSize){
+                                        Start = Lstlimit;
+                                        Lstlimit = Lstlimit+recordsLimit;
+                                    }
+                                    else{
+                                        Start = Lstlimit;
+                                        Lstlimit = Lstlimit +(listSize - Lstlimit);
+                                    }
+                                    
+                                }
+                            }
+                            else{
+                                
+                                
+                                resWpr = OcelotCalloutHandler.readFileData(OcelotConListId,ListName, reportColumn, fileList,conAttMapByconListId);
+                                if(resWpr!=Null && resWpr.size()>0){
+                                    req =resWpr[0].req;
+                                    res =resWpr[0].res;
+                                    
+                                    
+                                    if(res!=Null && res.getStatusCode() ==201){
+                                        ContactsAPIError =(OcelotResWrapper) System.JSON.deserialize(res.getBody(), OcelotResWrapper.class);
+                                        if( ContactsAPIError!=Null){
+                                            WprerrRec = ContactsAPIError.results;   
+                                        }
+                                        
+                                        
+                                        if(ContactsAPIError!=Null && WprerrRec!=Null ){
+                                            
+                                            if(WprerrRec.rejected >0) {
+                                                errList.add(OcelotCalloutHandler.creatAPILog(resWpr) );  
+                                            }
+                                            
+                                        }
+                                        
+                                    }
+                                    else if(res.getStatusCode()!=201){
+                                        
+                                        Map<String, Object> results = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
+                                        
+                                        Object errObj=(Object)results.get('message');
+                                        
+                                        string errMsg=String.valueOf(errObj);
+                                        
+                                        errList.add(OcelotCalloutHandler.creatAPILog(resWpr));
+                                    }
+                                }
+                                
+                                
+                            }
+                        }
+                        
+                    }
+                   }
+                    else{
+                        String errMsg = 'Error: Report File Not Found! Contact Your System Administrator for help';
+                        resWpr.add(new OcelotCalloutHandler.ResWrapper(req,res,'', errMsg));
+                        errList.add(OcelotCalloutHandler.creatAPILog(resWpr) ); 
+                    }
+                }
+            }
+            
+        }
+        
+        if(errList!=Null && errList.size()>0){insert errList;}
+        if(conIdSet!=Null && conIdSet.size()>0){OcelotCalloutHandler.setLastSyncDate(conIdSet);}  
+    }
+    public void finish(Database.BatchableContext bc){
+        
+        
+    }
+       
+}

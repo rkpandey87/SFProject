@@ -1,0 +1,149 @@
+({
+    doinit : function(component, event, helper) {
+        var action = component.get('c.fetchConList');
+        action.setCallback(this, function(response){
+            var state = response.getState();
+            if(state === "SUCCESS"){
+                var allValues = response.getReturnValue();                
+                console.log("allValues--->>> " + allValues);
+                component.set('v.ConListData', allValues);
+              
+            }
+            else if(state === "ERROR") {
+                var errors = response.getError();
+                if(errors){
+                    if(errors[0] && errors[0].message){
+                        console.log("Error Message: " + errors[0].message);
+                    }
+                }
+                else{
+                    console.log("Unknown Error");
+                }
+            }
+        });
+        $A.enqueueAction(action);
+       
+       
+    },
+    
+    scheduleBatch: function (component, event, helper) {
+        var selectedItem = event.currentTarget;
+        var contactId = selectedItem.dataset.record;
+        var action = component.get("c.scheduleOcelotBatch");
+        action.setParams({
+            "conId": contactId
+            
+        });
+        action.setCallback(this, function(response) {
+            if (response.getState() === "SUCCESS") {
+                
+                helper.showToast('Success !', 'BatchToSyncContactList Batch Scheduled Successfully', 'success');
+                
+            } else {
+                // Handle errors, e.g., show an error message
+            }
+        });
+        $A.enqueueAction(action);
+    },
+    
+   callRefeshMethod : function(component, event, helper) {
+        var selectedItem = event.currentTarget;
+        var contactId = selectedItem.dataset.record;
+        var refreshEvent = $A.get("e.force:refreshView");
+        var action = component.get("c.refreshAction");
+        action.setParams({
+            "fname": "Ocelot",
+            "docId":contactId
+            
+        });
+        
+        action.setCallback(this, function(response) {
+            
+            var state = response.getState();
+            if (state === "SUCCESS") {
+                
+                helper.showToast('Success !', 'Contact List Records Refreshed Successfully', 'success'); 
+                component.set("v.ResultList", response.getReturnValue());
+                //location.reload();
+            }
+            else{
+                alert(response.getState());
+            }
+            this.doinit(component, event, helper);
+        });
+       if (refreshEvent) {
+            refreshEvent.fire();
+            location.reload();
+      }
+        $A.enqueueAction(action);
+        
+    },
+    
+    InlineEditListName: function(component, event, helper) {
+        // Get the index of the row to be edited from the data-index attribute of the clicked button
+       var rowIndex = event.getSource().get("v.value");
+        component.set("v.editingRowIndex", Number(rowIndex));
+      
+    },
+    
+    saveConlstName: function(component, event, helper) {
+        var refreshView = $A.get('e.force:refreshView');
+        var editingRowIndex = component.get("v.editingRowIndex");
+        var newValue = component.find("inputField").get("v.value");
+        var recordId = component.get("v.ConListData")[editingRowIndex].Id;
+        var action = component.get("c.updateConLstName");
+        action.setParams({
+            "recordId": recordId,
+            "newValue": newValue
+        }
+                      
+        );
+          
+        action.setCallback(this, function(response) {
+            var state = response.getState();
+            if (state === "SUCCESS") {
+                console.log("Record updated successfully");
+            } else {
+                console.error("Error updating record: " + state);
+            }
+        });
+        
+        $A.enqueueAction(action);
+        if(refreshView){
+           refreshView.fire(); 
+           location.reload();
+        }
+        
+        
+    },
+
+    cancel : function(component, event, helper) {
+        var refreshView = $A.get('e.force:refreshView');
+        refreshView.fire(); 
+    },
+  
+    navigateToReport : function(component, event, helper) {
+        var selectedItem = event.currentTarget;
+        var Id = selectedItem.dataset.record;
+        var reportURL = "/lightning/r/Report/" + Id + "/view";
+        window.open(reportURL,'_blank');
+    },
+    
+    navigateToCustomAttribute: function(component, event, helper) {
+        var selectedItem = event.currentTarget;
+        var Id = selectedItem.dataset.record;
+        var evt = $A.get("e.force:navigateToComponent");
+        evt.setParams({
+            componentDef : "c:CustomAttribute",
+            componentAttributes: {
+                contactListId : Id
+            }
+        });
+        evt.fire();
+    },
+        
+    updateContList: function (component, event, helper) {
+        helper.contactListUpdate(component, event);
+    }
+    
+})

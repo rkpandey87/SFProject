@@ -1,0 +1,40 @@
+({
+    doInit : function(component, event, helper) {
+        var action = component.get("c.getSettingsRecords");
+        action.setCallback(this, function(response) {
+            var state = response.getState();
+            var rec = response.getReturnValue();
+            if (state === "SUCCESS") {
+                component.set("v.WrapperAttribute", rec);
+                component.set("v.APIKey", rec[0].apikey);
+                component.set("v.ChatBotUUID", rec[0].chatbot);
+                component.set("v.SyncFrequency", rec[0].syncFrec);
+            } else {
+                console.log("Error fetching custom metadata records");
+            }
+        });
+        $A.enqueueAction(action);
+    },
+    
+    onSaveRecord : function(component, event, helper) {
+        var selectedValue = component.get("v.SyncFrequency");
+        var action = component.get("c.setFrequecyValue");
+        action.setParams({
+            freqValue : selectedValue,
+        });
+        action.setCallback(this,function(response){
+            var state = response.getState();
+            
+            if(state === "SUCCESS"){
+                helper.processSyncing(component);
+                helper.showToast('Success !', 'Sync Frequency Updated Successfully', 'success');
+            } else if(state === "ERROR"){
+                
+            }
+            
+        });       
+        $A.enqueueAction(action);
+        
+    },
+   
+})

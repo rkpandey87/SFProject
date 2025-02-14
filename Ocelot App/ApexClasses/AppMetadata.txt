@@ -1,0 +1,42 @@
+@RestResource(urlMapping='/AppMetadata/*')
+global with sharing class AppMetadata {
+    global Static Sync_Frequency__mdt syncFreq= Sync_Frequency__mdt.getInstance('SyncFrequency');
+    global Static App_Metadata__mdt appMetaRec= App_Metadata__mdt.getInstance('AppInfo');   
+    
+    @HttpGet
+    global static void fetchAppMetadata(){
+        API_Credentials__c  apiCredRecord = [Select Id,Chatbot_UUID__c,Base_URL__c from API_Credentials__c Limit 1];
+        List<AppMetadatasWpr> appMetaWprList = new List<AppMetadatasWpr>();
+        RestRequest req= RestContext.request;
+        RestResponse res = RestContext.response;
+        RestContext.response.addHeader('Content-Type', 'application/json');  
+        
+        AppMetadatasWpr appMetaWrp = new AppMetadatasWpr();
+        if(apiCredRecord!=NULL){
+            appMetaWrp.chatbotUuid= apiCredRecord.Chatbot_UUID__c; 
+            appMetaWrp.chatbotURL= apiCredRecord.Base_URL__c;
+        }
+        if(appMetaRec!=NULL){  
+            appMetaWrp.version= appMetaRec.Version__c;
+            appMetaWrp.packageType=appMetaRec.PackageType__c;
+        }
+        if(syncFreq== NULL){
+            appMetaWrp.scheduleSyncSetting= 'No Sync';
+        }else{
+            appMetaWrp.scheduleSyncSetting= syncFreq.Sync_Frequency__c;
+        }
+        appMetaWprList.add(appMetaWrp);
+        if(appMetaWprList!= NULL){
+            RestContext.response.responseBody = Blob.valueOf(JSON.serialize(appMetaWprList[0]));
+        }
+    }
+    
+    public class AppMetadatasWpr {    
+        public String version {get;set;} 
+        public String packageType {get;set;} 
+        public String chatbotURL {get;set;} 
+        public String chatbotUuid {get;set;} 
+        public String scheduleSyncSetting {get;set;} 
+    }
+    
+}

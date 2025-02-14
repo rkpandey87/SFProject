@@ -1,0 +1,107 @@
+<!--
+  @description       : 
+  @author            : Navneet
+  @group             : 
+  @last modified on  : 09-28-2023
+  @last modified by  : Navneet
+-->
+<aura:component controller="ContactListController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    <aura:attribute name="ConListData" type="List"/>
+    <aura:attribute name="conData" type="List"/>
+    <aura:attribute name="ResultList" type="List" />
+    <aura:attribute name="ContAttrbRecord" type="List" />
+    <aura:attribute name="recId" type="String" />
+    <aura:attribute name="conId" type="String" />
+    <aura:attribute name="Blank" type="String"  default =''/>
+    <aura:attribute name="show" type="boolean" default="false"/>
+    <aura:attribute name="recordError" type="String" access="private"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doinit}" />
+    <aura:attribute name="envId" type="String"/>
+    <aura:attribute name="editingRowIndex" type="Integer" default="-1" />
+    <aura:attribute name="chkboxvalue" type="boolean"/> 
+    <aura:attribute name="showErrStarMsg" type="boolean"/>
+    <aura:attribute name="toggleValue" type="String" />     
+    <aura:attribute name="contactListAttrbObj" type="Object"/> 
+    
+    <br></br>
+    <div class="slds-section slds-is-open">
+        <br/>
+        
+        <div style="width:250px;" class="slds-float_right" >
+            <ul class="slds-button-group-row">
+                <li class="slds-button-group-item">
+                    <button style="width:120px;" class="slds-button slds-button_brand slds-button_brand slds-float_right"  variant="brand" data-record="{!v.Blank}" onclick="{!c.callRefeshMethod}" >Refresh</button> 
+                    
+                </li>
+                <li  class="slds-button-group-item">
+                    <button style="width:120px;" class="slds-button slds-button_brand slds-button_brand slds-float_right"  variant="brand"  data-record="{!v.Blank}" onclick="{!c.scheduleBatch}" >Sync All Now</button> 
+                    
+                </li>
+            </ul>
+        </div>
+        <div>
+            <span style="color:red;font-weight:bold;font-size:15px" > &nbsp;&nbsp;* </span> Report columns are not mapped and will not sync until mapped.
+            <br/>
+        </div>
+        <br/> 
+        <table class="slds-table slds-table--bordered slds-table--striped slds-table--cell-buffer slds-table--fixed-layout">
+            <thead>
+                <tr >
+                    <th style="width:200px;" scope="col"><div style="width:150px;" class="slds-truncate " title="List Name">List Name</div></th>
+                    <th style="width:50px;" scope="col"><div style="width:100px;" class="slds-truncate " ></div></th>
+                    <th style="width:120px;" scope="col"><div class="slds-truncate" title="Report Name">Report Name</div></th>
+                    <th style="width:130px;" scope="col"><div class="slds-truncate" title="Last Sync Date">Last Sync Date</div></th>
+                    <th style="width:80px;" scope="col"><div class="slds-truncate" title="Pause Sync">Schedule Sync</div></th>
+                    <th style="width:110px;" scope="col"><div class="slds-truncate" title="Sync Now"></div></th>
+                    <th style="width:130px;" scope="col"><div class="slds-truncate" title="Map Attribute"></div></th>  
+                    <th style="width:5px;" scope="col"><div class="slds-truncate" title="Map Attribute"></div></th>  
+                </tr>
+            </thead>
+            <tbody>
+                <aura:iteration items="{!v.ConListData}" var="row" indexVar="index">
+                    <tr>
+                        <td>
+                            <aura:if isTrue="{!index==v.editingRowIndex}">
+                                <!-- Edit mode -->
+                                <lightning:input aura:id="inputField" value="{!row.List_Name}"  />
+                                <lightning:button label="Save"  onclick="{!c.saveConlstName}" />
+                                <lightning:button label="Cancel" onclick="{!c.cancel}" />
+                                <aura:set attribute="else">
+                                    <!-- View mode -->
+                                    <div class="slds-truncate" title="{!row.List_Name}">{!row.List_Name}</div>
+                                </aura:set>
+                            </aura:if>
+                        </td>
+                        <td><div class="slds-truncate" ><lightning:buttonIcon  iconName="utility:edit" value="{!index}"  variant="bare" onclick="{! c.InlineEditListName}"  alternativeText="Edit" /></div></td>
+                        <td onclick="{!c.navigateToReport}" data-record="{!row.Report_ID}">
+                            <span  class="slds-text-link">{!row.Report_Name}</span>
+                        </td>                
+                        <td><div class="slds-truncate" title="{!row.Last_Sync_Date}">{!row.Last_Sync_Dates}</div></td>
+                        <td>
+                            <lightning:input type="toggle" aura:id="tglbtn" variant="label-hidden" messageToggleActive="Yes" messageToggleInactive="No" name="{!row.Schedule_Sync}" checked="{!row.Schedule_Sync}" value="{!index}" onchange="{!c.updateContList}" /> 
+                        </td>
+                        <aura:if isTrue="{!row.CustomMapping }">
+                            <td><div class="slds-truncate" title="Sync Now"><button class="slds-button slds-button_brand slds-float_right" data-record="{!row.Id}" onclick="{!c.scheduleBatch}">Sync Now</button> </div></td>
+                            <aura:set attribute="else">
+                                <td><div class="slds-truncate"> </div></td>
+                            </aura:set>
+                        </aura:if>
+                        <td><div class="slds-truncate" title="Add Custom Attribute"> <button class="slds-button slds-button_brand slds-float_right" data-record="{!row.Id}" onclick="{!c.navigateToCustomAttribute}">Map Attribute</button> </div></td>
+                        <aura:if isTrue="{!row.CustomMapping }">
+                            <td ><div class="slds-truncate" title="ErrMsg"> <span style="color:red;font-weight:bold" ></span> </div></td>
+                            <aura:set attribute="else">
+                                <td data-record="{!row.Id}" value="{!v.recId}"><div class="slds-truncate" title="ErrMsg"> <span style="color:red;font-weight:bold;font-size:15px" >*</span> </div></td>
+                            </aura:set>
+                        </aura:if>
+                        
+                    </tr>
+                </aura:iteration>
+            </tbody>
+        </table>
+    </div>
+    
+    <aura:if isTrue="{!not(empty(v.recordError))}">
+        <div class="recordError">
+            {!v.recordError}</div>
+    </aura:if>
+</aura:component>

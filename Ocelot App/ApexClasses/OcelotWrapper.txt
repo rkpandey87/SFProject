@@ -1,0 +1,14 @@
+public class OcelotWrapper{
+    public class OcelotContact{
+       public List<Contacts> contacts; 
+    }
+    public class Fields {
+		public String type;
+		public String name;
+		public String value;
+	}
+
+	public class Contacts {
+		public List<Fields> fields;
+	}
+}

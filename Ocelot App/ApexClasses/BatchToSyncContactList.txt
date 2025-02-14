@@ -1,0 +1,145 @@
+public with sharing class BatchToSyncContactList implements Database.Batchable<sObject>,Database.stateful,Database.AllowsCallouts,Schedulable{
+    public  string reportId;
+    public String repName; 
+    public string ObjId;
+    public string fname;
+    Public string conListRecId ='';
+    Set<String> ConListIdSet = new Set<String>();
+    List<Contact_Lists__c> conList = new List<Contact_Lists__c>();
+    List<Contact_Lists__c>DoNotSyncList = new List<Contact_Lists__c>();
+    Map<Id,Contact_Lists__c> conListMap = new Map<Id,Contact_Lists__c>();
+    List<Contact_Lists__c> ReportList = new List<Contact_Lists__c>();
+    List<blob>fileBlobList = new List<blob>();
+    List<ContentDocumentLink> ReportFileList = new List<ContentDocumentLink>();
+    String settingName = 'OcelotSetting'; 
+    
+    public BatchToSyncContactList( string conId){
+        if(String.isNotEmpty(conId)){ conListRecId = conId;}
+        Ocelot_Settings__mdt  OcelotSettingRec =  Ocelot_Settings__mdt.getInstance(settingName);
+        if(OcelotSettingRec.Folder_Name__c!=Null){fname =  OcelotSettingRec.Folder_Name__c;}
+        
+        if(String.isEmpty(conListRecId)){
+            ContactListController.refreshAction(fname,'' );
+            ReportList = [select id, List_Name__c, Report_Name__c,Schedule_Sync__c, Report_ID__c from Contact_Lists__c where id!=Null ];
+            if(ReportList!=Null && ReportList.size()>0){
+                conListMap = new Map<Id,Contact_Lists__c>();
+                for (Contact_Lists__c cl : ReportList) {
+                    if(cl.Schedule_Sync__c != Null && cl.Schedule_Sync__c ==True){
+                        conListMap.put(cl.Report_ID__c, cl);
+                    }
+                }
+            }
+        } 
+        
+        else{
+            ContactListController.refreshAction(fname, conListRecId);
+            List<Contact_Lists__c>  conLstRec = new List<Contact_Lists__c>();
+            conListMap = new Map<Id,Contact_Lists__c>();
+            if(String.isNotEmpty(conListRecId)){
+                conLstRec = [select id, List_Name__c,Schedule_Sync__c, Report_Name__c, Report_ID__c from Contact_Lists__c where id=:conListRecId];
+                
+            }
+            if(conLstRec !=Null && conLstRec.size()>0 && conLstRec[0].Report_ID__c!=Null){
+                conListMap.put(conLstRec[0].Report_ID__c, conLstRec[0]);
+            }
+        }
+    }
+    public void execute(SchedulableContext sc) {
+        BatchToSyncContactList b = new BatchToSyncContactList(conListRecId); 
+        Database.executeBatch(b,1);
+    }
+    public Database.QueryLocator start(Database.BatchableContext bc) {
+        
+        String query = 'select id, Name, DeveloperName, FolderName from report where FolderName =:fname'; 
+        return Database.getQueryLocator(query); 
+    }
+    public void execute(Database.BatchableContext bc, List<report> scope){
+      
+        if(String.isEmpty(conListRecId)){
+            for(report rep :scope){
+                if(rep.Id!=Null){
+                    reportId = rep.Id;
+                }
+                if(rep.Name!=Null){
+                    repName = rep.Name;
+                }
+                if(conListMap!=Null && conListMap.containsKey(reportId)){
+                    ConListIdSet.add(reportId);
+                    Contact_Lists__c conListRec = conListMap.get(reportId);
+                    ObjId =  conListRec.id;
+                }
+                if(ObjId!=Null && repName !=Null && reportId!=Null ){
+                    GetReportFile(reportId, repName, ObjId);
+                }
+                reportId = Null;
+                repName = Null;
+                ObjId = Null;
+            }
+        }
+        else{
+            for(report rep :scope){
+                ConListIdSet = new Set<string>();
+                String ReportName;
+                if(conListMap!=Null && conListMap.containsKey(rep.id)){
+                    
+                    ReportName =rep.Name; 
+                    ConListIdSet.add(rep.id);
+                    Contact_Lists__c conListRec = conListMap.get(rep.id);
+                    ObjId =  conListRec.id;
+                    if(conListRecId!=Null && ReportName !=Null && rep.id!=Null ){
+                        GetReportFile(rep.id, ReportName, conListRecId);
+                    }
+                } 
+            } 
+        }
+    }
+    public void finish(Database.BatchableContext bc){
+        BatchToPostOcelotContactList b = new BatchToPostOcelotContactList(conListRecId); 
+        Database.executeBatch(b,1);
+    }
+    
+    public static void GetReportFile(string reportId, String repName, string ObjId) {
+        if(!test.isRunningTest()){
+            ApexPages.PageReference report = new ApexPages.PageReference('/'+reportId+'?csv=1&isdtp=p1');
+            createCSVReport(report.getContent(), '.csv', repName, ObjId);
+        }
+    }
+    
+    public static void createCSVReport(Blob fileBody, String FileType, String FileTitle, String FileRecordId){
+      
+        if(FileRecordId!=Null){
+            DeleteRecordFiles(FileRecordId);
+        }
+       
+        ContentVersion conVer = new ContentVersion();
+        conVer.ContentLocation = 'S'; 
+        conVer.PathOnClient = 'Test.csv'; 
+        conVer.Title = FileTitle;  
+        conVer.Description = 'This is Ocelot Report CSV File' ;         
+        conVer.VersionData = fileBody;       
+        insert conVer;
+        
+        Id conDoc = [SELECT ContentDocumentId FROM ContentVersion WHERE Id =:conVer.Id].ContentDocumentId;        
+        ContentDocumentLink cDe = new ContentDocumentLink();
+        cDe.ContentDocumentId = conDoc;
+        cDe.LinkedEntityId = FileRecordId;
+        cDe.ShareType = 'V'; 
+        insert cDe;
+    }
+    public static void DeleteRecordFiles(String ConLstId){
+        List<String> sTypes = new List<String>{'V'};
+        List<ContentDocument> listToDelete = new List<ContentDocument>();
+        List<ContentDocumentLink> docFileList=[SELECT Id, LinkedEntityId, ContentDocumentId, Visibility,
+                                            ContentDocument.Title, ContentDocument.createdDate,
+                                            ContentDocument.FileType FROM ContentDocumentLink WHERE LinkedEntityId=:ConLstId AND ShareType IN:sTypes];
+        
+        if(docFileList !=Null && docFileList.size()>0){
+            for(ContentDocumentLink doc :docFileList){
+                listToDelete.add(new ContentDocument( Id = doc.ContentDocumentId));
+            }
+            if(listToDelete!=Null && listToDelete.size()>0){
+                delete listToDelete;
+            }
+        } 
+    }
+}

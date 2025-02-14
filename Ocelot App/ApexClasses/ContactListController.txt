@@ -1,0 +1,221 @@
+public with sharing class ContactListController {
+    
+    @AuraEnabled
+    public static List<wrapperContactList> fetchConList(){
+        List<wrapperContactList> listwrap = new List<wrapperContactList>();
+        List<Contact_Lists__c> listCL = [SELECT Id, Name, List_Name__c,Report_Name__c,Schedule_Sync__c,Custom_Mapping__c,Report_ID__c,Ocelot_ID__c,Last_Sync_Dates__c FROM Contact_Lists__c where id!=Null ];
+        for(Contact_Lists__c cl:listCL){
+            wrapperContactList wrapCL = new wrapperContactList();
+            wrapCL.Id = cl.Id;
+            wrapCL.Name = cl.Name;
+            wrapCL.List_Name = cl.List_Name__c;
+            wrapCL.Report_Name = cl.Report_Name__c;
+            wrapCL.Schedule_Sync = cl.Schedule_Sync__c;
+            wrapCL.CustomMapping =cl.Custom_Mapping__c; 
+            wrapCL.Report_ID = cl.Report_ID__c;
+            wrapCL.Ocelot_ID = cl.Ocelot_ID__c;
+            wrapCL.Last_Sync_Dates = cl.Last_Sync_Dates__c;
+            listwrap.add(wrapCL);
+            
+        }
+        return listwrap;
+        
+    } 
+    
+    @AuraEnabled
+    public static void refreshAction(String fname, String docId) {
+        List<Contact_Lists__c> conList = new List<Contact_Lists__c>();
+        List<Contact_Lists__c> updateconList = new List<Contact_Lists__c>();
+        Map<String,Contact_Lists__c> conListMapbyReportId = new Map<String,Contact_Lists__c>();
+        List<Contact_Lists__c> delconList = new List<Contact_Lists__c>();
+        List<Contact_Attributes__c> lstForDelete =new List<Contact_Attributes__c>();
+        List<Contact_Lists__c> newConList = new List<Contact_Lists__c>();
+        Set<String>conlistSet = new Set<String>();
+        Set<String>reportIdSet = new Set<String>();
+        Set<String>clstIdSet = new Set<String>();
+        String settingName = 'OcelotSetting'; 
+        String folderName;
+        
+        Ocelot_Settings__mdt  OcelotSettingRec =  Ocelot_Settings__mdt.getInstance(settingName);
+        
+        if(OcelotSettingRec.Folder_Name__c!=Null){
+            folderName =  OcelotSettingRec.Folder_Name__c;
+        }
+        List<report> scope = [select id, Name, DeveloperName, FolderName,LastModifiedDate from report where FolderName =:folderName];
+        
+        for(report rep :scope){
+            reportIdSet.Add(rep.Id);
+        }
+        
+        if(string.isEmpty(docId)){
+            Set<String>delConIdSet =New Set<String>();
+            List<Contact_Attributes__c> dAttLst = new List<Contact_Attributes__c>();
+            conList = [select id, List_Name__c, Report_Name__c,Schedule_Sync__c,Custom_Mapping__c,MapAttributeDate__c,LastModifiedDate, Report_ID__c from Contact_Lists__c where Report_ID__c in:reportIdSet ];
+            delconList = [select id,Report_ID__c from Contact_Lists__c where Report_ID__c not in:reportIdSet  ];
+           if(conList!=Null && conList.size()>0){
+                for(Contact_Lists__c cl :conList){
+                    if(cl.Report_ID__c !=Null){
+                        conlistSet.add(cl.Report_ID__c);
+                        conListMapbyReportId.put(cl.Report_ID__c,cl);
+                    }
+                }
+            }
+            if(delconList!=Null && delconList.size()>0){
+                for(Contact_Lists__c dl :delconList){
+                    if(dl!=Null){
+                       delConIdSet.add(dl.Id);
+                    // delete contact list record file which report doesn't exist in Ocelot Folder
+                     BatchToSyncContactList.DeleteRecordFiles(dl.Id);  
+                    }
+                   
+                }
+               
+              }
+            
+            for(report rep :scope){
+                
+                if(conlistSet!=Null && !conlistSet.contains(string.valueOf(rep.Id))){
+                    Contact_Lists__c con = new Contact_Lists__c();
+                    con.List_Name__c = rep.Name;
+                    con.Report_Name__c =rep.Name;
+                    con.Report_ID__c = rep.Id;
+                    con.Schedule_Sync__c = True;
+                    newConList.add(con); 
+                }
+                if(conListMapbyReportId !=Null && conListMapbyReportId.containsKey(rep.Id) ){
+                    Contact_Lists__c clst = conListMapbyReportId.get(rep.Id);
+                    
+                    if(clst.MapAttributeDate__c!=Null && rep.LastModifiedDate >clst.MapAttributeDate__c){
+                        
+                        clstIdSet.add(clst.Id);
+                        Contact_Lists__c uclst = new Contact_Lists__c();
+                        uclst.id =clst.id;
+                        uclst.Custom_Mapping__c = false;
+                        uclst.MapAttributeDate__c = Null;
+                        uclst.Report_Name__c =rep.Name;
+                        updateconList.add(uclst);
+                    }
+                }
+                
+            }
+            if(delConIdSet!=Null && delConIdSet.size()>0){clstIdSet.addAll(delConIdSet);}
+           
+            lstForDelete =new List<Contact_Attributes__c>();
+            lstForDelete =[SELECT Id,Contact_List_ID__c FROM Contact_Attributes__c where Contact_List_ID__c In:clstIdSet OR  Contact_List_ID__c=Null ];
+            
+            //create contact list records
+            if(newConList !=Null && newConList.size()>0){
+                insert newConList;
+            } 
+            //create contact list records
+            if(updateconList !=Null && updateconList.size()>0){
+                Update updateconList;
+            } 
+            
+            //clear contact Attribute records
+            if(lstForDelete !=Null && lstForDelete.size()>0){
+                delete lstForDelete;
+            } 
+           
+            //delete contact list records
+            if(delconList !=Null && delconList.size()>0){
+                delete delconList;
+            } 
+            
+        }
+        else{
+            string reportId ;
+            string clstId;
+            List<Report>reportLst = new List<Report>();  
+            List<Contact_Lists__c>newConList1 = new List<Contact_Lists__c>();
+            List<Contact_Attributes__c>delIdLst =  new List<Contact_Attributes__c>();
+            conList = [select id, List_Name__c, Report_Name__c,MapAttributeDate__c,Custom_Mapping__c,Schedule_Sync__c, Report_ID__c from Contact_Lists__c where id=:docId ];
+            if(conList!=Null && conList.size()>0){reportId =conList[0].Report_ID__c;}
+            if(reportId !=Null && reportIdSet.contains(reportId)){
+                reportLst =[select id, Name, DeveloperName, FolderName,LastModifiedDate from report where id=:reportId]; 
+            }
+            else{if(conList!=Null && conList.size()>0){
+                delIdLst =[SELECT Id,Contact_List_ID__c FROM Contact_Attributes__c where Contact_List_ID__c =:docId OR Contact_List_ID__c =Null ];
+                if(delIdLst!=Null && delIdLst.size()>0){
+                     // Delete attached file of contact list
+                    BatchToSyncContactList.DeleteRecordFiles(conList[0].Id);
+                    // Delete Contact Attributes related to contact list record
+                    delete delIdLst;
+                }
+                // delete contact list record that report id doesn't Match with Ocelot folder reports id
+                delete conList;
+            }
+                }
+            
+            if(reportLst.size()>0 && conList.size() >0){
+                if(conList[0].MapAttributeDate__c!=Null && reportLst[0].LastModifiedDate >conList[0].MapAttributeDate__c){
+                    Contact_Lists__c ulst = new Contact_Lists__c();
+                    clstId =conList[0].Id;
+                    ulst.Id =clstId;
+                    ulst.Custom_Mapping__c = false;
+                    ulst.MapAttributeDate__c = Null;
+                    ulst.Report_Name__c =reportLst[0].Name;
+                    update ulst;
+                }
+                
+                lstForDelete =new List<Contact_Attributes__c>();
+                lstForDelete =[SELECT Id,Contact_List_ID__c FROM Contact_Attributes__c where Contact_List_ID__c =:clstId OR Contact_List_ID__c =Null];
+                if(lstForDelete!=Null && lstForDelete.size()>0){
+                    delete lstForDelete;
+                } 
+            }
+            
+        }
+    }
+    
+    @AuraEnabled
+    public static void scheduleOcelotBatch(String conId ) {
+        integer checkTime =5;       
+        String JOBNAME ='BatchToSyncContactList';
+        //Datetime sysTime = System.now().addMinutes(checkTime);
+        Datetime sysTime = System.now().addSeconds(checkTime);
+        String cronExpression = '' + sysTime.second() + ' ' + sysTime.minute() + ' ' + sysTime.hour() + ' ' + sysTime.day() + ' ' + sysTime.month() + ' ? ' + sysTime.year();
+        System.schedule(JOBNAME+'-'+String.valueOf(System.now()), cronExpression, new BatchToSyncContactList(conId));
+    }
+    @AuraEnabled
+    public static void updateContactList(List<wrapperContactList> ContList, Integer index) {
+        if(ContList!=Null && ContList.size()>index){
+            Contact_Lists__c cl = new Contact_Lists__c();
+            cl.Id = ContList[index].Id;
+            cl.Schedule_Sync__c = ContList[index].Schedule_Sync;
+            update cl; 
+        }
+        
+        
+    }
+    @AuraEnabled
+    public static void updateConLstName(String recordId, String newValue) {
+        List<Contact_Lists__c>  ClRecLst = [SELECT Id, List_Name__c FROM Contact_Lists__c  WHERE Id = :recordId LIMIT 1];
+        if(ClRecLst != null && ClRecLst.size()>0) {
+            ClRecLst[0].List_Name__c = newValue;
+            update ClRecLst;
+        }
+    }
+    
+    public class wrapperContactList {
+        @AuraEnabled
+        public string Id{get;set;}
+        @AuraEnabled
+        public string Name{get;set;}  
+        @AuraEnabled
+        public string List_Name{get;set;}
+        @AuraEnabled
+        public string Report_Name{get;set;}
+        @AuraEnabled
+        public Boolean Schedule_Sync{get;set;}
+        @AuraEnabled
+        public Boolean CustomMapping{get;set;}
+        @AuraEnabled
+        public string Report_ID{get;set;}
+        @AuraEnabled
+        public string Ocelot_ID{get;set;}
+        @AuraEnabled
+        public string Last_Sync_Dates{get;set;}
+        
+    }
+}

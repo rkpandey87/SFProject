@@ -1,0 +1,155 @@
+@isTest 
+public class CustomAttributeControllerTest {
+    
+    @isTest
+    static void testContactAttribute(){
+        String csvColumnHeader;
+        List<Contact_Lists__c>conList= new List<Contact_Lists__c>();
+        for(Integer i=0;i<5;i++){
+            Contact_Lists__c conl= new Contact_Lists__c();
+            conl.List_Name__c= 'Test Report '+i;
+            conList.add(conl);
+        }
+        insert conList;
+        
+        List<String> csvRowValues = new List<String>();
+        
+        for(Contact_Lists__c con : conList){
+            String listNm = con.List_Name__c != null ? String.valueOf(con.List_Name__c).escapeCsv() : '';
+            String csvRowVal =  listNm;
+            csvRowValues.add(csvRowVal);
+        }
+        csvColumnHeader = 'Name\n';
+        String csvFile = csvColumnHeader + String.join(csvRowValues,'\n');
+        blob b = blob.valueOf('Unit.Test');
+        b = Blob.valueOf(csvFile); 
+        
+        List<Contact_Lists__c> contactList= new List<Contact_Lists__c>();
+        Contact_Lists__c contLst= new Contact_Lists__c();
+        contLst.List_Name__c= 'Opportunities Report';
+        contLst.Report_Name__c= 'Opportunities Report';
+        contactList.add(contLst);
+        insert contactList;
+        
+        List<Contact_Lists__c> newContactList= new List<Contact_Lists__c>();
+        Contact_Lists__c newContLst= new Contact_Lists__c();
+        newContLst.List_Name__c= 'Ocelot Contacts Report';
+        newContLst.Report_Name__c= 'Ocelot Contacts Report';
+        newContactList.add(newContLst);
+        insert newContactList;
+        
+        String conLstId;
+        conLstId= contactList[0].id;
+        
+        List<Contact_Attributes__c> caList= new List<Contact_Attributes__c>();
+        Contact_Attributes__c con = new Contact_Attributes__c();
+        con.Name__c = 'SF_ID';
+        con.DisplayName__c = 'Salesforce ID';
+        con.Required__c = True;
+        con.Unique__c=True;
+        con.Contact_List_ID__c= conLstId;
+        con.List_Name__c= contactList[0].List_Name__c;
+        con.Mapped_to__c= '0';
+        con.Type__c= 'Standard';
+        con.Atttibute_Type__c= 'Text';
+        caList.add(con);
+        
+        Contact_Attributes__c caAtrb = new Contact_Attributes__c();
+        caAtrb.Name__c = 'Phone';
+        caAtrb.DisplayName__c = 'Phone';
+        caAtrb.Required__c = True;
+        caAtrb.Unique__c= True;
+        caAtrb.Contact_List_ID__c= conLstId;
+        caAtrb.List_Name__c= contactList[0].List_Name__c;
+        caAtrb.Mapped_to__c= '1';
+        caAtrb.Type__c= 'Standard';
+        caAtrb.Atttibute_Type__c= 'PhoneNumber';                                          
+        caList.add(caAtrb);
+        
+        Contact_Attributes__c ca = new Contact_Attributes__c();
+        ca.Name__c = 'Email';
+        ca.DisplayName__c = 'Email';
+        ca.Required__c = false;
+        ca.Unique__c= false;
+        ca.Contact_List_ID__c= conLstId;
+        ca.List_Name__c= contactList[0].List_Name__c;
+        ca.Mapped_to__c= '2';
+        ca.Type__c= 'Standard';
+        ca.Atttibute_Type__c= 'Email';                                          
+        caList.add(ca);
+        
+        Contact_Attributes__c caFstNm = new Contact_Attributes__c();
+        caFstNm.Name__c = 'First_name';
+        caFstNm.DisplayName__c = 'First Name';
+        caFstNm.Required__c = false;
+        caFstNm.Unique__c= false;
+        caFstNm.Contact_List_ID__c= conLstId;
+        caFstNm.List_Name__c= contactList[0].List_Name__c;
+        caFstNm.Mapped_to__c= '3';
+        caFstNm.Type__c= 'Standard';
+        caFstNm.Atttibute_Type__c= 'FirstName';                                          
+        caList.add(caFstNm);
+        
+        Contact_Attributes__c caLstNm = new Contact_Attributes__c();
+        caLstNm.Name__c = 'Last_name';
+        caLstNm.DisplayName__c = 'Last Name';
+        caLstNm.Required__c = false;
+        caLstNm.Unique__c= false;
+        caLstNm.Contact_List_ID__c= conLstId;
+        caLstNm.List_Name__c= contactList[0].List_Name__c;
+        caLstNm.Mapped_to__c= '4';
+        caLstNm.Type__c= 'Standard';
+        caLstNm.Atttibute_Type__c= 'LastName';                                          
+        caList.add(caLstNm);
+        insert caList;
+        
+        ContentVersion cVersion = new ContentVersion();
+        cVersion.ContentLocation = 'S';                         
+        cVersion.PathOnClient =csvFile; 
+        cVersion.VersionData = Blob.valueOf('Test1');     
+        Insert cVersion;
+        Id conDocument = [SELECT ContentDocumentId FROM ContentVersion WHERE Id =:cVersion.Id].ContentDocumentId;
+        
+        ContentDocumentLink  cDocLink = new ContentDocumentLink();
+        cDocLink.ContentDocumentId = conDocument;            
+        cDocLink.LinkedEntityId = conLstId;                    
+        cDocLink.ShareType = 'V';                             
+        cDocLink.Visibility = 'AllUsers';                  
+        Insert cDocLink;
+        
+        List<CustomAttributeController.wrapperApi> wprContLst= new List<CustomAttributeController.wrapperApi>();
+        CustomAttributeController.wrapperApi wprCont= new CustomAttributeController.wrapperApi();
+        wprCont.label= 'OcelotTest';
+        wprCont.value= 'OcelotTestVal';
+        wprContLst.add(wprCont);
+        
+        List<String> lstVal= new List<String>();            
+        String dataVal;
+        dataVal= 'Standard';
+        
+        String jsonVal= '[{"selectedReportColumn":"1","name":"SF_ID","displayName":"Salesforce ID","required":true,"unique":true},{"selectedReportColumn":"","name":"Phone","displayName":"Phone","required":true,"unique":true},{"selectedReportColumn":"2","name":"First_name","displayName":"First Name","required":false,"unique":false},{"selectedReportColumn":"3","name":"Last_name","displayName":"Last Name","required":false,"unique":false},{"selectedReportColumn":"4","name":"Email","displayName":"Email","required":false,"unique":false}]';
+        Test.startTest();
+        CustomAttributeController.WrapperAttribute wa= new CustomAttributeController.WrapperAttribute();
+        wa.errorMsg= 'Error';
+        wa.flag= true;
+        
+        CustomAttributeController.fetchReportColumn(conLstId);
+        CustomAttributeController.getAttributeList(conLstId);
+        CustomAttributeController.submitAttribute(jsonVal, conLstId);
+        CustomAttributeController.getListName(conLstId);
+        CustomAttributeController.bindWrapper(wprContLst);
+        CustomAttributeController.getAPIWrapper(wprCont.label, wprCont.value);
+        Test.stopTest();
+        
+        List<Contact_Attributes__c> lst = [SELECT Id FROM Contact_Attributes__c where Id!=NULL];
+        system.assert(lst.size() > 4, 'Inserted Contact attribute records should be 5');
+        List<Contact_Lists__c> cntlist = [SELECT Id FROM Contact_Lists__c where Id!=NULL];        
+        system.assert(cntlist.size()>6, 'Inserted Contact Lists records should be 7');
+        
+        
+    }
+    
+    
+    
+    
+}

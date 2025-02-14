@@ -1,0 +1,204 @@
+@isTest
+public class OcelotCampaignActionsTest {
+    
+    @isTest static void testOcelotCampaignActions(){
+        
+        List<OcelotCampaignActionsWpr> recParamsList= new List<OcelotCampaignActionsWpr>();
+        
+        OcelotCampaignActionsWpr oc1= new OcelotCampaignActionsWpr();
+        List<OcelotCampaignActionsWpr.ContactFields> ConList = New List<OcelotCampaignActionsWpr.ContactFields>();
+        OcelotCampaignActionsWpr.ContactFields con1 = new OcelotCampaignActionsWpr.ContactFields();
+        OcelotCampaignActionsWpr oc2= new OcelotCampaignActionsWpr();
+        OcelotCampaignActionsWpr.ContactFields con2 = new OcelotCampaignActionsWpr.ContactFields();
+        OcelotCampaignActionsWpr oc3= new OcelotCampaignActionsWpr();
+        OcelotCampaignActionsWpr.ContactFields con3 = new OcelotCampaignActionsWpr.ContactFields();
+        
+        Test.startTest();
+        List<Account> acclst= new List<Account>();
+        Account acc = new Account();
+        acc.Name = 'Test Account';
+        acclst.add(acc);
+        insert acclst;
+     
+        
+        List<Contact> conlst= new List<Contact>();
+        Contact con = new Contact();
+        con.LastName = 'Test1';
+        conlst.add(con);
+        insert conlst;
+        
+        
+        List<Lead> ldlst= new List<Lead>();
+        Lead ld= new Lead();
+        ld.LastName='TestLead';
+        ld.Company= 'xyz';
+        ld.Status= 'Open - Not Contacted';
+        ldlst.add(ld);
+        insert ldlst;
+        
+        
+        String accId= acclst[0].Id;
+        String conId= conlst[0].Id;
+        String leadId= ldlst[0].Id;
+        
+        List<Texting_Activity__c> actList= new List<Texting_Activity__c>();
+        Texting_Activity__c textActivity = new Texting_Activity__c();
+        textActivity.Account__c= con1.value;
+        textActivity.Contact__c= con2.value;
+        textActivity.Lead__c= con3.value;
+        actList.add(textActivity);
+        insert actList; 	
+        
+        DateTime dt = System.now();
+        
+        oc1.eventId ='d6703cc8-9e79-a4dc7f6ab43c'; 
+        con1.name = 'SalesforceID';
+        con1.type = 'Text';
+        con1.value =accId;
+        ConList.add(con1);
+        oc1.ContactFields =ConList;
+        oc1.triggerType = 'inbound';
+        oc1.dateTime_Z = dt;
+        oc1.campaignId ='5f80ac6204d2db0027f53131';
+        oc1.message ='Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry standard dummy text ever since the 1500s';
+        oc1.Status ='received';
+        oc1.name ='IncomingSms.received';
+        
+        
+        recParamsList.add(oc1);
+        
+        
+        oc2.eventId ='d6703cc8-ac03-a4dc7f6ab43d'; 
+        con2.name = 'SalesforceID';
+        con2.type = 'Text';
+        con2.value =conId;
+        ConList.add(con2);
+        oc2.ContactFields =ConList;
+        oc2.triggerType = 'outbound';
+        oc2.dateTime_Z = dt;
+        oc2.campaignId ='5f80ac6204d2db0027f53130';
+        oc2.message ='Plain text to be sent to recipient.';
+        oc2.Status ='delievered';
+        oc2.name ='OutgoingSms.delivered';
+        recParamsList.add(oc2);
+        
+        
+        oc3.eventId ='d6703cc8-ac03-a4dc7f6ab43e'; 
+        con3.name = 'SalesforceID';
+        con3.type = 'Text';
+        con3.value =leadId;
+        ConList.add(con3);
+        oc3.ContactFields =ConList;
+        oc3.triggerType = 'outbound';
+        oc3.dateTime_Z = dt;
+        oc3.campaignId ='5f80ac6204d2db0027f53132';
+        oc3.message ='Plain text to be sent to recipient.';
+        oc3.Status ='permanent_failure';
+        oc3.name ='OutgoingSms.deliveryFailed';
+        recParamsList.add(oc3);
+        String jsonMsg= JSON.serialize(recParamsList);
+        RestRequest req = new RestRequest();
+        RestResponse res = new RestResponse();
+        req.requestURI = '/services/apexrest/OcelotAppDev/OcelotCampaignActions/'; 
+        req.httpMethod = 'POST';
+        req.requestBody= Blob.valueof(jsonMsg);
+        RestContext.request = req;
+        RestContext.response= res;
+        OcelotCampaignActions.OcelotCampaignActions();
+        Test.stopTest();
+        
+        List<Account> acctLst = [SELECT Id FROM Account where Id!=NULL];
+        system.assert(acctLst.size()>0, 'Inserted Account records should be 1'); 
+        List<Contact> cntLst = [SELECT Id FROM Contact where Id!=NULL];
+        system.assert(cntLst.size()>0, 'Inserted Contact records should be 1'); 
+        List<Lead> ledLst = [SELECT Id FROM Lead where Id!=NULL];
+        system.assert(ledLst.size()>0, 'Inserted Lead records should be 1');
+        system.assert(recParamsList.size() == 3, 'OcelotCampaignActionsWpr Wrapper records should be 3');
+        system.assert(ConList.size() == 3, 'OcelotCampaignActionsWpr.ContactFields Wrapper records should be 3'); 
+        
+    }
+    
+    @isTest static void testCampaignActionsWithLead(){
+        List<OcelotCampaignActionsWpr> recParamsList= new List<OcelotCampaignActionsWpr>();        
+        OcelotCampaignActionsWpr oc1= new OcelotCampaignActionsWpr();
+        List<OcelotCampaignActionsWpr.ContactFields> ConList = New List<OcelotCampaignActionsWpr.ContactFields>();
+        OcelotCampaignActionsWpr.ContactFields con1 = new OcelotCampaignActionsWpr.ContactFields();
+        OcelotCampaignActionsWpr oc2= new OcelotCampaignActionsWpr();
+        OcelotCampaignActionsWpr.ContactFields con2 = new OcelotCampaignActionsWpr.ContactFields();
+        String IdVal= '00QHs0000Iabcdf';
+        DateTime dt = System.now();
+        oc1.eventId ='d6703cc8-9e79-a4dc7f6ab43c'; 
+        con1.name = 'SalesforceID';
+        con1.type = 'Text';
+        con1.value =IdVal;
+        ConList.add(con1);
+        oc1.ContactFields =ConList;
+        oc1.triggerType = 'inbound';
+        oc1.dateTime_Z = dt;
+        oc1.campaignId ='5f80ac6204d2db0027f53131';
+        oc1.message ='Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry standard dummy text ever since the 1500s';
+        oc1.Status ='received';
+        oc1.name ='IncomingSms.received';
+        
+       
+        recParamsList.add(oc1);
+        String jsonMsg= JSON.serialize(recParamsList);
+        Test.startTest();
+        RestRequest req = new RestRequest();
+        RestResponse res = new RestResponse();
+        req.requestURI = '/services/apexrest/OcelotAppDev/OcelotCampaignActions/'; 
+        req.httpMethod = 'POST';
+        req.requestBody= Blob.valueof(jsonMsg);
+        RestContext.request = req;
+        RestContext.response= res;
+        OcelotCampaignActions.OcelotCampaignActions();
+        Test.stopTest();
+        
+        system.assert(recParamsList.size() == 1, 'OcelotCampaignActionsWpr Wrapper records should be 3');
+        system.assert(ConList.size() == 1, 'OcelotCampaignActionsWpr.ContactFields Wrapper records should be 3'); 
+        
+        
+    }
+    
+    @isTest static void testCampaignActionsWithContact(){
+        
+        
+        List<OcelotCampaignActionsWpr> recParamsList= new List<OcelotCampaignActionsWpr>();
+        OcelotCampaignActionsWpr oc1= new OcelotCampaignActionsWpr();
+        List<OcelotCampaignActionsWpr.ContactFields> ConList = New List<OcelotCampaignActionsWpr.ContactFields>();
+        OcelotCampaignActionsWpr.ContactFields con1 = new OcelotCampaignActionsWpr.ContactFields();
+        String conVal= '003Hs123aIabcdf';
+        DateTime dt = System.now();
+        oc1.eventId ='d6703cc8-9e79-a4dc7f6ab43c'; 
+        con1.name = 'SalesforceID';
+        con1.type = 'Text';
+        con1.value =conVal;
+        ConList.add(con1);
+        oc1.ContactFields =ConList;
+        oc1.triggerType = 'inbound';
+        oc1.dateTime_Z = dt;
+        oc1.campaignId ='5f80ac6204d2db0027f53131';
+        oc1.message ='Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry standard dummy text ever since the 1500s';
+        oc1.Status ='received';
+        oc1.name ='IncomingSms.received';
+        
+        recParamsList.add(oc1);
+        String jsonMsg= JSON.serialize(recParamsList);
+        Test.startTest();
+        RestRequest req = new RestRequest();
+        RestResponse res = new RestResponse();
+        req.requestURI = '/services/apexrest/OcelotAppDev/OcelotCampaignActions/'; 
+        req.httpMethod = 'POST';
+        req.requestBody= Blob.valueof(jsonMsg);
+        RestContext.request = req;
+        RestContext.response= res;
+        OcelotCampaignActions.OcelotCampaignActions();
+        Test.stopTest();
+        
+        system.assert(recParamsList.size() == 1, 'OcelotCampaignActionsWpr Wrapper records should be 3');
+        system.assert(ConList.size() == 1, 'OcelotCampaignActionsWpr.ContactFields Wrapper records should be 3'); 
+        
+        
+    }
+    
+}

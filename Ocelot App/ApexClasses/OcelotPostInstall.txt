@@ -1,0 +1,62 @@
+global with sharing class OcelotPostInstall implements InstallHandler {
+  public Integer statusCode = 0;
+  global void onInstall(InstallContext context) {
+    //system.debug('Current Version# '+ system.Version());
+    //system.debug('PreviousVersion# '+ context.previousVersion());    
+    
+    string sfdcBaseURL = URL.getOrgDomainURL().toExternalForm();
+    Http http = new Http();
+    HttpRequest request = new HttpRequest();
+    request.setEndpoint(sfdcBaseURL+'/services/data/v59.0/tooling/query/?q=SELECT+Id,SubscriberPackageId,SubscriberPackage.NamespacePrefix,SubscriberPackage.Name,SubscriberPackageVersion.Id,SubscriberPackageVersion.Name,SubscriberPackageVersion.MajorVersion,SubscriberPackageVersion.MinorVersion,SubscriberPackageVersion.PatchVersion,SubscriberPackageVersion.BuildNumber+FROM+InstalledSubscriberPackage');
+    request.setMethod('GET');
+    request.setHeader('Authorization','Bearer '+UserInfo.getSessionId());
+    
+    HttpResponse response = http.send(request);
+    //system.debug('getBody# '+ response.getBody());
+    
+    if(response.getstatusCode() == 200 && response.getbody() != null){
+        OcelotAppVesrionWrapper ocWrap =(OcelotAppVesrionWrapper)json.deserialize(response.getbody(),OcelotAppVesrionWrapper.class);
+        string appVersion = '';
+        string PackageType = '';
+        for(OcelotAppVesrionWrapper.records rd:ocWrap.records){
+            if(rd.SubscriberPackage.Name == 'Ocelot App'){
+                appVersion = String.valueOf(rd.SubscriberPackageVersion.MajorVersion)+'.'+String.valueOf(rd.SubscriberPackageVersion.MinorVersion)+'.'+String.valueOf(rd.SubscriberPackageVersion.BuildNumber);
+                
+                if(rd.SubscriberPackageVersion.IsBeta)
+                PackageType = 'Beta';
+                else
+                PackageType = 'Released';
+            }
+        }    
+        if(appVersion !='' && appVersion !=null && PackageType !='' && PackageType !=null){
+            Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
+            
+            Metadata.CustomMetadata customMetadata = new Metadata.CustomMetadata();
+            customMetadata.fullName = 'App_Metadata.AppInfo';
+            customMetadata.label = 'AppInfo';
+          
+            Metadata.CustomMetadataValue customApiField = new Metadata.CustomMetadataValue();
+            customApiField.field = 'Version__c';
+            customApiField.value = appVersion;
+            customMetadata.values.add(customApiField);
+            
+            Metadata.CustomMetadataValue customApiField1 = new Metadata.CustomMetadataValue();
+            customApiField1.field = 'PackageType__c';
+            customApiField1.value = PackageType;
+            customMetadata.values.add(customApiField1);
+            
+            mdContainer.addMetadata(customMetadata);
+         
+            Id jobId;
+            if (!Test.isRunningTest()) {
+                jobId = Metadata.Operations.enqueueDeployment(mdContainer, Null);
+            }
+            statusCode = response.getstatusCode();
+        }
+    } else {
+        CalloutException e = new CalloutException();
+        e.setMessage('Failed updating App infos: '+response.getbody());
+        throw e;
+    }
+  }
+}

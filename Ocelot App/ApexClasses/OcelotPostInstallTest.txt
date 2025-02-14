@@ -1,0 +1,10 @@
+@istest
+public class OcelotPostInstallTest{
+@isTest
+public static void OcelotPostInstallTest() {
+    Test.setMock(HttpCalloutMock.class, new OcelotPostInstallMock());
+    OcelotPostInstall postinstall = new OcelotPostInstall();
+    Test.testInstall(postinstall, null);    
+    System.assertEquals(postinstall.statusCode, 200, 'Failed updating App infos.');
+  }
+}

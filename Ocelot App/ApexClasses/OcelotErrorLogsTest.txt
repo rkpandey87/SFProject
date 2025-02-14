@@ -1,0 +1,36 @@
+@isTest
+public class OcelotErrorLogsTest {
+    
+    @isTest static void testOcelotErrLogs(){
+        List<Error_Log__c> errLogLst= new List<Error_Log__c>();
+        
+        Error_Log__c elog= new Error_Log__c();
+        elog.Type__c=  'API Log';
+        elog.Requested_Method__c= 'POST';
+        elog.Response__c= 'error';
+        elog.Request__c= 'Test1';
+        elog.API_EndPoint__c= 'https://api.ocelotbot.com/api/v1/contact-list/6505c9c0782178118b098058/contacts';
+        errLogLst.add(elog);
+        insert errLogLst;
+        
+        Test.startTest();
+         List<OcelotErrorLogsWpr> lstWrpr= new List<OcelotErrorLogsWpr>();
+        OcelotErrorLogsWpr reqParams= (OcelotErrorLogsWpr)JSON.deserialize('{ "errorDateTime": "2023-09-19"}',OcelotErrorLogsWpr.class);
+           lstWrpr.add(reqParams);
+        String jsonMsg= JSON.serialize(reqParams);
+        RestRequest req = new RestRequest();
+        RestResponse res = new RestResponse();
+        req.requestURI = '/services/apexrest/OcelotAppDev/OcelotCampaignActions/'; 
+        req.httpMethod = 'POST';
+        req.requestBody= Blob.valueof(jsonMsg);
+        RestContext.request = req;
+        RestContext.response= res;
+        OcelotErrorLogs.OcelotErrorLogs();
+        Test.stopTest();
+        
+        List<Error_Log__c> erlog = [SELECT Id FROM Error_Log__c where Id!=NULL];
+        system.assert(erlog.size()> 0, 'Inserted Error log records should be 1'); 
+        system.assert(lstWrpr.size() == 1, 'OcelotErrorLogsWpr Wrapper records should be 1');
+        
+    }
+}

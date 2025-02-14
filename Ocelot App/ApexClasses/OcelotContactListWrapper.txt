@@ -1,0 +1,20 @@
+public class OcelotContactListWrapper {
+
+	public String name;
+	public List<String> tags;
+    public Meta meta;
+	public List<AdditionalContactFields> additionalContactFields;
+
+	public class AdditionalContactFields {
+		public String type;
+		public String name;
+		public String displayName;
+		public Boolean required;
+		public Boolean unique;
+	}
+   	public class Meta {
+		public String source;
+		public String externalId;
+	}
+	
+}

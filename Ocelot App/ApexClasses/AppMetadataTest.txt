@@ -1,0 +1,20 @@
+@isTest
+public class AppMetadataTest {
+    @isTest static void testApp(){
+        API_Credentials__c elog= new API_Credentials__c();
+        elog.Chatbot_UUID__c=  'test1';
+        elog.Base_URL__c= 'https://test123.com';
+        insert elog;
+        
+        Test.startTest();
+        RestRequest req = new RestRequest();
+        RestResponse res = new RestResponse();
+        req.httpMethod = 'Get';
+        RestContext.request = req;
+        RestContext.response= res;
+        AppMetadata.fetchAppMetadata();
+        Test.stopTest();
+        List<API_Credentials__c> apiCredLst = [SELECT Id,Chatbot_UUID__c,Base_URL__c FROM API_Credentials__c where Id!=NULL];
+        system.assert(apiCredLst.size()> 0, 'Inserted Error log records should be 1');
+    }
+}

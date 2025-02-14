@@ -1,0 +1,8 @@
+public class OcelotErrorLogsWpr {    
+    public String apiEndpoint {get;set;} 
+    public String requestMethod {get;set;} 
+    public String type {get;set;} 
+    public dateTime errorDateTime {get;set;} 
+    public String response {get;set;} 
+    public String request {get;set;} 
+}

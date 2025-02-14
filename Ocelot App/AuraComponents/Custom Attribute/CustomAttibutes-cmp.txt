@@ -1,0 +1,128 @@
+<aura:component controller="CustomAttributeController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global">
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+        <aura:attribute name="WrapperAttribute" type="object[]"/>
+    <aura:attribute name="contactListId" type="String"/>
+    
+    
+    <aura:attribute name="ReportName" type="String"/>
+    <aura:attribute name="isModalOpen" type="boolean" default="true"/>
+    <aura:attribute name="recordId" type="String"/>
+    <aura:attribute name="picklistvalues" type="string[]" />
+    <aura:attribute name="ContList" type="Contact_Lists__c[]"/>
+    <aura:attribute name="name" type="String"/>
+    <aura:attribute name="DisplayName" type="String"/>
+    <aura:attribute name="required" type="boolean"/>
+    <aura:attribute name="unique" type="boolean"/>
+    <aura:attribute name="mapValDataObj"  type="Map" default="{}"/>
+    <aura:attribute name="ConListData" type="List"/>
+    <aura:attribute name="errEnMsg" type="Boolean" />
+    <aura:attribute name="showErrStarMsg" type="boolean"/>
+
+    <aura:attribute name="readReportData" type="Map" default="{}" />
+    <aura:attribute name="IndexKey" type="Integer" default="0"/>
+    <aura:attribute name="IndexKey1" type="Integer" default="1"/>
+    <aura:attribute name="IndexKey2" type="Integer" default="2"/>
+    <aura:attribute name="IndexKey3" type="Integer" default="3"/>
+    <aura:attribute name="IndexKey4" type="Integer" default="4"/>
+    
+    <aura:attribute name="selectedVal1" type="String" />
+    <aura:attribute name="selectedVal2" type="String" />
+    <aura:attribute name="selectedVal3" type="String" />
+    <aura:attribute name="selectedVal4" type="String"/>
+    <aura:attribute name="selectedVal5" type="String" />
+    
+    <aura:attribute name="selectedOptionText" type="String" default="0"/>  
+    <aura:attribute name="myBool" type="Boolean" default="true"/>
+    <aura:attribute name="scoreCardId" type="String"/>
+    <aura:attribute name="defaultVal" type="String"/>
+    
+    <aura:attribute name="contactListObj" type="Object"/> 
+    
+    <force:recordData aura:id="record"
+                      recordId="{!v.contactListId}"
+                      fields="List_Name__c"
+                      targetFields="{!v.contactListObj}"
+                      targetError="{!v.recordLoadError}"/>
+    
+    <aura:attribute name="IndustryField" type="String"/>
+    <aura:attribute name="IndustryFieldLst" type="String[]" default="['Construction','Agriculture','IT','Other']"/>   
+    <aura:attribute name="fieldMap" type="Map" />
+    
+    
+    <div class="slds-m-around_xx-large">
+      
+                        
+                        <table class="slds-table slds-table_bordered slds-table_cell-buffer" >
+                            <thead>
+                               <tr >
+                                    <td style="width:200px;" scope="col"><div style="width:250px;" class="slds-truncate " ><b>Report Name : </b> {!v.ReportName } </div></td>
+                                   <td style="width:10px;"> </td> 
+                                    <td style="width:200px;" scope="col"><div style="width:147px;" class="slds-truncate" ></div></td>
+                                    <td   scope="col"><div style="width:150px;"  class="slds-truncate" >  </div></td>
+                                    <td scope="col"><div class="slds-truncate" ></div></td>
+                                    <td scope="col"><div class="slds-truncate"></div></td>
+                                     
+                                    
+                                </tr> 
+                                <tr >
+                                    <th style="width:200px;" scope="col"><div style="width:250px;" class="slds-truncate " title="List Name">Report Column Name </div></th>
+                                    <th style="width:10px;"> </th> 
+                                    <th style="width:200px;" scope="col"><div style="width:147px;" class="slds-truncate" title="Report Name">Display Name</div></th>
+                                    <th   scope="col"><div style="width:150px;"  class="slds-truncate" title="Ocelot Id">Name</div></th>
+                                    <th scope="col"><div class="slds-truncate" title="Last Sync Date">Required:</div></th>
+                                    <th scope="col"><div class="slds-truncate" title="Pause Sync">Unique:</div></th>
+                                     
+                                    
+                                </tr>
+                            </thead>
+                             <aura:iteration items="{!v.WrapperAttribute}" var="row" indexVar="index">
+                            
+                            <tr>
+                                <td>
+                                    <div class="slds-truncate" title="{!row.name}" data-record="{!row.selectedReportColumn}">
+                                        <lightning:select value="{!row.selectedReportColumn}"  aura:Id="{!row.selectedReportColumn}" onchange="{!c.handleSelectChange}" >
+                                            <option value="" text="--Select Column--" />
+                                            <aura:iteration items="{!row.reportColumn}" var="obj" indexVar="index">
+                                                <option text="{!obj.label}"  value="{!obj.value}" selected="{!obj.value == row.selectedReportColumn}"></option>
+                                            </aura:iteration>
+                                           </lightning:select> 
+                                       <span style="color:red; font-size:12px;">{!row.errorMsg}</span>
+                                      
+                                    </div>
+                                </td>
+                                
+                                <td style="width:10px;"> <aura:if isTrue="{!row.flag}">
+                                            <span style="color:red; font-size:12px;">*</span>
+                                            <aura:set attribute="else">
+                                                <span></span>
+                                            </aura:set>
+                                        </aura:if></td> 
+                                <td><div class="slds-truncate" title="Salesforce ID">{!row.displayName}</div></td>
+                                <td><div class="slds-truncate" title="SF_ID">{!row.name} </div></td>
+                                <td><div class="slds-truncate" title="Required"> <ui:outputCheckbox aura:id="output" value="{!row.required}"/> </div></td>
+                                <td><div class="slds-truncate" title="Unique"><ui:outputCheckbox aura:id="output" value="{!row.unique}"/> </div></td>
+                                
+                            </tr>
+                                 
+                            </aura:iteration>
+                           
+                            <br/>
+                            
+                            <br/>
+                        </table> 
+                        <table class="slds-table">
+                            <tr>
+                                <td style="padding-right:282px;"><b>&nbsp;&nbsp;&nbsp;&nbsp;NOTE:</b> All remaining unmapped columns will be sent as custom attributes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                            </tr>
+                        </table>
+                        
+
+                            <center>  
+                                <lightning:button aura:id="submit" variant="brand" type="submit" label="Save" onclick="{!c.saveAttribute}" class="slds-m-top_medium"/>
+                                <lightning:button variant="brand" label="Cancel" title="Cancel" onclick="{! c.cancel }"/>
+                            </center>
+
+    </div>
+    
+</aura:component>

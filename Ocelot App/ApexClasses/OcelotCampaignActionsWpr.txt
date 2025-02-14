@@ -1,0 +1,18 @@
+public class OcelotCampaignActionsWpr {
+    public String eventId {get;set;} 
+    public List<ContactFields> contactFields {get;set;} 
+    public String triggerType {get;set;} 
+    public DateTime dateTime_Z {get;set;} 
+    public String campaignId {get;set;} 
+    public String message {get;set;} 
+    public String name {get;set;} 
+    public String Status {get;set;} 
+    
+    
+    public class ContactFields {
+        public String type {get;set;} 
+        public String name {get;set;} 
+        public String value {get;set;} 
+    }
+    
+}

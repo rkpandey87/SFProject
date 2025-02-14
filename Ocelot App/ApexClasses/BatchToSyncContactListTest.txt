@@ -1,0 +1,107 @@
+@isTest 
+public class BatchToSyncContactListTest {
+    
+    @isTest(SeeAllData=true)
+    public static void testBatch(){
+        String csvColumnHeader;
+        List<Contact_Lists__c>conList= new List<Contact_Lists__c>();
+        for(Integer i=0;i<5;i++){
+            Contact_Lists__c conl= new Contact_Lists__c();
+            conl.List_Name__c= 'Test Report '+i;
+            conList.add(conl);
+        }
+        insert conList;
+        
+        List<String> csvRowValues = new List<String>();
+        
+        for(Contact_Lists__c con : conList){
+            String listNm = con.List_Name__c != null ? String.valueOf(con.List_Name__c).escapeCsv() : '';
+            String csvRowVal =  listNm;
+            csvRowValues.add(csvRowVal);
+        }
+        csvColumnHeader = 'Name\n';
+        String csvFile = csvColumnHeader + String.join(csvRowValues,'\n');
+        blob b = blob.valueOf('Unit.Test');
+        b = Blob.valueOf(csvFile);
+        
+        
+        List<Report> repList= [select id, Name, DeveloperName, FolderName from report where FolderName ='Ocelot']; 
+        
+        List<Contact_Lists__c> contactList= new List<Contact_Lists__c>();
+        Contact_Lists__c contLst= new Contact_Lists__c();
+        contLst.List_Name__c= 'Opportunities Report';
+        contLst.Report_Name__c= 'Opportunities Report';
+        contLst.Report_ID__c= repList[0].id;
+        contactList.add(contLst);
+        insert contactList;
+        
+        ContentVersion cVersion = new ContentVersion();
+        cVersion.ContentLocation = 'S';                         
+        cVersion.PathOnClient =csvFile; 
+        cVersion.VersionData = Blob.valueOf('Test1');     
+        Insert cVersion;
+        Id conDocument = [SELECT ContentDocumentId FROM ContentVersion WHERE Id =:cVersion.Id].ContentDocumentId;
+        
+        ContentDocumentLink  cDocLink = new ContentDocumentLink();
+        cDocLink.ContentDocumentId = conDocument;            
+        cDocLink.LinkedEntityId = contactList[0].Id;                    
+        cDocLink.ShareType = 'V';                             
+        cDocLink.Visibility = 'AllUsers';                  
+        Insert cDocLink;
+        blob blb = cVersion.VersionData;
+        
+        String conListRecId;
+        conListRecId = contactList[0].id;
+        
+        String repId=  contactList[0].Report_ID__c;
+        String lstNm= contactList[0].List_Name__c;
+        
+        Test.startTest();
+        BatchToSyncContactList.createCSVReport(blb,'Ocelot1.csv','Ocelot1',conListRecId);
+        BatchToSyncContactList.GetReportFile(repId,lstNm,conListRecId );
+        
+        BatchToSyncContactList b2 = new BatchToSyncContactList(conListRecId); 
+        Id jobid2=  Database.executeBatch(b2,200);
+        Test.stopTest();
+        
+        List<Contact_Lists__c> contList = [SELECT Id FROM Contact_Lists__c where Id!=NULL];
+        system.assert(contList.size() > 5, 'Inserted Contact Lists should be 6'); 
+        List<Report> repLst = [SELECT Id FROM Report where Id!=NULL];
+        system.assert(repLst.size() > 0, 'Report should be 1');
+    }
+    
+    
+    @isTest(SeeAllData=true)
+    static void testForNullConListRecord(){
+        List<Report> repList= [select id, Name, DeveloperName, FolderName from report where FolderName ='Ocelot']; 
+        
+        List<Contact_Lists__c>  repContactList= new List<Contact_Lists__c> ();
+        Contact_Lists__c contLst= new Contact_Lists__c();
+        contLst.List_Name__c= 'Opportunities Report';
+        contLst.Report_Name__c= 'Opportunities Report';
+        contLst.Schedule_Sync__c= true;
+         contLst.MapAttributeDate__c= system.now();
+        contLst.Custom_Mapping__c= true;
+        contLst.Report_ID__c= repList[0].id;
+        repContactList.add(contLst);
+        insert repContactList;
+        
+        String conListRecId;
+        conListRecId = repContactList[0].id;
+        
+        Test.startTest();
+        BatchToSyncContactList b2 = new BatchToSyncContactList(''); 
+        Id jobid=  Database.executeBatch(b2,200);
+        
+        BatchToSyncContactList myClass = new BatchToSyncContactList(conListRecId);   
+        String chron = '0 0 23 * * ?'; 
+        Test.stopTest(); 
+        
+        List<Contact_Lists__c> contList = [SELECT Id,MapAttributeDate__c,Custom_Mapping__c FROM Contact_Lists__c where Id!=NULL];
+        system.assert(contList.size() > 0, 'Inserted Contact Lists should be 1'); 
+        List<Report> repLst = [SELECT Id FROM Report where Id!=NULL];
+        system.assert(repLst.size() > 0, 'Report should be 1');
+        
+    }  
+
+}

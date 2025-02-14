@@ -1,0 +1,76 @@
+<!--
+  @description       : 
+  @author            : Navneet
+  @group             : 
+  @last modified on  : 09-28-2023
+  @last modified by  : Navneet
+-->
+<aura:component controller="AddNewListController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global">
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="WrapperAttribute" type="object[]"/>
+    <aura:attribute name="recordId" type="String"/>
+    <aura:attribute name="lstname" type="String"/>
+    <aura:attribute name="APIKey" type="String"  /> 
+    <aura:attribute name="ChatBotUUID" type="String" /> 
+    <aura:attribute name="SyncLst" type="String[]" default="['No Sync','Daily','Twice Daily']"/>
+    <aura:attribute name="SyncFrequency" type="String" />
+    <aura:attribute name="DailybatchFreq" type="String" /> 
+    <aura:attribute name="authToken" type="String"/>
+    <div class="slds-m-around_xx-large">
+        <table class="slds-table slds-table_bordered slds-table_cell-buffer" >
+            <tr>
+                <th class="slds-text-title_bold" scope="col" style="width:20%; font-Size:20px; " title="Setting"><strong>Settings</strong></th>
+                <th class="slds-text-title_bold" scope="col" style="width:20%; font-Size:30px; " title="Setting"></th>
+                <th class="slds-text-title_bold" scope="col" style="width:20%; font-Size:30px; " title="Setting"><strong></strong></th>
+                <th class="slds-text-title_bold" scope="col" style="width:20%; font-Size:30px; " title="Setting"><strong></strong></th>
+                <th class="slds-text-title_bold" scope="col" style="width:20%; font-Size:30px; " title="Setting"><strong></strong></th>
+            </tr>
+            <tr>
+                <td class="slds-text-title_bold" scope="col" style="width:20%; " title="Chatbot UUID">Chatbot UUID:</td>
+                <td  scope="col" style="width:30%; "><lightning:input type="text"  value="{!v.ChatBotUUID}" disabled="true" /></td>
+                <td class="slds-text-title_bold" scope="col" style="width:20%; " ></td>
+                <td  scope="col" style="width:30%;  "></td>   
+                <td class="slds-text-title_bold" scope="col"   ></td>
+            </tr>
+            <tr>
+                <td class="slds-text-title_bold" scope="col" style="width:20%; " >Sync Frequency:</td>
+                <td  scope="col" style="width:20%; ">
+                  <lightning:select name="selectSync" value="{!v.SyncFrequency}"  >
+                       <aura:iteration items="{!v.SyncLst}" var="i">
+                         <option text="{!i}" value="{!i}" selected="{!i==v.SyncFrequency}" ></option>
+                        </aura:iteration> 
+                    </lightning:select>
+                
+                </td> 
+                <td class="slds-text-title_bold" scope="col" style="width:20%; " ></td>
+                <td class="slds-text-title_bold" scope="col" style="width:20%; " ></td> 
+                <td class="slds-text-title_bold" scope="col" style="width:20%; " ></td> 
+            </tr>
+            <tr>
+                <td class="slds-text-title" scope="col" style="width:20%; " ></td>
+              
+                <td class="slds-text-title" scope="col" style="width:20%; " >
+                    <p><b>No Sync:</b> No syncing<br></br>
+                     <b>Daily:</b> Sync once every day, at midnight (CST).<br></br>
+                   <b>Twice Daily:</b> Sync twice every day, noon and then midnight (CST).<br></br></p>
+                 </td>
+                   <td  scope="col" style="width:20%; "></td> 
+                <td class="slds-text-title" scope="col" style="width:20%; " ></td> 
+                <td class="slds-text-title" scope="col" style="width:20%; " ></td> 
+            </tr>
+            <br></br>           
+            <br></br>          
+            <tr>
+                <td class="slds-text-title_bold" scope="col" style="width:20%; "></td>
+                <td class="slds-text-title_bold" scope="col" style="width:20%; "><lightning:button   variant="brand" label="Save" title="Save" onclick="{!c.onSaveRecord}"/></td> 
+                <td class="slds-text-title_bold" scope="col" style="width:20%; "  ></td>
+                <td class="slds-text-title_bold" scope="col" style="width:15%; " ></td>
+                <td class="slds-text-title_bold" scope="col" style="width:15%; " ></td>
+                <td class="slds-text-title_bold" scope="col" style="width:20%; "  ></td>
+            </tr>
+            <br/>
+            
+        </table> 
+    </div>
+    
+</aura:component>

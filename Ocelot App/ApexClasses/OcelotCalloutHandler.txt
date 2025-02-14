@@ -1,0 +1,443 @@
+public with sharing class OcelotCalloutHandler {
+    
+    public static List<ResWrapper> readFileData(string contactListId,String reportName, String repColumn, List<string> fileList, Map<String, Integer> conAttMapByconListId){
+        
+        List<String>repcolList = new List<String>();
+       
+        List<ResWrapper>ResWrapper = New List<ResWrapper>();
+        List<ResWrapper>ResWrapper1 = New List<ResWrapper>();
+        List<OcelotWrapper.Contacts>cList = New List<OcelotWrapper.Contacts>();
+        OcelotContactListWrapper conlstWpr = new OcelotContactListWrapper();
+        OcelotWrapper.OcelotContact reportWpr = new OcelotWrapper.OcelotContact();
+        HttpRequest req = new HttpRequest();
+        HttpResponse res = new HttpResponse ();
+        Set<String>MapKeys = New Set<String>();
+        List<Integer>MaptoValues = New  List<Integer>();
+        try{
+            if(String.isNotEmpty(repColumn)){
+                repColumn=repColumn.removeStart('"');
+                repColumn=repColumn.removeEnd('"'); 
+                repcolList = repColumn.split('","'); 
+                
+            }
+                       
+        If(conAttMapByconListId!=Null && conAttMapByconListId.size()>0){
+            MaptoValues = conAttMapByconListId.Values();
+            MapKeys = conAttMapByconListId.KeySet();
+        }
+        
+        
+        if(fileList!=Null && fileList.size()>0){
+            
+            if(repcolList.size() < 2) {
+                
+                
+                String errMsg = reportName+' only has one column'+'\n';
+                ResWrapper1.add(new ResWrapper( req, res, ' ', errMsg ));
+                
+                return ResWrapper1;
+            }
+            else {
+                if(MaptoValues!=Null && MaptoValues.size()>0){
+                    for(string str:fileList){
+                        string strRecord = str.removeStart('"');
+                        strRecord = strRecord .removeEnd('"');
+                        List<string> strLst = strRecord.split('","');
+                        
+                        List<OcelotWrapper.Fields>fList = New List<OcelotWrapper.Fields>();
+                        OcelotWrapper.Contacts con = new OcelotWrapper.Contacts();
+                        
+                        
+                        for(string key:MapKeys){
+                            Integer index = conAttMapByconListId.get(key);
+                            
+                            
+                            if(key =='SF_ID'){
+                                if(strLst.size()>index && strLst[index] !=Null){
+                                    OcelotWrapper.Fields f1 = new OcelotWrapper.Fields();
+                                    f1.type = 'Text';
+                                    f1.name = 'SalesforceID';
+                                    if(conAttMapByconListId!=Null && conAttMapByconListId.containsKey('SF_ID') ){
+                                        f1.value = strLst[Integer.valueof(conAttMapByconListId.get('SF_ID'))];
+                                    }
+                                    
+                                    fList.add(f1);
+                                } 
+                            }
+                            else if(key =='Phone'){
+                                if(strLst.size()>index && strLst[index] !=Null){
+                                    OcelotWrapper.Fields f2 = new OcelotWrapper.Fields();
+                                    f2.type = 'PhoneNumber';
+                                    f2.name = 'Phone_Number';
+                                    if(conAttMapByconListId!=Null && conAttMapByconListId.containsKey('Phone') ){
+                                        f2.value = strLst[Integer.valueof(conAttMapByconListId.get('Phone'))];
+                                    }
+                                    
+                                    fList.add(f2);
+                                } 
+                            }
+                            else if(key =='First_name'){
+                                if(strLst.size()>index && strLst[index] !=Null){
+                                    OcelotWrapper.Fields f3 = new OcelotWrapper.Fields();
+                                    f3.type = 'FirstName';
+                                    f3.name = 'First_Name';
+                                    if(conAttMapByconListId!=Null && conAttMapByconListId.containsKey('First_name') ){
+                                        f3.value = strLst[Integer.valueof(conAttMapByconListId.get('First_name'))];
+                                    }
+                                    
+                                    fList.add(f3);
+                                } 
+                                
+                            }
+                            else if(key =='Last_name'){
+                                if(strLst.size()>index && strLst[index] !=Null){
+                                    OcelotWrapper.Fields f4 = new OcelotWrapper.Fields();
+                                    f4.type = 'LastName';
+                                    f4.name = 'Last_Name';
+                                    if(conAttMapByconListId!=Null && conAttMapByconListId.containsKey('Last_name') ){
+                                        f4.value = strLst[Integer.valueof(conAttMapByconListId.get('Last_name'))];
+                                    }
+                                    
+                                    fList.add(f4);
+                                } 
+                                
+                            }
+                            else if(key =='Email'){
+                                if(strLst.size()>index && strLst[index] !=Null){
+                                    OcelotWrapper.Fields f5 = new OcelotWrapper.Fields();
+                                    f5.type = 'Email';
+                                    f5.name = 'Email_Address';
+                                    if(conAttMapByconListId!=Null && conAttMapByconListId.containsKey('Email') ){
+                                        f5.value = strLst[Integer.valueof(conAttMapByconListId.get('Email'))];
+                                    }
+                                    
+                                    fList.add(f5);
+                                } 
+                                
+                            }
+                        }
+                        
+                        for(integer i=0;i<=repcolList.size()-1;i++){
+                            if(!MaptoValues.contains(i)){
+                                if(strLst.size()>i && strLst[i]!=Null){
+                                    OcelotWrapper.Fields Cf = new OcelotWrapper.Fields();
+                                    Cf.type = 'Text';
+                                    
+                                    String strName  = repcolList[i].replaceAll( '\\s+', '');
+                                    strName   =strName.replaceAll('[^a-zA-Z0-9]+', '_');
+                                    
+                                    Cf.name =strName;
+                                    Cf.value = strLst[i];
+                                    fList.add(Cf);
+                                }  
+                            }
+                            
+                        }
+                        
+                        con.fields = fList;
+                        cList.add(con);
+                        
+                    }  
+                }
+                
+            }
+            
+        }
+        
+        
+        
+        OcelotWrapper.OcelotContact cWpr = New OcelotWrapper.OcelotContact();
+        cWpr.contacts =cList;
+        
+        ResWrapper = OcelotAPIRequestClass.PostAPIRequest('Report',contactListId,cWpr,conlstWpr);
+        }
+        catch(Exception ex){
+            string errStr = 'Error:' + ex.getMessage() + 'LN:' + ex.getLineNumber() ;
+            ResWrapper.add(new OcelotCalloutHandler.ResWrapper(req,res,'',errStr));
+        }
+        
+        return ResWrapper;
+        
+    }
+    public static List<ResWrapper> postContactList(string docId, string reportName, String repColumn, Map<String, Integer> conAttMapByconListId){
+        List<OcelotResWrapper>ConlstAPIErrorList = new List<OcelotResWrapper>();
+        OcelotContactListWrapper cw = new OcelotContactListWrapper();
+        OcelotContactListWrapper.Meta metaRec = new OcelotContactListWrapper.Meta(); 
+        
+        OcelotWrapper.OcelotContact reportWpr = new OcelotWrapper.OcelotContact();
+        List<ResWrapper>ResWrapper = New List<ResWrapper>();
+        Set<String>MapKeys = New Set<String>();
+        List<Integer>MaptoValues = New  List<Integer>();
+        
+        List<ResWrapper>ResWrapper1 = New List<ResWrapper>();
+        HttpResponse res = new HttpResponse();
+        HttpRequest req = new HttpRequest();
+        String cListId;
+        String msg;
+        
+        list<string>taglist = new list<string>();
+        string reportColumn ;
+        List<String>repcolList = new List<String>();
+        
+        List<OcelotWrapper.Contacts>cList = New List<OcelotWrapper.Contacts>();
+        List<OcelotContactListWrapper.AdditionalContactFields>conList = New List<OcelotContactListWrapper.AdditionalContactFields>();
+        try{
+        if(string.isNotEmpty(repColumn)){
+            repColumn=repColumn.removeStart('"');
+            repColumn=repColumn.removeEnd('"'); 
+            repcolList =repColumn.split('","');
+        }
+        
+        If(conAttMapByconListId!=Null && conAttMapByconListId.size()>0){
+            MaptoValues = conAttMapByconListId.Values();
+            MapKeys = conAttMapByconListId.KeySet();
+        }
+        
+        cw.name =reportName;
+        cw.tags = taglist; 
+        metaRec.source = 'ocelot-integration-salesforce';
+        metaRec.externalId = '0';
+        cw.meta =metaRec;
+        
+        if(repcolList.size() < 2) {
+            
+            String errMsg = 'Error:'+reportName+' only has one column'+'\n';
+            ResWrapper1.add(new ResWrapper(req,res,cListId, errMsg));
+            return ResWrapper1;
+        }
+        
+        else if(MaptoValues!=Null && MaptoValues.size()>0 && repcolList.size()>0) {
+            OcelotContactListWrapper.AdditionalContactFields con = new OcelotContactListWrapper.AdditionalContactFields();
+            con.type ='Text';
+            con.Name = 'SalesforceID';
+            con.displayName ='SalesforceID';
+            con.required = false;
+            con.unique = false;
+            conList.add(con);
+            
+            for(integer i=0;i<=repcolList.size()-1;i++){
+                if(!MaptoValues.contains(i)){
+                    OcelotContactListWrapper.AdditionalContactFields con1 = new OcelotContactListWrapper.AdditionalContactFields();
+                    con1.type ='Text';
+                    String columnName  = repcolList[i].replaceAll( '\\s+', '');
+                    columnName   =columnName.replaceAll('[^a-zA-Z0-9]+', '_');
+                    con1.Name = columnName ; 
+                    con1.displayName =repcolList[i];
+                    con1.required = false;
+                    con1.unique = false;
+                    conList.add(con1);
+                }
+            }
+            
+        }
+        cw.additionalContactFields = conList;
+        if(cw!=Null){
+            
+            
+            ResWrapper = OcelotAPIRequestClass.PostAPIRequest('List','',reportWpr,cw);
+            
+            if(ResWrapper!=Null && ResWrapper.size()>0){
+                req = ResWrapper[0].req;
+                res = ResWrapper[0].res;
+                cListId = ResWrapper[0].conlstId;
+                msg = ResWrapper[0].msg;
+            }
+            
+        }
+        }
+        catch(Exception ex){
+            string errStr= 'Error:' + ex.getMessage() + 'LN:' + ex.getLineNumber() ;
+            ResWrapper.add(new OcelotCalloutHandler.ResWrapper(req,res,'',errStr));
+        }
+        return ResWrapper;
+    }
+    
+    public static Map<String,Integer>reportColumnSizebyConlst(String docId){
+        
+        String reHeader;
+        integer columnCount=0;
+        
+        List<string>reHeaderList= new List<string>(); 
+        List<string>Reportbyconlst= new List<string>(); 
+        Map<string, Integer>reportSizeMap = new Map<string, Integer>();
+        List<Contact_Lists__c>conlst = new List<Contact_Lists__c>();
+        if(docId !=Null && docId !=''){
+            conlst = [select id, List_Name__c, Report_Name__c, Report_ID__c,Schedule_Sync__c from Contact_Lists__c where id=:docId]; 
+        }
+        else{
+            conlst = [select id, List_Name__c, Report_Name__c, Report_ID__c,Schedule_Sync__c from Contact_Lists__c where id!=Null]; 
+        }
+        
+        if(conlst!=Null && conlst.size()>0){
+            for(Contact_Lists__c con :conlst){
+                
+                if(con.id !=Null && con.Report_Name__c !=Null){
+                    Reportbyconlst = getConListCSVFileData(con.id, con.Report_Name__c );  
+                }
+                if(Reportbyconlst !=Null && Reportbyconlst.size()>0){
+                    reHeader = Reportbyconlst[0];
+                    reHeader=reHeader.removeStart('"');
+                    reHeader=reHeader.removeEnd('"'); 
+                    reHeaderList =reHeader.split('","');
+                    }
+                if(reHeaderList!=Null && reHeaderList.size()>0){
+                    
+                    columnCount =reHeaderList.size();
+                }
+                
+                reportSizeMap.put(con.id, columnCount);
+                
+            }
+            
+        }
+        
+        return reportSizeMap;       
+    }    
+    public static List<string> getConListCSVFileData(string recId, String ListName ){
+        
+        List<String>LstofRecords ;
+        string reportColumn ;
+        List<String>repcolList ;
+        
+        List<ContentDocumentLink> docList= new List<ContentDocumentLink>();
+        List<string>fileList = new List<string>();
+       
+        
+        if(recId!=Null && ListName !=Null) {
+            fileList = getReportList(ReadReportCSVFile(recId), ListName);
+        }
+       
+       return fileList;
+    } 
+   
+    private static List<string> getReportList(Blob reportBlob, String ListName){
+        
+        List<string> reportLst = New List<string>();
+        String reportstr ;
+        Integer fileSize = 3145728;
+        
+        if(reportBlob!=Null){ 
+            reportstr = reportBlob.toString();
+            if(String.isNotEmpty(ListName)){reportstr = reportstr.substringBefore('"'+ListName+'"'); }
+            }
+        
+        if(reportBlob!=Null && reportBlob.size()<= fileSize ){
+            reportLst = splitReportFile(reportstr, '\n');
+        }
+        else if(reportBlob!=Null && reportBlob.size()>fileSize){
+            reportLst.add('Skip');
+            return reportLst;
+        }
+       
+        return reportLst;
+    }
+     private static List<String> splitReportFile(String source, String delimiter) {
+        List<String> result = new List<String>();
+        
+         // Initial pointers for start and end of a segment
+        Integer startIdx = 0;
+        Integer endIdx = source.indexOf(delimiter);
+        
+        while (endIdx != -1) {
+            String recStr =source.substring(startIdx, endIdx);
+            if(String.isNotEmpty(recStr)){
+                result.add(recStr);
+            }
+            startIdx = endIdx + delimiter.length();
+            endIdx = source.indexOf(delimiter, startIdx);
+        }
+        return result;
+    }
+    
+    private static Blob ReadReportCSVFile(string recId ){
+     
+       List<ContentDocumentLink> docList= new List<ContentDocumentLink>();
+       ContentVersion cv= new ContentVersion();
+       Blob reportBlob;
+       if(recId!=Null){docList=[SELECT Id,ContentDocumentId FROM ContentDocumentLink WHERE LinkedEntityId=:recId limit 1]; }             
+            
+            if(docList!=Null && docList.size()>0){
+                cv=[SELECT ContentDocumentId,ContentSize,VersionData FROM ContentVersion WHERE ContentDocumentId =:docList[0].ContentDocumentId limit 1];
+            }   
+           if(cv!=Null){
+               reportBlob =cv.VersionData;
+             
+           }
+        return reportBlob;
+     }
+    public static void setLastSyncDate(Set<String> conIdSet ) {
+        List<Contact_Lists__c> LastSyncList = new List<Contact_Lists__c>();
+        List<Contact_Lists__c>  conList = [select id, List_Name__c, Report_Name__c,Last_Sync_Date__c, Last_Sync_Dates__c,Report_ID__c from Contact_Lists__c where id In:conIdSet ];
+        for(Contact_Lists__c con:conList){
+            DateTime LDate = system.now();
+            String LDateStr = LDate.format('MM/dd/YYYY hh:mm a');
+            con.Last_Sync_Dates__c = LDateStr;
+            LastSyncList.add(con);
+        }
+        if(LastSyncList!=Null && LastSyncList.size()>0){
+            update LastSyncList;
+        }
+    }
+    public static Error_Log__c creatAPILog( List<ResWrapper>resWrp) {
+       
+        OcelotResWrapper ContactsAPIError = new OcelotResWrapper();
+        HttpResponse res = new HttpResponse();
+        HttpRequest req = new HttpRequest(); 
+        string clientId ;
+        String exMsg; 
+        string reqBody;
+        string resBody;
+        Integer maxLength = 131070;
+        
+        if(resWrp !=Null && resWrp.size()>0){
+            req = resWrp[0].req;
+            res = resWrp[0].res;
+            clientId = resWrp[0].conlstId;
+            exMsg = resWrp[0].msg;
+            
+        }
+        if(req!=Null){
+          String strReqbody=req.getBody(); 
+            if(strReqbody.length()>maxLength){reqBody = strReqbody.substring(0, maxLength);}
+            else{reqBody =req.getBody();}
+        }
+        if(res!=Null){
+          String strResbody=res.getBody(); 
+            if(strResbody.length()>maxLength){resBody = strResbody.substring(0, maxLength);}
+            else{resBody =res.getBody();}
+        }
+        List<Error_Log__c>errLogs = new List<Error_Log__c>();
+        String requestEndpoint = req.getEndpoint();
+        String requestMethod = req.getMethod();
+        Error_Log__c err = new  Error_Log__c(); 
+        err.API_EndPoint__c= req.getEndpoint();
+        err.Requested_Method__c= req.getMethod();
+        err.Request__c= reqBody;
+        
+        
+        if(string.isEmpty(clientId) && string.isEmpty(exMsg)){
+            err.Response__c= resBody;
+            err.Type__c ='API Log';
+        }
+        else if(string.isEmpty(clientId) && string.isNotEmpty(exMsg) ) {
+            err.Response__c= exMsg;
+            err.Type__c ='Exception Log';
+        } 
+        
+        return err;
+    }
+    public class ResWrapper{
+        public HttpRequest req{get;set;}
+        public HttpResponse res{get;set;}
+        public string conlstId{get;set;}
+        public string msg{get;set;}
+        public ResWrapper(HttpRequest request, HttpResponse response,string clistId, String strMsg){
+            this.req = request;
+            this.res = response;
+            this.conlstId =clistId;
+            this.msg= strMsg;
+            
+        }
+    }
+    
+}

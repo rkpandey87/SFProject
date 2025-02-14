@@ -1,0 +1,195 @@
+@isTest
+public class ContactListControllerTest {
+    
+    @isTest static void testContactLst(){
+        Contact cont= new Contact();
+        cont.Email= 'testocelot123@gmail.com';
+        cont.LastName= 'TestOcelot';
+        insert cont;
+        
+        List<Contact_Lists__c> contactList= new List<Contact_Lists__c>();
+        Contact_Lists__c contLst= new Contact_Lists__c();
+        contLst.List_Name__c= 'Opportunities Report';
+        contLst.Report_Name__c= 'Opportunities Report';
+        contLst.Schedule_Sync__c= true;
+        contactList.add(contLst);
+        insert contactList;
+       
+        String contlstId;
+        contlstId= contactList[0].Id;
+        
+        
+        List<Contact_Attributes__c> existingConAtrbLst= new List<Contact_Attributes__c>();
+        Contact_Attributes__c con = new Contact_Attributes__c();
+        con.Name__c = 'SF_ID';
+        con.DisplayName__c = 'Salesforce ID';
+        con.Required__c = True;
+        con.Unique__c=True;
+        con.Contact_List_ID__c= contactList[0].Id;
+        con.List_Name__c= contLst.List_Name__c;
+        con.Mapped_to__c= '2';
+        con.Type__c= 'Standard';
+        con.Atttibute_Type__c= 'Text';
+        existingConAtrbLst.add(con);
+        insert existingConAtrbLst;
+        
+        Contact_Attributes__c conAttrb1 = new Contact_Attributes__c();
+        conAttrb1.Name__c = 'Phone';
+        conAttrb1.DisplayName__c = 'Phone';
+        conAttrb1.Required__c = True;
+        conAttrb1.Unique__c=True;
+        conAttrb1.Contact_List_ID__c= contlstId;
+        conAttrb1.List_Name__c= contLst.List_Name__c;
+        conAttrb1.Mapped_to__c= '2';
+        conAttrb1.Type__c= 'Standard';
+        conAttrb1.Atttibute_Type__c= 'Phone';
+        insert conAttrb1;
+        
+        Map<String,String> mapColumnNm= new Map<String,String>();
+        mapColumnNm.put(con.Name__c,con.Mapped_to__c);
+        
+        
+        Map<String,String> mapColumnNonExisting= new Map<String,String>();
+        mapColumnNm.put(conAttrb1.Name__c,conAttrb1.Mapped_to__c);       
+        String lstname;
+        lstname=con.List_Name__c;
+        
+        
+        List<ContactListController.wrapperContactList> wprContactList= new List<ContactListController.wrapperContactList>();
+        ContactListController.wrapperContactList wprContact= new ContactListController.wrapperContactList();
+        wprContact.Id= contlstId;
+        wprContact.Name= 'TestRec';
+        wprContact.List_Name= 'Ocelot Contacts 3 Col N';
+        wprContact.Report_Name= 'Ocelot Contacts 3 Col';
+        wprContact.Schedule_Sync= true;
+        wprContact.CustomMapping= true;
+        wprContact.Ocelot_ID= 'Test1';
+        wprContact.Last_Sync_Dates= '09/14/2023 09:30 AM';
+        wprContactList.add(wprContact);
+        
+        
+        
+        ContactListController.wrapperContactList wprContact2= new ContactListController.wrapperContactList();
+        wprContact2.Id= contlstId;
+        wprContact2.Name= 'TestRec';
+        wprContact2.List_Name= 'Opportunities Report';
+        wprContact2.Report_Name= 'Opportunities Report';
+        wprContact2.Schedule_Sync= true;
+        wprContact2.CustomMapping= true;
+        wprContact2.Ocelot_ID= 'Test2';
+        wprContact2.Last_Sync_Dates= '09/14/2023 09:30 AM';
+        wprContactList.add(wprContact2);
+        
+        
+        
+        
+        List<Contact_Lists__c> contList = [SELECT Id FROM Contact_Lists__c where Id!=NULL];
+        system.assert(contList.size() > 0, 'Inserted Contact Lists records should be 1'); 
+        List<Contact_Attributes__c> contAtrblist = [SELECT Id FROM Contact_Attributes__c where Id!=NULL];
+        system.assert(contAtrblist.size() > 0, 'Inserted Contact attribute records should be 2');
+        
+        Test.startTest();
+        ContactListController.fetchConList();
+       
+        ContactListController.updateContactList(wprContactList,1);
+        ContactListController.updateConLstName(contlstId,'test1');
+        ContactListController.scheduleOcelotBatch(contlstId);
+       
+        ContactListController.refreshAction('Ocelot', contlstId);
+        Test.stopTest();
+        
+        
+    }
+    
+    @isTest static void testRefreshAction(){
+        List<Contact_Lists__c> contactList= new List<Contact_Lists__c>();
+        Contact_Lists__c contLst= new Contact_Lists__c();
+        contLst.List_Name__c= 'Opportunities Report';
+        contLst.Report_Name__c= 'Opportunities Report';
+        contactList.add(contLst);
+        insert contactList;
+        
+        List<Contact_Lists__c> contList = [SELECT Id FROM Contact_Lists__c where Id!=NULL];
+        system.assert(contList.size()>0, 'Inserted Contact Lists records should be 1'); 
+        
+        Test.startTest();
+        ContactListController.refreshAction('Ocelot', '');
+        Test.stopTest();
+        
+        
+    }
+    
+  
+    
+    @isTest static void testMapValues2(){
+        List<String> csvRowValues = new List<String>();
+        String repHeader=  '"Contact ID","Mobile","First Name","Last Name","Email","Created By","Created Date"\n';
+        String csvColumn= '"0035h00001cnkpq","9999911111","ocelot1","record1","oceemail1@gmail.com","Rajeev Pandey","8/23/2023"\n';
+        csvColumn+= '"0035h00001cnkpr","9999922222","ocelot2","record2","oceemail2@gmail.com","Rajeev Pandey","8/23/2023"\n';
+        csvColumn+= '"0035h00001cnkps","9999933333","ocelot3","record3","oceemail3@gmail.com","Rajeev Pandey","8/23/2023"\n';
+        
+        String csvFile = repHeader +csvColumn;
+        
+        
+        blob bl = blob.valueOf('Unit.Test');
+        bl = Blob.valueOf(csvFile);
+        
+        
+        
+        
+        List<Contact_Lists__c> contactList= new List<Contact_Lists__c>();
+        Contact_Lists__c contLst= new Contact_Lists__c();
+        contLst.List_Name__c= 'Ocelot Contact Report';
+        contLst.MapAttributeDate__c= system.today();
+        contLst.Custom_Mapping__c= true;
+        
+        contLst.Report_Name__c= 'Ocelot Contact Report';
+        contLst.Schedule_Sync__c= true;
+        contactList.add(contLst);
+        insert contactList;
+        
+        List<Contact_Lists__c> contactListNew= new List<Contact_Lists__c>();
+        Contact_Lists__c contLstNew= new Contact_Lists__c();
+        contLstNew.List_Name__c= 'Ocelot Contact Report';
+        contLstNew.MapAttributeDate__c= system.today();
+        contLstNew.Custom_Mapping__c= false;
+       
+        contLstNew.Report_Name__c= 'Ocelot Contact Report';
+        contLstNew.Schedule_Sync__c= true;
+        contactListNew.add(contLstNew);
+        insert contactListNew;
+        
+        String contListVal= contactList[0].id;
+        
+        
+        ContentVersion cVersion = new ContentVersion();
+        cVersion.ContentLocation = 'S';                         
+        cVersion.PathOnClient =csvFile; 
+        cVersion.VersionData = Blob.valueOf(csvFile);     
+        Insert cVersion;
+        
+        Id conDocument = [SELECT ContentDocumentId FROM ContentVersion WHERE Id =:cVersion.Id].ContentDocumentId;
+        List<String> rmList= new List<String>();
+        ContentDocumentLink  cDocLink = new ContentDocumentLink();
+        cDocLink.ContentDocumentId = conDocument;            
+        cDocLink.LinkedEntityId = contactList[0].id;                    
+        cDocLink.ShareType = 'V';                             
+        cDocLink.Visibility = 'AllUsers';                  
+        Insert cDocLink;
+        
+        blob blb = cVersion.VersionData;
+        String reportstr = EncodingUtil.base64Decode(EncodingUtil.base64Encode(blb)).toString();
+        List<string>fileList=reportstr.split('\n');
+        rmList= fileList[0].split(','); 
+        
+        List<Contact_Lists__c> contList = [SELECT List_Name__c FROM Contact_Lists__c where Id!=NULL];
+        system.assert(contList.size()>0, 'Inserted Contact Lists records should be 2'); 
+        Test.startTest();
+        ContactListController.refreshAction('Ocelot', contListVal);
+        Test.stopTest();
+        
+        
+    }
+    
+  
+}

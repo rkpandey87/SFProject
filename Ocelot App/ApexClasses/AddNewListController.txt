@@ -1,0 +1,149 @@
+public with sharing class AddNewListController implements Metadata.DeployCallback {
+        public void handleResult(Metadata.DeployResult result, Metadata.DeployCallbackContext context) {
+            if (result.status == Metadata.DeployStatus.Succeeded) {
+                
+            } else {
+                
+            }
+        }
+        @AuraEnabled(cacheable=true)
+        public static List<settingWrapper> getSettingsRecords() {
+            
+             
+            String ChatBot_UUID;
+           
+            List<API_Credentials__c>apiLst = new List<API_Credentials__c>();
+            List<settingWrapper>ocelotWpr = new List<settingWrapper>(); 
+            
+            List<Sync_Frequency__mdt> SyncFrqList = [select id, Sync_Frequency__c from Sync_Frequency__mdt limit 1];
+             System.debug('##SyncFrqList-->'+SyncFrqList);
+            Sync_Frequency__mdt SyncFrq;
+            
+            if(!SyncFrqList.isEmpty())
+            SyncFrq = SyncFrqList[0];
+            System.debug('##SyncFrq-->'+SyncFrq);
+            apiLst =[Select id,Chatbot_UUID__c from API_Credentials__c limit 1];
+          
+            
+            if(apiLst!=Null && apiLst.size()>0){
+                ChatBot_UUID =apiLst[0].Chatbot_UUID__c ;
+               
+            }
+         
+           
+            if(SyncFrq!=Null && ChatBot_UUID !=Null ){
+                ocelotWpr.add(new settingWrapper(ChatBot_UUID,SyncFrq.Sync_Frequency__c ));
+            }
+            else if(SyncFrq==Null && ChatBot_UUID !=Null){
+                 ocelotWpr.add(new settingWrapper(ChatBot_UUID,'No Sync' ));
+            }
+            else if(SyncFrq!=Null && ChatBot_UUID ==Null){
+                ocelotWpr.add(new settingWrapper('',SyncFrq.Sync_Frequency__c ));
+            }
+            else{
+                ocelotWpr.add(new settingWrapper('','No Sync' ));
+            }
+            return ocelotWpr;
+        }
+        
+        @AuraEnabled(cacheable=true)
+        public static void setFrequecyValue(String freqValue) {
+            
+          
+            String metadataTypeName ='SyncFrequency';
+            String recordName='SyncFrequency' ;
+            
+           
+            Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
+            
+            Metadata.CustomMetadata customMetadata = new Metadata.CustomMetadata();
+            customMetadata.fullName = 'Sync_Frequency.SyncFrequency';
+            customMetadata.label = 'SyncFrequency';
+          
+            Metadata.CustomMetadataValue customApiField = new Metadata.CustomMetadataValue();
+            customApiField.field = 'Sync_Frequency__c';
+            customApiField.value = String.valueof(freqValue);
+            customMetadata.values.add(customApiField);
+            mdContainer.addMetadata(customMetadata);
+         
+            Id jobId;
+            if (!Test.isRunningTest()) {
+                jobId = Metadata.Operations.enqueueDeployment(mdContainer, Null);
+            }
+        }
+        
+        
+    @AuraEnabled
+    public static string reScheduledJob(string dailyBatchFreq) {
+        
+        try { 
+            String name= 'BatchToSyncContactList'; 
+            List<CronTrigger> lstJob = new List<CronTrigger>();
+            lstJob = [SELECT ID,CronJobDetail.Name,State FROM CronTrigger WHERE CronJobDetail.Name  LIKE '%BatchToSyncContactList%' AND State ='WAITING' ];
+            if(lstJob!=Null && lstJob.size() > 0) {
+                    for(CronTrigger ct:lstJob){
+                        System.abortJob(ct.id); 
+                    }
+                }
+            
+            if (dailyBatchFreq == 'Daily') {scheduleJobMidNight();}
+            else if(dailyBatchFreq == 'Twice Daily'){scheduleJobTwice();}
+            else if(dailyBatchFreq == 'No Sync' ){}
+            return '';
+        } catch(exception ex){
+            System.debug('ex '+ex);
+        }
+        return '';
+    }
+         
+        @AuraEnabled
+        public static void scheduleJobMidNight() {
+            Datetime dt = Date.Today();
+			DateTime DTM = DateTime.newInstanceGMT(dt.Year(), dt.Month(), dt.Day(), 06, 00, 00);
+            string hour = string.valueOf(DTM.hour());
+            string minute = string.valueOf(DTM.minute());
+            String JOBNAME ='BatchToSyncContactList';
+            String cronExpression = '0 '+minute+' '+hour+' * * ?'; 
+            
+            System.schedule(JOBNAME+'-'+String.valueOf(system.now()), cronExpression, new BatchToSyncContactList(''));      
+        }
+        
+          @AuraEnabled
+        public static void scheduleJobTwice() {
+            Datetime dt = Date.Today();
+			DateTime DTM = DateTime.newInstanceGMT(dt.Year(), dt.Month(), dt.Day(), 06, 00, 00);
+            DateTime DTM1 = DateTime.newInstanceGMT(dt.Year(), dt.Month(), dt.Day(), 18, 00, 00);
+            string hour = string.valueOf(DTM.hour());
+            string minute = string.valueOf(DTM.minute());
+            
+            string hour1 = string.valueOf(DTM1.hour());
+            string minute1 = string.valueOf(DTM1.minute());
+            
+            String JOBNAME ='BatchToSyncContactList Job1';
+            String JOBNAME1 ='BatchToSyncContactList Job2';
+            String cronExpression = '0 '+minute+' '+hour+' * * ?';
+            String cronExpression1 = '0 '+minute1+' '+hour1+' * * ?';
+            
+            System.schedule(JOBNAME+'-'+String.valueOf(system.now()), cronExpression, new BatchToSyncContactList('')); 
+            System.schedule(JOBNAME1+'-'+String.valueOf(system.now()), cronExpression1, new BatchToSyncContactList('')); 
+        }
+     
+        public class settingWrapper {
+           
+            @AuraEnabled
+            public string chatbot{get;set;}
+            @AuraEnabled
+            public string syncFrec{get;set;}
+            
+            
+            public settingWrapper(string chatbot,string syncFrec) {
+                
+              
+                this.chatbot = chatbot;
+                this.syncFrec = syncFrec;
+                
+            }
+        }
+        
+        
+    }
