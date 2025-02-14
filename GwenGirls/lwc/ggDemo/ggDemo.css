@@ -1,0 +1,48 @@
+.sectionFontSize{
+    font-size:30px;
+    padding-left:350px;
+}
+
+.contentfontSize{
+    font-size: 22px;
+    padding-left:50px;
+    padding-right: 50px;
+    } 
+    .custom-labelTRANSPORTATION{
+        --lwc-formLabelFontSize: 20px;
+	height: auto;
+    font-weight:bold;
+    }
+    .custom-checkbox label {
+        display: inline;
+        /* align-items: center; Align items vertically */
+        flex-direction: row; /* Align items horizontally */
+
+        /* display: flex;
+        align-items: center; Align items vertically */
+    }
+     .custom-checkbox .slds-form-element__label {
+        margin-left: 20px; /* Adjust the margin as needed */
+    }
+    /* .custom-labelallergies{
+       text-decoration-style: 22px;
+    } */
+	.custom-label {
+    /* font-family: 'Your Desired Font', sans-serif; */
+	--lwc-formLabelFontSize: 20px;
+	height: auto
+	}
+    .checkboxfont{
+        font-size: 22px;
+    }
+    .formCloseline{
+        border-bottom: 1px solid #000000;
+        width:1150px;
+        margin-left: 100px;
+        margin-right: 100px;
+    }
+	 .fontSize{
+       
+       font-weight:bold;
+       
+    }

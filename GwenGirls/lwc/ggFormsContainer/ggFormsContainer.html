@@ -1,0 +1,430 @@
+<template>
+
+	<div class="slds-m-around_medium">
+        <img src={mplcLogo} style="padding-left:10px;width:150px;"/>
+				</div><br/>
+		
+    <lightning-card title="Select The Form">
+        <div class="slds-box slds-theme_shade">  
+        <p style="padding-top:20px;text-align:center;font-size:22px;"> <lightning-button variant="brand" label="Youth Development Form" title="Youth Development"
+            class="button" onclick={showModalOfYouthForm}>
+          </lightning-button>  </p>
+
+          <p style="padding-top:20px;text-align:center;font-size:22px;"> <lightning-button variant="brand" label="Caring Connection Form" title="Caring Connection"
+            class="button" onclick={showModalOfCaringConnectionForm}>
+          </lightning-button>  </p>
+
+          <p style="padding-top:20px;text-align:center;font-size:22px;"> <lightning-button  variant="brand" label="MPLC Form" title="MPLC"
+            class="button" onclick={showModalOfMPLCForm}>
+          </lightning-button>  </p>
+
+
+
+  	<!---       Youth  Template        -->
+<template if:true={openModal}>
+    <div class="slds-modal slds-fade-in-open slds-backdrop">  
+        <div class="slds-modal__container">  
+          
+          
+
+          <!-- Body Section-->  
+          <div class="slds-modal__content slds-p-around_medium">  
+            
+            <lightning-button variant="brand" label="New Parent" title="New Parent"
+            class="button" onclick={InsertRecordForm}>
+          </lightning-button> 
+
+          <lightning-button variant="brand" label="Existing Parent" title="Existing Parent"
+          class="button" onclick={searchExistingRecord}>
+        </lightning-button> 
+
+           
+          </div>  
+          <!--- Footer Section-->  
+          <div class="slds-modal__footer">  
+            <lightning-button class="button" icon-name="utility:close" label="close" variant="brand" onclick={closeModal}>  
+            </lightning-button>  
+          </div>  
+        </div>  
+      </div>  
+</template>
+
+
+
+<template if:true={ExistingParentModalPopup}>
+  <div class="slds-modal slds-fade-in-open slds-backdrop">  
+      <div class="slds-modal__container">  
+  <div class="slds-modal__content slds-p-around_medium">  
+  <lightning-layout>
+      <lightning-layout-item size="12">
+
+              <lightning-input type="text" class="custom-label" value={fName} onchange={handleInputfNameChange} label="First Name" ></lightning-input>
+
+      </lightning-layout-item>
+  </lightning-layout><br/>
+
+  <lightning-layout>
+      <lightning-layout-item size="12">
+
+              <lightning-input type="text" class="custom-label" value={lName} onchange={handleInputlNameChange} label="Last Name" ></lightning-input>
+
+      </lightning-layout-item>
+  </lightning-layout>
+
+  <lightning-layout>
+    <lightning-layout-item size="12">
+
+            <lightning-input type="text" class="custom-label" value={pin} onchange={handleInputPinChange} label="PIN" ></lightning-input>
+
+    </lightning-layout-item>
+</lightning-layout>
+<p style="padding-top:20px;text-align:center;font-size:22px;"> <lightning-button variant="brand" label="GO" title="GO"
+  class="button" onclick={filterParentAsPerRecTypeInYouth}>
+</lightning-button>  &nbsp;&nbsp;&nbsp;
+
+<lightning-button class="button" icon-name="utility:close" label="Cancel" variant="brand" onclick={cancelModal}>  </lightning-button>
+
+      </p>
+  <br/>
+  </div>
+  </div>
+</div>
+</template>
+<!---        Youth   Template   Closed           -->
+
+
+
+	<!---        MPLC Template        -->
+
+<template if:true={openModalForMPLC}>
+  <div class="slds-modal slds-fade-in-open slds-backdrop">  
+      <div class="slds-modal__container">  
+        
+        
+
+        <!-- Body Section-->  
+        <div class="slds-modal__content slds-p-around_medium">  
+          
+          <lightning-button variant="brand" label="New Parent" title="New Parent"
+          class="button" onclick={InsertRecordFormForMPLC}>
+        </lightning-button> 
+
+        <lightning-button variant="brand" label="Existing Parent" title="Existing Parent"
+        class="button" onclick={searchExistingRecForMPLC}>
+      </lightning-button> 
+
+         
+        </div>  
+        <!--- Footer Section-->  
+        <div class="slds-modal__footer">  
+          <lightning-button class="button" icon-name="utility:close" label="close" variant="brand" onclick={closeModalOfMPLCForm}>  
+          </lightning-button>  
+        </div>  
+      </div>  
+    </div>  
+</template>
+
+
+
+<template if:true={ExistingParentModalMPLCForm}>
+  <div class="slds-modal slds-fade-in-open slds-backdrop">  
+      <div class="slds-modal__container">  
+  <div class="slds-modal__content slds-p-around_medium">  
+  <lightning-layout>
+      <lightning-layout-item size="12">
+
+              <lightning-input type="text" class="custom-label" value={fName} onchange={handleInputfNameChange} label="First Name" ></lightning-input>
+
+      </lightning-layout-item>
+  </lightning-layout><br/>
+
+  <lightning-layout>
+      <lightning-layout-item size="12">
+
+              <lightning-input type="text" class="custom-label" value={lName} onchange={handleInputlNameChange} label="Last Name" ></lightning-input>
+
+      </lightning-layout-item>
+  </lightning-layout>
+
+  <lightning-layout>
+    <lightning-layout-item size="12">
+
+            <lightning-input type="text" class="custom-label" value={pin} onchange={handleInputPinChange} label="PIN" ></lightning-input>
+
+    </lightning-layout-item>
+</lightning-layout>
+      <p style="padding-top:20px;text-align:center;font-size:22px;"> <lightning-button variant="brand" label="GO" title="GO"
+          class="button" onclick={getParentRecordAsPerRecType}>
+        </lightning-button>  &nbsp;&nbsp;&nbsp;
+      
+        <lightning-button class="button" icon-name="utility:close" label="Cancel" variant="brand" onclick={cancelModal}>  
+      </lightning-button>
+
+      </p>
+  <br/>
+  </div>
+  </div>
+</div>
+</template>
+	<!---       MPLC Template Closed             -->
+
+
+							<!--- Caring Connections Template -->
+						<template if:true={openModalForCaringConnections}>
+  <div class="slds-modal slds-fade-in-open slds-backdrop">  
+      <div class="slds-modal__container">  
+        
+        
+
+        <!-- Body Section-->  
+        <div class="slds-modal__content slds-p-around_medium">  
+          
+          <lightning-button variant="brand" label="New Parent" title="New Parent"
+          class="button" onclick={InsertNewRecordForCaringConnections}>
+        </lightning-button> 
+
+        <lightning-button variant="brand" label="Existing Parent" title="Existing Parent"
+        class="button" onclick={searchExistingRecForCaringConnections}>
+      </lightning-button> 
+
+         
+        </div>  
+        <!--- Footer Section-->  
+        <div class="slds-modal__footer">  
+          <lightning-button class="button" icon-name="utility:close" label="close" variant="brand" onclick={closeModalOCaringConnections}>  
+          </lightning-button>  
+        </div>  
+      </div>  
+    </div>  
+</template>
+						
+						
+				<template if:true={ExistingParentModalCaringConnections}>
+  <div class="slds-modal slds-fade-in-open slds-backdrop">  
+      <div class="slds-modal__container">  
+  <div class="slds-modal__content slds-p-around_medium">  
+  <lightning-layout>
+      <lightning-layout-item size="12">
+
+              <lightning-input type="text" class="custom-label" value={fName} onchange={handleInputfNameChange} label="First Name" ></lightning-input>
+
+      </lightning-layout-item>
+  </lightning-layout><br/>
+
+  <lightning-layout>
+      <lightning-layout-item size="12">
+
+              <lightning-input type="text" class="custom-label" value={lName} onchange={handleInputlNameChange} label="Last Name" ></lightning-input>
+
+      </lightning-layout-item>
+  </lightning-layout>
+
+  <lightning-layout>
+    <lightning-layout-item size="12">
+
+            <lightning-input type="text" class="custom-label" value={pin} onchange={handleInputPinChange} label="PIN" ></lightning-input>
+
+    </lightning-layout-item>
+</lightning-layout>
+      <p style="padding-top:20px;text-align:center;font-size:22px;"> <lightning-button variant="brand" label="GO" title="GO"
+          class="button" onclick={redirectToCaringConnectionForm}>
+        </lightning-button>  &nbsp;&nbsp;&nbsp;
+      
+        <lightning-button class="button" icon-name="utility:close" label="Cancel" variant="brand" onclick={cancelModalForCaringConnections}>  
+      </lightning-button>
+
+      </p>
+  <br/>
+  </div>
+  </div>
+</div>
+</template>		
+						
+	<!--- Caring   Connections  Template  Closed-->
+						
+						
+						
+						
+
+	<!---    Youth Template  Split Sections -->
+
+
+<template if:true={NewParentModalPopup}>
+
+
+  <div class="slds-modal slds-fade-in-open slds-backdrop">  
+      <div class="slds-modal__container">  
+  <div class="slds-modal__content slds-p-around_medium" style="font-size:22px;">  
+    <lightning-layout>
+      <lightning-layout-item size="10">
+        <p style="font-size:22px;">CLIENT INFORMATION</p> 
+      </lightning-layout-item>
+
+      <lightning-layout-item size="2">
+        <lightning-button variant="brand" label="Edit" title="Edit"
+          class="slds-col_bump-left slds-text-align_right slds-p-horizontal_x-small slds-text-align_center" onclick={editClientInfoSection}>
+        </lightning-button>
+      </lightning-layout-item>
+
+  </lightning-layout><br/>
+
+  <lightning-layout>
+    <lightning-layout-item size="10">
+      <p style="font-size:22px;">SCHOOL INFORMATION</p> 
+    </lightning-layout-item>
+
+    <lightning-layout-item size="2">
+      <lightning-button variant="brand" label="Edit" title="Edit"
+        class="slds-col_bump-left slds-text-align_right slds-p-horizontal_x-small slds-text-align_center" onclick={editClientInfoSection}>
+      </lightning-button>
+    </lightning-layout-item>
+
+</lightning-layout><br/>
+
+<lightning-layout>
+  <lightning-layout-item size="10">
+    <p style="font-size:22px;">For Youth Ages 14+</p> 
+  </lightning-layout-item>
+
+  <lightning-layout-item size="2">
+    <lightning-button variant="brand" label="Edit" title="Edit"
+      class="slds-col_bump-left slds-text-align_right slds-p-horizontal_x-small slds-text-align_center" onclick={editClientInfoSection}>
+    </lightning-button>
+  </lightning-layout-item>
+
+</lightning-layout><br/>
+
+<lightning-layout>
+  <lightning-layout-item size="10">
+    <p style="font-size:22px;">PARENT(S)/GUARDIAN(S) INFORMATION</p> 
+  </lightning-layout-item>
+
+  <lightning-layout-item size="2">
+    <lightning-button variant="brand" label="Edit" title="Edit"
+      class="slds-col_bump-left slds-text-align_right slds-p-horizontal_x-small slds-text-align_center" onclick={editClientInfoSection}>
+    </lightning-button>
+  </lightning-layout-item>
+
+</lightning-layout><br/>
+
+<lightning-layout>
+  <lightning-layout-item size="10">
+    <p style="font-size:22px;">EMERGENCY CONTACTS</p> 
+  </lightning-layout-item>
+
+  <lightning-layout-item size="2">
+    <lightning-button variant="brand" label="Edit" title="Edit"
+      class="slds-col_bump-left slds-text-align_right slds-p-horizontal_x-small slds-text-align_center" onclick={editClientInfoSection}>
+    </lightning-button>
+  </lightning-layout-item>
+
+</lightning-layout><br/>
+
+
+<lightning-layout>
+  <lightning-layout-item size="10">
+    <p style="font-size:22px;">APPROVED PICK-UPS</p> 
+  </lightning-layout-item>
+
+  <lightning-layout-item size="2">
+    <lightning-button variant="brand" label="Edit" title="Edit"
+      class="slds-col_bump-left slds-text-align_right slds-p-horizontal_x-small slds-text-align_center" onclick={editClientInfoSection}>
+    </lightning-button>
+  </lightning-layout-item>
+
+</lightning-layout><br/>
+
+
+<lightning-layout>
+  <lightning-layout-item size="10">
+    <p style="font-size:22px;">TRANSPORTATION METHODS</p> 
+  </lightning-layout-item>
+
+  <lightning-layout-item size="2">
+    <lightning-button variant="brand" label="Edit" title="Edit"
+      class="slds-col_bump-left slds-text-align_right slds-p-horizontal_x-small slds-text-align_center" onclick={editClientInfoSection}>
+    </lightning-button>
+  </lightning-layout-item>
+
+</lightning-layout><br/>
+
+<lightning-layout>
+  <lightning-layout-item size="10">
+    <p style="font-size:22px;">TRANSPORTATION Alternate ADDRESS</p> 
+  </lightning-layout-item>
+
+  <lightning-layout-item size="2">
+    <lightning-button variant="brand" label="Edit" title="Edit"
+      class="slds-col_bump-left slds-text-align_right slds-p-horizontal_x-small slds-text-align_center" onclick={editClientInfoSection}>
+    </lightning-button>
+  </lightning-layout-item>
+
+</lightning-layout><br/>
+
+
+<lightning-layout>
+  <lightning-layout-item size="10">
+    <p style="font-size:22px;">HEALTH AND WELLNESS INFORMATION</p> 
+  </lightning-layout-item>
+
+  <lightning-layout-item size="2">
+    <lightning-button variant="brand" label="Edit" title="Edit"
+      class="slds-col_bump-left slds-text-align_right slds-p-horizontal_x-small slds-text-align_center" onclick={editClientInfoSection}>
+    </lightning-button>
+  </lightning-layout-item>
+
+</lightning-layout><br/>
+
+
+<lightning-layout>
+  <lightning-layout-item size="10">
+    <p style="font-size:22px;">MENTAL HEALTH INFORMATION</p> 
+  </lightning-layout-item>
+
+  <lightning-layout-item size="2">
+    <lightning-button variant="brand" label="Edit" title="Edit"
+      class="slds-col_bump-left slds-text-align_right slds-p-horizontal_x-small slds-text-align_center" onclick={editClientInfoSection}>
+    </lightning-button>
+  </lightning-layout-item>
+
+</lightning-layout><br/>
+
+
+      <p style="padding-top:20px;text-align:center;font-size:22px;"> <lightning-button variant="brand" label="Submit Form" title="SUBMIT FORM"
+          class="slds-col_bump-left slds-text-align_right slds-p-horizontal_x-small slds-text-align_center" onclick={handleForSave}>
+        </lightning-button>  &nbsp;&nbsp;&nbsp;
+      
+        <lightning-button icon-name="utility:close" label="Cancel" variant="brand" onclick={cancelModal}>  
+      </lightning-button>
+      </p>
+  <br/>
+  </div>
+  </div>
+</div>
+</template>
+
+   
+<!-- CLIENT INFORMATION Page -->
+<template if:true={openClientInfoSection}>
+
+  <div class="">
+    <!-- <c-gg-youth-client-information video-url={video}></c-gg-youth-client-information> -->
+    </div>
+
+  <!--  <p style="padding-top:20px;text-align:center;font-size:22px;"> <lightning-button variant="brand" label="Submit Form" title="SUBMIT FORM"
+      class="slds-col_bump-left slds-text-align_right slds-p-horizontal_x-small slds-text-align_center" onclick={handleForSave}>
+    </lightning-button>  &nbsp;&nbsp;&nbsp;
+  
+    <lightning-button icon-name="utility:close" label="Cancel" variant="brand" onclick={cancelModal}>  
+  </lightning-button>-->
+  
+  <lightning-button label="New Acre" onclick={handleClick} class="slds-float--right">
+  </lightning-button>
+  </p>
+<br/>
+</template>
+
+</div>
+        </lightning-card>
+<!--</div>-->
+</template>

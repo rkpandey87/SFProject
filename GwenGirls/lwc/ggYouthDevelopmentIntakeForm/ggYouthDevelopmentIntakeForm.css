@@ -1,0 +1,17 @@
+.row-container{
+    padding-top:14px;
+}
+
+.custom-label {
+/* font-family: 'Your Desired Font', sans-serif; */
+--lwc-formLabelFontSize: 15px;
+height: auto;
+--lwc-formLabelFontWeight:bold;
+--lwc-formLabelPaddingLeft:10px; 
+}
+
+lightning-button.button {
+    /*   --sds-c-button-brand-color-background: #bb00ff;  */
+--sds-c-button-brand-color-background: purple;
+--sds-c-button-text-color: #f4f7f9;
+}

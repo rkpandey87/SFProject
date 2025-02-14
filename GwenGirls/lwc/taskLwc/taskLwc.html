@@ -1,0 +1,42 @@
+<template>
+    <lightning-card title="Task Input form">
+        <div class="slds-p-around_medium">
+            <!-- Input fields -->
+            <lightning-input type="Text" label="Title" value={title} onchange={handletitlechange} ></lightning-input>
+           <lightning-input type="checkbox" label="Completed"  checked={ischecked}  onchange={handlecompletedchange} ></lightning-input>  
+
+         <!--  <lightning-checkbox-group 
+           name="Completed"
+           label="Completed"
+           options="CheckboxOptions"
+           value={completed}
+           onchange={handlecompletedchange}
+           ></lightning-checkbox-group> 
+           -->
+
+
+            <lightning-combobox label="Priority" value={priority} options={priorityoptions} onchange={handleprioritychange} ></lightning-combobox>
+           <!-- <lightning-input label="Tags" value={tags} onchange={handleTagsChange}></lightning-input> -->
+            <lightning-input type="date" label="Due Date" value={DueDate} onchange={handleDueDateChange}></lightning-input>
+            <lightning-dual-listbox 
+            name="multiSelectPicklist"
+            label="Multi Select Picklist"
+            source-label="Available Options"
+            selected-label="Selected Options"
+            options={options}
+            value={tags}
+            onchange={handleSelectionChange}
+            >
+                
+            </lightning-dual-listbox>
+            <!-- Buttons -->
+            <div class="slds-m-top_medium">
+
+                <lightning-button label="Save" variant="brand" onclick={handlesave}></lightning-button>
+
+            </div>
+
+        </div>
+
+    </lightning-card>
+</template>

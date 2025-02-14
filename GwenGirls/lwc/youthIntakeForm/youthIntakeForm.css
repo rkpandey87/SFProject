@@ -1,0 +1,163 @@
+.cardAlign{
+	border: 1px solid rgb(194, 194, 194);
+   
+}
+
+.cardBodyAlign{
+	    margin-top: -6rem;
+}
+.logoAign{
+	padding-left:10px;
+	width:210px;
+}
+.ImagesAign{
+	padding-left:10px;
+	width:210px;
+    
+}
+
+.mainHeading{
+	text-align:center;
+	font-size:25px;
+	font-weight:bold;
+}
+
+.heading{
+	margin-top: 1.2rem;
+	font-size: 1.2rem;
+    font-weight: bold;
+    font-family: system-ui;
+}
+
+
+.subHeading{
+	margin-left: .8rem;
+    margin-top: .9rem;
+}
+.paraContent{
+    font-size:.8rem;
+    font-family: system-ui;
+	   
+}
+.picklistAlign{
+	padding-right: .98rem;
+}
+.parentFieldAlign{
+	    padding-right: .98rem;
+}
+.columAlign{
+	margin-top: .7rem;
+}
+
+.insideHeading{
+	margin-top: 1.8em;
+    font-size: .97rem;
+	font-weight: bold;
+}
+.signText{
+	  margin-top: .4rem;
+}
+.dateAign{
+	padding-top: 1.8rem;
+}
+.signatureTextAlign{
+	font-size: 1.5rem;
+    font-weight: bold;
+}
+lightning-button.button {
+		/*   --sds-c-button-brand-color-background: #bb00ff;  */
+	--sds-c-button-brand-color-background: purple;
+    --sds-c-button-text-color: #f4f7f9;
+}
+lightning-icon.button{
+		--sds-c-button-brand-color-background: purple;
+}
+
+.clientHeading{
+	margin-top: 0rem;
+}
+
+.addChildDiv{
+	display: flex;
+    justify-content: right;
+}
+.dualListALign{
+	    margin-top: 1.5rem;
+}
+.childborder{
+	    border: 1px solid rgb(203, 209, 215);
+}
+.subChildAlign{
+	    margin-left: .8rem;
+    margin-top: .9rem;
+}
+   .text-with-lines {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: #696969
+        }
+        .text-with-lines::before,
+        .text-with-lines::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid rgb(203, 209, 215);
+            margin: 0 10px;
+        }
+
+.childIndexingHeading{
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+.childLableSection{
+	display: flex;
+}
+.arrayButtonAlign{
+	    padding-left: .7rem;
+}
+.deleteRowAlign{
+	position: relative;
+    bottom: .3rem;
+}
+.editRowAlign{
+	position: relative;
+    /* bottom: .3rem; */
+	padding: 1.3rem;
+}
+/* model popup css */
+.slds-modal__header {
+    background-color: #f4f6f9;
+}
+
+.slds-modal__content {
+    background-color: #ffffff;
+}
+
+.slds-modal__footer {
+    background-color: #f4f6f9;
+}
+.custom-modal {
+    width: 90vw !important; /* 90% of viewport width */
+    height: 90vh !important; /* 90% of viewport height */
+}
+
+.custom-modal__container {
+    max-width: 100% !important;
+    height: 100% !important;
+}
+
+.custom-modal__content {
+    height: calc(100% - 100px) !important;
+}
+
+.error-message {
+    color: red;
+    
+    text-align: left; /* Align text to the left */
+    display: none;  /*Initially hide the span */
+}
+
+.error-message.visible {
+    display: block;
+   
+}

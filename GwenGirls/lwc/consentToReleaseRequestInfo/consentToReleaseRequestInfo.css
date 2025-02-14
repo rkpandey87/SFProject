@@ -1,0 +1,29 @@
+.sectionFontSize{
+    font-size:30px;
+    padding-left:350px;
+}
+.contentfontSize{
+    font-size: 20px;
+    padding-left:100px;
+    } 
+    .checkboxfont{
+        font-size: 22px;
+    }
+    .formCloseline{
+        border-bottom: 1px solid #000000;
+        width:1140px;
+        /*margin-right:20px; */
+    }
+    /*.slds-box{
+        font-size: 22px;
+
+    }*/
+
+    .checkboxFontSize{
+       
+       font-weight:bold;
+       font-size: 20px;
+    }
+    /*  font-size:70px;
+        font-variant-caps: normal;
+        */

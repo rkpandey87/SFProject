@@ -1,0 +1,578 @@
+<template>
+	<div class="spinner">
+		<template if:true={systemVar1.isLoading}>
+			<lightning-spinner alternative-text="Loading" variant="brand" size="large">
+			</lightning-spinner>
+		</template>
+	</div>
+	<article class="slds-card cardAlign">
+		<div class="slds-card__header slds-grid">
+			<img src={formLogo} class="logoAign" onclick={handlelogo}  />
+		</div>
+			<div class="slds-card__body slds-card__body_inner cardBodyAlign">
+				<h1 class="mainHeading">Caring Connections Intake</h1><br/><br/><br/>
+				<h1 class="heading">REFERRAL INFORMATION</h1>
+				<div class="subHeading">
+					<div class="slds-grid slds-wrap">
+						<div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+							<lightning-combobox class="picklistAlign" name="Neighborhood" label="Neighborhood"
+								value={parentValues.neighborhoodValue} placeholder=" Select Neighborhood"
+								options={systemFieldOption.neighborhood} onchange={handleNeighborhood}>
+							</lightning-combobox>
+						</div>
+						<div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+							<lightning-input type="Text" class="picklistAlign" label="If Neighborhood is Other"
+								onchange={handleOtherNeighborhood} value={parentValues.otherNeighborhood}
+								placeholder="Enter the other Neighborhood"></lightning-input>
+						</div>
+						<div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+							<lightning-combobox class="picklistAlign checkStaffError" name="Neighborhood"
+								label="Name of Staff completing Intake" value={parentValues.nameOfStaffCompletingIntake}
+								placeholder=" Select Intake Staff" options={systemFieldOption.staffCompletingIntake}
+								required onchange={handleStaffCompletingIntake}>
+							</lightning-combobox>
+						</div>
+						<div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+							<!-- <span>4</span> -->
+						</div>
+					</div>
+				</div>
+
+				<br/><br/><br/>
+				<div class="slds-grid slds-wrap">
+					<div class="slds-col slds-large-size_9-of-12 slds-medium-size_9-of-12 slds-size_12-of-12">
+						<h1 class="heading clientHeading">CLIENT DEMOGRAPHIC INFORMATION</h1>
+					</div>
+					<div
+						class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12 addChildDiv">
+						<lightning-button variant="Brand" label="Add Child" onclick={addChild} icon-name="utility:add"
+							class="slds-m-left_x-small button parentFieldAlign">
+						</lightning-button>
+					</div>
+				</div>
+
+				<template for:each={systemVar1.childNodes} for:item="childItem" for:index="index">
+					<div key={childItem} class="childLableSection subHeading">
+						<p class=" childIndexingHeading">Child : {childItem.childIndex}</p>
+						<div class="arrayButtonAlign">
+							<template if:true={childItem.isChildOpen}>
+								<lightning-button-icon data-index={index} onclick={handleChildVisiblity}
+									icon-name="utility:arrowdown" variant="bare" size="large"
+									alternative-text="Expand Child Data" title="Collapse Child Data">
+								</lightning-button-icon>
+							</template>
+							<template if:false={childItem.isChildOpen}>
+								<lightning-button-icon data-index={index} onclick={handleChildVisiblity}
+									icon-name="utility:arrowup" variant="bare" size="large"
+									alternative-text="Expand Child Data" title="Collapse Child Data">
+								</lightning-button-icon>
+							</template>
+						</div>
+						<div if:true={systemVar1.isDeleteRowButtonVisible} class="arrayButtonAlign">
+							<button type="button"  data-index={index} onclick={handleDeleteRow} class="slds-button slds-button_icon deleteRowAlign" title="Remove for Intake" size='small'>
+									<lightning-icon icon-name='action:delete' alternative-text='Remove for Intake' size='x-small' title='Remove for Intake'></lightning-icon>
+								</button>
+						</div>
+
+					</div>
+
+					<div key={childItem} class="slds-grid slds-wrap subChildAlign subHeading">
+						<div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+							<lightning-input type="text" class="parentFieldAlign" label="First Name" value={childItem.c_FirstName} data-id={index}
+								placeholder="Please Enter the First Name" required onchange={handleChildFirstName} data-name="First_Name"> 
+							</lightning-input>
+						</div>
+						<div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+							<lightning-input type="text" class="parentFieldAlign" label="Last Name" value={childItem.c_LastName} data-id={index}
+								placeholder="Please Enter the Last Name" required onchange={handleChildLastName} data-name="Last_Name" >
+							</lightning-input>
+						</div>
+						<div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+							<lightning-input type="Date" class="parentFieldAlign" label="Birthdate" value={childItem.c_Birthdate} data-id={index}
+								placeholder="Please Enter the Birthdate" required onchange={handleChildBirthdate} data-name="Birthdate" >
+							</lightning-input>
+						</div>
+						<div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+							<lightning-combobox class="picklistAlign" name="GenderIdentity" label="Gender Identity"
+							 placeholder=" Select Gender Identity"  value={childItem.c_GenderIdentity} data-id={index}
+								options={systemFieldOption.genderIdentity} onchange={handleChildGenderIdentity}>
+							</lightning-combobox>
+						</div>
+					</div>
+
+					<div if:true={childItem.isChildOpen} key={childItem} class="subHeading childborder">
+						<div class="subChildAlign">
+
+							<div class="slds-grid slds-wrap columAlign">
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign" label="Preferred Name" data-id={index}
+										 placeholder="Please Enter the Preferred Name" value={childItem.c_PreferredName}
+										onchange={handleChildPreferredName}>
+									</lightning-input>
+								</div>
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-combobox class="picklistAlign" name="GenderPronouns" value={childItem.c_GenderPronouns}
+										label="Gender Pronouns"  placeholder=" Select Gender Pronouns" data-id={index}
+										options={systemFieldOption.genderPronouns} onchange={handleChildGenderPronouns}>
+									</lightning-combobox>
+								</div>
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-combobox class="picklistAlign" name="RacialEthnicIdentity"
+										label="Racial / Ethnic Identity" value={childItem.c_RacialEthnicIdentity}
+										placeholder=" Select Racial or Ethnic Identity" data-id={index}
+										options={systemFieldOption.racialEthnicIdentity} onchange={handleChildRacialEthnicIdentity}>
+									</lightning-combobox>
+								</div>
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign" label="Identity Expansion" data-id={index}
+										 placeholder="Please Enter the Identity Expansion" value={childItem.c_IdentityExpansion}
+										onchange={handleChildIdentityExpansion}
+										field-level-help="Is there anything else you would like us to know about who you are?">
+									</lightning-input>
+								</div>
+							</div>
+							<div class="slds-grid slds-wrap columAlign">
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign" label="Phone" value={childItem.c_Phone} data-id={index}
+										placeholder="Please Enter the Phone Number" onchange={handleChildPhone}>
+									</lightning-input>
+								</div>
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+
+								</div>
+							</div>
+							<br/>
+							<h1 class="insideHeading">TOP 3 CONCERNS FOR CHILD</h1>
+							<div class="subHeading">
+								<div class="slds-grid slds-wrap">
+									<div
+										class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+										<lightning-combobox class="picklistAlign" name=" PrimaryConcern" value={childItem.c_PrimaryConcern}
+											label="Primary Concern"  placeholder=" Select the Primary Concern" data-id={index}
+											options={systemFieldOption.primaryConcern} onchange={handleChildPrimaryConcern}>
+										</lightning-combobox>
+									</div>
+									<div
+										class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+										<lightning-combobox class="picklistAlign" name="secondaryConcern"  value={childItem.c_secondaryConcern}
+											label="Secondary Concern"  placeholder=" Select the Primary Concern" data-id={index}
+											options={systemFieldOption.secondaryConcern} onchange={handleChildSecondaryConcern}>
+										</lightning-combobox>
+									</div>
+									<div
+										class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+										<lightning-combobox class="picklistAlign" name=" thirdConcern"  value={childItem.c_thirdConcern}
+											label="Third Concern"  placeholder=" Select the Third Concern" data-id={index}
+											options={systemFieldOption.thirdConcern} onchange={handleChildThirdConcern}>
+										</lightning-combobox>
+									</div>
+									<div
+										class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+
+									</div>
+								</div>
+							</div>
+
+
+
+
+
+
+							<br/>
+							<h1 class="insideHeading">REASON FOR REFERRAL (CONCERNS LIST) - NEEDS CATEGORY</h1>
+							<div class="subHeading">
+								<div class="slds-grid slds-wrap">
+									<div
+										class="slds-col slds-large-size_6-of-12 slds-medium-size_6-of-12 slds-size_12-of-12">
+										<lightning-dual-listbox  class="picklistAlign" data-id={index}
+											label="NEEDS CATEGORY" source-label="Available CATEGORY" value={childItem.c_NeedsCategory}
+											selected-label="Selected CATEGORY" options={systemFieldOption.needsCategory}
+											onchange={handleChildNeedsCategory}>
+										</lightning-dual-listbox>
+									</div>
+								</div>
+							</div>
+
+							<br/>
+							<h1 class="insideHeading">SAFETY & RISK ASSESSMENT</h1>
+							<div class="subHeading">
+								<div class="slds-grid slds-wrap">
+									<div
+										class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+										<lightning-combobox class="picklistAlign"
+											label="Are there immediate Safety Concerns?" value={childItem.c_ImmediateSafetyConcerns}
+											placeholder=" Select Yes or No" data-id={index}
+											options={systemFieldOption.immediateSafetyConcerns}
+											onchange={handleChildImmediateSafetyConcern}>
+										</lightning-combobox>
+									</div>
+									<div
+										class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+										<lightning-textarea  class="picklistAlign"  value={childItem.c_Comment} data-id={index}
+											placeholder="Please Enter the Comment..." label="Comment" 	onchange={handleChildComment} >
+										</lightning-textarea>
+									</div>
+									<div
+										class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+										<lightning-combobox class="picklistAlign" 
+											label="Does the client have a safety plan?"  value={childItem.c_ClientHasaSafetyPlan}
+											placeholder=" Select Yes or No" data-id={index}
+											options={systemFieldOption.clientHasaSafetyPlan}
+											onchange={handleChildClientHasaSafetyPlan}>
+										</lightning-combobox>
+									</div>
+									<div
+										class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+										<lightning-textarea  class="picklistAlign"  value={childItem.c_SafetyPlanExplanation}
+											placeholder="Please Enter the Safety Plan....." data-id={index}
+											label="Safety Plan Explanation" 	onchange={handleChildSafetyPlanExplanation} > 
+										</lightning-textarea>
+									</div>
+								</div>
+
+								<div class="slds-grid slds-wrap dualListALign">
+									<div
+										class="slds-col slds-large-size_6-of-12 slds-medium-size_6-of-12 slds-size_12-of-12">
+										<lightning-dual-listbox name="languages" class="picklistAlign" value={childItem.c_YouthSystemInvolvement}
+											label="Has this youth had any previous system involvement?"
+											source-label="Available system involvement" data-id={index}
+											selected-label="Selected system involvement"
+											options={systemFieldOption.previousSystemInvolvement}
+											onchange={handleChildYouthSystemInvolvement}>
+										</lightning-dual-listbox>
+									</div>
+									<div
+										class="slds-col slds-large-size_6-of-12 slds-medium-size_6-of-12 slds-size_12-of-12">
+										<lightning-textarea  class="picklistAlign" value={childItem.c_SystemInvolvementBrief}
+											placeholder="Please Enter the Explanation....." data-id={index}
+											label="System Involvement Brief Explanation" onchange={handleChildSystemInvolvementBrief} >
+										</lightning-textarea>
+									</div>
+								</div>
+							</div>
+							<h1 class="insideHeading">IF ANY FAMILY MEMBER RECEIVED CYF SERVICES, PLEASE ENTER</h1>
+							<div class="subHeading">
+								<div class="slds-grid slds-wrap">
+									<div
+										class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+										<lightning-input type="text" class="parentFieldAlign" label="CYF Case Number" data-id={index}
+											placeholder="Please Enter the Case Number" value={childItem.c_CYFCaseNumber}
+											onchange={handleChildCYFCaseNumber}>
+										</lightning-input>
+									</div>
+									<div
+										class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+										<lightning-input type="text" class="parentFieldAlign" data-id={index}
+											label="CYF Caseworker's Name" value={childItem.c_CYFCaseworker}
+											placeholder="Please Enter the Caseworker's Name"
+											onchange={handleChildCYFCaseworker}>
+										</lightning-input>
+									</div>
+									<div
+										class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+										<lightning-input type="Phone" class="parentFieldAlign" label="CYF Phone" value={childItem.c_CYFPhone}
+											placeholder="Please Enter the Phone Number" data-id={index}
+											onchange={handleChildCYFPhone}>
+										</lightning-input>
+									</div>
+									<div
+										class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+										<lightning-input type="text" class="parentFieldAlign" data-id={index}
+											label="Regional Office for CYF Services" value={childItem.c_CYFRegional}
+											placeholder="Please Enter the Regional Details"
+											onchange={handleChildCYFRegional}>
+										</lightning-input>
+									</div>
+								</div>
+								<div class="slds-grid slds-wrap dualListALign">
+									<div
+										class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+										<lightning-input type="text" class="parentFieldAlign Signature" label="Signature"  value={childItem.c_Signature}
+											placeholder="Please Enter the Signature" required data-id={index} data-name="Signature"
+											onchange={handleChildSignature}>
+										</lightning-input>
+										<p class="signText">Note : Youth's Signature (if 14 years and older).</p>
+										<h1 class="signatureTextAlign">{childItem.c_Signature}</h1>
+									</div>
+									<div
+										class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+										<lightning-radio-group name="radioGroup" data-id={index}
+											label="Is the family’s case court active?" onchange={handleChildFamilyCaseCourt}
+											options={systemVar1.familyCaseCourt} value={childItem.c_FamilyCaseCourt} type="radio">
+										</lightning-radio-group>
+									</div>
+								</div>
+
+
+							</div>
+
+							<br/>
+							<div class="text-with-lines">Here is the end of Child {childItem.childIndex}</div>
+							<br/>
+				</div>
+						</div>
+						<br key={childItem} />
+				</template>
+
+
+
+
+
+
+
+
+
+
+						<hr />
+						<h1 class="heading">PARENT / GUARDIAN</h1>
+						<div class="subHeading">
+							<div class="slds-grid slds-wrap">
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign checkParentFirstName"
+										label="Parent / Guardian First Name" value={parentValues.p_FirstName}
+										placeholder="Please Enter the First Name" required
+										onchange={handleParentFirstName}>
+									</lightning-input>
+								</div>
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign checkParentLastName"
+										label="Parent / Guardian Last Name" value={parentValues.p_LastName}
+										placeholder="Please Enter the Last Name" required
+										onchange={handleParentLastName}>
+									</lightning-input>
+								</div>
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign checkParentPhoneNo"
+										label="Parent / Guardian Phone Number" value={parentValues.p_PhoneNumber}
+										placeholder="Please Enter the Phone Number" required
+										onchange={handleParentPhoneNumber}>
+									</lightning-input>
+								</div>
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign" label="Email"
+										value={parentValues.p_email} placeholder="Please Enter the Email"
+										onchange={handleParentEmail}>
+									</lightning-input>
+								</div>
+							</div>
+							<div class="slds-grid slds-wrap columAlign">
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign" label="Mailing Street"
+										value={parentValues.p_Mailingstreet}
+										placeholder="Please Enter the Mailing street"
+										onchange={handleParentMailingstreet}>
+									</lightning-input>
+								</div>
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign" label="Mailing City"
+										value={parentValues.p_MailingCity} placeholder="Please Enter the Mailing City"
+										onchange={handleParentMailingCity}>
+									</lightning-input>
+								</div>
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-combobox class="parentFieldAlign" label="Mailing State"
+										value={parentValues.p_MailingState} placeholder="Select Progress"
+										options={systemFieldOption.guardianState} onchange={handleParentMailingState}>
+									</lightning-combobox>
+								</div>
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign" label="Mailing Postal Code"
+										value={parentValues.p_MailingPostalCode}
+										placeholder="Please Enter the Mailing Postal Code"
+										onchange={handleParentMailingPostalCode}>
+									</lightning-input>
+								</div>
+							</div>
+							<div class="slds-grid slds-wrap columAlign">
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign"
+										label="Best time to Contact Parent / Guardian" value={parentValues.p_bestTime}
+										placeholder="Please Enter the Time" onchange={handleParentBestTime}>
+									</lightning-input>
+								</div>
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-combobox class="picklistAlign" name="relationshipYouth"
+										label="What is your relationship to this youth?" value={parentValues.p_relation}
+										placeholder=" Select the relationship"
+										options={systemFieldOption.youthrelationship} onchange={handleParentRelation}>
+									</lightning-combobox>
+								</div>
+							</div>
+							<h1 class="insideHeading">REFERRAL SOURCE</h1>
+							<div class="subHeading">
+								<div class="slds-grid slds-wrap">
+									<div
+										class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+										<lightning-input type="text" class="parentFieldAlign"
+											label="Referral First Name" value={parentValues.p_ReferralFirstName}
+											placeholder="Enter the Referral First Name"
+											onchange={handleParentReferralFirstName}>
+										</lightning-input>
+									</div>
+									<div
+										class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+										<lightning-input type="text" class="parentFieldAlign" label="Referral Last Name"
+											value={parentValues.p_ReferralLastName}
+											placeholder="Enter the Referral Last Name"
+											onchange={handleParentReferralLastName}>
+										</lightning-input>
+									</div>
+									<div
+										class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+										<lightning-input type="text" class="parentFieldAlign" label="Referral Title"
+											value={parentValues.p_ReferralTitle} placeholder="Enter the Referral Title"
+											onchange={handleParentReferralTitle}>
+										</lightning-input>
+									</div>
+									<div
+										class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+										<lightning-input type="Phone" class="parentFieldAlign" label="Referral Phone"
+											value={parentValues.p_ReferralPhone} placeholder="Enter the Referral Phone"
+											onchange={handleParentReferralPhone}>
+										</lightning-input>
+									</div>
+								</div>
+								<div class="slds-grid slds-wrap columAlign">
+									<div
+										class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+											<lightning-combobox class="parentFieldAlign"
+											label="Referral Type"
+											value={parentValues.p_ReferralType}
+											placeholder="Select the Referral Type"
+											options={systemFieldOption.referralType}
+											onchange={handleParentReferralType}>
+										</lightning-combobox>	
+									</div>
+								<div
+										class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+											<lightning-input type="Phone" class="parentFieldAlign" label="Referral Type other "
+											value={parentValues.p_ReferralTypeOther} placeholder="Enter the Referral Type other"
+											onchange={handleParentReferralTypeOther}>
+										</lightning-input>
+									</div>
+									<div
+										class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+										<lightning-combobox class="parentFieldAlign"
+											label="Reason for Referral"
+											value={parentValues.p_ReferralReason}
+											placeholder="Select the Reason for Referral"
+											options={systemFieldOption.reasonForReferral}
+											onchange={handleParentReferralReason}>
+											</lightning-combobox>	
+									
+									</div>
+
+								
+								</div>
+
+								<div class="slds-grid slds-wrap columAlign">
+									<div
+										class="slds-col slds-large-size_6-of-12 slds-medium-size_6-of-12 slds-size_12-of-12">
+										<!-- <lightning-dual-listbox name="languages" class="parentFieldAlign"
+											label="Referral Source Type Expanded "
+											source-label="Available Type Expanded"
+											selected-label="Selected Type Expanded"
+											value={parentValues.p_ReferralTypeExpanded}
+											options={systemFieldOption.referralTypeExpanded}
+											onchange={handleParentReferralTypeExpanded}>
+										</lightning-dual-listbox> -->
+									</div>
+										<div
+										class="slds-col slds-large-size_6-of-12 slds-medium-size_6-of-12 slds-size_12-of-12">
+										
+									</div>
+									
+								</div>
+
+
+
+							</div>
+
+
+
+							<h1 class="insideHeading">CONSENT TO TREATMENT</h1>
+							<div class="subHeading">
+								<div class="slds-grid slds-wrap">
+									<div
+										class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+										<lightning-combobox class="parentFieldAlign"
+											label="Have the parent(s)/guardian(s) consented to participate in CC4YOUth?"
+											value={parentValues.p_guardianConsentReceived}
+											placeholder="Select Yes or No"
+											options={systemFieldOption.guardianConsentReceived}
+											onchange={handleGuardianConsentReceived}>
+										</lightning-combobox>
+									</div>
+									<div
+										class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+										<lightning-combobox class="parentFieldAlign"
+											label="If the youth is 14 or older, has they consented to participate in CC4YOUth?"
+											value={parentValues.p_clientConsentReceived14YOA}
+											placeholder="Select Yes or No"
+											options={systemFieldOption.clientConsentReceived14YOA}
+											onchange={handleClientConsentReceived14YOA}>
+										</lightning-combobox>
+									</div>
+									<div
+										class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+										<lightning-input type="text" class="parentFieldAlign"
+											label="Additional comments regarding consent"
+											value={parentValues.p_AdditionalComments}
+											placeholder="Please Enter the Additional comments"
+											onchange={handleAdditionalComments}>
+										</lightning-input>
+									</div>
+								</div>
+								<div class="slds-grid slds-wrap columAlign">
+									<div
+										class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+										<lightning-input type="text" class="parentFieldAlign checkParentSign" required
+											label="Parent / Guardian Signature" value={parentValues.p_signature}
+											placeholder="Please Enter the Parent Signature..."
+											onchange={handleParentSignature}>
+										</lightning-input>
+										<p class="signText">By pressing "Submit," you are agreeing to electronically
+											sign this
+											document.</p>
+										<h1 class="signatureTextAlign">{parentValues.p_signature}</h1>
+									</div>
+									<div
+										class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+										<h1 class="dateAign">Date : {parentValues.p_signDate} </h1>
+									</div>
+								</div>
+							</div>
+						</div>
+
+
+
+
+					</div>
+
+					<footer class="footer slds-card__footer">
+						<hr>
+						<div class="slds-align_absolute-center">
+							<lightning-button variant="Brand" class="button" onclick={handleSubmit} name="submit"
+								label="Submit">
+							</lightning-button>
+						</div>
+
+					</footer>
+	</article>
+</template>

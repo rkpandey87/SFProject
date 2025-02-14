@@ -1,0 +1,51 @@
+.registrationFont{
+    border-bottom: 1px solid #000000;
+   
+}
+.registrationFontLength{
+    margin-left:146px;
+    font-size:30px;
+}
+.contentFontSize{
+
+    margin-left:146px;
+    margin-right:146px;
+    font-size:20px;
+}
+.referralFontSize{
+    margin-left:146px;
+    font-size:30px;
+}
+.checkboxFontSize{
+    font-weight: bold;
+    font-size:20px;
+   
+}
+.custom-label {
+    /* font-family: 'Your Desired Font', sans-serif; */
+	--lwc-formLabelFontSize: 20px;
+	height: auto;
+    --lwc-formLabelFontWeight:bold;
+    padding-bottom: 20px;
+    
+
+	}
+    .reasonForReferral{
+        padding-top: 10px;
+    }
+    .my-radio-group {
+        --slds-c-button-line-height: 2.875rem;
+        --slds-c-LabelFontSize: 20px;
+        font-weight:bold;
+    }
+
+/* --lwc-formLabelFontSize: 20px;
+	height: auto;
+    --lwc-formLabelFontWeight:bold;
+    */
+
+/*
+.boxBorderStyle{
+    border: 1px solid #000000;
+    width:50px;
+}*/

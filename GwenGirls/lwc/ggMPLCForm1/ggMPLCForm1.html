@@ -1,0 +1,307 @@
+<template>
+
+	<div class="spinner">
+		<template if:true={isLoading}>
+			<lightning-spinner alternative-text="Loading" variant="brand" size="large">
+			</lightning-spinner>
+		</template>
+	</div>
+
+
+	<lightning-card>
+		<div class="slds-m-around_medium">
+			<img src={mplcLogo} style="padding-left:10px;width:150px;" onclick={handlelogo}/>
+                   </div>
+
+			<h1 style="text-align:center;font-size:25px;font-weight:bold;">
+				MPLC Intake
+			</h1><br/>
+
+			<p style="padding-left:10px;font-size:17px;">
+				Dear Parent(s)/Guardian(s):<br/><br/>
+                 Gwen's Girls is thrilled to bring our Making Positive Life Choices Program (MPLC) to your school district this academic year and we're especially delighted to welcome your daughter to our community. 
+                 Thanks to the funding provided from Allegheny County Children Youth and Families, we are able to offer this program at no cost.
+                 <br/><br/>
+
+			     As part of our agreement with the county, we are required to submit funding documentation via the county's (KIDS) database system. 
+                 To start the enrollment process, we kindly ask you to fill out the information below. Please be assured that your information will be kept confidential and used exclusively
+                for securing MPLC program funding for this academic year.
+                <br/><br/>
+
+			    The MPLC program focuses on empowering girls through various topics such as Life Skills, Building Self-Esteem, Identifying Healthy vs. 
+                Unhealthy Relationships, Addressing Bullying, Conflict Resolution & Communication Skills, and Health & Hygiene, including body changes.<br/><br/>
+                If you require further information about the MPLC program at your school or have any questions or concerns, do not hesitate to contact Tamera Stafford directly at (412) 608-2309.<br/><br/>
+                We are eager to contribute to a year of growth and positive change for your daughter!<br/><br/>
+
+			      Warm regards,
+                 <br/> <br/>
+
+			                           Tamera Stafford <br/>
+                                       Program Director
+
+
+			                   </p><br/><br/>
+
+
+				<!-- <p style="padding-left:10px;font-size:17px;">
+                           Dear Parent / Guardian:<br/><br/>
+   
+                           Gwen’s Girls is excited to offer our Making Positive Life Choices Program (MPLC) in
+                           Sto-Rox school district during the 2022-2023 school year and we are even more excited to have your daughter in our program.  Our program is made possible through funding by Allegheny County, Children Youth and Families and as a result is able to be a free program.  Per our county contract in order for us to be funded we have to create an invoice in the counties (KIDS) database system. If your daughter has ever been involved with the county or courts, her name and information is already in the system, and we will add her name to our invoice for funding.  If your daughter has not been involved with the county, her name will not be in the system and thus we ask for additional information that will permit us to add her to our invoice.  This information includes yours and her name, social security numbers, address and birthdates.  Your information will be kept confidential and will only be used for the purposes of funding the Gwen’s Girls Making Positive Life Choices Program for the 2022-2023 school year.<br/> <br/> 
+   
+                           The program will work with girls on the following topics: Life Skills, Self-Esteem
+                           Healthy and Unhealthy Relationships, Bullying, Conflict Resolution & Communication Skills and Health & Hygiene & Changes to our Bodies.<br/><br/>
+   
+                           Please complete and return this permission slip to the Guidance Office for participation in the program.  
+                           If you would like further information regarding the in-school program at Sto-Rox, please contact Tamera Stafford (412) 608-2309 directly for any questions or concerns you may have.<br/><br/>
+   
+                           Sincerely,<br/>
+                           Tamera Stafford
+                   </p><br/><br/>
+            -->
+
+				<div class="slds-m-around_medium" style="font-weight:bold;">
+					<lightning-layout>
+
+						<lightning-layout-item size="12" padding="around-small" style="font-weight: bold;">
+							<lightning-input type="checkbox" class="custom-labelCheckbox"
+								label="My daughter may participate in the Gwen’s Girls program. Please contact me for social security information."
+								checked={checkboxValue1} onchange={handleCheckbox1Change}>
+							</lightning-input>
+						</lightning-layout-item>
+					</lightning-layout>
+
+					<lightning-layout>
+						<lightning-layout-item size="12" padding="around-small">
+							<lightning-input type="checkbox" class="custom-labelCheckbox"
+								label="My daughter may not participate in the Gwen’s Girls program"
+								checked={checkboxValue2} onchange={handleCheckbox2Change}>
+							</lightning-input>
+						</lightning-layout-item>
+					</lightning-layout>
+
+
+				</div>
+
+				<div class="slds-grid slds-wrap">
+					<div class="slds-col slds-large-size_10-of-12 slds-medium-size_1-of-12 slds-size_1-of-12">
+						<h1 style="padding-left:10px;font-size:18px;font-weight:bold;">Manage Youth Participants you
+							want to include</h1>
+						<p style="padding-left:10px;font-size:13px;"> Please add or remove youth that will be
+							participating in this program </p>
+
+					</div>
+					<div style="    margin-left: -0.9rem;"
+						class="slds-col slds-large-size_2-of-12 slds-medium-size_1-of-12 slds-size_1-of-12">
+						<lightning-button variant="Brand" label="Add Child" onclick={addRow} icon-name="utility:add"
+							class="slds-m-left_x-small button"></lightning-button>
+					</div>
+				</div>
+
+
+				<!-- <lightning-layout multiple-rows>
+               <lightning-layout-item size="10" padding="around-small">
+           <h1 style="padding-left:10px;font-size:18px;font-weight:bold;">Manage Youth Participants you want to include</h1>
+                                   <p style="padding-left:10px;font-size:13px;"> Please add or remove youth that will be participating in this program </p>
+           </lightning-layout-item>
+   
+           <lightning-layout-item size="2" padding="around-small">
+                   <lightning-icon icon-name="action:new" 
+                   alternative-text="Add Row" class="button" size="small" title="Add Row" onclick={addRow}>
+               </lightning-icon>
+           </lightning-layout-item>
+           </lightning-layout>
+    -->
+
+				<template for:each={testContactChildItemArr} for:item="itemA" for:index="index">
+
+
+					<lightning-record-edit-form key={itemA.id} object-api-name="Contact">
+						<!---  	<p >			{index}	</p>-->
+						<lightning-messages> </lightning-messages>
+						<lightning-layout multiple-rows>
+							<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+								large-device-size="4" padding="around-small">
+
+								<lightning-input-field field-name="FirstName" class="custom-label"
+									onchange={handleChange} value={itemA.firstName} variant="label-stacked"
+									data-field="firstName" data-index={index} required>
+								</lightning-input-field>
+								<!--handleFirstNameChange -->
+								<!---data-field="firstName" data-index={index}  data-field="lastName" data-index={index} data-field="Dob" data index={index} -->
+							</lightning-layout-item>
+							<lightning-layout-item size="12" small-device-size="4" medium-device-size="3"
+								large-device-size="3" padding="around-small">
+								<lightning-input-field field-name="LastName" class="custom-label"
+									onchange={handleChange} value={itemA.lastName} variant="label-stacked"
+									data-field="lastName" data-index={index} required>
+								</lightning-input-field>
+								<!--handleLastNameChange -->
+							</lightning-layout-item>
+
+							<lightning-layout-item size="12" small-device-size="4" medium-device-size="3"
+								large-device-size="3" padding="around-small">
+								<lightning-input-field field-name="Birthdate" class="custom-label"
+									onchange={handleChange} value={itemA.Dob} variant="label-stacked" data-field="Dob"
+									data-index={index} required>
+								</lightning-input-field>
+								<!--handleBirthdateChange -->
+							</lightning-layout-item>
+
+							<lightning-layout-item size="12" small-device-size="4" medium-device-size="2"
+								large-device-size="2" padding="around-small">
+
+								<div class="slds-p-top_medium">
+									<!-- access-key={itemA.id} id={index} data-recordid={itemA.Id} value={index}-->
+
+									<button type="button"  data-index={index} onclick={handleDeleteRow} class="slds-button slds-button_icon" title="More Options">
+<lightning-icon icon-name='action:delete' alternative-text='Remove from Intake' size='small' title='Remove from Intake'></lightning-icon>
+</button>
+
+
+									<!-- <lightning-icon icon-name="action:delete"   data-index={index}
+         alternative-text="Delete Row" size="small" title="Delete Row" onclick={handleDeleteRow}>
+                               </lightning-icon>  -->
+								</div>
+							</lightning-layout-item>
+						</lightning-layout>
+
+						<lightning-layout>
+							<lightning-layout-item size="12" small-device-size="4" medium-device-size="3"
+								large-device-size="3" padding="around-small">
+
+								<lightning-input type="text" class="custom-label" label="Grade"
+									onchange={handleChange} value={itemA.gradeSelectedColumn} variant="label-stacked"
+									data-field="gradeSelectedColumn" data-index={index}></lightning-input>
+
+							</lightning-layout-item>
+
+							<lightning-layout-item size="12" small-device-size="4" medium-device-size="3"
+								large-device-size="3" padding="around-small">
+
+								<lightning-select label="Select School" class="custom-label"
+									value={itemA.schoolSelectedColumn} options={itemA.schoolColumn}
+									onchange={handleChange} variant="label-stacked" data-field="schoolSelectedColumn"
+									data-index={index}>
+								</lightning-select>
+
+								<!--   <lightning-combobox name="userDropdown"
+                label="Select School"
+                value={schoolId}
+                options={itemA.schoolColumn}
+                onchange={handleChange}
+                class="customlabel"
+                variant="label-stacked" data-field="schoolSelectedColumn" data-index={index}>
+            </lightning-combobox>-->
+
+							</lightning-layout-item>
+
+
+
+						</lightning-layout>
+					</lightning-record-edit-form>
+				</template><br/>
+
+
+
+				<div class="show Parent/Guardian" style="padding-left:13px;">
+					<p style="    text-decoration: underline;font-size:20px;">Parent / Guardian</p>
+				</div><br/><br/>
+
+
+
+				<lightning-messages> </lightning-messages>
+				<lightning-layout>
+					<lightning-layout-item size="12" small-device-size="4" medium-device-size="3" large-device-size="3"
+						padding="around-small">
+
+						<lightning-input type="text" class="custom-label" label="Parent / Guardian First Name"
+							onchange={handleFNameChange} value={parentGuardianFNm.parentfName} required>
+						</lightning-input>
+
+					</lightning-layout-item>&nbsp;&nbsp;&nbsp;
+
+					<lightning-layout-item size="12" small-device-size="4" medium-device-size="3" large-device-size="3"
+						padding="around-small">
+						<lightning-input type="text" class="custom-label" label="Parent / Guardian Last Name"
+							onchange={handleLNameChange} value={parentGuardianFNm.parentlName} required>
+						</lightning-input>
+					</lightning-layout-item>
+
+					
+				</lightning-layout><br/><br/>
+				<lightning-layout>
+					<lightning-layout-item size="12" small-device-size="4" medium-device-size="3" large-device-size="3"
+						padding="around-small">
+
+						<!-- <lightning-input type="phone" class="custom-label" label="Parent / Guardian Email"
+							onchange={handlePhnNumberChange} value={parentGuardianFNm.parentPhnNumber} >
+						</lightning-input> -->
+
+					</lightning-layout-item>
+
+					<lightning-layout-item size="12" small-device-size="4" medium-device-size="3" large-device-size="3"
+						padding="around-small">
+
+						<lightning-input type="phone" class="custom-label" label="Parent / Guardian Phone Number"
+							onchange={handlePhnNumberChange} value={parentGuardianFNm.parentPhnNumber} required>
+						</lightning-input>
+
+					</lightning-layout-item>
+
+				</lightning-layout>
+
+				<!--       Testing    
+              /*  <lightning-layout>
+                   <lightning-layout-item size="12" small-device-size="4" medium-device-size="3" large-device-size="3"
+                   padding="around-small">
+
+                   <lightning-select label="Select Gender Identity" value={parentGuardianFNm.genIdentitySelectedColumn}  options={parentGuardianFNm.genIdentityColumn} onchange={handleGenderChange} variant="label-stacked" data-field="genIdentitySelectedColumn" data-index={index}>
+                   </lightning-select>
+
+               </lightning-layout-item>
+            </lightning-layout> -->
+
+				<lightning-layout>
+					<lightning-layout-item size="12" small-device-size="4" medium-device-size="3" large-device-size="4"
+						padding="around-small">
+						<lightning-input type="text" class="custom-label" label="Parent / Guardian Signature"
+							onchange={handleSignChange} value={userInput} required>
+						</lightning-input>
+						<p style="margin-left: 0.2rem;padding-top: 0.3rem;">By pressing "Submit," you are agreeing to electronically sign this document.</p>
+					</lightning-layout-item>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+					<lightning-layout-item size="12" small-device-size="4" medium-device-size="3" large-device-size="3"
+						padding="around-small">
+						<p style="font-size:15px;">
+							Date:&nbsp;&nbsp; {parentGuardianFNm.currDateOfSignature}
+						</p>
+					</lightning-layout-item>
+				</lightning-layout>
+
+				<p style="padding-left:13px;font-size:25px;font-weight:bold;"> {signature} </p>
+
+				<!---   </lightning-record-edit-form>
+         </template>-->
+
+				<template if:true={isError}>
+					<!--- Please Fill all the required blank fields -->
+
+					{errorMsg}
+
+				</template>
+
+
+				<br/><br/>
+
+				<lightning-layout>
+					<!--  <div class="slds-align_left" style="padding-left:300px;">-->
+					<div class="slds-align_absolute-center">
+						<lightning-button variant="Brand" class="button" onclick={handleSubmit} name="submit"
+							label="Submit" disabled={isSaveDisabled}>
+						</lightning-button>
+					</div>
+				</lightning-layout>
+
+	</lightning-card>
+</template>

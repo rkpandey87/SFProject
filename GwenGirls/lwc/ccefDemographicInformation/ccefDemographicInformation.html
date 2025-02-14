@@ -1,0 +1,663 @@
+<template>
+    <lightning-card>
+   
+    <p class="registrationFontLength"><b class="registrationFont">DEMOGRAPHIC INFORMATION</b></p>
+    <div class="contentFontSize">
+        <br>
+
+         <lightning-accordion active-section-name="A">
+        <lightning-accordion-section name="A" label="child1"
+            ><p>CHILD1</p>
+        <br>
+                <lightning-layout>
+                    <lightning-layout-item size="5">
+                        <lightning-input label="Child Name 1" type="text" placeholder="First" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+                   
+                    <lightning-layout-item size="1">      
+                    </lightning-layout-item>
+
+                    <lightning-layout-item size="5">
+                      <lightning-input label="Preferred Name, if different" type="text" placeholder="First" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+ 
+                    </lightning-layout>
+
+                    <lightning-layout>
+                        <lightning-layout-item size="5">
+                          <lightning-input label="" type="text" placeholder="Last" class="custom-label"></lightning-input>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="1">
+                          
+                      </lightning-layout-item>
+                        <lightning-layout-item size="5">
+                          <lightning-input label="" type="text" placeholder="Last" class="custom-label"></lightning-input>
+                        </lightning-layout-item>
+
+     
+                        </lightning-layout>
+                             <P>Gender Identity</P>
+                        <lightning-layout>
+                            
+                        <lightning-layout-item size="12">
+            <lightning-input class="custom-label" type="text" label="How do you identify your gender?" placeholder=""></lightning-input>
+            </lightning-layout-item>
+
+            
+            </lightning-layout>
+
+            <lightning-layout>
+                        <lightning-layout-item size="12">
+            <lightning-input class="custom-label" type="text" label="Gender Pronouns" placeholder=""></lightning-input>
+                        </lightning-layout-item>
+            </lightning-layout>
+
+             <P>Racial/Ethnic Identity&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Identity Expansion</P>
+            <lightning-layout>
+                
+               <lightning-layout-item size="5">
+                        <lightning-input label="How do you identify your race/ethnicity?" type="text" placeholder="" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+                   
+                    <lightning-layout-item size="1">      
+                    </lightning-layout-item>
+
+                    <lightning-layout-item size="5">
+                      <lightning-input label="1s there anything else you would like us to know about who you are?" type="text" placeholder="" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+ 
+                    
+
+            </lightning-layout>
+
+
+             <lightning-layout>
+                    <lightning-layout-item size="5">
+                        <lightning-input label="Date of Birth" type="date" placeholder="" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+                   
+                    <lightning-layout-item size="1">      
+                    </lightning-layout-item>
+
+                    <lightning-layout-item size="5">
+                      <lightning-input label="Age" type="text" placeholder="" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+ 
+                    </lightning-layout>
+
+                     <lightning-layout>
+                        <lightning-layout-item size="12">
+            <lightning-input class="custom-label" type="text" label="Address" placeholder="Street Address"></lightning-input>
+                        </lightning-layout-item>
+            </lightning-layout>
+
+             <lightning-layout>
+                        <lightning-layout-item size="12">
+            <lightning-input class="custom-label" type="text" label="" placeholder="Street Address Line 2"></lightning-input>
+                        </lightning-layout-item>
+            </lightning-layout>
+
+
+
+            <lightning-layout>
+                    <lightning-layout-item size="5">
+                        <lightning-input label="" type="text" placeholder="City" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+                   
+                    <lightning-layout-item size="1">      
+                    </lightning-layout-item>
+
+                    <lightning-layout-item size="5">
+                      <lightning-input label="" type="text" placeholder="Region" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+ 
+                    </lightning-layout>
+
+                    <lightning-layout>
+                        <lightning-layout-item size="5">
+                          <lightning-input label="" type="text" placeholder="Postal / Zip Code" class="custom-label"></lightning-input>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="1">
+                          
+                      </lightning-layout-item>
+                        <lightning-layout-item size="5">
+                         <lightning-combobox
+            name="progress"
+            label=""
+            value={value}
+            placeholder=""
+            options={options}
+            class="custom-label"
+            onchange={handleChange} ></lightning-combobox>
+                        </lightning-layout-item>
+
+     
+                        </lightning-layout>
+
+                         <lightning-layout>
+                        <lightning-layout-item size="12">
+           <lightning-textarea name="input1" class="custom-label" label="Top 3 Concerns For Child 1" ></lightning-textarea>
+                        </lightning-layout-item>
+            </lightning-layout>
+
+             <br></lightning-accordion-section
+        >
+        <lightning-accordion-section name="B" label="child2"
+            ><p>CHILD2</p>
+        <br>
+                <lightning-layout>
+                    <lightning-layout-item size="5">
+                        <lightning-input label="Child Name 2" type="text" placeholder="First" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+                   
+                    <lightning-layout-item size="1">      
+                    </lightning-layout-item>
+
+                    <lightning-layout-item size="5">
+                      <lightning-input label="Preferred Name, if different" type="text" placeholder="First" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+ 
+                    </lightning-layout>
+
+                    <lightning-layout>
+                        <lightning-layout-item size="5">
+                          <lightning-input label="" type="text" placeholder="Last" class="custom-label"></lightning-input>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="1">
+                          
+                      </lightning-layout-item>
+                        <lightning-layout-item size="5">
+                          <lightning-input label="" type="text" placeholder="Last" class="custom-label"></lightning-input>
+                        </lightning-layout-item>
+
+     
+                        </lightning-layout>
+                             <P>Gender Identity</P>
+                        <lightning-layout>
+                            
+                        <lightning-layout-item size="12">
+            <lightning-input class="custom-label" type="text" label="How do you identify your gender?" placeholder=""></lightning-input>
+            </lightning-layout-item>
+
+            
+            </lightning-layout>
+
+            <lightning-layout>
+                        <lightning-layout-item size="12">
+            <lightning-input class="custom-label" type="text" label="Gender Pronouns" placeholder=""></lightning-input>
+                        </lightning-layout-item>
+            </lightning-layout>
+
+             <P>Racial/Ethnic Identity&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Identity Expansion</P>
+            <lightning-layout>
+                
+               <lightning-layout-item size="5">
+                        <lightning-input label="How do you identify your race/ethnicity?" type="text" placeholder="" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+                   
+                    <lightning-layout-item size="1">      
+                    </lightning-layout-item>
+
+                    <lightning-layout-item size="5">
+                      <lightning-input label="1s there anything else you would like us to know about who you are?" type="text" placeholder="" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+ 
+                    
+
+            </lightning-layout>
+
+
+             <lightning-layout>
+                    <lightning-layout-item size="5">
+                        <lightning-input label="Date of Birth" type="date" placeholder="" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+                   
+                    <lightning-layout-item size="1">      
+                    </lightning-layout-item>
+
+                    <lightning-layout-item size="5">
+                      <lightning-input label="Age" type="text" placeholder="" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+ 
+                    </lightning-layout>
+
+                     <lightning-layout>
+                        <lightning-layout-item size="12">
+            <lightning-input class="custom-label" type="text" label="Address" placeholder="Street Address"></lightning-input>
+                        </lightning-layout-item>
+            </lightning-layout>
+
+             <lightning-layout>
+                        <lightning-layout-item size="12">
+            <lightning-input class="custom-label" type="text" label="" placeholder="Street Address Line 2"></lightning-input>
+                        </lightning-layout-item>
+            </lightning-layout>
+
+
+
+            <lightning-layout>
+                    <lightning-layout-item size="5">
+                        <lightning-input label="" type="text" placeholder="City" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+                   
+                    <lightning-layout-item size="1">      
+                    </lightning-layout-item>
+
+                    <lightning-layout-item size="5">
+                      <lightning-input label="" type="text" placeholder="Region" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+ 
+                    </lightning-layout>
+
+                    <lightning-layout>
+                        <lightning-layout-item size="5">
+                          <lightning-input label="" type="text" placeholder="Postal / Zip Code" class="custom-label"></lightning-input>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="1">
+                          
+                      </lightning-layout-item>
+                        <lightning-layout-item size="5">
+                         <lightning-combobox
+            name="progress"
+            label=""
+            value={value}
+            placeholder=""
+            options={options}
+            class="custom-label"
+            onchange={handleChange} ></lightning-combobox>
+                        </lightning-layout-item>
+
+     
+                        </lightning-layout>
+
+                         <lightning-layout>
+                        <lightning-layout-item size="12">
+           <lightning-textarea name="input1" class="custom-label" label="Top 3 Concerns For Child 2" ></lightning-textarea>
+                        </lightning-layout-item>
+            </lightning-layout>
+
+             <br></lightning-accordion-section
+        >
+        <lightning-accordion-section name="C" label="child3"
+            ><p>CHILD3</p>
+        <br>
+                <lightning-layout>
+                    <lightning-layout-item size="5">
+                        <lightning-input label="Child Name 3" type="text" placeholder="First" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+                   
+                    <lightning-layout-item size="1">      
+                    </lightning-layout-item>
+
+                    <lightning-layout-item size="5">
+                      <lightning-input label="Preferred Name, if different" type="text" placeholder="First" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+ 
+                    </lightning-layout>
+
+                    <lightning-layout>
+                        <lightning-layout-item size="5">
+                          <lightning-input label="" type="text" placeholder="Last" class="custom-label"></lightning-input>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="1">
+                          
+                      </lightning-layout-item>
+                        <lightning-layout-item size="5">
+                          <lightning-input label="" type="text" placeholder="Last" class="custom-label"></lightning-input>
+                        </lightning-layout-item>
+
+     
+                        </lightning-layout>
+                             <P>Gender Identity</P>
+                        <lightning-layout>
+                            
+                        <lightning-layout-item size="12">
+            <lightning-input class="custom-label" type="text" label="How do you identify your gender?" placeholder=""></lightning-input>
+            </lightning-layout-item>
+
+            
+            </lightning-layout>
+
+            <lightning-layout>
+                        <lightning-layout-item size="12">
+            <lightning-input class="custom-label" type="text" label="Gender Pronouns" placeholder=""></lightning-input>
+                        </lightning-layout-item>
+            </lightning-layout>
+
+             <P>Racial/Ethnic Identity&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Identity Expansion</P>
+            <lightning-layout>
+                
+               <lightning-layout-item size="5">
+                        <lightning-input label="How do you identify your race/ethnicity?" type="text" placeholder="" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+                   
+                    <lightning-layout-item size="1">      
+                    </lightning-layout-item>
+
+                    <lightning-layout-item size="5">
+                      <lightning-input label="1s there anything else you would like us to know about who you are?" type="text" placeholder="" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+ 
+                    
+
+            </lightning-layout>
+
+
+             <lightning-layout>
+                    <lightning-layout-item size="5">
+                        <lightning-input label="Date of Birth" type="date" placeholder="" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+                   
+                    <lightning-layout-item size="1">      
+                    </lightning-layout-item>
+
+                    <lightning-layout-item size="5">
+                      <lightning-input label="Age" type="text" placeholder="" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+ 
+                    </lightning-layout>
+
+                     <lightning-layout>
+                        <lightning-layout-item size="12">
+            <lightning-input class="custom-label" type="text" label="Address" placeholder="Street Address"></lightning-input>
+                        </lightning-layout-item>
+            </lightning-layout>
+
+             <lightning-layout>
+                        <lightning-layout-item size="12">
+            <lightning-input class="custom-label" type="text" label="" placeholder="Street Address Line 2"></lightning-input>
+                        </lightning-layout-item>
+            </lightning-layout>
+
+
+
+            <lightning-layout>
+                    <lightning-layout-item size="5">
+                        <lightning-input label="" type="text" placeholder="City" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+                   
+                    <lightning-layout-item size="1">      
+                    </lightning-layout-item>
+
+                    <lightning-layout-item size="5">
+                      <lightning-input label="" type="text" placeholder="Region" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+ 
+                    </lightning-layout>
+
+                    <lightning-layout>
+                        <lightning-layout-item size="5">
+                          <lightning-input label="" type="text" placeholder="Postal / Zip Code" class="custom-label"></lightning-input>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="1">
+                          
+                      </lightning-layout-item>
+                        <lightning-layout-item size="5">
+                         <lightning-combobox
+            name="progress"
+            label=""
+            value={value}
+            placeholder=""
+            options={options}
+            class="custom-label"
+            onchange={handleChange} ></lightning-combobox>
+                        </lightning-layout-item>
+
+     
+                        </lightning-layout>
+
+                         <lightning-layout>
+                        <lightning-layout-item size="12">
+           <lightning-textarea name="input1" class="custom-label" label="Top 3 Concerns For Child 3" ></lightning-textarea>
+                        </lightning-layout-item>
+            </lightning-layout>
+
+             <br></lightning-accordion-section
+        >
+
+         <lightning-accordion-section name="D" label="child4"
+            ><p>CHILD4</p>
+        <br>
+                <lightning-layout>
+                    <lightning-layout-item size="5">
+                        <lightning-input label="Child Name 4" type="text" placeholder="First" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+                   
+                    <lightning-layout-item size="1">      
+                    </lightning-layout-item>
+
+                    <lightning-layout-item size="5">
+                      <lightning-input label="Preferred Name, if different" type="text" placeholder="First" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+ 
+                    </lightning-layout>
+
+                    <lightning-layout>
+                        <lightning-layout-item size="5">
+                          <lightning-input label="" type="text" placeholder="Last" class="custom-label"></lightning-input>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="1">
+                          
+                      </lightning-layout-item>
+                        <lightning-layout-item size="5">
+                          <lightning-input label="" type="text" placeholder="Last" class="custom-label"></lightning-input>
+                        </lightning-layout-item>
+
+     
+                        </lightning-layout>
+                             <P>Gender Identity</P>
+                        <lightning-layout>
+                            
+                        <lightning-layout-item size="12">
+            <lightning-input class="custom-label" type="text" label="How do you identify your gender?" placeholder=""></lightning-input>
+            </lightning-layout-item>
+
+            
+            </lightning-layout>
+
+            <lightning-layout>
+                        <lightning-layout-item size="12">
+            <lightning-input class="custom-label" type="text" label="Gender Pronouns" placeholder=""></lightning-input>
+                        </lightning-layout-item>
+            </lightning-layout>
+
+             <P>Racial/Ethnic Identity&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Identity Expansion</P>
+            <lightning-layout>
+                
+               <lightning-layout-item size="5">
+                        <lightning-input label="How do you identify your race/ethnicity?" type="text" placeholder="" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+                   
+                    <lightning-layout-item size="1">      
+                    </lightning-layout-item>
+
+                    <lightning-layout-item size="5">
+                      <lightning-input label="1s there anything else you would like us to know about who you are?" type="text" placeholder="" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+ 
+                    
+
+            </lightning-layout>
+
+
+             <lightning-layout>
+                    <lightning-layout-item size="5">
+                        <lightning-input label="Date of Birth" type="date" placeholder="" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+                   
+                    <lightning-layout-item size="1">      
+                    </lightning-layout-item>
+
+                    <lightning-layout-item size="5">
+                      <lightning-input label="Age" type="text" placeholder="" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+ 
+                    </lightning-layout>
+
+                     <lightning-layout>
+                        <lightning-layout-item size="12">
+            <lightning-input class="custom-label" type="text" label="Address" placeholder="Street Address"></lightning-input>
+                        </lightning-layout-item>
+            </lightning-layout>
+
+             <lightning-layout>
+                        <lightning-layout-item size="12">
+            <lightning-input class="custom-label" type="text" label="" placeholder="Street Address Line 2"></lightning-input>
+                        </lightning-layout-item>
+            </lightning-layout>
+
+
+
+            <lightning-layout>
+                    <lightning-layout-item size="5">
+                        <lightning-input label="" type="text" placeholder="City" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+                   
+                    <lightning-layout-item size="1">      
+                    </lightning-layout-item>
+
+                    <lightning-layout-item size="5">
+                      <lightning-input label="" type="text" placeholder="Region" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+ 
+                    </lightning-layout>
+
+                    <lightning-layout>
+                        <lightning-layout-item size="5">
+                          <lightning-input label="" type="text" placeholder="Postal / Zip Code" class="custom-label"></lightning-input>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="1">
+                          
+                      </lightning-layout-item>
+                        <lightning-layout-item size="5">
+                         <lightning-combobox
+            name="progress"
+            label=""
+            value={value}
+            placeholder=""
+            options={options}
+            class="custom-label"
+            onchange={handleChange} ></lightning-combobox>
+                        </lightning-layout-item>
+
+     
+                        </lightning-layout>
+
+                         <lightning-layout>
+                        <lightning-layout-item size="12">
+           <lightning-textarea name="input1" class="custom-label" label="Top 3 Concerns For Child 4" ></lightning-textarea>
+                        </lightning-layout-item>
+            </lightning-layout>
+
+             <br></lightning-accordion-section
+        >
+    </lightning-accordion>
+
+
+             <P>Parent(s)/Guardian(s) Information</P>
+
+             <br>
+
+
+            <lightning-layout>
+                    <lightning-layout-item size="5">
+                        <lightning-input label="Parent/Guardian Name" type="text" placeholder="First" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+                   
+                    <lightning-layout-item size="1">      
+                    </lightning-layout-item>
+
+                    <lightning-layout-item size="5">
+                      <lightning-input label="" type="text" placeholder="Last" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+ 
+                    </lightning-layout>
+
+                    <lightning-layout>
+                        <lightning-layout-item size="12">
+            <lightning-input class="custom-label" type="text" label="Relationship to child" placeholder=""></lightning-input>
+                        </lightning-layout-item>
+            </lightning-layout>
+
+
+            <lightning-layout>
+                        <lightning-layout-item size="12">
+            <lightning-input class="custom-label" type="text" label="Address" placeholder="Street Address"></lightning-input>
+                        </lightning-layout-item>
+            </lightning-layout>
+
+             <lightning-layout>
+                        <lightning-layout-item size="12">
+            <lightning-input class="custom-label" type="text" label="" placeholder="Street Address Line 2"></lightning-input>
+                        </lightning-layout-item>
+            </lightning-layout>
+
+
+
+            <lightning-layout>
+                    <lightning-layout-item size="5">
+                        <lightning-input label="" type="text" placeholder="City" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+                   
+                    <lightning-layout-item size="1">      
+                    </lightning-layout-item>
+
+                    <lightning-layout-item size="5">
+                      <lightning-input label="" type="text" placeholder="Region" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+ 
+                    </lightning-layout>
+
+                    <lightning-layout>
+                        <lightning-layout-item size="5">
+                          <lightning-input label="" type="text" placeholder="Postal / Zip Code" class="custom-label"></lightning-input>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="1">
+                          
+                      </lightning-layout-item>
+                        <lightning-layout-item size="5">
+                         <lightning-combobox
+            name="progress"
+            label=""
+            value={value}
+            placeholder=""
+            options={options}
+            class="custom-label"
+            onchange={handleChange} ></lightning-combobox>
+                        </lightning-layout-item>
+
+     
+                        </lightning-layout>
+
+                         <lightning-layout>
+                    <lightning-layout-item size="5">
+                        <lightning-input label="Phone number" type="text" placeholder="### ### ####" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+                   
+                    <lightning-layout-item size="1">      
+                    </lightning-layout-item>
+
+                    <lightning-layout-item size="5">
+                      <lightning-input label="Email address" type="email" placeholder="" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+ 
+                    </lightning-layout>
+                    
+                    <lightning-layout>
+                        <lightning-layout-item size="12">
+            <lightning-input class="custom-label" type="text" label="Best time to contact Parent/Guardian" placeholder=""></lightning-input>
+                        </lightning-layout-item>
+            </lightning-layout>
+
+            
+
+            <lightning-layout>
+                        <lightning-layout-item size="12">
+            <lightning-input class="custom-label" type="text" label="Top 3 concerns for Parent/Guardian (if applicable)" placeholder=""></lightning-input>
+                        </lightning-layout-item>
+            </lightning-layout>
+
+    </div>
+</lightning-card>
+
+</template>

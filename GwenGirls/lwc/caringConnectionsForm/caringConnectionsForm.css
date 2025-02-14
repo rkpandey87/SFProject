@@ -1,0 +1,111 @@
+.cardAlign{
+	border: 1px solid rgb(194, 194, 194);
+   
+}
+
+.cardBodyAlign{
+	    margin-top: -6rem;
+}
+.logoAign{
+	padding-left:10px;
+	width:150px;
+}
+
+.mainHeading{
+	text-align:center;
+	font-size:25px;
+	font-weight:bold;
+}
+
+.heading{
+	margin-top: 1.2rem;
+	font-size: 1.2rem;
+    font-weight: bold;
+    font-family: system-ui;
+}
+
+
+.subHeading{
+	margin-left: .8rem;
+    margin-top: .9rem;
+}
+.picklistAlign{
+	padding-right: .98rem;
+}
+.parentFieldAlign{
+	    padding-right: .98rem;
+}
+.columAlign{
+	margin-top: .7rem;
+}
+
+.insideHeading{
+	margin-top: 1.8em;
+    font-size: .97rem;
+	font-weight: bold;
+}
+.signText{
+	  margin-top: .4rem;
+}
+.dateAign{
+	padding-top: 1.8rem;
+}
+.signatureTextAlign{
+	font-size: 1.5rem;
+    font-weight: bold;
+}
+lightning-button.button {
+		/*   --sds-c-button-brand-color-background: #bb00ff;  */
+	--sds-c-button-brand-color-background: purple;
+    --sds-c-button-text-color: #f4f7f9;
+}
+lightning-icon.button{
+		--sds-c-button-brand-color-background: purple;
+}
+
+.clientHeading{
+	margin-top: 0rem;
+}
+
+.addChildDiv{
+	display: flex;
+    justify-content: right;
+}
+.dualListALign{
+	    margin-top: 1.5rem;
+}
+.childborder{
+	    border: 1px solid rgb(203, 209, 215);
+}
+.subChildAlign{
+	    margin-left: .8rem;
+    margin-top: .9rem;
+}
+   .text-with-lines {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: #696969
+        }
+        .text-with-lines::before,
+        .text-with-lines::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid rgb(203, 209, 215);
+            margin: 0 10px;
+        }
+
+.childIndexingHeading{
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+.childLableSection{
+	display: flex;
+}
+.arrayButtonAlign{
+	    padding-left: .7rem;
+}
+.deleteRowAlign{
+	position: relative;
+    bottom: .3rem;
+}

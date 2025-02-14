@@ -1,0 +1,7 @@
+.custom-label {
+    /* font-family: 'Your Desired Font', sans-serif; */
+	--lwc-formLabelFontSize: 20px;
+	height: auto;
+    --lwc-formLabelFontWeight:bold;
+    color:black;
+	}

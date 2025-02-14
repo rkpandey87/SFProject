@@ -1,0 +1,75 @@
+<template>
+    <lightning-card title="Select The Form">
+
+        <div class="slds-modal slds-fade-in-open slds-backdrop">  
+            <div class="slds-modal__container">  
+        <div class="slds-modal__content slds-p-around_medium">  
+        <lightning-layout>
+            <lightning-layout-item size="3">
+                    <lightning-input type="text" class="custom-label" value={fName} onchange={handleInputfNameChange} label="First Name" ></lightning-input>
+            </lightning-layout-item>
+
+            <lightning-layout-item size="3">
+                <lightning-input type="text" class="custom-label" value={fName} onchange={handleInputfNameChange} label="Last Name" ></lightning-input>
+        </lightning-layout-item>
+
+        <lightning-layout-item size="3">
+            <lightning-input type="text" class="custom-label" value={fName} onchange={handleInputfNameChange} label="D.O.B:" ></lightning-input>
+    </lightning-layout-item>
+
+    <lightning-layout-item size="3">
+        <lightning-input type="text" class="custom-label" value={fName} onchange={handleInputfNameChange} label="SSN:" ></lightning-input>
+</lightning-layout-item>
+        </lightning-layout><br/>
+      
+        <lightning-layout>
+            <lightning-layout-item size="12">
+      
+                    <lightning-input type="text" class="custom-label" value={lName} onchange={handleInputlNameChange} label="Gender Identity:" ></lightning-input>
+      
+            </lightning-layout-item>
+        </lightning-layout><br/>
+
+        <lightning-layout>
+            <lightning-layout-item size="3">
+                    <lightning-input type="text" class="custom-label" value={fName} onchange={handleInputfNameChange} label="Race" ></lightning-input>
+            </lightning-layout-item>
+
+            <lightning-layout-item size="3">
+                <lightning-input type="text" class="custom-label" value={fName} onchange={handleInputfNameChange} label="Weight:" ></lightning-input>
+        </lightning-layout-item>
+
+        <lightning-layout-item size="3">
+            <lightning-input type="text" class="custom-label" value={fName} onchange={handleInputfNameChange} label="Height Feet:" ></lightning-input>
+    </lightning-layout-item>
+
+    <lightning-layout-item size="3">
+        <lightning-input type="text" class="custom-label" value={fName} onchange={handleInputfNameChange} label="Height Inches:" ></lightning-input>
+</lightning-layout-item>
+        </lightning-layout><br/>
+
+        <lightning-layout>
+            <lightning-layout-item size="4">
+                    <lightning-input type="text" class="custom-label" value={fName} onchange={handleInputfNameChange} label="Identifying Marks:" ></lightning-input>
+            </lightning-layout-item>
+
+            <lightning-layout-item size="4">
+                <lightning-input type="text" class="custom-label" value={fName} onchange={handleInputfNameChange} label="Hair Color:" ></lightning-input>
+        </lightning-layout-item>
+
+        <lightning-layout-item size="4">
+            <lightning-input type="text" class="custom-label" value={fName} onchange={handleInputfNameChange} label="Eye Color:" ></lightning-input>
+    </lightning-layout-item>
+
+ 
+        </lightning-layout><br/>
+
+      
+            
+        </div>
+        </div>
+      </div>
+
+
+    </lightning-card>
+</template>

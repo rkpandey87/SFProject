@@ -1,0 +1,13 @@
+.inner {
+    
+    position: center;
+    
+   
+}
+.exampleHolder{
+    position:  relative;
+   /* display: inline-block;
+    width: 100px;
+    height: 100px;
+    top: 75%;*/
+}

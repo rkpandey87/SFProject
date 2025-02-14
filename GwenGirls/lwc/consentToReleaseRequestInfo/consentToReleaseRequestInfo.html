@@ -1,0 +1,184 @@
+<template>
+    <lightning-card class="slds-card_boundary" >
+        <p class="sectionFontSize"><b>CONSENT TO RELEASE/REQUEST INFORMATION </b></p><br/><br/>
+        <div class="contentfontSize">
+          <!--  <img src={youthIntakeHeader} style="padding-left:150px;"/>-->
+           
+       
+      
+      <p>
+        This form, "Consent to Release/Request Information," empowers individuals, parents, or guardians to grant Gwen’s Girls<br/>
+        permission to share or request specific educational and medical data. By selecting checkboxes, you specify communication's<br/>
+        purpose, the contact, and types of records involved.<br/>
+        <br/>
+        The form also covers confidentiality aspects, like HIV status and behavioral health. Your signature indicates your understanding<br/>
+        that records won't be accessed without your consent and agreement's limits. You can cancel this agreement, and the form details<br/>
+        its duration and the possibility of further disclosure by Gwen’s Girls. Signing doesn't affect service eligibility, but it's vital for<br/>   
+        coordinated care. Please complete it accurately to facilitate service planning.<br/>
+        <br/>
+       <br/>  
+        Client Information:
+    </p>
+
+<table>
+    <tbody>
+
+        <tr>
+            <td width="20%">- Name of Client:</td>
+                                <td  width="100%">
+     <lightning-input 
+        class="slds-align_text-left slds-float_left"
+        type="text"
+        value={rc}
+          ></lightning-input>
+        </td>
+          </tr>      
+                    <tr>
+                    <td width="20%">
+                         - Date of Birth:</td>
+             <td width="100%">
+            <lightning-input 
+              class="slds-align_text-left slds-float_left"
+              type="date"
+              value={rc}
+             ></lightning-input>
+               </td>
+
+              </tr>
+               </tbody>
+       </table>
+
+<P class="checkboxfont">
+    I authorize Gwen’s Girls to communicate with the following person/facility for the purpose of individual service planning by <br/>
+    selecting the appropriate options below:</P>
+<br/>
+<lightning-checkbox-group name="radioGroup"
+                          label=""
+                          options={options}
+                          value={value}
+                          type="radio"
+                          class="checkboxFontSize"
+                          onchange={handleCheckboxChange}
+                         ></lightning-checkbox-group>
+                       
+                          <br/>
+                         
+                          <P>
+                            Name of Facility/Person:</Br>
+                            Address:</Br>
+                            Telephone:</Br>
+                            Fax:</Br>
+                          </P>
+                         <br/>
+                         <P>
+                                Records to be Released:<br/>Please check the specific records to be released.
+                           
+
+        <lightning-checkbox-group
+        name="recordTypes"
+        label=""
+        options={checkboxOptions}
+        value={selectedValues}
+        onchange={handleCheckboxChange}
+        class="checkboxFontSize"
+       >
+    </lightning-checkbox-group> </P>
+   <br/>
+   <P>
+        Confidential Information:<br/>
+        HIV, Behavioral Health, and Drug and Alcohol information contained in the parts of the record(s) indicated above will be<br/>
+        released through this authorization unless otherwise indicated.</br></br>Do NOT release the following:
+   
+   <br/>
+    <lightning-checkbox-group
+        name="recordTypes"
+        label=""
+        options={checkboxOptions1}
+        value={selectedValues1}
+        onchange={handleCheckboxChange1}
+        class="checkboxFontSize"
+        >
+    </lightning-checkbox-group> </p>
+   <br/>
+   <P>
+            Acknowledgement and Understanding:<br/>
+            <br/>
+            I understand and acknowledge the following:
+
+            </P>
+           <br/>
+                <div>
+                <ol>
+                    <li>1. &nbsp;&nbsp;&nbsp;My record(s) will not be obtained by Gwen’s Girls unless permission is provided as evidenced by my signature on this<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Release of Information form.</li>
+                    <li>2.&nbsp;&nbsp;&nbsp;My agreement to release information is limited for the purposes and to the persons above.<br/></li>
+                    <li>3.&nbsp;&nbsp;&nbsp;I agree to allow Gwen’s Girls to use a copy or fax of this agreement.<br/></li>
+                    <li>4.&nbsp;&nbsp;&nbsp;I have the right to cancel my agreement by written request, except to the extent that Gwen’s Girls has already requested<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; or released information that I have previously agreed to.<br/></li>
+                    <li>5.&nbsp;&nbsp;&nbsp;This consent shall remain in effect for one (1) year from the date signed below and will expire when my child is<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; discharged from Gwen’s Girls if less than one year.<br/></li>
+                    <li>6.&nbsp;&nbsp;&nbsp;The records released may possibly be re-disclosed by Gwen’s Girls, and therefore the staff/employees have no<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; responsibility or liability as a result of that disclosure.<br/></li>
+                    <li>7.&nbsp;&nbsp;&nbsp;My refusal to sign this authorization will not affect my child’s eligibility for services, but it may delay or limit service <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;provision.</li>
+                    <li>8.&nbsp;&nbsp;&nbsp;I am entitled to a copy of this authorization.</li>
+                </ol>
+            </div>
+           <br/>
+           <br/>
+          <!--  <lightning-layout>
+                <lightning-layout-item padding="around-small">
+                    <div class="header-column " >
+                        <lightning-input type="text"  label="Parent/Guardian Signature:"></lightning-input>
+                    </div>
+                </lightning-layout-item>
+             <lightning-layout-item padding="around-small">
+                 <div class="header-column  ">
+                     <lightning-input type="Date"  label="Date"></lightning-input>
+                 </div>
+             </lightning-layout-item>
+            </lightning-layout> -->
+<div class="formCloseline"></div>
+            <table>
+                <tbody>
+         
+                 <tr>
+                     <td>
+                        <table>
+                         <tr>
+                             <td width="60%">
+                                 <table>
+                                     <tbody>
+                                         <tr><td> <b>Parent/Guardian Signature</b>&nbsp;&nbsp;&nbsp;</td>
+                                         <td><lightning-input 
+                                             class="slds-align_text-left slds-float_left"
+                                           type="text"
+                                           value={rc}
+                                         ></lightning-input></td>
+                                         </tr>
+                                     </tbody>
+                                 </table>
+                             </td> 
+         
+                             <td width="40%">
+                                 <table>
+                                     <tbody>
+                                         <tr><td> <b>Date</b>&nbsp;&nbsp;&nbsp;</td>
+                                         <td><lightning-input 
+                                             class="slds-align_text-left slds-float_left"
+                                           type="date"
+                                           value={rc}
+                                         ></lightning-input></td>
+                                         </tr>
+                                     </tbody>
+                                 </table>
+                             </td>    
+                             
+         
+                         </tr>
+                        </table> 
+                     </td>
+         
+                   
+                 </tr>
+                </tbody> 
+             </table>
+            </div>
+
+</lightning-card>
+</template>

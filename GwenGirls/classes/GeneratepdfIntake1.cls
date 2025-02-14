@@ -1,0 +1,3 @@
+Global class GeneratepdfIntake1 {
+
+}

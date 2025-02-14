@@ -1,0 +1,320 @@
+<template>
+    <lightning-card>
+   
+    <p class="registrationFontLength"><b class="registrationFont">SAFETY & RISK ASSESSMENT</b></p>
+    <div class="contentFontSize">
+
+ <br>
+            <div class="slds-grid slds-gutters">
+                <div class="slds-col slds-size_2-of-3">
+                    <span>
+                        <p>Are there immediate Safety Concerns?</p>
+                        <lightning-layout>
+                            <lightning-layout-item size="8">
+                                <p class="slds-box slds-box_x-small">
+                                    <lightning-radio-group name="radioGroup"
+                                        label=""
+                                        options={rowOptions1}
+                                        value={value}
+                                        type="radio"
+                                        class="my-radio-group"
+                                        onchange={handleCheckboxChange}
+                                    ></lightning-radio-group>
+                                </p>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                        <lightning-layout>
+                            <lightning-layout-item size="8">
+                                <p class="slds-box slds-box_x-small">
+                                    <lightning-radio-group name="radioGroup"
+                                        label=""
+                                        options={rowOptions2}
+                                        value={value}
+                                        type="radio"
+                                        class="my-radio-group"
+                                        onchange={handleCheckboxChange}
+                                    ></lightning-radio-group>
+                                </p>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                    </span>
+                </div>
+                <div class="slds-col slds-size_1-of-3">
+                    <span><lightning-textarea name="input1" class="custom-label" label="Comments"></lightning-textarea></span>
+                </div>
+            </div>
+
+            <br>
+
+            <div class="slds-grid slds-gutters">
+                <div class="slds-col slds-size_2-of-3">
+                    <span>
+                        <p>Does the client have a safety plan?</p>
+                        <lightning-layout>
+                            <lightning-layout-item size="8">
+                                <p class="slds-box slds-box_x-small">
+                                    <lightning-radio-group name="radioGroup"
+                                        label=""
+                                        options={rowOptions1}
+                                        value={value}
+                                        type="radio"
+                                        class="my-radio-group"
+                                        onchange={handleCheckboxChange}
+                                    ></lightning-radio-group>
+                                </p>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                        <lightning-layout>
+                            <lightning-layout-item size="8">
+                                <p class="slds-box slds-box_x-small">
+                                    <lightning-radio-group name="radioGroup"
+                                        label=""
+                                        options={rowOptions2}
+                                        value={value}
+                                        type="radio"
+                                        class="my-radio-group"
+                                        onchange={handleCheckboxChange}
+                                    ></lightning-radio-group>
+                                </p>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                    </span>
+                </div>
+                <div class="slds-col slds-size_1-of-3">
+                    <span><lightning-textarea name="input1" class="custom-label" label="Comments"></lightning-textarea></span>
+                </div>
+            </div>
+
+            <br>
+
+            <p>This youth had any previous system involvement?</p>
+            <lightning-layout>
+                <lightning-layout-item size="4">
+                    <p class="slds-box slds-box_x-small">
+                        <lightning-radio-group name="radioGroup"
+                            label=""
+                            options={rowOptions11}
+                            value={value}
+                            type="radio"
+                            class="my-radio-group"
+                            onchange={handleCheckboxChange}
+                        ></lightning-radio-group>
+                    </p>
+                </lightning-layout-item>
+                <lightning-layout-item size="4">
+                    <p class="slds-box slds-box_x-small">
+                        <lightning-radio-group name="radioGroup"
+                            label=""
+                            options={rowOptions22}
+                            value={value}
+                            type="radio"
+                            class="my-radio-group"
+                            onchange={handleCheckboxChange}
+                        ></lightning-radio-group>
+                    </p>
+                </lightning-layout-item>
+                <lightning-layout-item size="4">
+                    <p class="slds-box slds-box_x-small">
+                        <lightning-radio-group name="radioGroup"
+                            label=""
+                            options={rowOptions33}
+                            value={value}
+                            type="radio"
+                            class="my-radio-group"
+                            onchange={handleCheckboxChange}
+                        ></lightning-radio-group>
+                    </p>
+                </lightning-layout-item>
+            </lightning-layout>
+
+            <lightning-layout>
+                <lightning-layout-item size="4">
+                    <p class="slds-box">
+                        <lightning-radio-group name="radioGroup"
+                            label=""
+                            options={rowOptions111}
+                            value={value}
+                            type="radio"
+                            class="my-radio-group"
+                            onchange={handleCheckboxChange}
+                        ></lightning-radio-group>
+                    </p>
+                </lightning-layout-item>
+                <lightning-layout-item size="4">
+                    <p class="slds-box">
+                        <lightning-radio-group name="radioGroup"
+                            label=""
+                            options={rowOptions222}
+                            value={value}
+                            type="radio"
+                            class="my-radio-group"
+                            onchange={handleCheckboxChange}
+                        ></lightning-radio-group>
+                    </p>
+                </lightning-layout-item>
+            </lightning-layout>
+
+            <br>
+            <span><lightning-textarea name="input1" class="custom-label" label="Brief explanation"></lightning-textarea></span>
+            <br>
+
+            <p>If any family member received CYF services, please enter:</p>
+            <br>
+
+            <lightning-layout>
+                <lightning-layout-item size="12">
+                    <lightning-input class="custom-label" type="text" label="CYF Case Number" placeholder=""></lightning-input>
+                </lightning-layout-item>
+            </lightning-layout>
+
+            <lightning-layout>
+                <lightning-layout-item size="5">
+                    <lightning-input label="CYF Caseworker's Name" type="text" placeholder="First" class="custom-label"></lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item size="1"></lightning-layout-item>
+                <lightning-layout-item size="5">
+                    <lightning-input label="" type="text" placeholder="Last" class="custom-label"></lightning-input>
+                </lightning-layout-item>
+            </lightning-layout>
+
+            <lightning-layout>
+                <lightning-layout-item size="12">
+                    <lightning-input class="custom-label" type="phone" label="Phone number" placeholder="### ### ####"></lightning-input>
+                </lightning-layout-item>
+            </lightning-layout>
+            
+             <p>Regional Office for CYF Services</p>
+
+<lightning-layout>
+    <lightning-layout-item size="4">
+        <p class="slds-box">
+            <lightning-radio-group name="radioGroup"
+                label=""
+                options={rowOptions11q}
+                value={value}
+                type="radio"
+                class="my-radio-group"
+                onchange={handleCheckboxChange}
+            ></lightning-radio-group>
+        </p>
+    </lightning-layout-item>
+
+    <lightning-layout-item size="4">
+        <p class="slds-box">
+            <lightning-radio-group name="radioGroup"
+                label=""
+                options={rowOptions22q}
+                value={value}
+                type="radio"
+                class="my-radio-group"
+                onchange={handleCheckboxChange}
+            ></lightning-radio-group>
+        </p>
+    </lightning-layout-item>
+
+    <lightning-layout-item size="4">
+        <p class="slds-box">
+            <lightning-radio-group name="radioGroup"
+                label=""
+                options={rowOptions33q}
+                value={value}
+                type="radio"
+                class="my-radio-group"
+                onchange={handleCheckboxChange}
+            ></lightning-radio-group>
+        </p>
+    </lightning-layout-item>
+</lightning-layout>
+
+<lightning-layout>
+    <lightning-layout-item size="4">
+        <p class="slds-box slds-box_x-small">
+            <lightning-radio-group name="radioGroup"
+                label=""
+                options={rowOptions11qw}
+                value={value}
+                type="radio"
+                class="my-radio-group"
+                onchange={handleCheckboxChange}
+            ></lightning-radio-group>
+        </p>
+    </lightning-layout-item>
+
+    <lightning-layout-item size="4">
+        <p class="slds-box slds-box_x-small">
+            <lightning-radio-group name="radioGroup"
+                label=""
+                options={rowOptions22qw}
+                value={value}
+                type="radio"
+                class="my-radio-group"
+                onchange={handleCheckboxChange}
+            ></lightning-radio-group>
+        </p>
+    </lightning-layout-item>
+
+    <lightning-layout-item size="4">
+        <p class="slds-box slds-box_x-small">
+            <lightning-radio-group name="radioGroup"
+                label=""
+                options={rowOptions33qw}
+                value={value}
+                type="radio"
+                class="my-radio-group"
+                onchange={handleCheckboxChange}
+            ></lightning-radio-group>
+        </p>
+    </lightning-layout-item>
+</lightning-layout>
+
+<lightning-layout>
+    <lightning-layout-item size="4">
+        <p class="slds-box slds-box_x-small">
+            <lightning-radio-group name="radioGroup"
+                label=""
+                options={rowOptions33qwe}
+                value={value}
+                type="radio"
+                class="my-radio-group"
+                onchange={handleCheckboxChange}
+            ></lightning-radio-group>
+        </p>
+    </lightning-layout-item>
+</lightning-layout>
+<br>
+
+<p>Is the Family's Case...</p>
+
+<lightning-layout>
+    <lightning-layout-item size="4">
+        <p class="slds-box slds-box_x-small">
+            <lightning-radio-group name="radioGroup"
+                label=""
+                options={rowOptions11qwer}
+                value={value}
+                type="radio"
+                class="my-radio-group"
+                onchange={handleCheckboxChange}
+            ></lightning-radio-group>
+        </p>
+    </lightning-layout-item>
+
+    <lightning-layout-item size="4">
+        <p class="slds-box slds-box_x-small">
+            <lightning-radio-group name="radioGroup"
+                label=""
+                options={rowOptions22qwer}
+                value={value}
+                type="radio"
+                class="my-radio-group"
+                onchange={handleCheckboxChange}
+            ></lightning-radio-group>
+        </p>
+    </lightning-layout-item>
+</lightning-layout>
+
+    </div>
+        </lightning-card>
+
+
+</template>

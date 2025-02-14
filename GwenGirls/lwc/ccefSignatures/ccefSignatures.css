@@ -1,0 +1,36 @@
+.registrationFont{
+    border-bottom: 1px solid #000000;
+   
+}
+.registrationFontLength{
+    margin-left:146px;
+    font-size:30px;
+}
+
+.signatureSectionStyle{
+    margin-left:146px;
+    font-size:20px;
+    margin-right:146px;
+    padding-top:10px;
+}
+.custom-label {
+    /* font-family: 'Your Desired Font', sans-serif; */
+	--lwc-formLabelFontSize: 20px;
+	height: auto;
+    --lwc-formLabelFontWeight:bold;
+    padding-bottom: 20px;
+    
+
+	}
+
+    .my-radio-group {
+        --slds-c-button-line-height: 2.875rem;
+        --slds-c-LabelFontSize: 20px;
+        font-weight:bold;
+    }
+    .reasonForReferral{
+       
+        font-size:20px;
+        
+        padding-top:10px;
+    }

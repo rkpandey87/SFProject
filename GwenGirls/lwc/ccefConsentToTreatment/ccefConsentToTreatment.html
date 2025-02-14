@@ -1,0 +1,71 @@
+<template>
+<lightning-card>
+
+<p class="registrationFontLength"><b class="registrationFont">CONSENT TO TREATMENT</b></p>
+
+<div class="contentFontSize">
+
+    <p class="reasonForReferral">Have the parent(s)/guardian(s) consented to participate in CC4YOUth?</p>
+    <lightning-layout>
+        <lightning-layout-item size="4">
+    <p class="slds-box slds-box_x-small">
+        <lightning-radio-group name="radioGroup"
+        label=""
+        options={rowOptions1}
+        value={value}
+        type="radio"
+        class="my-radio-group"
+        onchange={handleCheckboxChange}
+        ></lightning-radio-group>
+    </p>
+</lightning-layout-item>
+</lightning-layout>
+
+<p class="reasonForReferral">If the youth is age 14 or older, has the youth consented to participate in<br/>CC4YOUth?</p>
+<lightning-layout title="Reason for Referral (Concerns List) - Needs Category">
+    <lightning-layout-item size="4">
+<p class="slds-box slds-box_x-small">
+    <lightning-radio-group name="radioGroup"
+    label=""
+    options={rowOptions1}
+    value={value}
+    type="radio"
+    class="my-radio-group"
+    onchange={handleCheckboxChange}
+    ></lightning-radio-group>
+</p>
+</lightning-layout-item>
+
+<lightning-layout-item size="4">
+<p class="slds-box slds-box_x-small">
+    <lightning-radio-group name="radioGroup"
+    label=""
+    options={rowOptions2}
+    value={value}
+    type="radio"
+    class="my-radio-group"
+    onchange={handleCheckboxChange}
+    ></lightning-radio-group>
+</p>
+</lightning-layout-item>
+
+</lightning-layout>
+    
+            <lightning-layout>
+                <lightning-layout-item size="12">
+
+                        <lightning-input type="text" class="custom-label" value={rc} onchange={handleInputSsnChange} label="If no, why?" ></lightning-input>
+
+                </lightning-layout-item>
+            </lightning-layout><br/>
+
+            <lightning-layout>
+                <lightning-layout-item size="12">
+                        <lightning-input type="text" class="custom-label" value={rc} onchange={handleInputSsnChange} label="Additional comments regarding consent:" ></lightning-input>
+
+                </lightning-layout-item>
+            </lightning-layout>
+
+            </div>
+        </lightning-card>
+</template>

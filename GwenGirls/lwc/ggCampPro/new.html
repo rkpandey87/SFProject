@@ -1,0 +1,30 @@
+<template>
+    <div class="mainDiv">
+        <lightning-modal-header label="Gwen’s Girls AFTER SCHOOL/SUMMER CAMP Program">
+            <h4>Registration Form</h4>
+        </lightning-modal-header>
+        <lightning-modal-body>
+            <div class="slds-form-element">
+                <label class="slds-form-element__label" style="font-size: medium;" for="select-01">How did you hear about us?</label>
+                <div class="slds-form-element__control">
+                    <div class="slds-select_container">
+                        <select class="slds-select" id="select-01">
+                            <option value="">Select…</option>
+                            <option>Social Media</option>
+                            <option>School Referral</option>
+                            <option>Family/Friend Referral</option>
+                            <option>Community Referral</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+        </lightning-modal-body>
+        
+    </div>
+    <lightning-card variant="Narrow" title="CLIENT INFORMATION" icon-name="standard:account">
+        <lightning-button-icon icon-name="utility:down" variant="border-filled" alternative-text="Show More" slot="actions"></lightning-button-icon>
+        <p class="slds-p-horizontal_small">The information collected is internally reviewed and helps secure grant funding for programs and events.</p>
+        <p slot="footer">Card Footer</p>
+    </lightning-card>
+</template>

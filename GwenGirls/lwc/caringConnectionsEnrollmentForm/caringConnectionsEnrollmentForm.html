@@ -1,0 +1,59 @@
+<template>
+    <lightning-card>
+        <div class="allignLogo">
+           <!-- <hr style ="display: block; margin-top: 0.5em;margin-bottom: 0.5em;margin-left: auto;margin-right: auto;border-style: inset; border-width: 2px;">-->
+            <lightning-layout>
+                <!-- Left Column for Image -->
+                <lightning-layout-item size="3">
+                    <div class="">
+                  <img src={caringConnectionsLogo}  class="youthLogo"/>
+                   </div>
+                </lightning-layout-item>
+        
+                <!-- Right Column for Paragraph -->
+                <lightning-layout-item size="9">
+                    <p  class= "checkboxfont">
+                        <b>Caring Connections<br/>Enrollment Form</b><br/>
+                    </p>
+                </lightning-layout-item>
+               
+            </lightning-layout>
+            
+            
+    </div>
+<br/>
+  
+
+
+ <!---   Caring Connections  Enrollment Form- Section 1   -->
+ <div class="REFERRAL INFORMATION- Section 1">
+  <c-ccef-referral-information video-url={video}></c-ccef-referral-information>
+  </div> <br/>  <br/> <br/>  <br/> <br/>  <br/> 
+
+   <!---   Caring Connections  Enrollment Form- Section 2   -->
+ <div class="CONSENT TO TREATMENT- Section 2">
+    <c-ccef-consent-to-treatment video-url={video}></c-ccef-consent-to-treatment>
+    </div> <br/>  <br/> <br/>  <br/> <br/>  <br/>  <br/>  <br/>
+
+   <!---   Caring Connections  Enrollment Form- Section 3  
+   <div class="CONSENT TO TREATMENT- Section 2">
+    <c-ccef-demographic-information video-url={video}></c-ccef-demographic-information>
+    </div> <br/>  <br/> <br/>  <br/> <br/>  <br/>  <br/>  <br/>
+-->
+
+
+  <!---   Caring Connections  Enrollment Form- Section 5  -->
+   <div class="SIGNATURES- Section 5">
+    <c-ccef-signatures video-url={video}></c-ccef-signatures>
+    </div> <br/>  <br/> <br/>  <br/> <br/>  <br/>  <br/>  <br/>
+
+
+<p style="padding-top:20px;text-align:center;font-size:22px;"> <lightning-button variant="brand" label="Submit Form" title="SUBMIT FORM"
+  class="slds-col_bump-left slds-text-align_right slds-p-horizontal_x-small slds-text-align_center" onclick={handleForSave}>
+</lightning-button>  </p>
+
+ 
+</lightning-card>
+
+
+</template>

@@ -1,0 +1,103 @@
+<template>
+    
+     <lightning-card class="slds-card_boundary contentfontSize" >
+          <div class= "contentfontSize">
+        <p class="sectionFontSize"><b><u>DEMOGRAPHIC INFORMATION</u></b></p>
+        <br>
+        <p class="checkboxfont"> Client Information</p>
+         <br>
+        <p class="checkboxfont"> CHILD1</p>
+         
+         <br>
+    <lightning-layout multiple-rows="true">
+        <!-- First set of components -->
+        <lightning-layout-item size="6" class="slds-p-around_medium">
+            <lightning-card title="Child Name 1" class="card">
+                <div class="slds-p-around_medium">
+                    <input type="text" id="input11" value={rc} onchange={handleInputChange} name="input1" placeholder="First" class="rounded-input" />
+                </div>
+                <div class="slds-p-around_medium">
+                    <input type="text"  id="input21" value={rc} onchange={handleInputChange} name="input2" placeholder="Last" class="rounded-input" />
+                </div>
+            </lightning-card>
+        </lightning-layout-item>
+
+        <!-- Second set of components -->
+        <lightning-layout-item size="6" class="slds-p-around_medium">
+            <lightning-card title="Preferred Name, if different" class="card">
+                <div class="slds-p-around_medium">
+                    <input type="text"  id="input121" name="input1" value={rc} onchange={handleInputChange} placeholder="First" class="rounded-input" />
+                </div>
+                <div class="slds-p-around_medium">
+                    <input type="text"  id="input221" name="input2" value={rc} onchange={handleInputChange}  placeholder="Last" class="rounded-input" />
+                </div>
+            </lightning-card>
+        </lightning-layout-item>
+    </lightning-layout>
+          </div>
+ <div class="button-container">
+        <lightning-button label="Add" class="buttonclass" onclick={handleButtonClick}></lightning-button>
+    
+
+          <!-- <button type="button" class="collapsible">child1</button>
+
+
+           <p class="checkboxfont"> CHILD1</p>
+         
+         <br>
+    <lightning-layout multiple-rows="true">
+        
+        <lightning-layout-item size="6" class="slds-p-around_medium">
+            <lightning-card title="Child Name 1" class="card">
+                <div class="slds-p-around_medium">
+                    <input type="text" id="inputc11" value={rc} onchange={handleInputChange} name="input1" placeholder="First" class="rounded-input" />
+                </div>
+                <div class="slds-p-around_medium">
+                    <input type="text"  id="inputc21" value={rc} onchange={handleInputChange} name="input2" placeholder="Last" class="rounded-input" />
+                </div>
+            </lightning-card>
+        </lightning-layout-item>
+
+        
+        <lightning-layout-item size="6" class="slds-p-around_medium">
+            <lightning-card title="Preferred Name, if different" class="card">
+                <div class="slds-p-around_medium">
+                    <input type="text"  id="input1c21" name="input1" value={rc} onchange={handleInputChange} placeholder="First" class="rounded-input" />
+                </div>
+                <div class="slds-p-around_medium">
+                    <input type="text"  id="input2c21" name="input2" value={rc} onchange={handleInputChange}  placeholder="Last" class="rounded-input" />
+                </div>
+            </lightning-card>
+        </lightning-layout-item>
+    </lightning-layout>
+     -->
+     <p>Name of Staff completing INTAKE</p>
+                <lightning-layout>
+                    <lightning-layout-item size="6">
+                        <lightning-input label="" type="text" placeholder="First" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+                   
+                    <lightning-layout-item size="1">      
+                    </lightning-layout-item>
+
+                    <lightning-layout-item size="5">
+                      <lightning-input label="" type="text" placeholder="First" class="custom-label"></lightning-input>
+                    </lightning-layout-item>
+ 
+                    </lightning-layout>
+
+                    <lightning-layout>
+                        <lightning-layout-item size="6">
+                          <lightning-input label="Child Name 1" type="text" placeholder="last" class="custom-label"></lightning-input>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="1">
+                          
+                      </lightning-layout-item>
+                        <lightning-layout-item size="5">
+                          <lightning-input label="Preferred Name, if different" type="text" placeholder="last" class="custom-label"></lightning-input>
+                        </lightning-layout-item>
+     
+                        </lightning-layout>
+                        </div>
+     </lightning-card>
+</template>

@@ -1,0 +1,216 @@
+<template>
+	
+		<div class="spinner">
+		<template if:true={systemVar1.isLoading}>
+			<lightning-spinner alternative-text="Loading" variant="brand" size="large">
+			</lightning-spinner>
+		</template>
+	</div>
+
+	<article class="slds-card cardAlign">
+		<div class="slds-card__header slds-grid">
+			<img src={formLogo} class="logoAign" onclick={handlelogo}/>
+		</div>
+			<div class="slds-card__body slds-card__body_inner">
+				<h1 class="mainHeading">
+					{systemVar1.mainHeading}
+				</h1><br/>
+				<p class="subHeadig">
+					<lightning-formatted-rich-text value={systemVar1.subParagraph}></lightning-formatted-rich-text>
+				</p>
+				<div class="innerDivAlign">
+					<template if:true={visibleFields.mplc_plsContactCheckBox}>
+						<lightning-input type="checkbox" class="custom-labelCheckbox checkPleaseContact"
+							style="font-weight: bold;"
+							label="My daughter may participate in the Gwen’s Girls program. Please contact me for social security information."
+							checked={systemVar1.parentInputData.pleaseContactCheckBox} onchange={handlePleaseContactMethod} required>
+						</lightning-input>
+						<div class="slds-grid slds-wrap">
+							<div class="slds-col slds-large-size_3-of-12 slds-medium-size_4-of-12 slds-size_6-of-12">
+								<lightning-combobox name="Site" class=" setSiteOptions" label="Site" value={systemVar1.parentInputData.siteValue}
+							required onchange={handleSite} placeholder="Select Site" options={systemVar1.sitOptions}>
+						</lightning-combobox>
+							</div>
+						</div>
+						
+					</template>
+
+					<div class="slds-grid slds-wrap manageYouthAlign">
+						<div class="slds-col slds-large-size_9-of-12 slds-medium-size_9-of-12 slds-size_9-of-12">
+							<div class="manageYouth">
+								<template if:true={visibleFields.mplc_manageYouthHeadig}>
+									<lightning-formatted-rich-text value={visibleFields.mplc_manageYouthHeadig}>
+									</lightning-formatted-rich-text>
+								</template>
+							</div>
+							<div if:true={visibleFieldsmplc_manageSubHeading}>
+								<lightning-formatted-rich-text value={visibleFieldsmplc_manageSubHeading}>
+								</lightning-formatted-rich-text>
+							</div>
+						</div>
+
+						<div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_3-of-12">
+							<lightning-button variant="Brand" label="Add Child" onclick={addChild}
+								icon-name="utility:add" class="slds-m-left_x-small button addChildAlign">
+							</lightning-button>
+						</div>
+					</div>
+
+					<template if:true={systemVar1.isUserdforMPLC}>
+
+						<template for:each={mplc_ChildFields} for:item="childItem" for:index="childIndex">
+
+
+							<div key={childItem.id} class="slds-grid slds-wrap childInputAlign">
+
+								<div
+									class="slds-col slds-large-size_11-of-12 slds-medium-size_10-of-12 slds-size_10-of-12">
+									<p class="childIndexingHeading">Child : {childItem.ch_index}</p>
+									<div class="childInputSection">
+										<div class="slds-grid slds-wrap">
+											<div
+												class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+												<lightning-input type="text" class="childFirstColumAlign"
+													data-name="FirstName" label="First Name" data-id={childIndex}
+													value={childItem.ch_FirstName}
+													placeholder="Please Enter the First Name" required
+													onchange={handleChildFirstName}></lightning-input>
+											</div>
+											<div
+												class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+												<lightning-input type="text" class="childSecondColumAlign"
+													label="Last Name" data-id={childIndex} data-name="LastName"
+													onchange={handleChildLastName} value={childItem.ch_LastName}
+													placeholder="Please Enter the Last Name" required></lightning-input>
+											</div>
+											<div
+												class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+												<lightning-input type="date" class="childThiredColumAlign" name="input5"
+													data-id={childIndex} onchange={handleChildBirthdate}
+													data-name="BirthDate" value={childItem.ch_birtDate}
+													label="Birthdate" required></lightning-input>
+											</div>
+										</div>
+										<div class="slds-grid slds-wrap childSecordRow">
+											<div
+												class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+												<lightning-input type="Number" class="childFirstColumAlign"
+													label="Grade" data-id={childIndex} onchange={handleChildGrade}
+													data-name="Grade" value={childItem.ch_grade}
+													placeholder=" Enter Grade" required></lightning-input>
+											</div>
+											<div
+												class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+												<lightning-combobox name="school"
+													class="childSecondColumAlign setSchoolOption" label="School"
+													data-id={childIndex} onchange={handleChildSchool} data-name="School" options={systemVar1.schoolOptions}
+													value={childItem.ch_school} placeholder="Select School" required>
+												</lightning-combobox>
+											</div>
+											<div
+												class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+
+											</div>
+										</div>
+
+									</div>
+
+
+
+								</div>
+								<div
+									class="slds-col slds-large-size_1-of-12 slds-medium-size_2-of-12 slds-size_2-of-12 deleteChildButtonAlign">
+									<template if:true={systemVar1.isDeleteRowVisible}>
+										<button type="button"  data-index={childIndex} onclick={handleChildDeletedRow} class="slds-button slds-button_icon" title="More Options">
+                                        <lightning-icon icon-name='action:delete' alternative-text='Remove from Intake' size='small' title='Remove from Intake'></lightning-icon>
+                                        </button>
+									</template>
+								</div>
+							</div>
+						</template>
+
+
+						<div class="parentdiv">
+							<lightning-formatted-rich-text class="manageYouth" value="Parent / Guardian">
+							</lightning-formatted-rich-text>
+							<div class="slds-grid slds-wrap" style="margin-top:1rem">
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentColumns checkInputFN"
+										label="Parent / Guardian First Name" onchange={handleParentFirstName}
+										placeholder="Please Enter the First Name"
+										value={systemVar1.parentInputData.firstName} required></lightning-input>
+								</div>
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentColumns checkInputLN" 	value={systemVar1.parentInputData.lastName}
+										label="Parent / Guardian Last Name" onchange={handleParentLastName}
+										placeholder="Please Enter the Last Name" required></lightning-input>
+								</div>
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentColumns" onchange={handleParentEmail} value={systemVar1.parentInputData.email}
+										label="Parent / Guardian Email" placeholder="Please Enter the Email">
+									</lightning-input>
+								</div>
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentColumns checkPhone"
+										label="Parent / Guardian Phone Number" value={systemVar1.parentInputData.phoneNo}
+										placeholder="Please Enter the Phone Number" onchange={handleParentPhoneNo}
+										required></lightning-input>
+								</div>
+							</div>
+							<div class="slds-grid slds-wrap" style="margin-top:1rem">
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_6-of-12">
+									<lightning-input type="text" class="parentColumns checkSign"
+										onchange={handleParentSign} label="Parent / Guardian Signature" required>
+									</lightning-input>
+									<p>By pressing "Submit," you are agreeing to electronically sign this document.</p>
+								</div>
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_6-of-12 datedClass">
+									Date : &nbsp;
+									<lightning-formatted-rich-text class=""
+										value={systemVar1.parentInputData.dateOfSign}>
+									</lightning-formatted-rich-text>
+								</div>
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_6-of-12">
+								</div>
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_6-of-12">
+								</div>
+							</div>
+							<div style="margin-top: .6rem;">
+								<lightning-formatted-rich-text class="signAlign"
+										value={systemVar1.parentInputData.signature}>
+									</lightning-formatted-rich-text>
+							</div>
+
+
+
+
+						</div>
+
+
+					</template>
+
+
+				</div>
+
+
+
+			</div>
+			<footer class="footer slds-card__footer">
+				<hr>
+				<div class="slds-align_absolute-center">
+					<lightning-button variant="Brand" class="button" onclick={handleSubmit} name="submit"
+						label="Submit">
+					</lightning-button>
+				</div>
+
+			</footer>
+	</article>
+</template>

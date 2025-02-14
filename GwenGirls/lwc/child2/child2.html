@@ -1,0 +1,33 @@
+<template>
+     <p class="checkboxfont"> CHILD1</p>
+         
+         <br>
+    <lightning-layout multiple-rows="true">
+        <!-- First set of components -->
+        <lightning-layout-item size="6" class="slds-p-around_medium">
+            <lightning-card title="Child Name 1" class="card">
+                <div class="slds-p-around_medium">
+                    <input type="text" id="input11" value={rc} onchange={handleInputChange} name="input1" placeholder="First" class="rounded-input" />
+                </div>
+                <div class="slds-p-around_medium">
+                    <input type="text"  id="input21" value={rc} onchange={handleInputChange} name="input2" placeholder="Last" class="rounded-input" />
+                </div>
+            </lightning-card>
+        </lightning-layout-item>
+
+        <!-- Second set of components -->
+        <lightning-layout-item size="6" class="slds-p-around_medium">
+            <lightning-card title="Preferred Name, if different" class="card">
+                <div class="slds-p-around_medium">
+                    <input type="text"  id="input121" name="input1" value={rc} onchange={handleInputChange} placeholder="First" class="rounded-input" />
+                </div>
+                <div class="slds-p-around_medium">
+                    <input type="text"  id="input221" name="input2" value={rc} onchange={handleInputChange}  placeholder="Last" class="rounded-input" />
+                </div>
+            </lightning-card>
+        </lightning-layout-item>
+    </lightning-layout>
+          </div>
+
+
+</template>

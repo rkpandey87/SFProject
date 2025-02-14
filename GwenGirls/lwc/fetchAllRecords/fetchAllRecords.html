@@ -1,0 +1,25 @@
+<template>
+    <lightning-card title="Task Records">
+        <div class="slds-m-left_xx-large">
+        <lightning-button style="margin-left: 550px;" label="Create" variant="brand" onclick={handlecreatenavigation}></lightning-button>
+        <lightning-button style="margin-left: 50px;" label="Edit" variant="brand" onclick={handleeditnavigation}></lightning-button>
+        <lightning-button  label="Delete" icon-name="utility:delete" disabled={isTrue} variant="destructive" onclick={handledelete}></lightning-button>
+    </div>
+        <div style="height: 300px;">
+
+            <!--lightning data table -->
+            <lightning-datatable
+                    key-field="Id"
+                    data={data}
+                    columns={columns}
+                    onsave={handleSave}
+                    draft-values={draftvalues} 
+                    onrowselection={getSelectedRecords} >
+                    
+            </lightning-datatable>
+
+
+        </div>
+
+    </lightning-card>
+</template>

@@ -1,0 +1,13 @@
+.sectionFontSize{
+    font-size:30px;
+    padding-left:350px;
+}
+.contentfontSize{
+    font-size: 20px;
+    padding-left:100px;
+    }
+     .formCloseline{
+        border-bottom: 1px solid #000000;
+        width:1140px;
+        /*margin-right:20px; */
+    }

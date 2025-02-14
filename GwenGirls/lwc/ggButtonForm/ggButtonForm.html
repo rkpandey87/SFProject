@@ -1,0 +1,85 @@
+<template>
+    <lightning-card title="Select The Form">
+        <div class="slds-box slds-theme_shade">  
+        <p style="padding-top:20px;text-align:center;font-size:22px;"> <lightning-button variant="brand" label="Youth Development Form" title="Youth Development"
+            class="slds-col_bump-left slds-text-align_right slds-p-horizontal_x-small slds-text-align_center" onclick={showModalOfYouthForm}>
+          </lightning-button>  </p>
+
+          <p style="padding-top:20px;text-align:center;font-size:22px;"> <lightning-button variant="brand" label="Caring Connection Form" title="Caring Connection"
+            class="slds-col_bump-left slds-text-align_right slds-p-horizontal_x-small slds-text-align_center" onclick={showModalOfCaringConnectionForm}>
+          </lightning-button>  </p>
+
+          <p style="padding-top:20px;text-align:center;font-size:22px;"> <lightning-button variant="brand" label="MPLC Form" title="MPLC"
+            class="slds-col_bump-left slds-text-align_right slds-p-horizontal_x-small slds-text-align_center" onclick={showModalOfMPLCForm}>
+          </lightning-button>  </p>
+
+<template if:true={openModal}>
+    <div class="slds-modal slds-fade-in-open slds-backdrop">  
+        <div class="slds-modal__container">  
+          
+          
+
+          <!-- Body Section-->  
+          <div class="slds-modal__content slds-p-around_medium">  
+            
+            <lightning-button variant="brand" label="New Parent" title="New Parent"
+            class="slds-col_bump-left slds-text-align_right slds-p-horizontal_x-small slds-text-align_center" onclick={InsertRecordForm}>
+          </lightning-button> 
+
+          <lightning-button variant="brand" label="Existing Parent" title="Existing Parent"
+          class="slds-col_bump-left slds-text-align_right slds-p-horizontal_x-small slds-text-align_center" onclick={searchExistingRecord}>
+        </lightning-button> 
+           
+          </div>  
+          <!--- Footer Section-->  
+          <div class="slds-modal__footer">  
+            <lightning-button icon-name="utility:close" label="close" variant="brand" onclick={closeModal}>  
+            </lightning-button>  
+          </div>  
+        </div>  
+      </div>  
+</template>
+
+<template if:true={openInsertFormModal}>
+    <div class="slds-modal slds-fade-in-open slds-backdrop">  
+        <div class="slds-modal__container">  
+    <div class="slds-modal__content slds-p-around_medium">  
+    <lightning-layout>
+        <lightning-layout-item size="12">
+
+                <lightning-input type="text" class="custom-label" value={fName} onchange={handleInputfNameChange} label="First Name" ></lightning-input>
+
+        </lightning-layout-item>
+    </lightning-layout><br/>
+
+    <lightning-layout>
+        <lightning-layout-item size="12">
+
+                <lightning-input type="text" class="custom-label" value={lName} onchange={handleInputlNameChange} label="Last Name" ></lightning-input>
+
+        </lightning-layout-item>
+    </lightning-layout>
+        <p style="padding-top:20px;text-align:center;font-size:22px;"> <lightning-button variant="brand" label="Submit Form" title="SUBMIT FORM"
+            class="slds-col_bump-left slds-text-align_right slds-p-horizontal_x-small slds-text-align_center" onclick={handleForSave}>
+          </lightning-button>  &nbsp;&nbsp;&nbsp;
+        
+          <lightning-button icon-name="utility:close" label="Cancel" variant="brand" onclick={cancelModal}>  
+        </lightning-button>
+
+        </p>
+    <br/>
+    </div>
+    </div>
+  </div>
+</template>
+       <!---  <p style="padding-top:20px;text-align:center;font-size:22px;"> <lightning-button variant="brand" label="Caring Connection" title="Caring Connection"
+            class="slds-col_bump-left slds-text-align_right slds-p-horizontal_x-small slds-text-align_center" onclick={handleForSave}>
+          </lightning-button>  </p>
+
+          <p style="padding-top:20px;text-align:center;font-size:22px;"> <lightning-button variant="brand" label="MPLC" title="MPLC"
+            class="slds-col_bump-left slds-text-align_right slds-p-horizontal_x-small slds-text-align_center" onclick={handleForSave}>
+          </lightning-button>  </p>--> 
+</div>
+        </lightning-card>
+
+</template>

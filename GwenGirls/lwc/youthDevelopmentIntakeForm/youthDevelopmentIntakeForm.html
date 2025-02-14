@@ -1,0 +1,77 @@
+<template>
+    <lightning-card>
+        <div class="slds-m-around_medium">
+          <img class="youthLogo" src={youthIntakeHeader}/>
+         
+       <p class="sectionFontSize"><b>Gwen’s Girls AFTER SCHOOL/SUMMER CAMP Program</b></p>
+       <p class="registrationFontLength"><b class="registrationFont">Registration Form</b></p>
+      </div>
+
+   <!---  Youth Development Intake Form- Section 1   -->  
+<div class="Gwen’s Girls AFTER SCHOOL/SUMMER CAMP Program- Section 1">
+<c-gg-demo onprogresshtvaluechange={handleProgressHtValueChange} onprogresswtvaluechange={handleProgressWtValueChange} onprogressrcvaluechange={handleProgressRaceValueChange} onprogressdobvaluechange={handleProgressDobValueChange} onssnprogressvaluechange={handleProgressSsnValueChange}>
+</c-gg-demo>
+</div>   <br/>  <br/>  
+
+
+ <!---  Youth Development Intake Form- Section 2   -->
+ <div class="FAMILY HANDBOOK ACCEPTANCE ACKNOWLEDGEMENT- Section 2">
+  <c-family-handbook-aa video-url={video}></c-family-handbook-aa>
+  </div> <br/>  <br/> 
+
+
+<!--- In Progress-  Youth Development Intake Form- Section 3  -->
+<div class="ACTIVITY AND TRANSPORTATION GUIDELINES- Section 3">
+  <c-activity-and-transport-guidelines video-url={video}></c-activity-and-transport-guidelines>
+  </div>  <br/>  <br/> 
+
+
+
+<!---  Youth Development Intake Form- Section 4   -->  
+<div class="CONSENT FOR PHOTOGRAPHY AND IMAGE USE- Section 4">
+  <c-consent-for-photo video-url={video}></c-consent-for-photo>
+  </div> <br/>  <br/> 
+
+
+
+  <!---  Youth Development Intake Form- Section 5   -->   
+ <div class="PARTICIPANT CONFIDENTIALITY STATEMENT - Section 5">
+  <c-participant-c video-url={video}></c-participant-c>
+  </div> <br/>  <br/> 
+
+
+
+  <!---  Youth Development Intake Form- Section 6   -->
+ <div class="Youth Development Intake Form- Section 6">
+  <c-release-and-autho onprogressgradevaluechange={handleProgressGradeValueChange}></c-release-and-autho>
+  </div> <br/>  <br/> 
+
+
+
+
+  <!--- issue in Name:  Youth Development Intake Form- Section 7   --> 
+ <div class="Youth Development Intake Form- Section 7">
+  <c-consent-to-release-request-info onprogressconsgndtvaluechange={handleProgressConDtValueChange}></c-consent-to-release-request-info>
+  </div> <br/>  <br/> 
+
+
+
+ <!---  Youth Development Intake Form- Section 8   -->
+<div class="Youth Development Intake Form- Section 8">
+<c-gg-behavioral-policy video-url={video}></c-gg-behavioral-policy>
+</div> 
+<!---       Youth Development Intake Form- Section 9   -->
+ <!--
+<div class="Youth Development Intake Form- Section 9">
+<c-emergency-info-face-sheet onprogresshtvaluechange={handleProgressHtValueChange} onprogresswtvaluechange={handleProgressWtValueChange} onprogressrcvaluechange={handleProgressRaceValueChange}></c-emergency-info-face-sheet>
+</div> -->
+
+<p style="padding-top:20px;text-align:center;font-size:22px;"> <lightning-button variant="brand" label="Submit Form" title="Submit Form"
+  class="slds-col_bump-left slds-text-align_right slds-p-horizontal_x-small slds-text-align_center" onclick={handleForSave}>
+</lightning-button>  </p>
+
+ 
+</lightning-card>
+
+
+</template>

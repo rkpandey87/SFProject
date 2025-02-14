@@ -1,0 +1,197 @@
+<template>
+  <!-- Rendering a Lightning card -->
+  <lightning-card title="">
+    <!-- Displaying a Lightning spinner -->
+    <template if:true={showSpinner}>
+      <div id="spinnerDiv" style="height: 10rem">
+        <div class="slds-spinner_container">
+          <div role="status" class="slds-spinner slds-spinner_medium">
+            <span class="slds-assistive-text">Loading</span>
+            <div class="slds-spinner__dot-a"></div>
+            <div class="slds-spinner__dot-b"></div>
+          </div>
+        </div>
+      </div>
+    </template>
+    <template if:false={showSpinner}>
+      <!--Section for Page Size starts-->
+      <div class="slds-m-around_medium slds-align_absolute-center">
+        <div class="slds-col slds-size_1-of-11 slds-var-p-right_small">
+          <P
+            class="slds-var-m-vertical_medium content"
+            style="padding-left: 10px"
+            >Show</P
+          >
+        </div>
+        <div class="slds-col slds-size_1-of-11">
+          <lightning-combobox
+            name="Show"
+            value={selectedPageSize}
+            options={pageSizeOptions}
+            label=""
+            onchange={handleRecordsPerPage}
+            variant="label-hidden"
+            dropdown-alignment="auto"
+          >
+          </lightning-combobox>
+        </div>
+        <div class="slds-col slds-size_1-of-11 slds-var-p-left_small">
+          <P class="slds-var-m-vertical_medium content">Records Per Page</P>
+        </div>
+        &nbsp;&nbsp;&nbsp;|
+        <div class="slds-col slds-size_1-of-11 slds-var-p-left_small">
+          <p class="slds-var-m-vertical_medium content">
+            Showing Rows {startingRecord} - {endingRecord} of {records.length}
+          </p>
+        </div>
+      </div>
+      <!--Section for Page Size ends-->
+      <!-- Pagination buttons section starts -->
+      <div class="slds-m-around_medium slds-align_absolute-center">
+        <div>
+          <!-- Button for the first page -->
+          <lightning-button
+            label="First"
+            onclick={handleFirstPage}
+            disabled={isFirstPage}
+          >
+          </lightning-button
+          >&nbsp;
+          <!-- Button for the previous page -->
+          <lightning-button
+            label="Previous"
+            onclick={handlePreviousPage}
+            disabled={isFirstPage}
+          >
+          </lightning-button
+          >&nbsp;
+          <!-- Iterating over paginationButtons and rendering numbered page buttons -->
+          <template for:each={paginationButtons} for:item="button">
+            <lightning-button
+              key={button.key}
+              label={button.value}
+              value={button.value}
+              variant={button.variant}
+              onclick={handlePageButtonClick}
+              class="slds-m-horizontal_xx-small"
+              disabled={button.disabled}
+            >
+            </lightning-button> </template
+          >&nbsp;
+          <!-- Button for the next page -->
+          <lightning-button
+            label="Next"
+            onclick={handleNextPage}
+            disabled={isLastPage}
+          >
+          </lightning-button
+          >&nbsp;
+          <!-- Button for the last page -->
+          <lightning-button
+            label="Last"
+            onclick={handleLastPage}
+            disabled={isLastPage}
+          >
+          </lightning-button>
+        </div>
+      </div>
+      <!-- Pagination buttons section ends -->
+      <!-- Displaying a Lightning datatable -->
+      <div class="myTable">
+        <lightning-datatable
+          class="noRowHover"
+          key-field="Id"
+          data={displayedRecords}
+          columns={columns}
+          hide-checkbox-column
+          onsort={handleSort}
+          sorted-by={sortedBy}
+          sorted-direction={sortedDirection}
+        >
+        </lightning-datatable>
+      </div>
+      <!--Section for Page Size starts-->
+      <div class="slds-m-around_medium slds-align_absolute-center">
+        <div class="slds-col slds-size_1-of-11 slds-var-p-right_small">
+          <P
+            class="slds-var-m-vertical_medium content"
+            style="padding-left: 10px"
+            >Show</P
+          >
+        </div>
+        <div class="slds-col slds-size_1-of-11">
+          <lightning-combobox
+            name="Show"
+            value={selectedPageSize}
+            options={pageSizeOptions}
+            label=""
+            onchange={handleRecordsPerPage}
+            variant="label-hidden"
+            dropdown-alignment="auto"
+          >
+          </lightning-combobox>
+        </div>
+        <div class="slds-col slds-size_1-of-11 slds-var-p-left_small">
+          <P class="slds-var-m-vertical_medium content">Records Per Page</P>
+        </div>
+        &nbsp;&nbsp;&nbsp;|
+        <div class="slds-col slds-size_1-of-11 slds-var-p-left_small">
+          <p class="slds-var-m-vertical_medium content">
+            Showing Rows {startingRecord} - {endingRecord} of {records.length}
+          </p>
+        </div>
+      </div>
+      <!--Section for Page Size ends-->
+      <!-- Pagination buttons section starts -->
+      <div class="slds-m-around_medium slds-align_absolute-center">
+        <div>
+          <!-- Button for the first page -->
+          <lightning-button
+            label="First"
+            onclick={handleFirstPage}
+            disabled={isFirstPage}
+          >
+          </lightning-button
+          >&nbsp;
+          <!-- Button for the previous page -->
+          <lightning-button
+            label="Previous"
+            onclick={handlePreviousPage}
+            disabled={isFirstPage}
+          >
+          </lightning-button
+          >&nbsp;
+          <!-- Iterating over paginationButtons and rendering numbered page buttons -->
+          <template for:each={paginationButtons} for:item="button">
+            <lightning-button
+              key={button.key}
+              label={button.value}
+              value={button.value}
+              variant={button.variant}
+              onclick={handlePageButtonClick}
+              class="slds-m-horizontal_xx-small"
+              disabled={button.disabled}
+            >
+            </lightning-button> </template
+          >&nbsp;
+          <!-- Button for the next page -->
+          <lightning-button
+            label="Next"
+            onclick={handleNextPage}
+            disabled={isLastPage}
+          >
+          </lightning-button
+          >&nbsp;
+          <!-- Button for the last page -->
+          <lightning-button
+            label="Last"
+            onclick={handleLastPage}
+            disabled={isLastPage}
+          >
+          </lightning-button>
+        </div>
+      </div>
+      <!-- Pagination buttons section ends -->
+    </template>
+  </lightning-card>
+</template>

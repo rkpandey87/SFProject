@@ -1,0 +1,35 @@
+.custom-label {
+    /* font-family: 'Your Desired Font', sans-serif; */
+	--lwc-formLabelFontSize: 20px;
+	height: auto;
+    --lwc-formLabelFontWeight:bold; 
+	}
+
+    input {
+        color: #000000; /* Input text color */
+        font-size: 20px; /* Make the input text bold */
+    }
+
+    .custom-labelCheckbox {
+        /* font-family: 'Your Desired Font', sans-serif; */
+        --lwc-formLabelFontSize: 30px;
+        height: auto;
+        --lwc-formLabelFontWeight:bold; 
+        } 
+
+
+
+.slds-p-left_xx-large {
+    --lwc-formLabelFontSize: 15px;
+		--lwc-formLabelFontWeight:bold; 
+}
+
+lightning-button.button {
+		/*   --sds-c-button-brand-color-background: #bb00ff;  */
+	--sds-c-button-brand-color-background: purple;
+    --sds-c-button-text-color: #f4f7f9;
+}
+
+lightning-icon.button{
+		--sds-c-button-brand-color-background: purple;
+}

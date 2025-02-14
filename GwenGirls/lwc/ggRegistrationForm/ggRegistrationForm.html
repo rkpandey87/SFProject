@@ -1,0 +1,1478 @@
+<template>
+<div>
+        <template if:true={successMessage}>
+        <div style="width:100%; border-radius:10px;
+        margin:0 auto; padding:10px; position: relative;background:green;
+        color:white;text-align:center;">
+        {alertMessage}</div>
+        </template>
+        <template if:true={errorMessage}>
+        <div id="divError" style="width:100%; border-radius:10px;
+        margin:0 auto; padding:10px; position: relative;background:red;
+        color:black;text-align:center;">
+        {alertMessage}</div>
+        </template>
+        <template if:false={RegisterForm}>
+            <div class="slds-text-align_left" style="padding: 1%;">
+                <div class="slds-box slds-p-around_none slds-m-top_x-small slds-m-bottom_medium slds-m-horizontal_none">
+                    <lightning-layout>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                            <p>Enter PIN</p><lightning-input type="text" name="pin" onchange={handlePIN}></lightning-input>
+                        </lightning-layout-item></br>
+                    </lightning-layout>
+                    <lightning-layout>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                        <lightning-button size="small" variant="brand" onclick={verifyPin} label="Verify"></lightning-button>
+                    </lightning-layout-item>
+                   </lightning-layout>
+                    <lightning-layout >
+                    </lightning-layout>
+                </div>
+            </div>
+        </template>
+        <template if:true={RegisterForm}>
+            <div class="slds-text-align_center" style="padding: 1%;;">
+                <div class="slds-m-around_medium">
+                    <img style="width:5%;height:10%;" src={GwenGirlLogo}>                 
+                </div>
+            </div>
+            <div style="width:80%;margin:0 auto;border:1px solid black;background-color:black;" >
+            </div>
+            <div style="width:80%;margin:0 auto;text-align:center" >
+                <h1 style="font-size:16px;font-weight:bold;">Gwen's Girls Prevention Program</h1>
+                <h1 style="font-size:16px;font-weight:bold;">After School/Summer Camp</h1>
+                <h1 style="font-size:16px;font-weight:bold;">{ProgramName}</h1>
+                <h1 style="font-size:14px;text-decoration: underline;font-weight:bold;">Registration Form</h1>
+                <p>Gwen's Girls, Inc.</p>
+                <p>711 W. Commons, 3rd floor</p>
+                <p>Pittsburgh, PA 15212</p>
+                <p>412-904-4239</p>
+            </div>
+            <div class="slds-text-align_left" style="padding: 1%;">
+                <div class="slds-box slds-p-around_none slds-m-top_x-small slds-m-bottom_medium slds-m-horizontal_none">
+                    <lightning-layout>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                            <p style="color: red;">* If you do not know the answer to required information please select None in the picklists or indicate None or N/A in the written answers.</p>
+                            <p style="color: red;">* Please review all filled in information and make any corrections necessary before submitting the form.</p>
+                        </lightning-layout-item></br>
+                    </lightning-layout>
+
+                    <lightning-layout>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                            <p>How did you hear about us?</p><lightning-input data-field="HowDoYouHearAboutUs" name="HowDoYouHearAboutUs" 
+                            type="text" value={HowDoYouHearAboutUs}></lightning-input>
+                        </lightning-layout-item></br>
+                    </lightning-layout>
+                    <lightning-layout >
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                            <div class="slds-theme_info">
+                                <h1 style="font-size:14px;font-weight:bold;" >&nbsp;&nbsp;&nbsp;&nbsp;Client Information – The information collected is internally reviewed and helps secure grant funding for programs and events.
+                                </h1>
+                            </div>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                    <lightning-layout >
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                            <div class="slds-theme_info" style="cursor: pointer;" title="Click here to Expand/Collapse"
+                            onclick={handleChild1InfoOnclick}>
+                                <h1 style="font-size:16px;font-weight:bold;" >
+                                    <lightning-icon size="x-small" class="white-background" icon-name="utility:chevronright" alternative-text="Up arrow" variant="inverse" ></lightning-icon>
+                                    Child1 Information</h1>
+                            </div>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                    <template if:true={showChild1Info}>
+                        <lightning-layout multiple-rows >
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                                <p>1.Child First Name:</p> <lightning-input  data-field="Child1FirstName" name="Child1FirstName" type="text" 
+                                value={Child1FirstName} 
+                                onchange={handleChild1OnChange}></lightning-input>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                                <p>Child Last Name:</p> <lightning-input  data-field="Child1LastName" name="Child1LastName" type="text" value={Child1LastName}
+                                onchange={handleChild1OnChange}></lightning-input>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                                <p>DOB</p>  <lightning-input data-field="Child1Birthday" class="slds-text-heading_small"
+                                 name="Child1Birthday" type="date" 
+                                 onchange={handleDOBchange}
+                                 value={Child1Birthday} ></lightning-input>
+                            </lightning-layout-item>
+                            <lightning-layout-item  size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                                <p>age:</p> <lightning-input data-field="Child1Age" name="Child1Age" class="slds-text-heading_small"  type="text" value={Child1Age}
+                                disabled ></lightning-input>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                        <lightning-layout multiple-rows >
+                            <lightning-layout-item  size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                                <P>SSN: (SSN is not mandatory)</P> <lightning-input data-field="Child1SSN" name="Child1SSN" class="slds-text-heading_small"  type="text" value={Child1SSN}
+                                onchange={handleChild1OnChange} ></lightning-input>
+                                </lightning-layout-item>
+                            <lightning-layout-item size="12" padding="around-small">
+                               
+                                <c-lwc-lookup lookup-label="School" object-api-name="account" icon-name="standard:account"  
+                                    selected-value={school1name}
+                                    selected-record-id={Child1School}
+                                    onrecordselection={onSchool1Selection}></c-lwc-lookup>                                     
+                            </lightning-layout-item>
+                            <lightning-layout-item size="4" padding="around-small">
+                                <p>Grade:</p>
+                                <lightning-combobox 
+                                data-field="Child1Grade"
+                                name="Child1Grade" 
+                                options={GradesList}
+                                value={Child1Grade}
+                                onchange={handleChild1OnChange}
+                                ></lightning-combobox>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                        <lightning-layout multiple-rows>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                                <div class="slds-theme_info">
+                                    <h1 style="font-size:14px;font-weight:bold;" >&nbsp;&nbsp;&nbsp;&nbsp;HEALTH HISTORY (Please give approximate dates if applicable) </h1>
+                                </div>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                        <lightning-layout multiple-rows>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                                <div>
+                                    FAMILY PHYSICIAN
+                                </div>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                        <lightning-layout multiple-rows>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="4" padding="around-small">
+                                <div>
+                                    Name:<lightning-input data-field="Child1PhysicianName" name="Child1PhysicianName" type="text" value={Child1PhysicianName}
+                                    onchange={handleChild1OnChange} ></lightning-input>
+                                </div>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="4" padding="around-small">
+                                <div>                
+                                    Phone:<lightning-input data-field="Child1PhysicianPhone" name="Child1PhysicianPhone"  class="slds-text-heading_small" type="text" value={Child1PhysicianPhone} 
+                                    onchange={handleChild1OnChange}></lightning-input>
+                                </div>
+                            </lightning-layout-item>  
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="4" padding="around-small">
+                                <div>
+                                    Insurance carrier and number:
+                                    <lightning-input data-field="Child1PhysicianInsuranceNumber" name="Child1PhysicianInsuranceNumber" type="text" value={Child1PhysicianInsuranceNumber}
+                                    onchange={handleChild1OnChange} ></lightning-input>                        
+                                </div>
+                            </lightning-layout-item>              
+                        </lightning-layout>
+                        <lightning-layout >
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="4" padding="around-small">
+                                <div>
+                                    Date of last exams:
+                                </div>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                        <lightning-layout multiple-rows>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                                <div>                
+                                    Physical
+                                    <lightning-input data-field="Child1LastPhysical" class="slds-text-heading_small" name="Child1LastPhysical" type="date" value={Child1LastPhysical}
+                                    onchange={handleChild1OnChange} ></lightning-input>
+                                </div>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                                <div>                
+                                    Vision
+                                    <lightning-input data-field="Child1LastVisionTest" class="slds-text-heading_small" name="Child1LastVisionTest" type="date" value={Child1LastVisionTest} 
+                                    onchange={handleChild1OnChange}></lightning-input>                        
+                                </div>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                                <div>                
+                                    Hearing
+                                    <lightning-input data-field="Child1LastHearingExam" class="slds-text-heading_small" name="Child1LastHearingExam" type="date" value={Child1LastHearingExam} 
+                                    onchange={handleChild1OnChange}></lightning-input>                        
+                                </div>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                                <div>
+                                    Dental
+                                    <lightning-input data-field="Child1Dental" class="slds-text-heading_small" name="Child1Dental" type="date" value={Child1Dental} 
+                                    onchange={handleChild1OnChange}></lightning-input>                        
+                                </div>
+                            </lightning-layout-item>                                
+                        </lightning-layout>
+                        <lightning-layout multiple-rows>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                                <div>
+                                    Operations of serious injuries:
+                                    <lightning-textarea data-field="Child1OperationInjuries1" name="Child1OperationInjuries1" value={Child1OperationInjuries1} 
+                                    onchange={handleChild1OnChange}></lightning-textarea>                        
+                                </div>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                        <lightning-layout multiple-rows>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                                <div>
+                                    Special needs (health, physical, education): 
+                                    <lightning-textarea data-field="Child1SpecialNeeds" name="Child1SpecialNeeds" value={Child1SpecialNeeds} 
+                                    onchange={handleChild1OnChange}></lightning-textarea>                        
+                                </div>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                        <lightning-layout multiple-rows>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="6" padding="around-small">
+                                <div>
+                                    Current medications (prescription only-send in original bottle): 
+                                    <lightning-textarea data-field="Child1CurrentMedications" name="Child1CurrentMedications" value={Child1CurrentMedications} 
+                                    onchange={handleChild1OnChange}></lightning-textarea>                        
+                                </div>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="6" padding="around-small">
+                                <div>
+                                    Take Medications</div>
+                                    <div class="slds-p-around_xx-small">
+                                        <lightning-combobox data-field="Child1TakeMedication" name="Child1TakeMedication" value={Child1TakeMedication} placeholder="--Select Option--" 
+                                        options={Child1TakesMedicationPickList} 
+                                        onchange={handleChild1OnChange} ></lightning-combobox>
+                                    </div>
+                            </lightning-layout-item>  
+                        </lightning-layout>
+                        <lightning-layout multiple-rows>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                                <div>
+                                    Any specific activities to be encouraged or limited by physician's advice:
+                                    <lightning-textarea data-field="Child1PhysiciansAdvice" name="Child1PhysiciansAdvice" value={Child1PhysiciansAdvice} 
+                                    onchange={handleChild1OnChange}></lightning-textarea>                        
+                                </div>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                        <lightning-layout multiple-rows>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                            <div> <p>Have Had</p></div>
+                            <div class="slds-p-around_xx-small">
+                                <lightning-combobox data-field="Child1HaveHad" name="Child1HaveHad" value={Child1HaveHad} placeholder="Select Illness" 
+                                options={Child1HaveHadIllnessMultiPicklist} onchange={handleChild1HadIllnessMultiPicklistValueChange} ></lightning-combobox>
+                            </div>
+                            <div class="slds-p-around_xx-small">
+                                <template for:each={allChild1IllnessMultiPicklistValues} for:item="val">
+                                    <lightning-pill key={val} label={val} name={val} onremove={handleRemoveChild1HadIllnessMultiPicklistValue}></lightning-pill>
+                                </template>
+                            </div>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                                <div>
+                                    Details:
+                                    <lightning-textarea data-field="Child1PhysicianDetails" name="Child1PhysicianDetails" type="text" value={Child1PhysicianDetails} 
+                                    onchange={handleChild1OnChange}></lightning-textarea>                        
+                                </div>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                                <div> <p>Allergies</p></div>
+                                <div class="slds-p-around_xx-small">
+                                    <lightning-combobox data-field="Child1Allergies" name="Child1Allergies" value={Child1Allergies} placeholder="Select Allergies" 
+                                    options={Child1AllergiesMultiPicklist} onchange={handleChild1AllergiesMultiPicklistValueChange} ></lightning-combobox>
+                                </div>
+                                <div class="slds-p-around_xx-small">
+                                    <template for:each={allChild1AllergiesMultiPicklistValues} for:item="val">
+                                        <lightning-pill key={val} label={val} name={val} onremove={handleRemoveChild1AllergiesMultiPicklistValue}></lightning-pill>
+                                    </template>
+        
+                                </div>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                                    <div>
+                                        Details:
+                                        <lightning-textarea data-field="Child1AllergiesDetails" name="Child1AllergiesDetails" value={Child1AllergiesDetails}
+                                        onchange={handleChild1OnChange} ></lightning-textarea>                        
+                                    </div>
+                                </lightning-layout-item>
+                    </lightning-layout>
+                        <br>
+                    <lightning-layout multiple-rows>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                            <div>
+                                Please check days child will be attending after school/summer camp:                     
+                            </div>
+                            <div class="slds-p-around_xx-small">
+                                <lightning-combobox  data-field="Child1AttendAfterSchool" name="Child1AttendAfterSchool" value={Child1AttendAfterSchool} placeholder="--Select Option--" 
+                                options={Child1DaysAttendAfterSchoolMultiPicklist} onchange={handleChild1AttendSchoolMultiPicklistValueChange} ></lightning-combobox>
+                            </div>
+                            <div class="slds-p-around_xx-small">
+                                <template for:each={allChild1AttendSchoolMultiPicklistValues} for:item="val">
+                                    <lightning-pill key={val} label={val} name={val} onremove={handleRemoveChild1AttendSchoolMultiPicklistValue}></lightning-pill>
+                                </template>
+                            </div>
+                        </lightning-layout-item>                
+                    </lightning-layout>  
+                </template>
+                   
+    <!--**************************************end child1,health History fields******************************************************-->
+
+                <lightning-layout >
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                        <div class="slds-theme_info" style="cursor: pointer;" title="Click here to Expand/Collapse"
+                        onclick={handleChild2InfoOnclick}>                        
+                            <h1 style="font-size:16px;font-weight:bold;" >
+                                <lightning-icon  size="x-small" class="white-background" icon-name="utility:chevronright" alternative-text="Up arrow" variant="inverse" ></lightning-icon>
+                                Child2 Information</h1>
+                        </div>
+                    </lightning-layout-item>
+                </lightning-layout>
+                <template if:true={showChild2Info}>
+                    <lightning-layout multiple-rows >
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                            <p>2.Child First Name:</p> <lightning-input  data-field="Child2FirstName" name="Child2FirstName" type="text" value={Child2FirstName} 
+                            onchange={handleChild2OnChange}></lightning-input>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                            <p>Child Last Name:</p> <lightning-input  data-field="Child2LastName" name="Child2LastName" type="text" value={Child2LastName} 
+                            onchange={handleChild2OnChange}></lightning-input>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                            <p>DOB</p>  <lightning-input data-field="Child2Birthday" class="slds-text-heading_small" 
+                            name="Child2Birthday" type="date" 
+                            onchange={handleDOBchange}
+                            value={Child2Birthday} ></lightning-input>
+                        </lightning-layout-item>
+                        <lightning-layout-item  size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                            <p>age:</p> <lightning-input data-field="Child2Age" name="Child2Age" class="slds-text-heading_small"  type="text" value={Child2Age} 
+                            disabled></lightning-input>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                    <lightning-layout multiple-rows >
+                        <lightning-layout-item  size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                            <P>SSN: (SSN is not mandatory)</P> <lightning-input data-field="Child2SSN" name="Child2SSN" class="slds-text-heading_small"  type="text" value={Child2SSN} 
+                            onchange={handleChild2OnChange}></lightning-input>
+                            </lightning-layout-item>
+                        <lightning-layout-item size="12" padding="around-small">
+                          
+                            <c-lwc-lookup lookup-label="School" object-api-name="account" icon-name="standard:account"  
+                            selected-value={school2name}
+                            selected-record-id={Child2School}
+                            onrecordselection={onSchool2Selection}></c-lwc-lookup>                                     
+                        </lightning-layout-item>
+                        <lightning-layout-item size="4" padding="around-small">
+                            <p>Grade:</p>
+                            <lightning-combobox 
+                            data-field="Child2Grade"
+                            name="Child2Grade" 
+                            options={GradesList}
+                            value={Child2Grade}
+                            onchange={handleChild2OnChange}
+                            ></lightning-combobox>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                    <lightning-layout multiple-rows>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                            <div class="slds-theme_info">
+                                <h1 style="font-size:14px;font-weight:bold;" >&nbsp;&nbsp;&nbsp;&nbsp;HEALTH HISTORY (Please give approximate dates if applicable) </h1>
+                            </div>
+                        </lightning-layout-item>
+                    </lightning-layout>
+
+                    <lightning-layout multiple-rows>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                            <div>
+                                FAMILY PHYSICIAN
+                            </div>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                    <lightning-layout multiple-rows>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="4" padding="around-small">
+                            <div>
+                                Name:<lightning-input data-field="Child2PhysicianName" name="Child2PhysicianName" type="text" value={Child2PhysicianName} 
+                                onchange={handleChild2OnChange}></lightning-input>
+                            </div>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="4" padding="around-small">
+                            <div>                
+                                Phone:<lightning-input data-field="Child2PhysicianPhone" name="Child2PhysicianPhone"  class="slds-text-heading_small" type="text" value={Child2PhysicianPhone} 
+                                onchange={handleChild2OnChange}></lightning-input>
+                            </div>
+                        </lightning-layout-item>       
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="4" padding="around-small">
+                            <div>
+                                Insurance carrier and number:
+                                <lightning-input data-field="Child2PhysicianInsuranceNumber" name="Child2PhysicianInsuranceNumber" type="text" value={Child2PhysicianInsuranceNumber} 
+                                onchange={handleChild2OnChange}></lightning-input>                        
+                            </div>
+                        </lightning-layout-item>         
+                    </lightning-layout>
+
+                    <lightning-layout >
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="4" padding="around-small">
+                            <div>
+                                Date of last exams:
+                            </div>
+                        </lightning-layout-item>
+                    </lightning-layout>
+
+                    <lightning-layout multiple-rows>
+
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                            <div>                
+                                Physical
+                                <lightning-input data-field="Child2LastPhysical" class="slds-text-heading_small" name="Child2LastPhysical" type="date" value={Child2LastPhysical} 
+                                onchange={handleChild2OnChange}></lightning-input>
+                                
+                            </div>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                            <div>                
+                                Vision
+                                <lightning-input data-field="Child2LastVisionTest" class="slds-text-heading_small" name="Child2LastVisionTest" type="date" value={Child2LastVisionTest} 
+                                onchange={handleChild2OnChange}></lightning-input>                        
+                            </div>
+                        </lightning-layout-item>
+                        
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                            <div>                
+                                Hearing
+                                <lightning-input data-field="Child2LastHearingExam" class="slds-text-heading_small" name="Child2LastHearingExam" type="date" value={Child2LastHearingExam} 
+                                onchange={handleChild2OnChange}></lightning-input>                        
+                            </div>
+                        </lightning-layout-item>
+                        
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                            <div>
+                                Dental
+                                <lightning-input data-field="Child2Dental" class="slds-text-heading_small" name="Child2Dental" type="date" value={Child2Dental} 
+                                onchange={handleChild2OnChange}></lightning-input>                        
+                            </div>
+                        </lightning-layout-item>                                
+                    </lightning-layout>
+
+
+                    <lightning-layout multiple-rows>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                            <div>
+                                Operations of serious injuries:
+                                <lightning-textarea data-field="Child2OperationInjuries1" name="Child2OperationInjuries1" value={Child2OperationInjuries1} 
+                                onchange={handleChild2OnChange}></lightning-textarea>                        
+                            </div>
+                        </lightning-layout-item>
+                    </lightning-layout>
+
+                    <lightning-layout multiple-rows>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                            <div>
+                                Special needs (health, physical, education): 
+                                <lightning-textarea data-field="Child2SpecialNeeds" name="Child2SpecialNeeds" value={Child2SpecialNeeds} 
+                                onchange={handleChild2OnChange}></lightning-textarea>                        
+                            </div>
+                        </lightning-layout-item>
+                    </lightning-layout>
+
+                    <lightning-layout multiple-rows>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="6" padding="around-small">
+                            <div>
+                                Current medications (prescription only-send in original bottle): 
+                                <lightning-textarea data-field="Child2CurrentMedications" name="Child2CurrentMedications" value={Child2CurrentMedications} 
+                                onchange={handleChild2OnChange}></lightning-textarea>                        
+                            </div>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="6" padding="around-small">
+                            <div>
+                                Take Medications</div>
+                                <div class="slds-p-around_xx-small">
+                                    <lightning-combobox data-field="Child2TakeMedication" name="Child2TakeMedication" value={Child2TakeMedication} placeholder="--Select Option--" 
+                                    options={Child2TakesMedicationPickList} 
+                                    onchange={handleChild2OnChange} ></lightning-combobox>
+                                </div>
+                                
+                        </lightning-layout-item>  
+                    </lightning-layout>
+                    <lightning-layout multiple-rows>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                            <div>
+                                Any specific activities to be encouraged or limited by physician's advice:
+                                <lightning-textarea data-field="Child2PhysiciansAdvice" name="Child2PhysiciansAdvice" value={Child2PhysiciansAdvice} 
+                                onchange={handleChild2OnChange}></lightning-textarea>                        
+                            </div>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                    <lightning-layout multiple-rows>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                        <div> <p>Have Had</p></div>
+
+                        <div class="slds-p-around_xx-small">
+                            <lightning-combobox data-field="Child2HaveHad" name="Child2HaveHad" value={Child2HaveHad} placeholder="Select Illness" 
+                            options={Child2HaveHadIllnessMultiPicklist} onchange={handleChild2HadIllnessMultiPicklistValueChange} ></lightning-combobox>
+                        </div>
+                        <div class="slds-p-around_xx-small">
+                            <template for:each={allChild2IllnessMultiPicklistValues} for:item="val">
+                                <lightning-pill key={val} label={val} name={val} onremove={handleRemoveChild2HadIllnessMultiPicklistValue}></lightning-pill>
+                            </template>
+
+                        </div>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                            <div>
+                                Details:
+                                <lightning-textarea data-field="Child2PhysicianDetails" name="Child2PhysicianDetails" type="text" value={Child2PhysicianDetails} 
+                                onchange={handleChild2OnChange}></lightning-textarea>                        
+                            </div>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                            <div> <p>Allergies</p></div>
+
+                            <div class="slds-p-around_xx-small">
+                                <lightning-combobox data-field="Child2Allergies" name="Child2Allergies" value={Child2Allergies} placeholder="Select Allergies" 
+                                options={Child2AllergiesMultiPicklist} onchange={handleChild2AllergiesMultiPicklistValueChange} ></lightning-combobox>
+                            </div>
+                            <div class="slds-p-around_xx-small">
+                                <template for:each={allChild2AllergiesMultiPicklistValues} for:item="val">
+                                    <lightning-pill key={val} label={val} name={val} onremove={handleRemoveChild2AllergiesMultiPicklistValue}></lightning-pill>
+                                </template>
+
+                            </div>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                                <div>
+                                    Details:
+                                    <lightning-textarea data-field="Child2AllergiesDetails" name="Child2AllergiesDetails" value={Child2AllergiesDetails} 
+                                    onchange={handleChild2OnChange}></lightning-textarea>                        
+                                </div>
+                            </lightning-layout-item>
+                        
+                        
+                </lightning-layout>
+
+                    <br>
+
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                        <div>
+                            Please check days child will be attending after school/summer camp:                     
+                        </div>
+                        <div class="slds-p-around_xx-small">
+                            <lightning-combobox  data-field="Child2AttendAfterSchool" name="Child2AttendAfterSchool" value={Child2AttendAfterSchool} placeholder="--Select Option--" 
+                            options={Child2DaysAttendAfterSchoolMultiPicklist} onchange={handleChild2AttendSchoolMultiPicklistValueChange} ></lightning-combobox>
+                        </div>
+                        <div class="slds-p-around_xx-small">
+                            <template for:each={allChild2AttendSchoolMultiPicklistValues} for:item="val">
+                                <lightning-pill key={val} label={val} name={val} onremove={handleRemoveChild2AttendSchoolMultiPicklistValue}></lightning-pill>
+                            </template>
+
+                        </div>
+
+                    </lightning-layout-item>                
+                </lightning-layout>  
+            </template>
+           
+
+
+    <!--**************************************end child2,health history fields******************************************************-->
+
+
+            <lightning-layout >
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                    <div class="slds-theme_info" style="cursor: pointer;" title="Click here to Expand/Collapse"
+                    onclick={handleChild3InfoOnclick}>                    
+                        <h1 style="font-size:16px;font-weight:bold;" >
+                            <lightning-icon  size="x-small" class="white-background" icon-name="utility:chevronright" alternative-text="Up arrow" variant="inverse" ></lightning-icon>
+
+                            Child3 Information</h1>
+                    </div>
+                </lightning-layout-item>
+            </lightning-layout>                    
+
+
+            <template if:true={showChild3Info}>
+                <lightning-layout multiple-rows >
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                        <p>3.Child First Name:</p> <lightning-input  data-field="Child3FirstName" name="Child3FirstName" type="text" value={Child3FirstName} 
+                        onchange={handleChild3OnChange}></lightning-input>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                        <p>Child Last Name:</p> <lightning-input  data-field="Child3LastName" name="Child3LastName" type="text" value={Child3LastName} 
+                        onchange={handleChild3OnChange}></lightning-input>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                        <p>DOB</p>  <lightning-input data-field="Child3Birthday" class="slds-text-heading_small" 
+                        name="Child3Birthday" type="date" 
+                        onchange={handleDOBchange}
+                        value={Child3Birthday} ></lightning-input>
+                    </lightning-layout-item>
+                    <lightning-layout-item  size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                        <p>age:</p> <lightning-input data-field="Child3Age" name="Child3Age" class="slds-text-heading_small"  type="text" value={Child3Age} 
+                        disabled></lightning-input>
+                    </lightning-layout-item>
+                   
+                </lightning-layout>
+                <lightning-layout multiple-rows >
+                    <lightning-layout-item  size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                        <P>SSN: (SSN is not mandatory)</P> <lightning-input data-field="Child3SSN" name="Child3SSN" class="slds-text-heading_small"  type="text" value={Child3SSN} 
+                        onchange={handleChild3OnChange}></lightning-input>
+                        </lightning-layout-item>
+                    <lightning-layout-item size="12" padding="around-small">
+                       
+                        <c-lwc-lookup lookup-label="School" object-api-name="account" icon-name="standard:account"  
+                        selected-value={school3name}
+                        selected-record-id={Child3School}
+                        onrecordselection={onSchool3Selection}></c-lwc-lookup>
+                   </lightning-layout-item>
+                    <lightning-layout-item size="4" padding="around-small">
+                        <p>Grade:</p>
+                        <lightning-combobox data-field="Child3Grade" 
+                        name="Child3Grade" 
+                        options={GradesList}
+                        value={Child3Grade}
+                        onchange={handleChild3OnChange}
+                        ></lightning-combobox>
+                    </lightning-layout-item>
+                </lightning-layout>
+    
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                        <div class="slds-theme_info">
+                            <h1 style="font-size:14px;font-weight:bold;" >&nbsp;&nbsp;&nbsp;&nbsp;HEALTH HISTORY (Please give approximate dates if applicable) </h1>
+                        </div>
+                    </lightning-layout-item>
+                </lightning-layout>
+    
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                        <div>
+                            FAMILY PHYSICIAN
+                        </div>
+                    </lightning-layout-item>
+                </lightning-layout>
+    
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="4" padding="around-small">
+                        <div>
+                            Name:<lightning-input data-field="Child3PhysicianName" name="Child3PhysicianName" type="text" value={Child3PhysicianName} 
+                            onchange={handleChild3OnChange}></lightning-input>
+                        </div>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="4" padding="around-small">
+                        <div>                
+                            Phone:<lightning-input data-field="Child3PhysicianPhone" name="Child3PhysicianPhone"  class="slds-text-heading_small" type="text" value={Child3PhysicianPhone} 
+                            onchange={handleChild3OnChange}></lightning-input>
+                        </div>
+                    </lightning-layout-item>  
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="4" padding="around-small">
+                        <div>
+                            Insurance carrier and number:
+                            <lightning-input data-field="Child3PhysicianInsuranceNumber" name="Child3PhysicianInsuranceNumber" type="text" value={Child3PhysicianInsuranceNumber} 
+                            onchange={handleChild3OnChange}></lightning-input>                        
+                        </div>
+                    </lightning-layout-item>              
+                </lightning-layout>
+    
+                <lightning-layout >
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="4" padding="around-small">
+                        <div>
+                            Date of last exams:
+                        </div>
+                    </lightning-layout-item>
+                </lightning-layout>
+    
+                    <lightning-layout multiple-rows>
+    
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                        <div>                
+                            Physical
+                            <lightning-input data-field="Child3LastPhysical" class="slds-text-heading_small" name="Child3LastPhysical" type="date" value={Child3LastPhysical} 
+                            onchange={handleChild3OnChange}></lightning-input>
+                            
+                        </div>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                        <div>                
+                            Vision
+                            <lightning-input data-field="Child3LastVisionTest" class="slds-text-heading_small" name="Child3LastVisionTest" type="date" value={Child3LastVisionTest} 
+                            onchange={handleChild3OnChange}></lightning-input>                        
+                        </div>
+                    </lightning-layout-item>
+                    
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                        <div>                
+                            Hearing
+                            <lightning-input data-field="Child3LastHearingExam" class="slds-text-heading_small" name="Child3LastHearingExam" type="date" value={Child3LastHearingExam} 
+                            onchange={handleChild3OnChange}></lightning-input>                        
+                        </div>
+                    </lightning-layout-item>
+                    
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                        <div>
+                            Dental
+                            <lightning-input data-field="Child3Dental" class="slds-text-heading_small" name="Child3Dental" type="date" value={Child3Dental} 
+                            onchange={handleChild3OnChange}></lightning-input>                        
+                        </div>
+                    </lightning-layout-item>                                
+                </lightning-layout>
+    
+    
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                        <div>
+                            Operations of serious injuries:
+                            <lightning-textarea data-field="Child3OperationInjuries1" name="Child3OperationInjuries1" value={Child3OperationInjuries1} 
+                            onchange={handleChild3OnChange}></lightning-textarea>                        
+                        </div>
+                    </lightning-layout-item>
+                </lightning-layout>
+    
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                        <div>
+                            Special needs (health, physical, education): 
+                            <lightning-textarea data-field="Child3SpecialNeeds" name="Child3SpecialNeeds" value={Child3SpecialNeeds} 
+                            onchange={handleChild3OnChange}></lightning-textarea>                        
+                        </div>
+                    </lightning-layout-item>
+                </lightning-layout>
+    
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="6" padding="around-small">
+                        <div>
+                            Current medications (prescription only-send in original bottle): 
+                            <lightning-textarea data-field="Child3CurrentMedications" name="Child3CurrentMedications" value={Child3CurrentMedications} 
+                            onchange={handleChild3OnChange}></lightning-textarea>                        
+                        </div>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="6" padding="around-small">
+                        <div>
+                            Take Medications</div>
+                            <div class="slds-p-around_xx-small">
+                                <lightning-combobox data-field="Child3TakeMedication" name="Child3TakeMedication" value={Child3TakeMedication} placeholder="--Select Option--" 
+                                options={Child3TakesMedicationPickList} 
+                                onchange={handleChild3OnChange} ></lightning-combobox>
+                            </div>
+                            
+                    </lightning-layout-item> 
+                </lightning-layout>
+     
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                        <div>
+                            Any specific activities to be encouraged or limited by physician's advice:
+                            <lightning-textarea data-field="Child3PhysiciansAdvice" name="Child3PhysiciansAdvice" value={Child3PhysiciansAdvice} 
+                            onchange={handleChild3OnChange}></lightning-textarea>                        
+                        </div>
+                    </lightning-layout-item>
+                </lightning-layout>
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                    <div> <p>Have Had</p></div>
+
+                    <div class="slds-p-around_xx-small">
+                        <lightning-combobox data-field="Child3HaveHad" name="Child3HaveHad" value={Child3HaveHad} placeholder="Select Illness" 
+                        options={Child3HaveHadIllnessMultiPicklist} onchange={handleChild3HadIllnessMultiPicklistValueChange} ></lightning-combobox>
+                    </div>
+                    <div class="slds-p-around_xx-small">
+                        <template for:each={allChild3IllnessMultiPicklistValues} for:item="val">
+                            <lightning-pill key={val} label={val} name={val} onremove={handleRemoveChild3HadIllnessMultiPicklistValue}></lightning-pill>
+                        </template>
+
+                    </div>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                        <div>
+                            Details:
+                            <lightning-textarea data-field="Child3PhysicianDetails" name="Child3PhysicianDetails" type="text" value={Child3PhysicianDetails}
+                            onchange={handleChild3OnChange} ></lightning-textarea>                        
+                        </div>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                        <div> <p>Allergies</p></div>
+
+                        <div class="slds-p-around_xx-small">
+                            <lightning-combobox data-field="Child3Allergies" name="Child3Allergies" value={Child3Allergies} placeholder="Select Allergies" 
+                            options={Child3AllergiesMultiPicklist} onchange={handleChild3AllergiesMultiPicklistValueChange} ></lightning-combobox>
+                        </div>
+                        <div class="slds-p-around_xx-small">
+                            <template for:each={allChild3AllergiesMultiPicklistValues} for:item="val">
+                                <lightning-pill key={val} label={val} name={val} onremove={handleRemoveChild3AllergiesMultiPicklistValue}></lightning-pill>
+                            </template>
+
+                        </div>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                            <div>
+                                Details:
+                                <lightning-textarea data-field="Child3AllergiesDetails" name="Child3AllergiesDetails" value={Child3AllergiesDetails} 
+                                onchange={handleChild3OnChange}></lightning-textarea>                        
+                            </div>
+                        </lightning-layout-item>
+                   
+            </lightning-layout>
+                <br>
+            <lightning-layout multiple-rows>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                    <div>
+                        Please check days child will be attending after school/summer camp:                     
+                    </div>
+                    <div class="slds-p-around_xx-small">
+                        <lightning-combobox name="Child3AttendAfterSchool" data-field="Child3AttendAfterSchool" value={Child3AttendAfterSchool} placeholder="--Select Option--" 
+                        options={Child3DaysAttendAfterSchoolMultiPicklist} onchange={handleChild3AttendSchoolMultiPicklistValueChange} ></lightning-combobox>
+                    </div>
+                    <div class="slds-p-around_xx-small">
+                        <template for:each={allChild3AttendSchoolMultiPicklistValues} for:item="val">
+                            <lightning-pill key={val} label={val} name={val} onremove={handleRemoveChild3AttendSchoolMultiPicklistValue}></lightning-pill>
+                        </template>
+
+                    </div>
+
+                </lightning-layout-item>                
+            </lightning-layout>  
+        </template>
+        
+
+
+    <!--**************************************end child3,health history fields******************************************************-->
+    <lightning-layout>
+
+    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+        <div class="slds-theme_info" style="cursor: pointer;" title="Click here to Expand/Collapse"
+        onclick={handleParent1InfoOnclick}>
+        
+        <h1 style="font-size:16px;font-weight:bold;" >
+            <lightning-icon size="x-small" class="white-background" icon-name="utility:chevronright" alternative-text="Up arrow" variant="inverse" ></lightning-icon>
+
+            Parent/Guardian1</h1>
+    </div>
+    </lightning-layout-item>
+    </lightning-layout>    
+
+    <template if:true={showParent1Info}>
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="4" padding="around-small">
+                        <div>
+                            1. Parent First Name<lightning-input data-field="Parent1FirstName" name="Parent1FirstName" type="text" 
+                            value={Parent1FirstName}
+                             onchange={handleParent1OnChange}></lightning-input>
+                        </div>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="4" padding="around-small">
+                        <div>
+                                Parent Last Name<lightning-input data-field="Parent1LastName" name="Parent1LastName" type="text" 
+                                value={Parent1LastName} onchange={handleParent1OnChange}></lightning-input>
+                        </div>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="4" padding="around-small">
+                        <div>                
+                            Relationship:
+                            <lightning-combobox 
+                            data-field="Parent1Relationship"
+                            name="Parent1Relationship" 
+                            options={Parent1RelationshipList}
+                            value={Parent1Relationship}
+                            onchange={handleParent1OnChange}
+                            ></lightning-combobox>
+                        </div>
+                    </lightning-layout-item>
+                    
+                </lightning-layout>
+
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                        <div>
+                            Address:<lightning-input data-field="Parent1Address" type="text" value={Parent1Address} 
+                            name="Parent1Address" onchange={handleParent1OnChange}></lightning-input>
+                        </div>
+                    </lightning-layout-item>                
+                </lightning-layout>
+
+
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="4" padding="around-small">
+                        <div>
+                            City:<lightning-input data-field="Parent1City" type="text" value={Parent1City} 
+                            name="Parent1City" onchange={handleParent1OnChange}></lightning-input>
+                        </div>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="4" padding="around-small">
+                        <div>                
+                            State:<lightning-input data-field="Parent1State" class="slds-text-heading_small" 
+                            name="Parent1State" type="text" value={Parent1State} onchange={handleParent1OnChange}></lightning-input>
+                        </div>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="4" padding="around-small">
+                        <div>                
+                            Zip:<lightning-input data-field="Parent1ZipCode" class="slds-text-heading_small" 
+                            name="Parent1ZipCode" type="text" value={Parent1ZipCode} onchange={handleParent1OnChange}></lightning-input>
+                        </div>
+                    </lightning-layout-item>
+                    
+                </lightning-layout>
+
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                        <div>
+                            Place of Employment:<lightning-input data-field="Parent1PlaceOfEmployment" 
+                            name="Parent1PlaceOfEmp" type="text" value={Parent1PlaceOfEmp} onchange={handleParent1OnChange}></lightning-input>
+                        </div>
+                    </lightning-layout-item>                
+                </lightning-layout>
+
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="6" padding="around-small">
+                        <div>
+                            Home Phone:<lightning-input data-field="Parent1HomePhone" name="Parent1HomePhone" 
+                            type="text" value={Parent1HomePhone} onchange={handleParent1OnChange}></lightning-input>
+                        </div>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="6" padding="around-small">
+                        <div>                
+                            Cell Phone:<lightning-input data-field="Parent1CellPhone" class="slds-text-heading_small" 
+                            name="Parent1CellPhone" type="text" value={Parent1CellPhone} onchange={handleParent1OnChange}></lightning-input>
+                        </div>
+                    </lightning-layout-item>
+                    
+                </lightning-layout>
+                
+
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="6" padding="around-small">
+                        <div>
+                            Work Phone:<lightning-input data-field="Parent1WorkPhone" name="Parent1WorkPhone" 
+                            type="text" value={Parent1WorkPhone} onchange={handleParent1OnChange}></lightning-input>
+                        </div>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="6" padding="around-small">
+                        <div>                
+                            E-Mail Address:<lightning-input data-field="Parent1emailAddress" class="slds-text-heading_small" 
+                            name="Parent1emailAddress" type="text" value={Parent1emailAddress} onchange={handleParent1OnChange}></lightning-input>
+                        </div>
+                    </lightning-layout-item>
+                    
+                </lightning-layout>
+
+
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                        <div>
+                            Household Monthly Income:(if needed, provide proof of income) (Format : numbers only, do not enter non-numeric characters)
+                            <lightning-input data-field="Parent1MonthlyIncome" name="Parent1MonthlyIncome" type="text" 
+                            value={Parent1MonthlyIncome} onchange={handleParent1OnChange}></lightning-input>
+                            
+                        </div>
+                    </lightning-layout-item>
+                </lightning-layout>
+
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                    <div> <p>Source of Income:</p></div>
+
+                    <div class="slds-p-around_xx-small">
+                        <lightning-combobox data-field="Parent1SourceIncome" name="Parent1SourceIncome" 
+                        value={Parent1SourceIncome} placeholder="Select Source of Income" 
+                        options={Parent1SourceOfIncomeMultiPicklist} onchange={handleParent1SourceOfIncomeMultiPicklist} ></lightning-combobox>
+                    </div>
+                    <div class="slds-p-around_xx-small">
+                        <template for:each={allParent1MultiPicklistValues} for:item="val">
+                            <lightning-pill key={val} label={val} name={val} onremove={handleRemoveParent1SourceOfIncomeMultiPicklistValue}></lightning-pill>
+                        </template>
+
+                    </div>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                        <div> <p>Receive Public Assistance:</p></div>
+
+                        <lightning-combobox 
+                        data-field="Parent1PublicAssistance"
+                        name="Parent1PublicAssistance" 
+                        options={PublicAssistancePickList}
+                        value={Parent1PublicAssistance}
+                        onchange={handleParent1OnChange}
+                        ></lightning-combobox>                
+                
+                        </lightning-layout-item>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                            <div> <p>Housing Type:</p></div>
+                            <lightning-combobox 
+                            data-field="Parent1HousingType"
+                            name="Parent1HousingType" 
+                            options={Parent1HousingTypePickList}
+                            value={Parent1HousingType}
+                            onchange={handleParent1OnChange}
+                            ></lightning-combobox>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                            <div> <p>Housing Ownership:</p></div>
+                            <lightning-combobox 
+                            data-field="Parent1HousingOwnerShip"
+                            name="Parent1HousingOwnerShip" 
+                            options={Parent1HousingOwnerShipPickList}
+                            value={Parent1HousingOwnerShip}
+                            onchange={handleParent1OnChange}
+                            ></lightning-combobox>
+                        </lightning-layout-item>
+                    
+            </lightning-layout>
+            
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                        <div>
+                            Length of time in current residence:
+                            <lightning-input data-field="Parent1TimeInResidence" name="Parent1TimeInResidence" 
+                            type="text" value={Parent1TimeInResidence} onchange={handleParent1OnChange}></lightning-input>                        
+                        </div>
+                    </lightning-layout-item>
+                </lightning-layout>
+    </template>                
+                
+    <!--**************************************end first parent fields******************************************************-->
+    <lightning-layout >
+        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+            <div class="slds-theme_info" style="cursor: pointer;" title="Click here to Expand/Collapse"
+            onclick={handleParent2InfoOnclick}>
+                                    
+            <h1 style="font-size:16px;font-weight:bold;" >
+                <lightning-icon  size="x-small" class="white-background" icon-name="utility:chevronright" alternative-text="Up arrow" variant="inverse" ></lightning-icon>
+
+                Parent/Guardian2</h1>
+        </div>
+        </lightning-layout-item>
+    </lightning-layout>           
+
+    <template if:true={showParent2Info}>
+            <lightning-layout multiple-rows>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="4" padding="around-small">
+                    <div>
+                        2.	Parent First Name<lightning-input data-field="Parent2FirstName" 
+                        name="Parent2FirstName" type="text" value={Parent2FirstName} 
+                        onchange={handleParent2OnChange}></lightning-input>
+                    </div>
+                </lightning-layout-item>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="4" padding="around-small">
+                    <div>
+                            Parent Last Name<lightning-input data-field="Parent2LastName" 
+                            name="Parent2LastName" type="text" value={Parent2LastName} 
+                            onchange={handleParent2OnChange}></lightning-input>
+                    </div>
+                </lightning-layout-item>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="4" padding="around-small">
+                    <div>                
+                        Relationship:
+                        <lightning-combobox 
+                        data-field="Parent2Relationship"
+                        name="Parent2Relationship" 
+                        options={Parent2RelationshipList}
+                        value={Parent2Relationship}
+                        onchange={handleParent2OnChange}
+                        ></lightning-combobox>
+                    </div>
+                </lightning-layout-item>
+                
+            </lightning-layout>
+
+            <lightning-layout multiple-rows>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                    <div>
+                        Address:<lightning-input data-field="Parent2Address" type="text" 
+                        value={Parent2Address} name="Parent2Address" 
+                        onchange={handleParent2OnChange}></lightning-input>
+                    </div>
+                </lightning-layout-item>                
+            </lightning-layout>
+
+            <lightning-layout multiple-rows>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="4" padding="around-small">
+                    <div>
+                        City:<lightning-input data-field="Parent2City" type="text" value={Parent2City} 
+                        name="Parent2City" onchange={handleParent2OnChange}></lightning-input>
+                    </div>
+                </lightning-layout-item>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="4" padding="around-small">
+                    <div>                
+                        State:<lightning-input data-field="Parent2State" class="slds-text-heading_small" 
+                        name="Parent2State" type="text" value={Parent2State} 
+                        onchange={handleParent2OnChange}></lightning-input>
+                    </div>
+                </lightning-layout-item>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="4" padding="around-small">
+                    <div>                
+                        Zip:<lightning-input data-field="Parent2ZipCode" class="slds-text-heading_small" 
+                        name="Parent2ZipCode" type="text" value={Parent2ZipCode} 
+                        onchange={handleParent2OnChange}></lightning-input>
+                    </div>
+                </lightning-layout-item>
+                
+            </lightning-layout>
+
+            <lightning-layout multiple-rows>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                    <div>
+                        Place of Employment:<lightning-input data-field="Parent2PlaceOfEmp" 
+                        name="Parent2PlaceOfEmp" type="text" value={Parent2PlaceOfEmp}
+                        onchange={handleParent2OnChange} ></lightning-input>
+                    </div>
+                </lightning-layout-item>                
+            </lightning-layout>
+
+            <lightning-layout multiple-rows>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="6" padding="around-small">
+                    <div>
+                        Home Phone:<lightning-input data-field="Parent2HomePhone" name="Parent2HomePhone" 
+                        type="text" value={Parent2HomePhone}
+                        onchange={handleParent2OnChange} ></lightning-input>
+                    </div>
+                </lightning-layout-item>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="6" padding="around-small">
+                    <div>                
+                        Cell Phone:<lightning-input data-field="Parent2CellPhone" class="slds-text-heading_small" 
+                        name="Parent2CellPhone" type="text" value={Parent2CellPhone} 
+                        onchange={handleParent2OnChange}></lightning-input>
+                    </div>
+                </lightning-layout-item>
+                
+            </lightning-layout>
+            
+
+            <lightning-layout multiple-rows>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="6" padding="around-small">
+                    <div>
+                        Work Phone:<lightning-input data-field="Parent2WorkPhone" name="Parent2WorkPhone" type="text" 
+                        value={Parent2WorkPhone} onchange={handleParent2OnChange}></lightning-input>
+                    </div>
+                </lightning-layout-item>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="6" padding="around-small">
+                    <div>                
+                        E-Mail Address:<lightning-input data-field="Parent2emailAddress" class="slds-text-heading_small" 
+                        name="Parent2emailAddress" type="text" value={Parent2emailAddress} 
+                        onchange={handleParent2OnChange}></lightning-input>
+                    </div>
+                </lightning-layout-item>
+                
+            </lightning-layout>
+
+
+            <lightning-layout multiple-rows>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                    <div>
+                        Household Monthly Income:(if needed, provide proof of income) (Format : numbers only, do not enter non-numeric characters)
+                        <lightning-input data-field="Parent2MonthlyIncome" name="Parent2MonthlyIncome" type="text" 
+                        value={Parent2MonthlyIncome} 
+                        onchange={handleParent2OnChange}></lightning-input>
+                        
+                    </div>
+                </lightning-layout-item>
+            </lightning-layout>
+
+            <lightning-layout multiple-rows>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                <div> <p>Source of Income:</p></div>
+
+                <div class="slds-p-around_xx-small">
+                    <lightning-combobox data-field="Parent2SourceIncome" name="Parent2SourceIncome" value={Parent2SourceIncome} placeholder="Select Source of Income" 
+                    options={Parent2SourceOfIncomeMultiPicklist} onchange={handleParent2SourceOfIncomeMultiPicklist} ></lightning-combobox>
+                </div>
+                <div class="slds-p-around_xx-small">
+                    <template for:each={allParent2MultiPicklistValues} for:item="val">
+                        <lightning-pill key={val} label={val} name={val} onremove={handleRemoveParent2SourceOfIncomeMultiPicklistValue}></lightning-pill>
+                    </template>
+
+                </div>
+                </lightning-layout-item>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                    <div> <p>Receive Public Assistance:</p></div>
+            
+                    <lightning-combobox 
+                    data-field="Parent2PublicAssistance"
+                    name="Parent2PublicAssistance" 
+                    options={PublicAssistancePickList}
+                    value={Parent2PublicAssistance}
+                    onchange={handleParent2OnChange}
+                    ></lightning-combobox>
+            
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                        <div> <p>Housing Type</p></div>
+                        <lightning-combobox 
+                        data-field="Parent2HousingType"
+                        name="Parent2HousingType" 
+                        options={Parent2HousingTypePickList}
+                        value={Parent2HousingType}
+                        onchange={handleParent2OnChange}
+                        ></lightning-combobox>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                        <div> <p>Housing Ownership</p></div>
+                        <lightning-combobox 
+                        data-field="Parent2HousingOwnerShip"
+                        name="Parent2HousingOwnerShip" 
+                        options={Parent2HousingOwnerShipPickList}
+                        value={Parent2HousingOwnerShip}
+                        onchange={handleParent2OnChange}
+                        ></lightning-combobox>
+                    </lightning-layout-item>
+                    
+                </lightning-layout>
+
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                        <div>
+                            Length of time in current residence:
+                            <lightning-input data-field="Parent2TimeInResidence" name="Parent2TimeInResidence" 
+                            type="text" value={Parent2TimeInResidence} 
+                            onchange={handleParent2OnChange}></lightning-input>                        
+                        </div>
+                    </lightning-layout-item>
+                </lightning-layout>
+    </template>
+    <!--**************************************end second parent fields******************************************************-->
+
+                <lightning-layout >
+                    <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                        
+                        <div class="slds-theme_info" style="cursor: pointer;" title="Click here to Expand/Collapse"
+                        onclick={handleEmergencyContactInfoOnclick}>                                                
+                            <h1 style="font-size:16px;font-weight:bold;" >
+                                <lightning-icon  size="x-small" class="white-background" icon-name="utility:chevronright" alternative-text="Up arrow" variant="inverse" ></lightning-icon>
+
+                                Emergency Contact Information&nbsp;&nbsp;&nbsp;&nbsp; [ someone other than parent/guardian ]</h1>
+                        </div>
+                    </lightning-layout-item>
+                </lightning-layout> 
+                
+                <template if:true={showEmergencyContactInfo}>     
+                    <lightning-layout  multiple-rows >
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                            <p>Emergency Contact First:  </p><lightning-input data-field="EmergencyContactFirst" 
+                            name="EmergencyContactFirst" type="text" value={EmergencyContactFirst} 
+                            onchange={handleEmergencyContactOnChange}
+                            ></lightning-input>
+                        </lightning-layout-item>
+
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                            <p>Emergency Contact Last:  </p><lightning-input data-field="EmergencyContactLast" 
+                            name="EmergencyContactLast" type="text" value={EmergencyContactLast} 
+                            onchange={handleEmergencyContactOnChange}
+                            ></lightning-input>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                            <div> <p>Relationship</p></div>
+                            <lightning-combobox 
+                            data-field="EmergencyContactRelationShip"
+                            name="EmergencyContactRelationShip" 
+                            options={EmergencyContactRelationShipPickList}
+                            value={EmergencyContactRelationShip} 
+                            onchange={handleEmergencyContactOnChange}                           
+                            ></lightning-combobox>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                            <p>Phone #:</p><lightning-input data-field="EmergencyPhone" name="EmergencyPhone" 
+                            type="text" value={EmergencyPhone} 
+                            onchange={handleEmergencyContactOnChange}></lightning-input>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                            <p>Cell phone #:  </p><lightning-input data-field="EmergencyCellPhone" 
+                            name="EmergencyCellPhone" type="text" value={EmergencyCellPhone} 
+                            onchange={handleEmergencyContactOnChange}></lightning-input>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                   
+                    <lightning-layout>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12" padding="around-small">
+                            <p>Name, relationship and phone number (s) of person(s) other than parents allowed to pick up your child</p>
+                        </lightning-layout-item></br>
+                    </lightning-layout>
+                    <lightning-layout  multiple-rows >
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                            <p>1</p><lightning-input data-field="ApprovedPickUp1" type="text" 
+                            name="ApprovedPickUp1"
+                            value={ApprovedPickUp1} onchange={handleEmergencyContactOnChange}></lightning-input>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                            <p>Relationship:  </p>
+                            <lightning-combobox 
+                            data-field="ApprovedPickup1Relationship"
+                            name="ApprovedPickup1Relationship" 
+                            options={ApprovedPickup1RelationshipPickList}
+                            value={ApprovedPickup1Relationship}
+                            onchange={handleEmergencyContactOnChange}
+                            ></lightning-combobox>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                            <p>Phone:  </p><lightning-input data-field="ApprovedPickUp1Phone" 
+                            name="ApprovedPickUp1Phone" type="text" value={ApprovedPickUp1Phone} 
+                            onchange={handleEmergencyContactOnChange}></lightning-input>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                    <lightning-layout  multiple-rows >
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                            <p>2</p><lightning-input data-field="ApprovedPickUp2" type="text" 
+                            name="ApprovedPickUp2"
+                            value={ApprovedPickUp2} 
+                            onchange={handleEmergencyContactOnChange}></lightning-input>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                            <p>Relationship:  </p>
+                            <lightning-combobox 
+                            data-field="ApprovedPickup2Relationship"
+                            name="ApprovedPickup2Relationship" 
+                            options={ApprovedPickup2RelationshipPickList}
+                            value={ApprovedPickup2Relationship}
+                            onchange={handleEmergencyContactOnChange}
+                            ></lightning-combobox>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                            <p>Phone:  </p><lightning-input data-field="ApprovedPickUp2Phone" 
+                            name="ApprovedPickUp2Phone" type="text" value={ApprovedPickUp2Phone} 
+                            onchange={handleEmergencyContactOnChange}></lightning-input>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                    <lightning-layout>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small">
+                            <div class="slds box"></div>
+                        </lightning-layout-item>
+                        
+                    </lightning-layout>
+                    
+                </template>
+        <!--**************************************end emergncy contact,Relationship fields******************************************************-->
+
+                </div>
+
+
+
+                
+
+        <!--**************************************Authorization******************************************************-->
+
+
+            <div class="slds-box slds-p-around_none slds-m-top_x-small slds-m-bottom_medium slds-m-horizontal_none">
+                <div class="slds-text-align_left" style="padding: 1%;">
+                    
+                
+                    <div class="slds-box slds-p-around_none slds-m-top_x-small slds-m-bottom_medium slds-m-horizontal_none">
+                        <div class="slds-theme_info">
+                            <h1 style="font-size:14px;font-weight:bold;" >&nbsp;&nbsp;&nbsp;&nbsp;AUTHORIZATION AND PERMISSION:</h1>
+                        </div>
+                    
+                        <br/>
+                    
+                        <span><b style="font-size:16px;font-weight:bold;" >PARENT AUTHORIZATION:</b> I do hereby declare my child/children to be physically sound and to have medical approval to participate in the Gwen’s Girls Inc. activities.  This health history is correct as far as I know and the person herein described has permission to engage in all program activities except as noted.  I further understand that neither Gwen’s Girls Inc. nor any of its paid staff and volunteer workers can be held responsible in the event of an accident.  I certify that my child/children are amenable to discipline and free from habits, behavior, or attitudes which would make them an undesirable participant.</span><br/><br/>
+                        <span><b style="font-size:16px;font-weight:bold;">PARENT AUTHORIZATION:</b> I do hereby declare my child/children to be physically sound and to have medical approval to participate in the Gwen’s Girls Inc. activities.  This health history is correct as far as I know and the person herein described has permission to engage in all program activities except as noted.  I further understand that neither Gwen’s Girls Inc. nor any of its paid staff and volunteer workers can be held responsible in the event of an accident.  I certify that my child/children are amenable to discipline and free from habits, behavior, or attitudes which would make them an undesirable participant.</span><br/><br/>
+                        <span><b style="font-size:16px;font-weight:bold;">ACTIVITY AND TRANSPORTATION AUTHORIZATION:</b> I hereby give permission for my child/children to participate in activities and to travel by bus with the Gwen’s Girls staff. I understand that only licensed and qualified personnel will operate any vehicle to and from the site and there will be at least one staff member present at all times. I agree to release Gwen’s Girls, officers and directors, and staff from any and all claims of damages, demands or liabilities which may arise as a result of my child/children’s participation in activities and bus trips.</span><br/><br/>
+                        <span><b style="font-size:16px;font-weight:bold;">PROMOTIONAL AGREEMENT:</b> Gwen’s Girls, Inc. has my permission to use photographs of my child/children in Gwen’s Girls promotional material.</span><br/>  <br/>
+                        <span><b style="font-size:16px;font-weight:bold;">EMERGENY AUTHORIZATION:</b> I hereby give permission to the medical personnel selected by the camp director to order X-rays, routine tests and treatment for my child/children. In the event that I am not able to communicate or cannot be reached in an emergency, I give permission to the physician selected by the staff to hospitalize, secure proper treatment, order injections, anesthesia, or surgery for the child/children as named above. I will be fully responsible for any costs of such treatment, even if not covered by insurance.</span><br/><br/>
+                        <span><b style="font-size:16px;font-weight:bold;">PARENT/GUARDIAN PERMISSION:</b> My signature below indicates that I have the legal authority to sign-up the child/children named on this form and to the best of my knowledge the information on this application form is complete and accurate.  I further understand this is an application and the named child/children participation is contingent upon space available in the program. I also understand that once my application is confirmed, I must complete and sign all necessary forms by the deadline as mentioned in the camp packet, including health, security, and waiver forms prior to my child/children attending the program.  Failure to comply with the above could result in the loss of a camp space.</span>
+                    
+                        <br/>
+                        <br/>
+                        <br/>
+                        <br/>
+                        <br/>
+                        <div class="c-container">
+                            <lightning-layout horizontal-align="spread" multiple-rows>
+                                <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small" > 
+                                    
+                                    <div style="padding: 1%;text-align:center;">
+                                        {ParentFirstLastName}
+                                    </div>
+                                    <div class="slds-border_top" style="padding: 1%;text-align:center;">
+                                    <h1 style="font-size:14px;font-weight:bold;" >Print Name of Parent/Guardian</h1>
+                                </div>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small" class="slds-text-align_center"> 
+                                {Today}<div class="slds-border_top" style="padding: 1%;">
+                                    <h1 style="font-size:14px;font-weight:bold;" >Date</h1>
+                                </div>
+                            </lightning-layout-item>
+                            </lightning-layout>
+                            <br/>
+                            <br/>
+
+                            <div class="slds-spinner_container" style="position: relative;" ></div>
+                            <div role="status">
+                                <p if:false={isLoaded}></p>
+                                <div if:true={isLoaded} class="exampleHolder">
+                                    <lightning-spinner alternative-text="Loading" variant="brand" size="medium"></lightning-spinner>
+                                </div>
+                            </div>
+                            
+                            <lightning-layout horizontal-align="spread" multiple-rows>
+                                <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small" > 
+
+                                <c-capture-signature onsignatureevent={handlesignatureevent}></c-capture-signature>
+                                <div  class="slds-m-bottom_small" style="align-items: center;"> 
+                                    <lightning-button  class="slds-m-left_x-small" variant="brand" label="Clear" onclick={handleClearClick}> </lightning-button>
+                                </div>
+
+                                <div class="slds-border_top" style="padding: 1%;text-align:center;">                                   
+                                     <h1 style="font-size:14px;font-weight:bold;" >Parent/Guardian Signature</h1>
+                                </div>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small" class="slds-text-align_center"> 
+                                {Today} <div class="slds-border_top" style="padding: 1%;">
+                                    <h1 style="font-size:14px;font-weight:bold;" >Date</h1>
+                                </div>
+                            </lightning-layout-item>
+                            </lightning-layout>
+                        </div>
+
+                                
+                       <!-- <div class="slds-theme_info">
+                            <h1 style="font-size:14px;font-weight:bold;" >&nbsp;&nbsp;&nbsp;&nbsp;Office Use Only:</h1>
+                        </div>
+                        <div class="c-container">   
+                            <lightning-layout horizontal-align="start" multiple-rows>
+                                <lightning-layout-item size="2" padding="around-small" > 
+                                    <div class="slds-border_right" style="padding: 1%;">
+                                        <h1 style="font-size:14px;font-weight:bold;" >Site:</h1>
+                                    </div>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="4" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small" > 
+                                    <lightning-input  class="slds-text-heading_small" name="inp4" type="text" value=""  ></lightning-input>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="2"  padding="around-small" > 
+                                    <div class="slds-border_right" style="padding: 1%;">
+                                        <h1 style="font-size:14px;font-weight:bold;" >Start Date:</h1>
+                                    </div>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="4" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small" > 
+                                    <lightning-input  class="slds-text-heading_small" name="inp4" type="date" value=""  ></lightning-input>
+                                </lightning-layout-item>                    
+                            </lightning-layout>
+                        </div>-->
+                    </div>
+                </div>
+              
+                <template if:true={successMessage1}>
+                    <div style="width:100%; border-radius:10px;
+                    margin:0 auto; padding:10px; position: relative;background:green;
+                    color:white;text-align:center;">
+                    {alertMessage}</div>
+                </template>
+                <template if:true={errorMessage1}>
+                    <div  style="width:100%; border-radius:10px;
+                    margin:0 auto; padding:10px; position: relative;background:red;
+                    color:black;text-align:center;">
+                    {alertMessage}</div>
+                </template>
+                <br/>    
+                <br/>                    
+                <template if:false={isSubmitDisable}>
+                    <lightning-layout horizontal-align="Center">
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small" class="slds-text-align_center"> 
+                            <div style="padding: 1%;align-items: center;">
+                                <lightning-button variant="brand" label="Submit"  onclick={handleSubmitForm} class="slds-m-left_x-small" 
+                                 disable="false"></lightning-button>
+                            </div>
+                        </lightning-layout-item>  
+                    </lightning-layout>
+    
+                </template>
+                <template if:true={isSubmitDisable}>
+                    <lightning-layout horizontal-align="Center">
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="3" padding="around-small" class="slds-text-align_center"> 
+                            <div style="padding: 1%;align-items: center;">
+                                <lightning-button variant="brand" label="Submit" title="Primary action" disabled class="slds-m-left_x-small"></lightning-button>
+                            </div>
+                        </lightning-layout-item>  
+                    </lightning-layout>
+    
+                </template>
+                
+            </div> 
+        <!--**************************************End Authorization******************************************************-->
+
+            </div>
+                       
+        </template>
+       
+
+</div>       
+</template>

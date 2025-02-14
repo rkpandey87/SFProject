@@ -1,0 +1,1764 @@
+<template>
+<div class="spinner">
+   <template if:true={systemVar1.isLoading}>
+      <lightning-spinner alternative-text="Loading" variant="brand" size="large">
+      </lightning-spinner>
+   </template>
+</div>
+
+ 
+<article class="slds-card cardAlign">
+   <div class="slds-card__header slds-grid">
+      <img src={formLogo} class="logoAign" onclick={handlelogo}  />
+   </div>
+   <div class="slds-card__body slds-card__body_inner cardBodyAlign">
+	      <br/>
+         <h1 class="mainHeading">Youth Development Intake Form</h1><br/><br/><br/>
+         <h1 class="heading">Manage Youth Development you want to include</h1>
+         <h1 class="heading">REFERRAL SOURCE</h1>
+         <div class="subHeading">
+      <div class="slds-grid slds-wrap">
+            <div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+            <!-- <lightning-input label="How did you hear about us?(Not Available)"  value={parentValues.p_ReferralReason}
+			placeholder="Please Enter the Referral Source" onchange={handleReferralSource}>
+                     </lightning-input> -->
+				 <lightning-combobox class="picklistAlign" name="How did you hear about us?" label="How did you hear about us?"
+								value={parentValues.p_ReferralReason} placeholder=" Please Enter the Referral Source"
+								options={systemFieldOption.ReferralSource} onchange={handleReferralSource}>
+							</lightning-combobox>	 
+                        </div>
+                                 </div>
+	   
+								 <br/><br/><br/>
+								
+         </div>
+		 <div class="slds-grid slds-wrap">
+			<div class="slds-col slds-large-size_9-of-12 slds-medium-size_9-of-12 slds-size_12-of-12">
+				<h2 class="heading clientHeading">CLIENT INFORMATION</h2>
+			</div>
+			<div
+				class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12 addChildDiv">
+				<lightning-button variant="Brand" label="Add Child" onclick={addChild} icon-name="utility:add"
+					class="slds-m-left_x-small button parentFieldAlign">
+				</lightning-button>
+			</div>
+			
+		</div>
+		<template for:each={systemVar1.childNodes} for:item="childItem" for:index="index">
+			<div key={childItem} class="childLableSection subHeading">
+				<p class=" childIndexingHeading">Child : {childItem.childIndex}</p>
+				<div if:true={systemVar1.isDeleteRowButtonVisible} class="arrayButtonAlign">
+					<button type="button"  data-index={index} onclick={handleDeleteRow} class="slds-button slds-button_icon deleteRowAlign" title="Remove for Intake" >
+							<lightning-icon icon-name='action:delete' alternative-text='Remove for Intake' size='x-small' title='Remove for Intake'></lightning-icon>
+						</button>
+				</div>
+
+			</div>
+			<div key={childItem} class="slds-grid slds-wrap subChildAlign subHeading">
+				<div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+					<lightning-input type="text" class="parentFieldAlign childFirst" label="First Name" value={childItem.c_FirstName} data-id={index}
+						placeholder="Please Enter the First Name" required onchange={handleChildFirstName}  oninvalid={handleInvalid} data-name="First_Name"> 
+					</lightning-input>
+				</div>
+				<div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+					<lightning-input type="text" class="parentFieldAlign childLast" label="Last Name" value={childItem.c_LastName} data-id={index}
+						placeholder="Please Enter the Last Name" required onchange={handleChildLastName} data-name="Last_Name" >
+					</lightning-input>
+				</div>
+				<div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+					<lightning-input type="Date" class="parentFieldAlign childBD" label="D.O.B:" value={childItem.c_Birthdate} data-id={index}
+						placeholder="Please Enter the Birthdate" required onchange={handleChildBirthdate} data-name="Birthdate" >
+					</lightning-input>
+				</div>
+				<div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+					<!-- <lightning-combobox class="picklistAlign" name="GenderIdentity" label="Gender Identity"
+					 placeholder=" Select Gender Identity"  value={childItem.c_GenderIdentity} data-id={index}
+						options={systemFieldOption.genderIdentity} onchange={handleChildGenderIdentity}>
+					</lightning-combobox> -->
+					<button type="button"  data-index={index} onclick={openModal} class="slds-button slds-button_icon editRowAlign" title="Edit for Intake" >
+						<lightning-icon icon-name='action:edit' alternative-text='Edit for Intake' size='x-small' title='edit for Intake'></lightning-icon>
+					</button>
+				</div>
+			</div>
+		
+		</template>
+  <h2 class="heading" ><u>PARENT(S)/GUARDIAN(S) INFORMATION</u></h2>
+   <div class="subHeading">
+   <!-- Primary Parent  Start  -->
+   <h2 class="heading">Primary Parent</h2><br/>
+      
+   <div class="slds-grid slds-wrap">
+           <div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+            <lightning-input type="text" class="parentFieldAlign checkParentFirstName" 
+            label="Primary Parent First Name" value={parentValues.p_FirstName}
+            placeholder="Please Enter the First Name" required
+            onchange={handleParentFirstName}></lightning-input>
+              </div>
+            <div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+               <lightning-input type="text" class="parentFieldAlign checkParentLastName" 
+            label="Primary Parent Last Name" value={parentValues.p_LastName}
+            placeholder="Please Enter the Last Name" required
+            onchange={handleParentLastName}></lightning-input>
+              </div>
+               
+            <div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+               <lightning-combobox class="picklistAlign checkParentRelationship" name="Primary Parent Relationships" label="Primary Parent Relationships"
+								value={parentValues.p_relation} placeholder=" Select Primary Parent Relationships" required
+								options={systemFieldOption.youthrelationship} onchange={handleParentRelation}>
+							</lightning-combobox>
+                 </div>
+              <div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+             <lightning-input type="text" class="parentFieldAlign checkParentStreet" label="Mailing Street"
+										value={parentValues.p_Mailingstreet}
+										placeholder="Please Enter the Mailing street" required
+										onchange={handleParentMailingstreet}>
+									</lightning-input>
+               </div>
+           </div>
+
+   <div class="slds-grid slds-wrap columAlign">
+								
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign checkParentCity" label="Mailing City"
+										value={parentValues.p_MailingCity} placeholder="Please Enter the Mailing City" required
+										onchange={handleParentMailingCity}>
+									</lightning-input>
+								</div>
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-combobox class="parentFieldAlign checkParentState" label="Mailing State"
+										value={parentValues.p_MailingState} placeholder="Select Progress" required
+										options={systemFieldOption.guardianState} onchange={handleParentMailingState}>
+									</lightning-combobox>
+								</div>
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign checkParentZipCode" label="Mailing Postal Code"
+										value={parentValues.p_MailingPostalCode}
+										placeholder="Please Enter the Mailing Postal Code" required
+										onchange={handleParentMailingPostalCode}>
+									</lightning-input>
+								</div>
+                        <div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign checkParentEmployent" label="Place of Employment"
+									 value={parentValues.p_PlaceOfEmployment}
+										placeholder="Please Enter Place of Employment"
+										onchange={handleParentPlaceofEmployment}>
+									</lightning-input>
+								</div>
+							</div>
+<div class="slds-grid slds-wrap columAlign">
+								
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign checkParentPhoneNo" label="Home Phone"
+									value={parentValues.p_PhoneNumber}
+										placeholder="Please Enter Home Phone"
+										onchange={handleParentPhoneNumber}>
+                              </lightning-input>
+								</div>
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign checkParentMPhoneNo" label="Mobile Phone"
+									value={parentValues.p_MPhoneNumber}
+										placeholder="Please Enter Mobile Phone" required
+										onchange={handleParentMPhoneNumber}>
+                              </lightning-input>
+								</div>
+                        <div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign" label="Work Phone"
+									value={parentValues.p_WPhoneNumber}
+										placeholder="Please Enter Work Phone"
+										onchange={handleParentWPhoneNumber}>
+                              </lightning-input>
+								</div>
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="email" class="parentFieldAlign checkParentEmail" label="Email" value={parentValues.p_email}
+										placeholder="Please Enter Email" required onchange={handleParentEmail}>
+                              </lightning-input>
+								</div>
+                       
+							</div>
+<div class="slds-grid slds-wrap columAlign">
+                      <div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign" label="Household Monthly Income"
+									value={parentValues.p_MonthlyIncome}
+									placeholder="Please Enter Household Monthly Income"
+									onchange={handleMonthlyIncome}>
+                              </lightning-input>
+								</div>
+                     <div
+                        class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+                        <!-- <lightning-input type="text" class="parentFieldAlign" label="Income Source" value={parentValues.p_IncomeSource}
+                           placeholder="Please Enter Income Source "
+						   onchange={handleIncomeSource}>
+                           </lightning-input> -->
+						<lightning-combobox class="picklistAlign" name="Source of Income" label="Source of Income"
+					        value={parentValues.p_IncomeSource} options={systemFieldOption.IncomeSource}
+					        placeholder=" Select Source of Income" onchange={handleIncomeSource}>
+					</lightning-combobox>
+                     </div>
+                     <div
+                        class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+                        <!-- <lightning-input type="checkbox" class="parentFieldAlign" label="Receive Public Assistance (Not Available)"
+                           placeholder="Please Enter Receive Public Assistance " value={childData.c_Iep} data-id="c_Iep">
+                           </lightning-input> -->
+						    <lightning-combobox class="picklistAlign" name="Receive Public Assistance" label="Receive Public Assistance"
+					 value={parentValues.p_ReceivePublicAssistance}
+					 options={systemFieldOption.ReceivePublicAssistance}
+                     placeholder=" Receive Public Assistance"
+					 onchange={handleReceivePublicAssistance}>
+					  </lightning-combobox>
+                     </div>
+                  <div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+                     <lightning-combobox class="picklistAlign" name="Housing" label="Housing"
+					 value={parentValues.p_Housing}
+					 options={systemFieldOption.HousingType}
+                     placeholder=" Select Housing"
+					 onchange={handleHousingType}>
+            </lightning-combobox>
+                  </div>
+                       
+							</div>
+   <div class="slds-grid slds-wrap columAlign">
+                        <div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<!-- <lightning-input type="text" class="parentFieldAlign" label="Housing Status (Not Available)"
+										placeholder="Please Enter Housing Status">
+                              </lightning-input> -->
+							   <lightning-combobox class="picklistAlign" name="Housing Status" label="Housing Status"
+					 value={parentValues.p_HousingStatus}
+					 options={systemFieldOption.HousingOwnership}
+                     placeholder=" Select Housing Status"
+					 onchange={handleHousingStatus}>
+            </lightning-combobox>
+								</div>
+                         <div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign" label="Length of time in current residence (Not Available)"
+										placeholder="Please Enter Length of time ">
+                              </lightning-input>
+								</div>
+      
+   </div>
+                     <!-- Primary Parent  End  -->
+
+<!-- Secondary Parent  Start  -->
+   
+    <h2 class="heading">Secondary Parent</h2><br/>
+      
+   <div class="slds-grid slds-wrap">
+           <div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+            <lightning-input type="text" class="parentFieldAlign checkSecondaryParentFirstName" 
+            label="Secondary Parent First Name" value={secondaryParentValues.p_FirstName}
+            placeholder="Please Enter the First Name" required
+            onchange={handleSecondaryParentFirstName}></lightning-input>
+              </div>
+            <div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+               <lightning-input type="text" class="parentFieldAlign checkSecondaryParentLastName" 
+            label="Secondary Parent Last Name" value={secondaryParentValues.p_LastName}
+            placeholder="Please Enter the Last Name" required
+            onchange={handleSecondaryParentLastName}></lightning-input>
+              </div>
+               
+            <div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+               <lightning-combobox class="picklistAlign checkSParentRelationship" name="Secondary Parent Relationships" label="Secondary Parent Relationships"
+								value={secondaryParentValues.p_relation} placeholder=" Select Secorday Parent Relationships" required
+								options={systemFieldOption.OtherGaurgian} onchange={handleSecondaryParentRelation}>
+							</lightning-combobox>
+                 </div>
+              <div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+             <lightning-input type="text" class="parentFieldAlign checkSParentStreet" label="Secondary Mailing Street" required
+										value={secondaryParentValues.p_Mailingstreet}
+										placeholder="Please Enter the Mailing street"
+										onchange={handleSecondaryParentMailingstreet}>
+									</lightning-input>
+               </div>
+           </div>
+
+    <div class="slds-grid slds-wrap columAlign">
+								
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign checkSParentCity" label="Secondary Mailing City" required
+										value={secondaryParentValues.p_MailingCity} placeholder="Please Enter the Mailing City"
+										onchange={handleSecondaryParentMailingCity}>
+									</lightning-input>
+								</div>
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-combobox class="parentFieldAlign checkSParentState" label="Secondary Mailing State" required
+										value={secondaryParentValues.p_MailingState} placeholder="Select Progress"
+										options={systemFieldOption.guardianState} onchange={handleSecondaryParentMailingState}>
+									</lightning-combobox>
+								</div>
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign checkSParentZipCode" label="Secondary Mailing Postal Code" required
+										value={secondaryParentValues.p_MailingPostalCode}
+										placeholder="Please Enter the Mailing Postal Code"
+										onchange={handleSecondaryParentMailingPostalCode}>
+									</lightning-input>
+								</div>
+                        <div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign checkSParentEmployent" label="Secondary Place of Employment"
+									value={secondaryParentValues.p_PlaceOfEmployment}
+										placeholder="Please Enter Place of Employment"
+										onchange={handleSecondaryParentPlaceofEmployment}
+										>
+									</lightning-input>
+								</div>
+							</div>
+<div class="slds-grid slds-wrap columAlign">
+								
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign checkSecondaryParentPhoneNo" label=" Secondary Home Phone"
+										placeholder="Please Enter Home Phone"
+										value={secondaryParentValues.p_PhoneNumber}
+                                        onchange={handleSecondaryParentPhoneNumber}>
+                              </lightning-input>
+								</div>
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign checkSParentMPhone " label="Secondary Mobile Phone" required
+										placeholder="Please Enter Mobile Phone"
+										value={secondaryParentValues.p_MPhoneNumber}
+                                        onchange={handleSecondaryParentMPhoneNumber}>
+                              </lightning-input>
+								</div>
+                        <div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign" label="Secondary Work Phone"
+										placeholder="Please Enter Work Phone"
+										value={secondaryParentValues.p_WPhoneNumber}
+                                        onchange={handleSecondaryParentWPhoneNumber}>
+                              </lightning-input>
+								</div>
+								<div
+									class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="email" class="parentFieldAlign checkSParentEmail" label="Secondary Email"  required
+										placeholder="Please Enter Email" 
+                                        value={secondaryParentValues.p_email}
+										onchange={handleSecondaryParentEmail}>
+                              </lightning-input>
+								</div>
+                       
+							</div>
+
+                     <!-- Secondary Parent  End  -->
+         </div>
+           <h2 class="heading" ><u>AUTHORIZATION AND PERMISSION</u></h2>
+                   <div class="subHeading">
+        <h2 class="heading">PARENT AUTHORIZATION :</h2><br/><p class="paraContent">
+						 I hereby confirm my child/children are in good physical health and possess the 
+						 necessary medical clearance to partake in Gwen’s Girls activities. 
+						 The health history provided is accurate to the best of my knowledge, 
+						 and the individual described herein is authorized to participate in all 
+						 program activities, unless otherwise specified.
+						 </p><br/>
+						 <p class="paraContent">Additionally, I am aware neither Gwen’s Girls nor its paid staff and volunteers 
+							 can be held liable in the event of an accident.</p><br/>
+						  <p class="paraContent">I also affirm my child/children are receptive to discipline and do not exhibit any behaviors, habits, 
+							  or attitudes that would render them unsuitable for participation.</p><br/>
+
+		<h2 class="heading">EMERGENY AUTHORIZATION :</h2><br/><p class="paraContent">
+						I hereby grant consent for Gwen’s Girls Staff to authorize medical professionals to conduct X-rays, 
+						routine tests, and administer treatment to my child/children as deemed necessary.
+						 </p><br/>
+						 <p class="paraContent">In circumstances where I am unable to communicate or cannot be reached 
+							 during an emergency, I also authorize the designated physician, as selected by the staff,
+							  to hospitalize, provide appropriate treatment, and, if required, 
+							 administer injections, anesthesia, or conduct surgery for the above-named child/children.</p><br/>
+						  <p class="paraContent">I understand I will assume full financial responsibility 
+							  for any associated treatment costs, including expenses not covered by insurance.</p><br/>
+
+	<h2 class="heading">PARENT/GUARDIAN PERMISSION: </h2><br/><p class="paraContent">
+						My signature below affirms my legal authority to register the child or children whose names appear on this form. I attest that, to the best of my knowledge, 
+						the information provided in this application is both comprehensive and accurate.
+						 </p><br/>
+						 <p class="paraContent">I am fully aware that this is an application, and the participation of 
+							 the specified child or children is subject to available space within the program.</p><br/>
+						  <p class="paraContent">Furthermore, I acknowledge that, upon confirmation of my application,
+							   I am responsible for completing and signing all essential forms, as outlined in the program packet. 
+							   These forms encompass matters related to health, security, and waivers and must be submitted before my child or children can partake in the program.</p><br/>
+                <div class="slds-grid slds-wrap columAlign">
+								
+								<div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign checkParentSign" label=" Parent/Guardian Signature"  required
+										placeholder="Please Enter the Parent Signature..."
+										value={parentValues.p_signature}
+										onchange={handleParentSignature}>
+										
+                              </lightning-input>
+							  <p>By pressing "Submit," you are agreeing to electronically sign this document.</p><br/>
+							  <h1 class="signatureTextAlign">{parentValues.p_signature}</h1>
+								</div>
+								
+								<div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+								<h1 class="dateAign">Date : {parentValues.p_signDate} </h1>	
+								</div>
+                                 
+								
+                       
+							</div>  
+              </div>
+
+
+<p class="heading" style="cursor: pointer;" onclick={openConsentModal}><u>Click here for Acceptance Form</u></p>
+
+
+      </div>
+
+     
+	  
+	  
+	  
+	  <!-- Modele Popup Section Start -->
+	  <template if:true={isModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container custom-modal__container">
+                <!-- Modal/Popup Header -->
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={closeModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="close" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">Child : {childData.childIndex} Information</h2>
+                </header>
+
+                <!-- Modal/Popup Body -->
+                <div class="slds-modal__content slds-p-around_medium custom-modal__content">
+                   
+					<!-- Add more fields as needed -->
+					<div class="slds-grid slds-wrap">
+						<div class="slds-col slds-large-size_9-of-12 slds-medium-size_9-of-12 slds-size_12-of-12">
+										<h2 class="heading clientHeading">CLIENT INFORMATION</h2>
+									</div>
+						
+						</div>
+	<div class="slds-grid slds-wrap subChildAlign subHeading">
+						<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+							<lightning-input type="text" class="parentFieldAlign checkChildFirstName" label="First Name" value={childData.c_FirstName} data-id="c_FirstName"
+								placeholder="Please Enter the First Name" required onchange={handleChildFN} data-name="First_Name"> 
+							</lightning-input>
+						</div>
+						<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+							<lightning-input type="text" class="parentFieldAlign checkChildLastName" label="Last Name" value={childData.c_LastName} data-id="c_LastName"
+								placeholder="Please Enter the Last Name" required onchange={handleChildLN} data-name="Last_Name" >
+							</lightning-input>
+						</div>
+						<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+							<lightning-input type="Date" class="parentFieldAlign checkChildBirthDate" label="D.O.B:" value={childData.c_Birthdate} data-id="c_Birthdate"
+								placeholder="Please Enter the Birthdate" required onchange={handleChildBD} data-name="Birthdate" >
+							</lightning-input>
+						</div>
+						
+					</div>
+					
+<div class="slds-grid slds-wrap subChildAlign subHeading">
+						<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+							<lightning-input type="text" class="parentFieldAlign" label="SSN" value={childData.c_SSN} data-id="c_SSN"
+								placeholder="Please Enter SSN"  onchange={handleFieldChange} data-name="SSN"> 
+							</lightning-input>
+						</div>
+						<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+							<lightning-combobox class="picklistAlign" name="GenderIdentity" label="Gender Identity"
+							 placeholder=" Select Gender Identity"  value={childData.c_GenderIdentity} data-id="c_GenderIdentity"
+								options={systemFieldOption.genderIdentity} onchange={handleFieldChange}>
+							</lightning-combobox>
+						</div>
+						<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+							<!-- <lightning-input type="text" class="parentFieldAlign" label="Race" value={childData.c_Race} data-id="c_Race"
+								placeholder="Please Enter the Race"  onchange={handleFieldChange} data-name="Race"> 
+							</lightning-input> -->
+							<lightning-combobox class="picklistAlign" name="Race" label="Race"
+							 placeholder="Select the Race"  value={childData.c_Race} data-id="c_Race"
+								options={systemFieldOption.Race} onchange={handleFieldChange} data-name="Race">
+							</lightning-combobox>
+						</div>
+				</div>
+<div class="slds-grid slds-wrap subChildAlign subHeading">
+							<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+								<lightning-input type="number"  min="0" max="100" step="1" class="parentFieldAlign" label="Weight" value={childData.c_Weight} data-id="c_Weight"
+									placeholder="Please Enter Weight"  onchange={handleFieldChange} data-name="Weight" > 
+								</lightning-input>
+							</div>
+							<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+								<lightning-input type="number"  min="0" max="100" step="1" class="parentFieldAlign" label="Height Feet" value={childData.c_HeightFeet} data-id="c_HeightFeet"
+									placeholder="Please Enter Height Feet "  onchange={handleFieldChange} data-name="HeightFeet"> 
+								</lightning-input>
+							</div>
+							
+							<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+								<lightning-input type="number"  min="0" max="100" step="1"  class="parentFieldAlign" label="Height Inches" value={childData.c_HeightInches} data-id="c_HeightInches"
+									placeholder="Please Enter the Height Inches"  onchange={handleFieldChange} data-name="HeightInches"> 
+								</lightning-input>
+							</div>
+					</div>
+	<div class="slds-grid slds-wrap subChildAlign subHeading">
+						<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+							<lightning-input type="text" class="parentFieldAlign" label="Identifying Marks" value={childData.c_IdentifyingMarks} data-id="c_IdentifyingMarks"
+								placeholder="Please Enter Identifying Marks"  onchange={handleFieldChange} data-name="IdentifyingMarks"> 
+							</lightning-input>
+						</div>
+						<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+							<lightning-input type="text" class="parentFieldAlign" label="Hair Color" value={childData.c_HairColor} data-id="c_HairColor"
+								placeholder="Please Enter Hair Color "  onchange={handleFieldChange} data-name="Hair Color"> 
+							</lightning-input>
+						</div>
+						
+						<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+							<lightning-input type="text" class="parentFieldAlign" label="Eye Color" value={childData.c_EyeColor} data-id="c_EyeColor"
+								placeholder="Please Enter the Eye Color"  onchange={handleFieldChange} data-name="EyeColor"> 
+							</lightning-input>
+						</div>
+				</div>
+<br/>
+<div class="slds-grid slds-wrap">
+					<div class="slds-col slds-large-size_9-of-12 slds-medium-size_9-of-12 slds-size_12-of-12">
+									<h2 class="heading clientHeading">SCHOOL INFORMATION</h2>
+								</div>
+					
+	</div>
+<div class="slds-grid slds-wrap subChildAlign subHeading">
+           <div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+	           <lightning-combobox class="picklistAlign checkSchool" name="Select School" label="Select School"
+		      placeholder=" Select School" required value={childData.c_SelectSchool} data-id="c_SelectSchool"
+		      options={systemFieldOption.School}  onchange={handleChildSchool} data-name="SelectSchool">
+	          </lightning-combobox>
+            </div>
+          <div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+	         <lightning-combobox class="picklistAlign checkGrade" name="Grade" label="Grade (Pick only number)"
+		     placeholder=" Select Grade"  required value={childData.c_Grade} data-id="c_Grade"
+		     options={systemFieldOption.Grade} onchange={handleChildGrade} data-name="Grade">
+	      </lightning-combobox>
+		  <template if:true={showOtherGradeLevel}>
+            <div class="slds-m-around_medium">
+                <lightning-input class="picklistAlign checkotherGrade" name="OtherGradeLevel" label="Other Grade Level(Not Available)"  
+				 value={childData.c_OtherGrade} 
+				 placeholder=" Select Other Grade Level" required
+				 onchange={handleOtherGrade}></lightning-input>
+            </div>
+        </template>
+          </div>
+         <div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+	     <lightning-input type="checkbox" class="parentFieldAlign" label="Is the youth currently enrolled in school?"
+	        placeholder="Is the youth currently enrolled in school?  " checked={childData.c_currentlyEnrollInSchool} data-id="c_currentlyEnrollInSchool"
+			data-name="currentlyEnrollInSchool" onchange={handleEnrollInSchool}>
+	      </lightning-input>
+           </div>	
+	
+</div>
+
+<div class="slds-grid slds-wrap subChildAlign subHeading">
+	<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+		<lightning-input type="checkbox" class="parentFieldAlign" label="Does the youth have an IEP (Individual Education Plan)?"
+		   placeholder="Does the youth have an IEP (Individual Education Plan)?  " checked={childData.c_Iep} 
+		    onchange={handleIEPChange}>
+		 </lightning-input>
+		  </div>
+		  <div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+			<lightning-input type="checkbox" class="parentFieldAlign" label="Enrolled in Special Education (Not Available)"
+			   placeholder="Enrolled in Special Education">
+		     </lightning-input>
+		</div>
+		<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+			<lightning-input type="text" class="parentFieldAlign" label="Are there any specific concerns about the youth’s education? (Not Available)" value={childData.c_YouthEducationConcern} data-id="c_YouthEducationConcern"
+				placeholder="Please Enter any specific concerns about the youth’s education?"  onchange={handleFieldChange} data-name="YouthEducationConcern"> 
+			</lightning-input>
+		</div>	
+
+</div>
+<div class="slds-grid slds-wrap">
+	<div class="slds-col slds-large-size_9-of-12 slds-medium-size_9-of-12 slds-size_12-of-12">
+					<h2 class="heading clientHeading">YOUTH AGES 14+</h2>
+				</div>
+
+			</div>
+<div class="slds-grid slds-wrap subChildAlign subHeading">
+				<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+					<lightning-input type="checkbox" class="parentFieldAlign" label="Youth Works (Not Available)"
+					   placeholder="Youth Works (Not Available) ">
+					 </lightning-input>
+					  </div>
+					  <div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+						<lightning-input type="text" class="parentFieldAlign" label="Place of Employment" value={childData.c_PlaceofEmployment} data-id="c_PlaceofEmployment"
+							placeholder="Please Enter Place of Employment"  onchange={handleFieldChange} data-name="PlaceofEmployment"> 
+						</lightning-input>
+					</div>
+					<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+						<lightning-input type="text" class="parentFieldAlign" label="Duration at Employment (Not Available)" value={childData.c_DurationatEmployment} data-id="c_DurationatEmployment"
+							placeholder="Please Enter any specific concerns about the youth’s education?"  onchange={handleFieldChange} data-name="DurationatEmployment"> 
+						</lightning-input>
+					</div>	
+			
+			</div>
+<div class="slds-grid slds-wrap subChildAlign subHeading">
+				<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+					<lightning-input type="text" class="parentFieldAlign" label="Problems at Work, if any (Not Available)" value={childData.c_ProblemsAtWork} data-id="c_ProblemsAtWork"
+						placeholder="Please Enter Problems at Work, if any "  onchange={handleFieldChange} data-name="ProblemsAtWork"> 
+					</lightning-input>
+				</div>
+				<div class="slds-col slds-large-size_8-of-12 slds-medium-size_6-of-12 slds-size_12-of-12">
+					<lightning-dual-listbox  class="picklistAlign" data-id="c_IdentifyAreasofinterest"
+						label="Identify areas of interest: (choose options which are not in bracket)" source-label="Available Options" value={childData.c_IdentifyAreasofinterest}
+						selected-label="Selected Options" options={systemFieldOption.InterestAreas}
+						onchange={handleFieldChange}>
+					</lightning-dual-listbox>
+				</div>
+					<!-- <div class="slds-col slds-large-size_4-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+						<lightning-input type="text" class="parentFieldAlign" label="Are there any specific concerns about the youth’s education? (Not Available)" value={childData.c_YouthEducationConcern} data-id="c_YouthEducationConcern"
+							placeholder="Please Enter any specific concerns about the youth’s education?"  onchange={handleFieldChange} data-name="YouthEducationConcern"> 
+						</lightning-input>
+					</div>	 -->
+			
+			</div>
+			<br/>
+<div class="slds-grid slds-wrap">
+				<div class="slds-col slds-large-size_9-of-12 slds-medium-size_9-of-12 slds-size_12-of-12">
+								<h2 class="heading clientHeading">EMERGENCY CONTACTS</h2>
+							</div>
+			
+						</div>
+<div class="slds-grid slds-wrap subChildAlign subHeading">
+	                         <div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+		                         <lightning-input type="text" class="parentFieldAlign checkFirstName1" label="First Name1" value={childData.c_FirstName1} data-id="c_FirstName1"
+			                         placeholder="Please Enter First Name1" required  onchange={handleFirstName1} data-name="FirstName1"> 
+		                       </lightning-input>
+	                           </div>
+								  <div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign checkLastName1" label="Last Name1" value={childData.c_LastName1} data-id="c_LastName1"
+										placeholder="Please Enter Last Name1" required onchange={handleLastName1} data-name="LastName1"> 
+									</lightning-input>
+								</div>
+								<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign checkPhone1" label="Phone1" value={childData.c_Phone1} data-id="c_Phone1"
+										placeholder="Please Enter Phone1" required  onchange={handlePhone1} data-name="Phone1"> 
+									</lightning-input>
+								</div>	
+						
+		</div>
+<div class="slds-grid slds-wrap subChildAlign subHeading">
+			<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+				<lightning-input type="text" class="parentFieldAlign" label="First Name2 " value={childData.c_FirstName2} data-id="c_FirstName2"
+					placeholder="Please Enter First Name2"  onchange={handleFieldChange} data-name="FirstName2"> 
+			  </lightning-input>
+			  </div>
+				 <div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+				   <lightning-input type="text" class="parentFieldAlign" label="Last Name2" value={childData.c_LastName2} data-id="c_LastName2"
+					   placeholder="Please Enter Last Name2"  onchange={handleFieldChange} data-name="LastName2"> 
+				   </lightning-input>
+			   </div>
+			   <div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+				   <lightning-input type="text" class="parentFieldAlign" label="Phone2" value={childData.c_Phone2} data-id="c_Phone2"
+					   placeholder="Please Enter Phone2"  onchange={handleFieldChange} data-name="Phone2"> 
+				   </lightning-input>
+			   </div>	
+	   
+</div>
+
+<div class="slds-grid slds-wrap subChildAlign subHeading">
+	<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+		<lightning-input type="text" class="parentFieldAlign checkRelationship1" label="Relationship1 (Not Available)" value={childData.c_Relationship1} data-id="c_Relationship1"
+			placeholder="Please Enter Relationship1"  required onchange={handleRelationship1} data-name="Relationship1"> 
+	  </lightning-input>
+	  </div>
+		 <div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+		   <lightning-input type="text" class="parentFieldAlign" label="Relationship2 (Not Available)" value={childData.c_Relationship2} data-id="c_Relationship2"
+			   placeholder="Please Enter Relationship2"  onchange={handleFieldChange} data-name="Relationship2"> 
+		   </lightning-input>
+	   </div>
+	   <div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+		   
+	   </div>	
+
+</div>
+
+<br/>
+<div class="slds-grid slds-wrap">
+				<div class="slds-col slds-large-size_9-of-12 slds-medium-size_9-of-12 slds-size_12-of-12">
+								<h2 class="heading clientHeading">APPROVED PICK-UPS</h2>
+							</div>
+			
+						</div>
+						<div class="slds-grid slds-wrap subChildAlign subHeading">
+							<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+								<lightning-input type="text" class="parentFieldAlign" label="Approved Pick-Up 1 Name" value={childData.c_ApprovedPickUp1Name} data-id="c_ApprovedPickUp1Name"
+									placeholder="Please Enter Approved Pick-Up 1 Name"  onchange={handleFieldChange} data-name="c_ApprovedPickUp1Name"> 
+							  </lightning-input>
+							  </div>
+							  <div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+								<lightning-combobox class="picklistAlign" name="Approved Pick-Up 1 Relationship" label="Approved Pick-Up 1 Relationship"
+								placeholder=" Select "  value={childData.c_PickUp1Relationship} data-id="c_PickUp1Relationship"
+								options={systemFieldOption.ApprovedPickUp1} onchange={handleFieldChange} data-name="PickUp1Relationship">
+							 </lightning-combobox>
+							 </div>
+								 
+							   <div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+								   <lightning-input type="text" class="parentFieldAlign" label="Approved Pick-Up 1 Phone" value={childData.c_ApprovedPickUp1Phone} data-id="c_ApprovedPickUp1Phone"
+									   placeholder="Please Enter Approved Pick-Up 1 Phone"  onchange={handleFieldChange} data-name="ApprovedPickUp1Phone"> 
+								   </lightning-input>
+							   </div>	
+					   
+	   </div>
+<div class="slds-grid slds-wrap subChildAlign subHeading">
+	<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+		<lightning-input type="text" class="parentFieldAlign" label="Approved Pick-Up 2 Name" value={childData.c_ApprovedPickUp2Name} data-id="c_ApprovedPickUp2Name"
+			placeholder="Please Enter Approved Pick-Up 2 Name"  onchange={handleFieldChange} data-name="c_ApprovedPickUp2Name"> 
+	  </lightning-input>
+	  </div>
+	  <div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+		<lightning-combobox class="picklistAlign" name="Approved Pick-Up 2 Relationship" label="Approved Pick-Up 2 Relationship"
+		placeholder=" Select "  value={childData.c_PickUp2Relationship} data-id="c_PickUp2Relationship"
+		options={systemFieldOption.ApprovedPickUp2} onchange={handleFieldChange} data-name="PickUp2Relationship">
+	 </lightning-combobox>
+	 </div>
+		 
+	   <div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+		   <lightning-input type="text" class="parentFieldAlign" label="Approved Pick-Up 2 Phone" value={childData.c_ApprovedPickUp2Phone} data-id="c_ApprovedPickUp2Phone"
+			   placeholder="Please Enter Approved Pick-Up 2 Phone"  onchange={handleFieldChange} data-name="ApprovedPickUp2Phone"> 
+		   </lightning-input>
+	   </div>		
+	  
+</div>
+<br/>
+<div class="slds-grid slds-wrap">
+				<div class="slds-col slds-large-size_9-of-12 slds-medium-size_9-of-12 slds-size_12-of-12">
+								<h2 class="heading clientHeading">TRANSPORTATION METHODS</h2>
+							</div>
+			
+						</div>
+<div class="slds-grid slds-wrap subChildAlign subHeading">
+							<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+								<lightning-combobox class="picklistAlign" name="Pick Transport " label="Pick Transport (Not Available)"
+								placeholder=" Select Transport"  value={childData.c_PickTransport} data-id="c_PickTransport"
+								options={systemFieldOption.PickTransport} onchange={handleFieldChange} data-name="PickTransport">
+							 </lightning-combobox>
+							 </div>
+							  <div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+								
+							 </div>
+								 
+							   <div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+								  
+							   </div>		
+							  
+						</div>	
+<br/>
+<div class="slds-grid slds-wrap">
+							<div class="slds-col slds-large-size_9-of-12 slds-medium-size_9-of-12 slds-size_12-of-12">
+											<h2 class="heading clientHeading">ALTERNATE ADDRESS</h2>
+										</div>
+						
+									</div>					
+<div class="slds-grid slds-wrap subChildAlign subHeading">
+			<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+				<lightning-input type="text" class="parentFieldAlign" label="Alternate City (Not Available)" value={childData.c_AlternateCity} data-id="c_AlternateCity"
+						placeholder="Please Enter Alternate City"  onchange={handleFieldChange} data-name="AlternateCity"> 
+					</lightning-input>
+					</div>
+					<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+						<lightning-input type="text" class="parentFieldAlign" label="Alternate State (Not Available)" value={childData.c_AlternateState} data-id="c_AlternateState"
+						placeholder="Please Enter Alternate State"  onchange={handleFieldChange} data-name="AlternateState"> 
+					</lightning-input>				
+					</div>
+											
+					<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+						<lightning-input type="text" class="parentFieldAlign" label="Alternate Zip Code (Not Available)" value={childData.c_AlternateZipCode} data-id="c_AlternateZipCode"
+						placeholder="Please Enter Alternate Zip Code"  onchange={handleFieldChange} data-name="AlternateZipCode"> 
+					</lightning-input>					
+					</div>		
+										
+					</div>
+<br/>
+<div class="slds-grid slds-wrap">
+					<div class="slds-col slds-large-size_9-of-12 slds-medium-size_9-of-12 slds-size_12-of-12">
+					<h2 class="heading clientHeading">HEALTH AND WELLNESS INFORMATION</h2>
+					</div>
+											
+					</div>	
+<div class="slds-grid slds-wrap subChildAlign subHeading">
+						<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+							<lightning-input type="text" class="parentFieldAlign" label="Physician Name" value={childData.c_PhysicianName} data-id="c_PhysicianName"
+									placeholder="Please Enter Physician Name"  onchange={handleFieldChange} data-name="PhysicianName"> 
+								</lightning-input>
+								</div>
+								<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign" label="Physician Phone " value={childData.c_PhysicianPhone} data-id="c_PhysicianPhone"
+									placeholder="Please Enter Physician Phone"  onchange={handleFieldChange} data-name="PhysicianPhone"> 
+								</lightning-input>					
+								</div>
+								<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign" label="Insurance Carrier " value={childData.c_InsuranceCarrier} data-id="c_InsuranceCarrier"
+									placeholder="Please Enter InsuranceCarrier"  onchange={handleFieldChange} data-name="InsuranceCarrier"> 
+								</lightning-input>				
+								</div>
+														
+										
+													
+</div>
+<div class="slds-grid slds-wrap subChildAlign subHeading">
+	<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+		<lightning-input type="number" class="parentFieldAlign" label="Insurance Number" value={childData.c_InsuranceNumber} data-id="c_InsuranceNumber"
+				placeholder="Please Enter Unique Insurance Number"  onchange={handleFieldChange} data-name="InsuranceNumber"> 
+			</lightning-input>
+			</div>
+			<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+				<lightning-input type="text" class="parentFieldAlign" label="Last Physical(MM/YYYY)" value={childData.c_LastPhysical} data-id="c_LastPhysical"
+				placeholder="Please Enter Last Physical"  onchange={handleFieldChange} data-name="LastPhysical"> 
+			</lightning-input>					
+			</div>
+			<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+				<lightning-input type="Date" class="parentFieldAlign" label="Dental Visit " value={childData.c_DentalVisit} data-id="c_DentalVisit"
+				placeholder="Please Enter Dental Visit"  onchange={handleFieldChange} data-name="DentalVisit"> 
+			</lightning-input>				
+			</div>
+									
+					
+								
+</div>
+
+<div class="slds-grid slds-wrap subChildAlign subHeading">
+	<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+		<lightning-input type="Date" class="parentFieldAlign" label="Vision(Not Available)" value={childData.c_RecentVision} data-id="c_RecentVision"
+				placeholder="Please Enter Recent Vision"  onchange={handleFieldChange} data-name="RecentVision"> 
+			</lightning-input>
+			</div>
+			<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+				<lightning-input type="Date" class="parentFieldAlign" label="Hearing(Not Available)" value={childData.c_RecentHearing} data-id="c_RecentHearing"
+				placeholder="Please Enter Recent Hearing"  onchange={handleFieldChange} data-name="RecentHearing"> 
+			</lightning-input>					
+			</div>
+			<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+			<lightning-input type="text" class="parentFieldAlign" label="Operations Injuries" value={childData.c_OperationsInjuries} data-id="c_OperationsInjuries"
+				placeholder="Please Enter Operations Injuries"  onchange={handleFieldChange} data-name="OperationsInjuries"> 
+			</lightning-input>
+				
+			</div>
+									
+					
+								
+</div>
+<div class="slds-grid slds-wrap subChildAlign subHeading">
+	
+			<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+				<lightning-input type="text" class="parentFieldAlign" label="Physical Mental History (Not Available)" value={childData.c_PhysicalMentalHistory} data-id="c_PhysicalMentalHistory"
+				placeholder="Please Enter Physical Mental History"  onchange={handleFieldChange} data-name="PhysicalMentalHistory"> 
+			</lightning-input>					
+			</div>
+			<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+				<lightning-input type="text" class="parentFieldAlign" label="Medications" value={childData.c_Medications} data-id="c_Medications"
+				placeholder="Please Enter Medications"  onchange={handleFieldChange} data-name="Medications"> 
+			</lightning-input>				
+			</div>
+			<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+		<!-- <lightning-input type="text" class="parentFieldAlign" label="Medication Compliance (Not Available)" value={childData.c_MedicationCompliance} data-id="c_MedicationCompliance"
+				placeholder="Please Enter Medication Compliance"  onchange={handleFieldChange} data-name="MedicationCompliance"> 
+			</lightning-input> -->
+			<lightning-combobox class="picklistAlign" name="Medication Complianc " label="Medication Compliance (Not Available)"
+								placeholder=" Select Medication Compliance"  value={childData.c_MedicationCompliance} data-id="c_MedicationCompliance"
+								options={systemFieldOption.MedicationCompliance} onchange={handleFieldChange} data-name="MedicationCompliance">
+							 </lightning-combobox>
+			</div>						
+					
+								
+</div>
+
+<div class="slds-grid slds-wrap subChildAlign subHeading">
+	
+			<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+				<lightning-input type="text" class="parentFieldAlign" label="Limitations (Not Available)" value={childData.c_Limitations} data-id="c_Limitations"
+				placeholder="Please Enter Limitations"  onchange={handleFieldChange} data-name="Limitations"> 
+			</lightning-input>					
+			</div>
+			<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+				<lightning-dual-listbox  class="picklistAlign" data-id="c_HadIllness"
+											label="Have had" source-label="Available Options" value={childData.c_HadIllness} 
+											selected-label="Selected Options" options={systemFieldOption.HadIllness}
+											onchange={handleFieldChange}>
+										</lightning-dual-listbox>				
+			</div>
+									
+					
+								
+</div>
+<br/>
+<div class="slds-grid slds-wrap">
+					<div class="slds-col slds-large-size_9-of-12 slds-medium-size_9-of-12 slds-size_12-of-12">
+					<h2 class="heading clientHeading">MENTAL HEALTH INFORMATION</h2>
+					</div>
+											
+					</div>	
+
+<div class="slds-grid slds-wrap subChildAlign subHeading">
+						<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+							<lightning-combobox class="picklistAlign" name="Mental Health Diagnosis" label="Mental Health Diagnosis"
+		                      placeholder="-- Select --" value={childData.c_MentalHealthDiagnosis} data-id="c_MentalHealthDiagnosis"
+		                       options={systemFieldOption.MentalHealthDiagnosis} onchange={handleFieldChange} data-name="MentalHealthDiagnosis">
+	                        </lightning-combobox>
+								</div>
+								<div class="slds-col slds-large-size_8-of-12 slds-medium-size_8-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign" label="Additional Mental Health Information" value={childData.c_AdditionalMentalHealthInformation} data-id="c_AdditionalMentalHealthInformation"
+									placeholder="Please Enter Additional Mental Health Information"  onchange={handleFieldChange} data-name="AdditionalMentalHealthInformation"> 
+								</lightning-input>					
+								</div>
+								
+														
+                          </div>
+<br/>
+<div class="slds-grid slds-wrap">
+				<div class="slds-col slds-large-size_9-of-12 slds-medium-size_9-of-12 slds-size_12-of-12">
+				<h2 class="heading clientHeading">COVID-19 SCREENING</h2>
+				</div>
+																	  
+				</div>	
+<div class="slds-grid slds-wrap subChildAlign subHeading">
+					<!-- <div class="slds-col slds-large-size_9-of-12 slds-medium-size_9-of-12 slds-size_12-of-12">
+						<lightning-combobox class="picklistAlign" name="Covid19Symptoms" label="Covid-19 Symptoms (Not Available)"
+						  placeholder="-- Select --" value={childData.c_Covid19Symptoms} data-id="c_Covid19Symptoms"
+						   options={systemFieldOption.Covid19Symptoms} onchange={handleFieldChange} data-name="Covid19Symptoms">
+						</lightning-combobox>
+							</div> -->
+					<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+	<lightning-input type="checkbox" class="parentFieldAlign" label="Close Contact with COVID-19 Positive Individual(Not Available)"  
+			placeholder="Please Enter Recent Vision"  onchange={handleFieldChange} > 
+		</lightning-input>
+		</div>
+		<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+			<lightning-input type="checkbox" class="parentFieldAlign" label="Recent International Travel(Not Available)" 
+			placeholder="Please Enter Recent Hearing"  onchange={handleFieldChange} > 
+		</lightning-input>					
+		</div>
+		<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+		<lightning-input type="checkbox" class="parentFieldAlign" label="Exposure to Crowded/High-Risk Setting(Not Available)" 
+			placeholder="Please Enter Operations Injuries"  onchange={handleFieldChange} > 
+		</lightning-input>
+			
+		</div>
+		
+		</div>
+		<div class="slds-grid slds-wrap subChildAlign subHeading">	
+			<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+		<lightning-input type="checkbox" class="parentFieldAlign" label="Household COVID-19 Diagnosis(Not Available)" 
+			placeholder="Please Enter Operations Injuries"  onchange={handleFieldChange} > 
+		</lightning-input>
+			
+		</div>
+			</div>		  
+					  <br/>
+<div class="slds-grid slds-wrap">
+				<div class="slds-col slds-large-size_9-of-12 slds-medium-size_9-of-12 slds-size_12-of-12">
+					 <h2 class="heading clientHeading">ALLERGIES</h2>
+						</div>
+																							
+						</div>
+<div class="slds-grid slds-wrap subChildAlign subHeading">
+							<div class="slds-col slds-large-size_8-of-12 slds-medium-size_8-of-12 slds-size_12-of-12">
+								<lightning-dual-listbox  class="picklistAlign" data-id="c_Allergies"
+											label="Allergies" source-label="Available Options" value={childData.c_Allergies} 
+											selected-label="Selected Options" options={systemFieldOption.Allergies}
+											onchange={handleFieldChange}>
+										</lightning-dual-listbox>		
+									</div>
+									<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+										<lightning-input type="text" class="parentFieldAlign" label="Allergy Details" value={childData.c_AllergyDetails} data-id="c_AllergyDetails"
+										placeholder="Please Enter Allergy Details"  onchange={handleFieldChange} data-name="AllergyDetails"> 
+									</lightning-input>					
+									</div>
+									
+															
+						 </div>	
+<br/>
+<div class="slds-grid slds-wrap">
+		<div class="slds-col slds-large-size_9-of-12 slds-medium-size_9-of-12 slds-size_12-of-12">
+		   <h2 class="heading clientHeading">PROGRAM ATTENDANCE</h2>
+		</div>
+																										
+		</div>
+		
+		<div class="slds-grid slds-wrap subChildAlign subHeading">
+			<div class="slds-col slds-large-size_8-of-12 slds-medium-size_8-of-12 slds-size_12-of-12">
+				<lightning-dual-listbox  class="picklistAlign" data-id="c_ChildAttend"
+							label="Child Attend After Program(Don't Choose None options)" source-label="Available Options" value={childData.c_ChildAttend} 
+							selected-label="Selected Options" options={systemFieldOption.ChildAttendProgram}
+							onchange={handleFieldChange}>
+						</lightning-dual-listbox>		
+					</div>
+					<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+										
+					</div>
+					
+											
+		 </div>	
+			 <br/><br/><br/>
+			</div>
+                <!-- Modal/Popup Footer -->
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Cancel" onclick={closeModal}></lightning-button>
+                    <lightning-button variant="brand" label="Save" onclick={handleSave}></lightning-button>
+                </footer>
+			
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+	  <!-- Modele Popup Section Start End -->
+
+     <!-- Consent Model Popup Section Start -->
+	  <template if:true={isConsentModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container custom-modal__container">
+                <!-- Consent  Modal/Popup Header -->
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={closeConsentModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="close" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">ACCEPTANCE FORM</h2>
+                </header>
+
+                <!-- Modal/Popup Body -->
+                <div class="slds-modal__content slds-p-around_medium custom-modal__content">
+                   
+					<!-- Add more fields as needed -->
+			<!-- FAMILY HANDBOOK ACCEPTANCE ACKNOWLEDGEMENT Form Start -->
+					<div class="slds-grid slds-wrap">
+						<div class="slds-col slds-large-size_12-of-12 slds-medium-size_12-of-12 slds-size_12-of-12">
+									<center><p class="heading clientHeading">FAMILY HANDBOOK ACCEPTANCE ACKNOWLEDGEMENT</p></center> <br/>
+									<div class="subHeading">
+                                    <p><u>Please read and sign below</u></p><br/>
+									<p>Our signatures below indicate that we have read, understood our rights and the Notice of Privacy Practices, 
+										and agree to the stated expectations as explained by the Gwen’s Girls Family Handbook, and have received a copy of said booklet.</p><br/><br/>
+
+									<div class="slds-grid slds-wrap columAlign">
+								
+								<div class="slds-col slds-large-size_6-of-12 slds-medium-size_6-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign checkFHAASign" label=" Parent/Guardian"  required
+										placeholder="Please Enter the Parent Signature..."
+										value={parentValues.p_signatureFHAA}
+										onchange={handleFHAASignature}>
+										
+                              </lightning-input> 
+							  <p>By pressing "Save," you are agreeing to electronically sign this document.</p><br/>
+							  <h1 class="signatureTextAlign ">{parentValues.p_signatureFHAA}</h1>
+								 </div>
+								
+								<div class="slds-col slds-large-size_6-of-12 slds-medium-size_6-of-12 slds-size_12-of-12">
+								<h1 class="dateAign">Date : {parentValues.p_signDate} </h1>	
+								</div>
+                                 
+								
+                       
+							</div>  
+									
+									</div>
+										
+									</div>
+						
+						</div><br/>
+						 <!-- FAMILY HANDBOOK ACCEPTANCE ACKNOWLEDGEMENT Form END -->
+						<hr>
+                
+		          
+				  <!-- ACTIVITY AND TRANSPORTATION GUIDELINES START -->
+				  <div class="slds-grid slds-wrap">
+						<div class="slds-col slds-large-size_12-of-12 slds-medium-size_12-of-12 slds-size_12-of-12">
+									<center><p class="heading clientHeading">ACTIVITY AND TRANSPORTATION GUIDELINES</p></center> <br/>
+									<div class="subHeading">
+                                    
+								<p>Gwen’s Girls maintains vehicles to transport participants and family members for a variety of service provisions. 
+									Our transportation service is for the privilege of our participants within a three-mile radius of our sites. 
+									Because safety is our chief concern, the following transportation guidelines are necessary.</p><br/><br/>
+									<hr>
+				<div class="slds-grid slds-wrap columAlign">
+							<div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+								<img src={GuidelineImages.Image1} class="ImagesAign"  /></div>
+							<div class="slds-col slds-large-size_1-of-12 slds-medium-size_1-of-12 slds-size_12-of-12">
+								<center><p>1.</p><br/></center>
+								</div>
+							<div class="slds-col slds-large-size_8-of-12 slds-medium-size_8-of-12 slds-size_12-of-12">
+								<p>Participants are to be on time to board the van upon its arrival. Gwen’s Girls staff will make every effort to give 
+									the participant the estimated time of arrival. We expect that the participant is ready for departure. 
+								ransportation will not wait for participants who are not ready to depart at the van’s arrival.</p>
+                              </div></div>  	
+                                  <hr>
+				<div class="slds-grid slds-wrap columAlign">
+							<div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+								<img src={GuidelineImages.Image2} class="ImagesAign"  /></div>
+							<div class="slds-col slds-large-size_1-of-12 slds-medium-size_1-of-12 slds-size_12-of-12">
+								<center><p>2.</p><br/></center>
+								</div>
+							<div class="slds-col slds-large-size_8-of-12 slds-medium-size_8-of-12 slds-size_12-of-12">
+								<p>Participants will only be transported to the home destination that is indicated by the parent/guardian. 
+									Gwen’s Girls drivers will not transport participants to any other requested destination.  
+									Drivers will not drop-off a participant unless she has access to and enters her home.</p>
+                              </div></div>  	
+                                  <hr>					
+				<div class="slds-grid slds-wrap columAlign">
+							<div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+								<img src={GuidelineImages.Image3} class="ImagesAign"  /></div>
+							<div class="slds-col slds-large-size_1-of-12 slds-medium-size_1-of-12 slds-size_12-of-12">
+								<center><p>3.</p><br/></center>
+								</div>
+							<div class="slds-col slds-large-size_8-of-12 slds-medium-size_8-of-12 slds-size_12-of-12">
+								<p>Participant when instructed by the driver, board and exit the vehicle quickly, in a quiet and orderly manner. 
+									Participants are to cross the street in front of the vehicle in full view of the Driver.</p>
+                              </div></div>  	
+                                  <hr>	
+				<div class="slds-grid slds-wrap columAlign">
+							<div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+								<img src={GuidelineImages.Image4} class="ImagesAign"  /></div>
+							<div class="slds-col slds-large-size_1-of-12 slds-medium-size_1-of-12 slds-size_12-of-12">
+								<center><p>4.</p><br/></center>
+								</div>
+							<div class="slds-col slds-large-size_8-of-12 slds-medium-size_8-of-12 slds-size_12-of-12">
+								<p>Participants will be respectful to the driver and all other passengers on the van.  Participants cannot:</p><br/>
+								<ul class="slds-list_dotted">
+		                                     <li>Use profane language, gestures or play music containing inappropriate language or content are prohibited</li>
+		                                     <li>Drink or eat (water is permissible)</li>
+		                                     <li>Smoke</li>
+		                                     <li>Litter (nothing may be thrown into, out of, within, or at the vehicles)</li>
+											 <li>No physical violence, bullying, assault, battery, disrespectful conduct, or other unruly behavior</li>
+											 <li>Do not make unnecessary noises, converse in loud talking or yelling out the window</li>
+		                                     <li>Cell phones may be utilized provided they are <b>used with headphones</b> and have the permission of the driver.</li>
+		                                     <li>No video recording of any kind is allowed on the vehicle.</li>
+		                                     <li>Do not use mirrors, lasers, flashing lights, flash cameras, or any other lights or reflective surfaces in a manner, which might interfere with the operation of the vehicle.</li>
+											 <li>All articles brought on the vehicle (such as book bags) must be kept in the possession of the owner at all times. <b>Nothing will be placed into the aisle.</b></li>
+	                              </ul>
+                              </div></div>  	
+                                  <hr>						
+								
+				<div class="slds-grid slds-wrap columAlign">
+							<div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+								<img src={GuidelineImages.Image5} class="ImagesAign"  /></div>
+							<div class="slds-col slds-large-size_1-of-12 slds-medium-size_1-of-12 slds-size_12-of-12">
+								<center><p>5.</p><br/><br/>
+								<p>6.</p></center></div>
+							
+							<div class="slds-col slds-large-size_8-of-12 slds-medium-size_8-of-12 slds-size_12-of-12">
+								<p>Any behavior that is considered unsafe or disruptive by the vehicle driver will be handled through the Discipline Plan.</p><br/>
+
+								<p>Inappropriate behaviors determined to be major violation of the code of conduct do not require 
+									a verbal warning and may result in an automatic removal from Gwen’s Girls Transportation.</p>
+								
+							</div>
+                                 </div>  	
+                                  <hr>
+			<div class="slds-grid slds-wrap columAlign">
+							<div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+								<img src={GuidelineImages.Image6} class="ImagesAign"  /></div>
+							<div class="slds-col slds-large-size_1-of-12 slds-medium-size_1-of-12 slds-size_12-of-12">
+								<center><p>7.</p><br/></center>
+								</div>
+							<div class="slds-col slds-large-size_8-of-12 slds-medium-size_8-of-12 slds-size_12-of-12">
+								<p>All participants and drivers must wear their seat belts at all times. 
+									Keep all body parts inside the vehicle at all times and must remain seated at all times. </p>
+                              </div></div>  	
+                                  <hr>
+			<div class="slds-grid slds-wrap columAlign">
+							<div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+								<img src={GuidelineImages.Image7} class="ImagesAign"  /></div>
+							<div class="slds-col slds-large-size_1-of-12 slds-medium-size_1-of-12 slds-size_12-of-12">
+								<center><p>8.</p><br/></center>
+								</div>
+							<div class="slds-col slds-large-size_8-of-12 slds-medium-size_8-of-12 slds-size_12-of-12">
+								<p>Only the participants, designated family members and staff can ride in Gwen’s Girls 
+									vans for specified Gwen’s Girls events and/or activities.</p>
+                              </div></div>  	
+                                  <hr>
+			<div class="slds-grid slds-wrap columAlign">
+							<div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+								<!-- <img src={GuidelineImages.Image8} class="logoAign"  /> -->
+								</div>
+							<div class="slds-col slds-large-size_1-of-12 slds-medium-size_1-of-12 slds-size_12-of-12">
+								<center><p>9.</p><br/></center>
+								</div>
+							<div class="slds-col slds-large-size_8-of-12 slds-medium-size_8-of-12 slds-size_12-of-12">
+								<p>Participants under the age of 13 must be seated in the back seat if the vehicle has a passenger airbag.</p>
+                              </div></div>  	
+                                  <hr>
+			<div class="slds-grid slds-wrap columAlign">
+							<div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+								<img src={GuidelineImages.Image8} class="ImagesAign" /></div>
+							<div class="slds-col slds-large-size_1-of-12 slds-medium-size_1-of-12 slds-size_12-of-12">
+								<center><p>10.</p><br/></center>
+								</div>
+							<div class="slds-col slds-large-size_8-of-12 slds-medium-size_8-of-12 slds-size_12-of-12">
+								<p>No one under influence of drugs and/or alcohol will be permitted to board the van.</p>
+                              </div></div>  	
+                                  <hr>
+			<div class="slds-grid slds-wrap columAlign">
+							<div class="slds-col slds-large-size_3-of-12 slds-medium-size_3-of-12 slds-size_12-of-12">
+								<img src={GuidelineImages.Image9}  class="ImagesAign" /></div>
+							<div class="slds-col slds-large-size_1-of-12 slds-medium-size_1-of-12 slds-size_12-of-12">
+								<center><p>11.</p><br/></center>
+								</div>
+							<div class="slds-col slds-large-size_8-of-12 slds-medium-size_8-of-12 slds-size_12-of-12">
+								<p><b>Your parents/guardian must call and cancel your scheduled transportation ahead of time if you are unable to keep your appointment.</b></p>
+                              </div></div>  	
+                                  <hr>
+							
+									</div>
+										
+									</div>
+						
+						</div><br/>
+						 <!-- ACTIVITY AND TRANSPORTATION GUIDELINES END -->
+						<hr> 
+		        <!-- TRANSPORTATION CONSENT Start -->
+					<div class="slds-grid slds-wrap">
+						<div class="slds-col slds-large-size_12-of-12 slds-medium-size_12-of-12 slds-size_12-of-12">
+									<center><p class="heading clientHeading">TRANSPORTATION CONSENT</p></center> <br/>
+									<div class="subHeading">
+                                    <p>I hereby grant permission for my child/children to participate in activities and to be transported in Gwen’s Girls 
+										vehicles under the supervision of qualified and licensed personnel. I understand that there will always be at least
+										 one staff member present during transportation to and from the site. I absolve Gwen’s Girls, its officers, directors, 
+										 and staff from any claims of damages, demands, or liabilities arising from my child/children's participation in activities and bus trips.</p><br/>
+									<p>In cases of policy violations, Gwen’s Girls implements a progressive disciplinary approach tailored to the nature and recurrence of the infractions. The measures taken are based on the individual circumstances surrounding each violation. 
+										The primary objective is to ensure safety and compliance with the policies for all program participants.</p><br/><br/>
+
+									<div class="slds-grid slds-wrap columAlign">
+								
+								<div class="slds-col slds-large-size_6-of-12 slds-medium-size_6-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign checkTCSign" label=" Parent/Guardian"  required
+										placeholder="Please Enter the Parent Signature..."
+										value={parentValues.p_signatureTC}
+										onchange={handleTCSignature}>
+										
+                              </lightning-input> 
+							  <p>By pressing "Save," you are agreeing to electronically sign this document.</p><br/>
+							  <h1 class="signatureTextAlign">{parentValues.p_signatureTC}</h1>
+								 </div>
+								
+								<div class="slds-col slds-large-size_6-of-12 slds-medium-size_6-of-12 slds-size_12-of-12">
+								<h1 class="dateAign">Date : {parentValues.p_signDate} </h1>	
+								</div>
+                                 
+								
+                       
+							</div>  
+									
+									</div>
+										
+									</div>
+						
+						</div><br/>
+						 <!-- TRANSPORTATION CONSENT END -->
+						<hr>
+		 <!-- CONSENT FOR PHOTOGRAPHY AND IMAGE USE START -->
+					<div class="slds-grid slds-wrap">
+						<div class="slds-col slds-large-size_12-of-12 slds-medium-size_12-of-12 slds-size_12-of-12">
+									<center><p class="heading clientHeading">CONSENT FOR PHOTOGRAPHY AND IMAGE USE</p></center> <br/>
+									<div class="subHeading">
+                                    <p>I, the undersigned parent or legal guardian of the above-named child, 
+										grant permission for the use of photographs and/or video recordings of 
+										my child during their time at Gwen’s Girls.</p><br/>
+									<p>I understand that these photographs and/or video recordings 
+										may be used for various purposes, including but not limited to:
+										</p><br/>
+										
+									<ul class="custom-list">
+                                           <li>- Promotion of the event or activity</li>
+                                           <li>- Promotion of the organization or group conducting the event</li>
+                                           <li>- Educational and training materials</li>
+                                           <li>- Social media posts and websites</li>
+                                                </ul>	
+										<br/>
+										<p>I hereby release and discharge the staff, the photographer/videographer, and Gwen’s Girls from any claims, demands, or 
+											actions arising out of the use of these images, including any claims for libel or invasion of privacy.
+										</p><br/>
+										<p>Consent Validity:</p>
+										<p>This consent is valid for one year.</p><br/>
+										<p>Withdrawal of Consent:</p>
+										<p>I understand that I may withdraw this consent at any time by providing 
+											written notice to Gwen’s Girls Staff.</p><br/>
+										<p>Parent/Guardian's Signature:</p><br/>
+										<p>By signing below, I acknowledge that I have read and understand the terms of 
+											this consent form and grant permission for the photography and use of images 
+											of my child.</p><br/>
+										<br/>
+
+									<div class="slds-grid slds-wrap columAlign">
+								
+								<div class="slds-col slds-large-size_6-of-12 slds-medium-size_6-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign checkCPIUSign" label=" Parent/Guardian"  required
+										placeholder="Please Enter the Parent Signature..."
+										value={parentValues.p_signatureCPIU}
+										onchange={handleCPIUSignature}>
+										
+                              </lightning-input> 
+							  <p>By pressing "Save," you are agreeing to electronically sign this document.</p><br/>
+							  <h1 class="signatureTextAlign">{parentValues.p_signatureCPIU}</h1>
+								 </div>
+								
+								<div class="slds-col slds-large-size_6-of-12 slds-medium-size_6-of-12 slds-size_12-of-12">
+								<h1 class="dateAign">Date : {parentValues.p_signDate} </h1>	
+								</div>
+                                 
+								
+                       
+							</div>  
+									
+									</div>
+										
+									</div>
+						
+						</div><br/>
+						 <!-- CONSENT FOR PHOTOGRAPHY AND IMAGE USE END -->
+						<hr>
+			<!-- PARTICIPANT CONFIDENTIALITY STATEMENT START -->
+					<div class="slds-grid slds-wrap">
+						<div class="slds-col slds-large-size_12-of-12 slds-medium-size_12-of-12 slds-size_12-of-12">
+									<center><p class="heading clientHeading">PARTICIPANT CONFIDENTIALITY STATEMENT</p></center> <br/>
+									<div class="subHeading">
+                                    <p>In the social service industry, we must adhere to a strict code of ethics and privacy. 
+										Clients and co-workers depend upon us to safeguard their rights to privacy and to keep all r
+										equired information confidential.  However, Gwen’s Girls employees are <b><u>MANDATED REPORTERS</u></b>,
+										 who are required by law to report whenever financial, physical, 
+										 sexual or other types of abuse has been observed or is suspected, or 
+										 when there is evidence of neglect, knowledge of an incident, or 
+										 an imminent risk of serious harm to self and others.</p><br/>
+									
+									<p>Failure to observe this policy will result in consequences, including <b><i>withdrawal of services</i></b> by Gwen’s Girls, 
+										and could result in your being held personally liable in a court action by another participant or family.
+										</p><br/>
+										
+									
+										<p>I, the undersigned, acknowledge that I have read, understand, and will adhere to Gwen’s Girls’ code of ethics and privacy 
+											and will keep any and all information acquired during my participation at Gwen’s Girls confidential.
+										</p><br/>
+										
+										<br/>
+
+									<div class="slds-grid slds-wrap columAlign">
+								
+								<div class="slds-col slds-large-size_6-of-12 slds-medium-size_6-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign checkPCSSign" label=" Parent/Guardian"  required
+										placeholder="Please Enter the Parent Signature..."
+										value={parentValues.p_signaturePCS}
+										onchange={handlePCSSignature}>
+										
+                              </lightning-input> 
+							  <p>By pressing "Save," you are agreeing to electronically sign this document.</p><br/>
+							  <h1 class="signatureTextAlign">{parentValues.p_signaturePCS}</h1>
+								 </div>
+								
+								<div class="slds-col slds-large-size_6-of-12 slds-medium-size_6-of-12 slds-size_12-of-12">
+								<h1 class="dateAign">Date : {parentValues.p_signDate} </h1>	
+								</div>
+                                 
+								
+                       
+							</div>  
+									
+									</div>
+										
+									</div>
+						
+						</div><br/>
+						 <!-- PARTICIPANT CONFIDENTIALITY STATEMENT START END -->
+						<hr>
+						<!-- RELEASE AND AUTHORIZATION FORM START -->
+					<div class="slds-grid slds-wrap">
+						<div class="slds-col slds-large-size_12-of-12 slds-medium-size_12-of-12 slds-size_12-of-12">
+									<center><p class="heading clientHeading">RELEASE AND AUTHORIZATION FORM<br/>
+                                        FAMILY EDUCATIONAL RIGHTS AND PRIVACY ACT (FERPA)</p></center> <br/>
+									<div class="subHeading">
+                                    <p>To protect your child's right to privacy and maintain the confidentiality of educational records as required by the Family Educational Rights and Privacy Act (FERPA), 
+										your prior consent is needed to share personally identifiable information.</p><br/>
+									
+									<p>I hereby grant permission and authorize the release of educational information regarding:</p><br/>
+										<ul >
+                                           <li>- Name of Client:</li>
+                                           <li>- Grade: </li>
+                                           <li>- Date of Birth: </li>
+                                           <li>- School District/School:</li>
+                                                </ul>	
+										<br/>
+									
+										<p>I further authorize the school/district listed above to release the educational records of my child to Gwen’s Girls, 
+											including the following information: Student ID numbers, grades, attendance, discipline, individualized education plans, 
+											standardized test scores, citizenship marks, credits (high school only), Pittsburgh Promise eligibility (high school only), 
+											and graduation attainment (12th graders only).
+										</p><br/>
+										<p>Recipient Address:</p><br/>
+										<p>Gwen’s Girls</p>
+										<p>711 West Commons, Third Floor</p>
+										<p>Pittsburgh, PA 15212</p><br/>
+										<p>Acknowledgement and Understanding:</p><br/>
+										<p>I understand and acknowledge the following:</p><br/>
+										
+                          <div class="slds-grid slds-wrap columAlign">
+                           <div class="slds-col slds-large-size_1-of-12 slds-medium-size_1-of-12 slds-size_12-of-12">
+								<center>	
+									<p>1.</p><br><br>
+                                    <p>2.</p><br>
+									<p>3.</p><br>
+                                    <p>4.</p><br><br>
+									<p>5.</p><br><br>
+                                    <p>6.</p><br><br>
+									<p>7.</p><br><br>
+                                    <p>8.</p><br><br>
+									</center>
+								 </div>
+								  
+								  
+						  <div class="slds-col slds-large-size_11-of-12 slds-medium-size_11-of-12 slds-size_12-of-12">
+									<p>Educational records will not be accessed by Gwen’s Girls without my permission as indicated by my signature on this form.</p><br/>
+									<p>My consent to release information is specific to the purposes and individuals named above.</p><br/>
+									<p>Gwen’s Girls is permitted to use a copy or fax of this agreement.</p><br/>
+									<p>I retain the right to cancel this agreement through written request, except to the extent that Gwen’s Girls has already requested or released information to which I had previously agreed.</p><br/>
+									<p>This consent is valid for one year from the date below and will expire if my child is discharged from Gwen’s Girls before one year.</p><br/>
+									<p> Records released by the school/district may be further disclosed by Gwen’s Girls; therefore, the school/district's staff/employees bear no responsibility or liability for such disclosure.</p><br/>
+									<p>My refusal to sign this authorization will not impact my child’s eligibility for services, but it may delay or limit service provision.</p><br/>
+									<p>I have the right to receive a copy of this authorization.</p><br/>
+								 </div>
+
+							</div>
+
+										<br/>
+
+
+									<div class="slds-grid slds-wrap columAlign">
+								
+								<div class="slds-col slds-large-size_6-of-12 slds-medium-size_6-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign checkRAFFERPASign" label=" Parent/Guardian"  required
+										placeholder="Please Enter the Parent Signature..."
+										value={parentValues.p_signatureRAFFERPA}
+										onchange={handleRAFFERPASignature}>
+										
+                              </lightning-input> 
+							  <p>By pressing "Save," you are agreeing to electronically sign this document.</p><br/>
+							  <h1 class="signatureTextAlign">{parentValues.p_signatureRAFFERPA}</h1>
+								 </div>
+								
+								<div class="slds-col slds-large-size_6-of-12 slds-medium-size_6-of-12 slds-size_12-of-12">
+								<h1 class="dateAign">Date : {parentValues.p_signDate} </h1>	
+								</div>
+                                 
+								
+                       
+							</div>  
+									
+									</div>
+										
+									</div>
+						
+						</div><br/>
+						 <!-- RELEASE AND AUTHORIZATION FORM END -->
+						<hr>
+			
+			<!-- CONSENT TO RELEASE/REQUEST INFORMATION START -->
+					<div class="slds-grid slds-wrap">
+						<div class="slds-col slds-large-size_12-of-12 slds-medium-size_12-of-12 slds-size_12-of-12">
+									<center><p class="heading clientHeading">CONSENT TO RELEASE/REQUEST INFORMATION</p></center> <br/>
+									<div class="subHeading">
+                                    <p>This form, "Consent to Release/Request Information," empowers individuals, parents, or guardians to grant Gwen’s Girls permission to share or request specific educational and medical data. 
+										By selecting checkboxes, you specify communication's purpose, the contact, and types of records involved. </p><br/>
+									
+									<p>The form also covers confidentiality aspects, like HIV status and behavioral health. Your signature indicates your understanding that records won't be accessed without your consent and agreement's limits. 
+										You can cancel this agreement, and the form details its duration and the possibility of further disclosure by Gwen’s Girls. Signing doesn't affect service eligibility, but it's vital for coordinated care. 
+										Please complete it accurately to facilitate service planning.</p><br/>
+										<p>Client Information:</p>
+										 <div class="slds-grid slds-wrap columAlign">
+										<div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">	
+										<p><lightning-input type="text" label="Name of Client: "  > </lightning-input> </p>
+										<p><lightning-input type="Date" label="Date of Birth: "  > </lightning-input></p><br/>
+										 </div>
+										 </div>
+						            <p>I authorize Gwen’s Girls to communicate with the following person/facility for 
+										the purpose of individual service planning by selecting the appropriate options below:</p><br/>
+
+										<!-- <p>Releasing information to</p> -->
+										<p><lightning-input type="checkbox" class="parentFieldAlign" label="Releasing information to" 
+			                                         onchange={handleConsentFieldChange} > 
+		                                        </lightning-input></p>
+										<p><lightning-input type="checkbox" class="parentFieldAlign" label="Requesting information from" 
+			                                        onchange={handleConsentFieldChange} > 
+		                                        </lightning-input></p><br/>
+										<p><lightning-input type="checkbox" class="parentFieldAlign" label="Verbal only" 
+			                                         onchange={handleConsentFieldChange} > 
+		                                        </lightning-input></p>
+								       <p><lightning-input type="checkbox" class="parentFieldAlign" label="Records Only" 
+			                                        onchange={handleConsentFieldChange} > 
+		                                        </lightning-input></p>
+									   <p><lightning-input type="checkbox" class="parentFieldAlign" label="Verbal and Records" 
+			                                        onchange={handleConsentFieldChange} > 
+		                                        </lightning-input></p><br/>
+
+									   <p>Name of Facility/Person:</p>
+									   <p>Address:</p>
+									   <p>Telephone:</p>
+									   <p>Fax:</p><br/>
+                                        <p>Records to be Released:</p>
+									   <p>Please check the specific records to be released.</p><br/>
+                                        <div class="slds-grid slds-wrap columAlign">
+                                            <div class="slds-col slds-large-size_8-of-12 slds-medium-size_8-of-12 slds-size_12-of-12">
+                                             <ul >
+                                           <li><lightning-input type="checkbox" class="parentFieldAlign" label="Academic/School Records (include attendance)" 
+			                                         onchange={handleConsentFieldChange} > 
+		                                        </lightning-input></li>
+                                           <li><lightning-input type="checkbox" class="parentFieldAlign" label="Achievement Tests" 
+			                                         onchange={handleConsentFieldChange} > 
+		                                        </lightning-input></li>
+                                           <li><lightning-input type="checkbox" class="parentFieldAlign" label="Educational Assessments/IEP’s/ISP’s/Behav. Report" 
+			                                         onchange={handleConsentFieldChange} > 
+		                                        </lightning-input> </li>
+                                           <li><lightning-input type="checkbox" class="parentFieldAlign" label="Medical History" 
+			                                         onchange={handleConsentFieldChange} > 
+		                                        </lightning-input></li>
+										    <li><lightning-input type="checkbox" class="parentFieldAlign" label="Immunizations" 
+			                                         onchange={handleConsentFieldChange} > 
+		                                        </lightning-input></li>
+                                           <li><lightning-input type="checkbox" class="parentFieldAlign" label="Releasing information to" 
+			                                         onchange={handleConsentFieldChange} > 
+		                                        </lightning-input></li>
+                                           <li><lightning-input type="checkbox" class="parentFieldAlign" label="Medications" 
+			                                         onchange={handleConsentFieldChange} > 
+		                                        </lightning-input> </li>
+                                           <li><lightning-input type="checkbox" class="parentFieldAlign" label="Dental Records" 
+			                                         onchange={handleConsentFieldChange} > 
+		                                        </lightning-input></li>
+                                                </ul>	
+											</div>
+										    <div class="slds-col slds-large-size_4-of-12 slds-medium-size_4-of-12 slds-size_12-of-12">
+                                              <ul >
+                                           <li><lightning-input type="checkbox" class="parentFieldAlign" label="Psychological Evaluations" 
+			                                         onchange={handleConsentFieldChange} > 
+		                                        </lightning-input></li>
+                                           <li><lightning-input type="checkbox" class="parentFieldAlign" label="Psychosocial Assessments/Tests" 
+			                                         onchange={handleConsentFieldChange} > 
+		                                        </lightning-input></li>
+                                           <li><lightning-input type="checkbox" class="parentFieldAlign" label="Social History" 
+			                                         onchange={handleConsentFieldChange} > 
+		                                        </lightning-input> </li>
+                                           <li><lightning-input type="checkbox" class="parentFieldAlign" label="Discharge Summaries" 
+			                                         onchange={handleConsentFieldChange} > 
+		                                        </lightning-input></li>
+										    <li><lightning-input type="checkbox" class="parentFieldAlign" label="Treatment Recommendations" 
+			                                         onchange={handleConsentFieldChange} > 
+		                                        </lightning-input></li>
+                                           <li><lightning-input type="text" label="OTHER: "  > </lightning-input></li> 
+										   <!-- <lightning-input type="text" > </lightning-input>
+                                           -->
+                                                </ul>	
+											</div>
+											</div>
+									  
+										<br/>
+
+										<p>Confidential Information:</p>
+                                       <p>HIV, Behavioral Health, and Drug and Alcohol information contained in the parts of the record(s) 
+											indicated above will be released through this authorization unless otherwise indicated.
+										</p><br/>
+
+										<p>Do NOT release the following:</p>
+										 <ul >
+                                           <li><lightning-input type="checkbox" class="parentFieldAlign" label="HIV" 
+			                                         onchange={handleConsentFieldChange} > 
+		                                        </lightning-input></li>
+                                           <li><lightning-input type="checkbox" class="parentFieldAlign" label="Behavioral Health – Psychiatric" 
+			                                         onchange={handleConsentFieldChange} > 
+		                                        </lightning-input></li>
+                                           <li><lightning-input type="checkbox" class="parentFieldAlign" label="Drug & Alcohol" 
+			                                         onchange={handleConsentFieldChange} > 
+		                                        </lightning-input></li>
+                                           </ul><br/>
+
+										<p>Acknowledgement and Understanding:</p><br/>  
+
+										<p>I understand and acknowledge the following:</p><br/>  
+                          <div class="slds-grid slds-wrap columAlign">
+                           <div class="slds-col slds-large-size_1-of-12 slds-medium-size_1-of-12 slds-size_12-of-12">
+							<center>
+									<p>1.</p><br><br>
+                                    <p>2.</p><br>
+									<p>3.</p><br>
+                                    <p>4.</p><br><br>
+									<p>5.</p><br><br>
+                                    <p>6.</p><br><br>
+									<p>7.</p><br><br>
+                                    <p>8.</p><br><br>
+								</center>	
+								 </div>
+								  
+								  
+						  <div class="slds-col slds-large-size_11-of-12 slds-medium-size_11-of-12 slds-size_12-of-12">
+									<p>My record(s) will not be obtained by Gwen’s Girls unless permission is provided as evidenced by my signature on this Release of Information form.</p><br/>
+									<p>My agreement to release information is limited for the purposes and to the persons above.</p><br/>
+									<p>I agree to allow Gwen’s Girls to use a copy or fax of this agreement.</p><br/>
+									<p>I have the right to cancel my agreement by written request, except to the extent that Gwen’s Girls has already requested or released information that I have previously agreed to.</p><br/>
+									<p>This consent shall remain in effect for one (1) year from the date signed below and will expire when my child is discharged from Gwen’s Girls if less than one year.</p><br/>
+									<p> The records released may possibly be re-disclosed by Gwen’s Girls, and therefore the staff/employees have no responsibility or liability as a result of that disclosure.</p><br/>
+									<p>My refusal to sign this authorization will not affect my child’s eligibility for services, but it may delay or limit service provision.</p><br/>
+									<p>I am entitled to a copy of this authorization.</p><br/>
+								 </div>
+
+							</div>
+
+										<br/>
+
+
+									<div class="slds-grid slds-wrap columAlign">
+								
+								<div class="slds-col slds-large-size_6-of-12 slds-medium-size_6-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign checkCRRISign" label=" Parent/Guardian"  required
+										placeholder="Please Enter the Parent Signature..."
+										value={parentValues.p_signatureCRRI}
+										onchange={handleCRRISignature}>
+										
+                              </lightning-input> 
+							  <p>By pressing "Save," you are agreeing to electronically sign this document.</p><br/>
+							  <h1 class="signatureTextAlign">{parentValues.p_signatureCRRI}</h1>
+								 </div>
+								
+								<div class="slds-col slds-large-size_6-of-12 slds-medium-size_6-of-12 slds-size_12-of-12">
+								<h1 class="dateAign">Date : {parentValues.p_signDate} </h1>	
+								</div>
+                                 
+								
+                       
+							</div>  
+									
+									</div>
+										
+									</div>
+						
+						</div><br/>
+						 <!-- CONSENT TO RELEASE/REQUEST INFORMATION END -->
+						<hr>
+
+  <!-- Gwen’s Girls Behavioral Policy START -->
+					<div class="slds-grid slds-wrap">
+						<div class="slds-col slds-large-size_12-of-12 slds-medium-size_12-of-12 slds-size_12-of-12">
+									<center><p class="heading clientHeading">Gwen’s Girls Behavioral Policy</p></center> <br/>
+									<div class="subHeading">
+                                    <p>The Gwen’s Girls AFTER SCHOOL/SUMMER CAMP Program is a safe place for children to learn appropriate behavior, new skills and develop a sense of self-awareness.  
+										Girls are taught how to manage their emotions and advocate for themselves in a variety of settings.  
+										Gwen’s Girls follows the 7 Commitments of Sanctuary: A commitment of Non-Violence, Emotional Intelligence, 
+										Social Learning, Open Communication, Social Responsibility, Democracy, and Growth & Change. 
+										 Girls are encouraged to work out their problems via Sanctuary model which addresses trauma, 
+										 wrong doings and managing feelings.  Adults encourage youth to participate in community and 
+										 red flag meetings which allow everyone to respond in a way that supports the child’s feelings 
+										 while also setting limits on behavior.  Adults will use positive guidance to influence and 
+										 reinforce positive behaviors and will not use harmful techniques like humiliating, hollering, 
+										 frightening your child or the use of physical punishment.</p><br/>
+									
+									<p><b>Incentive Program</b></p>
+									<p>In an effort to maintain a safe environment and reinforce positive behaviors, Gwen’s Girls will use a points/reward system.  
+										Points can then be redeemed at a set time from our GG Store.</p><br/>
+										<p>Points are earned for: </p>
+					<div class="slds-grid slds-wrap columAlign">
+                           <div class="slds-col slds-large-size_1-of-12 slds-medium-size_1-of-12 slds-size_12-of-12">
+									<center>
+									<p>1.</p><br>
+                                    <p>2.</p><br><br>
+									<p>3.</p><br>
+                                    <p>4.</p><br>
+									<p>5.</p><br>
+									</center>
+                                    </div>
+							
+							<div class="slds-col slds-large-size_11-of-12 slds-medium-size_11-of-12 slds-size_12-of-12">
+									
+									<p>Education - complete assignments and activities given for academic enrichment</p><br/>
+									<p>Social Responsibility - displaying respect for self/others/property, following directions, complying with staff, etc.</p><br/>
+									<p>Participation</p><br/>
+									<p>Attendance</p><br/>
+									<p>Leadership</p><br/>
+									</div>
+                            </div>
+										<br/>
+                                   <p><b>Discipline Procedures</b></p>
+										<p>Gwen’s Girls believes in working with the girl and her family in maintaining appropriate behaviors and a safe environment for all those who attend.  
+											In the event the rules and expectations are not followed, the following disciplinary system is in place:</p><br/>
+										
+			      <div class="slds-grid slds-wrap columAlign">
+                           <div class="slds-col slds-large-size_1-of-12 slds-medium-size_1-of-12 slds-size_12-of-12">
+									<p>1.</p><br><br>
+                                    <p>2.</p><br>
+									<p>3.</p><br>
+                                    
+								 </div>
+								  
+								  
+						  <div class="slds-col slds-large-size_11-of-12 slds-medium-size_11-of-12 slds-size_12-of-12">
+									<p>Contact to parent/guardian regarding child’s behavior(s). Girls receive a written warning of misconduct for inappropriate behaviors.</p><br/>
+									<p>If behaviors continue, a meeting will be scheduled with Gwen’s Girls, the child and parent to address problem behaviors.</p><br/>
+									<p>A behavioral contract will be developed with Gwen’s Girls, the child and parent to address problem behaviors.</p><br/>
+									
+								 </div>
+
+							</div>
+
+										<br/>
+
+                <p>I, the undersigned, acknowledge that I have read, understand, and will adhere to Gwen’s Girls’ code of ethics and privacy and will keep any and 
+					all information acquired during my participation at Gwen’s Girls confidential.</p><br/>
+
+									<div class="slds-grid slds-wrap columAlign">
+								
+								<div class="slds-col slds-large-size_6-of-12 slds-medium-size_6-of-12 slds-size_12-of-12">
+									<lightning-input type="text" class="parentFieldAlign checkGGBPSign" label=" Parent/Guardian"  required
+										placeholder="Please Enter the Parent Signature..."
+										value={parentValues.p_signatureGGBP}
+										onchange={handleGGBPSignature}>
+										
+                              </lightning-input> 
+							  <p>By pressing "Save," you are agreeing to electronically sign this document.</p><br/>
+							  <h1 class="signatureTextAlign">{parentValues.p_signatureGGBP}</h1>
+								 </div>
+								
+								<div class="slds-col slds-large-size_6-of-12 slds-medium-size_6-of-12 slds-size_12-of-12">
+								<h1 class="dateAign">Date : {parentValues.p_signDate} </h1>	
+								</div>
+                                 
+								
+                       
+							</div>  
+									
+									</div>
+										
+									</div>
+						
+						</div><br/>
+						 <!-- Gwen’s Girls Behavioral Policy END -->
+						<hr>
+			 <br/><br/><br/>
+			</div>
+                <!-- Modal/Popup Footer -->
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Cancel" onclick={closeConsentModal}></lightning-button>
+                    <lightning-button variant="brand" label="Save" onclick={handleConsetSave}></lightning-button>
+                </footer>
+			
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+<!-- Consent Model Popup END -->
+
+      <footer class="footer slds-card__footer">
+						<hr>
+					
+							
+						<p class="error-message"></p><br/>
+						<div class="slds-align_absolute-center">
+						
+							<lightning-button variant="Brand" class="button" onclick={handleSubmit} name="submit"
+								label="Submit">
+							</lightning-button>
+						</div>
+             
+					</footer>
+              
+   </article>
+</template>

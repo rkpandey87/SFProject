@@ -1,0 +1,587 @@
+<template>
+    <lightning-card class="slds-card_boundary">
+      <div class="slds-m-around_medium">
+        <img src={youthIntakeHeader} style="padding-left:150px;"/>
+     <p style="font-size:23px;padding-left:380px;"><b>EMERGENCY INFORMATION/FACE SHEET </b></p>
+    </div>
+    <div style="padding-left:20px;padding-right:20px;">
+    
+         
+        
+        <table style="border: 1px solid #000000;">
+          <thead>
+              <tr>
+                  <th style="width:200px;" scope="col"><div style="width:150px;" class="slds-truncate " title="List Name"></div></th>
+                  <th style="width:200px;" scope="col"><div style="width:150px;" class="slds-truncate " title="List Name"></div></th>
+                
+                  </tr>
+          </thead>
+          
+          <tbody>
+<tr> 
+<td style="padding-left:40px;font-size:15px;border:1px solid #000000;">
+<table>
+<tbody>
+  <tr>
+    <td><b>Client Name:</b></td>
+    <td style="margin-left:30px;"><p style="text-align:left;"><lightning-input 
+      class="slds-align_text-left"
+    type="text"
+    value={nm}
+  ></lightning-input></p></td>
+  </tr>
+</tbody>
+</table>
+</td>     
+</tr>
+     
+<tr> 
+  <td style="padding-left:40px;font-size:15px;border:1px solid #000000;">
+  <table>
+  <tbody>
+    <tr>
+      <td><b>D.O.B.:</b></td>
+      <td style="margin-left:30px;"><p style="text-align:left;"><lightning-input 
+        class="slds-align_text-left"
+      type="text"
+      value={dob}
+    ></lightning-input></p></td>
+    </tr>
+  </tbody>
+  </table>
+  </td>     
+  </tr>
+  
+                 
+  <tr> 
+    <td style="padding-left:40px;font-size:15px;border:1px solid #000000;">
+    <table>
+    <tbody>
+      <tr>
+        <td><b>Race:</b></td>
+        <td style="margin-left:30px;"><p style="text-align:left;"><lightning-input 
+          class="slds-align_text-left"
+        type="text"
+        value={rc}
+        onchange={handleInputRaceChange}
+      ></lightning-input></p></td>
+
+      <td><b>Weight:</b></td>
+        <td style="margin-left:30px;"><p style="text-align:left;"><lightning-input 
+          class="slds-align_text-left"
+        type="text"
+        value={rc}
+        onchange={handleInputWeightChange}
+      ></lightning-input></p></td>
+
+      <td><b>Height:</b></td>
+        <td style="margin-left:30px;"><p style="text-align:left;"><lightning-input 
+          class="slds-align_text-left"
+        type="text"
+        value={rc}
+        onchange={handleInputHeightChange}
+      ></lightning-input></p></td>
+      </tr>
+    </tbody>
+    </table>
+    </td>     
+    </tr>
+
+
+    <tr> 
+      <td style="padding-left:40px;font-size:15px;border:1px solid #000000;">
+      <table>
+      <tbody>
+        <tr>
+          <td><b>Hair Color:</b></td>
+          <td style="margin-left:30px;"><p style="text-align:left;"><lightning-input 
+            class="slds-align_text-left"
+          type="text"
+          value={rc}
+        ></lightning-input></p></td>
+  
+        <td><b>Eye Color:</b></td>
+          <td style="margin-left:30px;"><p style="text-align:left;"><lightning-input 
+            class="slds-align_text-left"
+          type="text"
+          value={rc}
+        ></lightning-input></p></td>  
+        </tr>
+
+
+        
+      </tbody>
+      </table>
+      </td>     
+      </tr>
+
+      <tr> 
+        <td style="padding-left:40px;font-size:15px;border:1px solid #000000;">
+        <table>
+        <tbody>
+          <tr>
+            <td><b>Identifying marks:</b></td>
+            <td style="margin-left:30px;"><p style="text-align:left;"><lightning-input 
+              class="slds-align_text-left"
+            type="text"
+            value={rc}
+          ></lightning-input></p></td>
+         
+          </tr>
+        </tbody>
+        </table>
+        </td>     
+        </tr>
+
+        <tr> 
+          <td style="padding-left:40px;font-size:15px;border:1px solid #000000;">
+          <table>
+          <tbody>
+            <tr>
+              <td><b>Medical Needs:</b></td>
+              <td style="margin-left:30px;"><p style="text-align:left;"><lightning-input 
+                class="slds-align_text-left"
+              type="text"
+              value={rc}
+            ></lightning-input></p></td>
+           
+            </tr>
+          </tbody>
+          </table>
+          </td>     
+          </tr>
+  
+  <tr> 
+          <td style="padding-left:40px;font-size:15px;border:1px solid #000000;">
+          <table>
+          <tbody>
+            <tr>
+              <td><b>Allergies:</b></td>
+              <td style="margin-left:30px;"><p style="text-align:left;"><lightning-input 
+                class="slds-align_text-left"
+              type="text"
+              value={rc}
+            ></lightning-input></p></td>
+           
+            </tr>
+          </tbody>
+          </table>
+          </td>   
+
+</tr>
+
+          </tbody>
+      </table>  
+
+      <table style="border: 1px solid #000000;">
+        <tbody>
+        <tr> 
+       <td style="padding-left:40px;font-size:15px;border:1px solid #000000;">
+        <b>Parent/Guardian Information:</b></td>     
+       </tr>
+       </tbody>
+       </table>
+
+       <!-- Parent/Guardian Information    -->
+<table>
+  <tbody>
+       <tr> 
+        <td style="padding-left:40px;font-size:15px;border:1px solid #000000;">
+        <table>
+        <tbody>
+          <tr>
+            <td>Relationship: </td>
+            <td style="margin-left:30px;"><p style="text-align:left;"><lightning-input 
+              class="slds-align_text-left"
+            type="text"
+            value={rc}
+          ></lightning-input></p></td>
+         
+
+          
+          </tr>
+
+
+        </tbody>
+        </table>
+        </td>    
+
+
+        
+        <td style="padding-left:40px;font-size:15px;border:1px solid #000000;">
+        <table>
+        <tbody>
+          <tr>
+            <td>Relationship: </td>
+            <td style="margin-left:30px;"><p style="text-align:left;"><lightning-input 
+              class="slds-align_text-left"
+            type="text"
+            value={rc}
+          ></lightning-input></p></td>                  
+          </tr>
+
+
+        </tbody>
+        </table>
+        </td>    
+
+        </tr>
+
+        <tr> 
+          <td style="padding-left:40px;font-size:15px;border:1px solid #000000;">
+          <table>
+          <tbody>
+            <tr>
+              <td>Address:</td>
+              <td style="margin-left:30px;"><p style="text-align:left;"><lightning-input 
+                class="slds-align_text-left"
+              type="text"
+              value={rc}
+            ></lightning-input></p></td>
+           
+  
+            
+            </tr>
+  
+  
+          </tbody>
+          </table>
+          </td>    
+  
+  
+          
+          <td style="padding-left:40px;font-size:15px;border:1px solid #000000;">
+          <table>
+          <tbody>
+            <tr>
+              <td>Address:</td>
+              <td style="margin-left:30px;"><p style="text-align:left;"><lightning-input 
+                class="slds-align_text-left"
+              type="text"
+              value={rc}
+            ></lightning-input></p></td>                  
+            </tr>
+  
+  
+          </tbody>
+          </table>
+          </td>    
+  
+          </tr>
+
+            <tr> 
+              <td style="padding-left:40px;font-size:15px;border:1px solid #000000;">
+              <table>
+              <tbody>
+                <tr>
+                  <td>Phone:</td>
+                  <td style="margin-left:30px;"><p style="text-align:left;"><lightning-input 
+                    class="slds-align_text-left"
+                  type="text"
+                  value={rc}
+                ></lightning-input></p></td>
+                              
+                </tr>
+      
+      
+              </tbody>
+              </table>
+              </td>    
+      
+      
+              
+              <td style="padding-left:40px;font-size:15px;border:1px solid #000000;">
+              <table>
+              <tbody>
+                <tr>
+                  <td>Phone:</td>
+                  <td style="margin-left:30px;"><p style="text-align:left;"><lightning-input 
+                    class="slds-align_text-left"
+                  type="text"
+                  value={rc}
+                ></lightning-input></p></td>                  
+                </tr>
+      
+      
+              </tbody>
+              </table>
+              </td>    
+      
+              </tr>
+      </tbody>
+      </table>
+
+
+
+
+
+
+      <!-- Emergency Contacts    -->
+     
+      <table style="border: 1px solid #000000;">
+        <tbody>
+        <tr> 
+       <td style="padding-left:40px;font-size:15px;border:1px solid #000000;">
+        <b>Emergency Contacts:</b></td>     
+       </tr>
+       </tbody>
+       </table>
+
+<table>
+  <tbody>
+       <tr> 
+        <td style="padding-left:40px;font-size:15px;border:1px solid #000000;">
+        <table>
+        <tbody>
+          <tr>
+            <td>1. Name:</td>
+            <td style="margin-left:30px;"><p style="text-align:left;"><lightning-input 
+              class="slds-align_text-left"
+            type="text"
+            value={rc}
+          ></lightning-input></p></td>
+         
+
+          
+          </tr>
+
+
+        </tbody>
+        </table>
+        </td>    
+
+
+        
+        <td style="padding-left:40px;font-size:15px;border:1px solid #000000;">
+        <table>
+        <tbody>
+          <tr>
+            <td>Relationship: </td>
+            <td style="margin-left:30px;"><p style="text-align:left;"><lightning-input 
+              class="slds-align_text-left"
+            type="text"
+            value={rc}
+          ></lightning-input></p></td>                  
+          </tr>
+
+
+        </tbody>
+        </table>
+        </td> 
+           
+<td style="padding-left:40px;font-size:15px;border:1px solid #000000;">
+        <table>
+        <tbody>
+          <tr>
+            <td>Phone:</td>
+            <td style="margin-left:30px;"><p style="text-align:left;"><lightning-input 
+              class="slds-align_text-left"
+            type="text"
+            value={rc}
+          ></lightning-input></p></td>                  
+          </tr>
+
+
+        </tbody>
+        </table>
+        </td>  
+          
+        </tr>
+
+<tr> 
+        <td style="padding-left:40px;font-size:15px;border:1px solid #000000;">
+        <table>
+        <tbody>
+          <tr>
+            <td>2. Name:</td>
+            <td style="margin-left:30px;"><p style="text-align:left;"><lightning-input 
+              class="slds-align_text-left"
+            type="text"
+            value={rc}
+          ></lightning-input></p></td>
+         
+
+          
+          </tr>
+
+
+        </tbody>
+        </table>
+        </td>    
+
+
+        
+        <td style="padding-left:40px;font-size:15px;border:1px solid #000000;">
+        <table>
+        <tbody>
+          <tr>
+            <td>Relationship: </td>
+            <td style="margin-left:30px;"><p style="text-align:left;"><lightning-input 
+              class="slds-align_text-left"
+            type="text"
+            value={rc}
+          ></lightning-input></p></td>                  
+          </tr>
+
+
+        </tbody>
+        </table>
+        </td> 
+           
+<td style="padding-left:40px;font-size:15px;border:1px solid #000000;">
+        <table>
+        <tbody>
+          <tr>
+            <td>Phone:</td>
+            <td style="margin-left:30px;"><p style="text-align:left;"><lightning-input 
+              class="slds-align_text-left"
+            type="text"
+            value={rc}
+          ></lightning-input></p></td>                  
+          </tr>
+
+
+        </tbody>
+        </table>
+        </td>  
+          
+        </tr>
+
+ </tbody>
+          </table>
+             
+  
+          <table style="border: 1px solid #000000;">
+            <tbody>
+            <tr> 
+           <td style="padding-left:40px;font-size:15px;border:1px solid #000000;">
+             <b>Health Issues:</b></td>     
+           </tr>
+           </tbody>
+           </table>
+          <!-- Health Issues    -->
+    
+    <table>
+      <tbody>
+           <tr> 
+            <td style="padding-left:40px;font-size:15px;border:1px solid #000000;">
+            <table>
+            <tbody>
+              <tr>
+                <td>Medications/Allergies/Other Concerns: </td>
+                <td style="margin-left:30px;"><p style="text-align:left;"><lightning-input 
+                  class="slds-align_text-left"
+                type="text"
+                value={rc}
+              ></lightning-input></p></td>              
+              </tr>
+    
+            </tbody>
+            </table>
+            </td>    
+     
+              </tr>
+              
+               <tr> 
+            <td style="padding-left:40px;font-size:15px;border:1px solid #000000;">
+            <table>
+            <tbody>
+              <tr>
+                <td>Name of Physician/Facility:</td>
+                <td style="margin-left:30px;"><p style="text-align:left;"><lightning-input 
+                  class="slds-align_text-left"
+                type="text"
+                value={rc}
+              ></lightning-input></p></td>
+              </tr>
+    
+    
+            </tbody>
+            </table>
+            </td>    
+     
+              </tr>
+              <tr> 
+                <td style="padding-left:40px;font-size:15px;border:1px solid #000000;">
+                <table>
+                <tbody>
+                  <tr>
+                    <td>Address/Phone Number:</td>
+                    <td style="margin-left:30px;"><p style="text-align:left;"><lightning-input 
+                      class="slds-align_text-left"
+                    type="text"
+                    value={rc}
+                  ></lightning-input></p></td>
+                  </tr>
+        
+        
+                </tbody>
+                </table>
+                </td>    
+         
+                  </tr>
+
+                  <tr> 
+                    <td style="padding-left:40px;font-size:15px;border:1px solid #000000;">
+                    <table>
+                    <tbody>
+                      <tr>
+                        <td>Medical Insurance Provider:</td>
+                        <td style="margin-left:30px;"><p style="text-align:left;"><lightning-input 
+                          class="slds-align_text-left"
+                        type="text"
+                        value={rc}
+                      ></lightning-input></p></td>
+
+                      <td>Medical Insurance No.:</td>
+                        <td style="margin-left:30px;"><p style="text-align:left;"><lightning-input 
+                          class="slds-align_text-left"
+                        type="text"
+                        value={rc}
+                      ></lightning-input></p></td>
+                      </tr>
+            
+            
+                    </tbody>
+                    </table>
+                    </td>    
+             
+                      </tr>
+
+                      <tr> 
+                        <td style="padding-left:40px;font-size:15px;border:1px solid #000000;">
+                        <table>
+                        <tbody>
+                          <tr>
+                            <td><b>Completed by:</b></td>
+                            <td style="margin-left:30px;"><p style="text-align:left;"><lightning-input 
+                              class="slds-align_text-left"
+                            type="text"
+                            value={rc}
+                          ></lightning-input></p></td>
+    
+                          <td><b>Date completed:</b></td>
+                            <td style="margin-left:30px;"><p style="text-align:left;"><lightning-input 
+                              class="slds-align_text-left"
+                            type="text"
+                            value={rc}
+                          ></lightning-input></p></td>
+                          </tr>
+                
+                
+                        </tbody>
+                        </table>
+                        </td>    
+                 
+                          </tr>
+    
+            </tbody>
+            </table>
+
+
+            
+    </div>  
+    
+    
+    </lightning-card>
+</template>

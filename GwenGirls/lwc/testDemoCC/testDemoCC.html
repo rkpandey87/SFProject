@@ -1,0 +1,89 @@
+<template>
+    <lightning-card>
+        <div class="slds-p-around_small">
+            <div class="slds-p-around_small">
+                <img src={mplcLogo} alt="Gwen Girl" />
+            </div>
+            <h1 style="font-size: 25px; font-weight:bold;text-align:center">Caring Connections Intake</h1><br /><br />
+
+            <lightning-layout>
+                <lightning-layout-item size="10">
+                    <h1 style="font-size: 20px; font-weight:bold;">Manage Caring Connections you want to include</h1>
+                </lightning-layout-item>
+                <lightning-layout-item size="2">
+                    <lightning-icon icon-name='utility:add' alternative-text='add' size='large' title='add'
+                        onclick={addRow}></lightning-icon>
+                </lightning-layout-item>
+
+            </lightning-layout>
+            <br />
+            <div>
+                <h1 style="font-size: 16px;">REFERRAL INFORMATION</h1>
+            </div><br />
+
+            <lightning-layout>
+                <lightning-layout-item size="4" class="slds-p-right_small">
+                    <lightning-combobox name="progress" label="Select Neighborhood:" value={value1}
+                        placeholder="--Select--" options={optionsNeigborhood}
+                        onchange={changeNeigborhood}></lightning-combobox>
+                </lightning-layout-item>
+                <lightning-layout-item size="4" class="slds-p-right_small">
+                    <lightning-combobox name="progress" label="Name of Staff completing Intake" value={value2}
+                        placeholder="Select an Option" options={optionsUser} onchange={changeUser}></lightning-combobox>
+                </lightning-layout-item>
+            </lightning-layout>
+            <br />
+
+            <template for:each={data} for:item="con">
+                <lightning-record-edit-form key={con.id} object-api-name="Contact">
+                    <lightning-layout multiple-rows>
+                        <lightning-layout-item size="12" small-device-size="6" medium-device-size="4"
+                            large-device-size="4" class="slds-p-right_small">
+                            <lightning-input type="text" label="FirstName" value={con.childFirst}  onchange={name1}
+                                required></lightning-input>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="12" small-device-size="6" medium-device-size="4"
+                            large-device-size="3" class="slds-p-right_small">
+                            <lightning-input type="text"  label="LastName" value={con.childLast}  onchange={name2}
+                                required></lightning-input>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="12" small-device-size="6" medium-device-size="4"
+                            large-device-size="3" class="slds-p-right_small">
+                            <lightning-input type="Date"  label="Birthdate" value={con.childDOB}  onchange={dateChange}
+                                required></lightning-input>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                
+                <br /><br /><br />
+                <div>
+                    <h1 style="font-size: 20px;"><b><u>Parent/Guardian</u></b></h1>
+                </div>
+
+                <lightning-layout>
+                    <lightning-layout-item size="12" small-device-size="6" medium-device-size="4" large-device-size="4"
+                        class="slds-p-right_small">
+                        <lightning-input type="text" label="Parent Guardian First Name" value={con.parentFirst}
+                            onchange={name3} required></lightning-input>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="6" medium-device-size="4" large-device-size="3"
+                        class="slds-p-right_small">
+                        <lightning-input type="text" label="Parent Guardian Last Name" value={con.parentLast}
+                            onchange={name4} required></lightning-input>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="6" medium-device-size="4" large-device-size="3"
+                        class="slds-p-right_small">
+                        <lightning-input type="phone" label="Parent Guardian Phone Number" value={con.parentNumber}
+                            onchange={numberChange} required></lightning-input>
+                    </lightning-layout-item>
+                </lightning-layout>
+                <br /><br />
+                <div class="slds-align_absolute-center">
+                    <lightning-button variant="brand" label="Submit" title="Primary action" onclick={handleClick}
+                        class="slds-m-left_x-small"></lightning-button>
+                </div>
+            </lightning-record-edit-form>
+            </template>
+
+        </div>
+    </lightning-card>
+</template>

@@ -1,0 +1,98 @@
+.logoAign{
+	padding-left:10px;
+	width:150px;
+}
+
+.mainHeading{
+	text-align:center;
+	font-size:25px;
+	font-weight:bold;
+}
+
+.subHeadig{
+	padding-left: 9px;
+    font-size: .97rem;
+
+}
+.cardAlign{
+	border: 1px solid rgb(194, 194, 194);
+   
+}
+
+.innerDivAlign{
+	margin-left: 0.2rem;
+    margin-top: 1.4rem;
+}
+.manageYouth{
+	font-size: 1.3rem;
+    font-weight: bold;
+    font-family: system-ui;
+}
+.manageYouthAlign{
+	margin-top: 1.6rem;
+}
+
+lightning-button.button {
+		/*   --sds-c-button-brand-color-background: #bb00ff;  */
+	--sds-c-button-brand-color-background: purple;
+    --sds-c-button-text-color: #f4f7f9;
+}
+
+lightning-icon.button{
+		--sds-c-button-brand-color-background: purple;
+}
+.addChildAlign{
+	display: flex;
+    justify-content: right;
+    margin-right: 3rem;
+}
+
+.childInputAlign{
+	    margin-top: 1.6rem;
+}
+
+.childFirstColumAlign{
+	   padding-right: 1rem;
+}
+
+.childSecondColumAlign{
+	 padding-right: 1rem;
+}
+.childThiredColumAlign{
+	      padding-right: 1rem;
+}
+.childSecordRow{
+	    margin-top: 1rem;
+}
+.parentdiv{
+	margin-top: 1.7rem;
+}
+.parentColumns{
+    padding-right: 1rem;
+}
+.datedClass{
+	font-weight: bold;
+    font-size: .87rem;
+}
+.deleteChildButtonAlign{
+	    display: flex;
+    justify-content: center;
+
+}
+.childInputSection{
+	margin-left: .9rem;
+}
+
+.childIndexingHeading{
+    padding-bottom: .4rem;
+    font-size: 1rem;
+    font-weight: bold;
+
+}
+.setSiteOptions{
+	 margin-top: 1.5rem;
+}
+.signAlign{
+	font-weight: bold;
+    font-size: 1.4rem;
+}

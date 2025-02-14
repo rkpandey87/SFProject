@@ -1,0 +1,1333 @@
+<template>
+
+
+	<lightning-card>
+
+		<div class="slds-m-around_medium">
+			<img src={mplcLogo} style="padding-left:10px;width:150px;" onclick={handlelogo} />
+        </div>
+
+			<h1 style="text-align:center;font-size:30px;font-weight:bold;">
+				Caring Connections Intake
+			</h1><br />
+
+
+
+			<lightning-layout multiple-rows>
+				<lightning-layout-item size="10" padding="around-small">
+					<!-- <h1 style="padding-left:10px;font-size:18px;font-weight:bold;">Manage Caring Connections you want to
+                    include</h1> -->
+
+				</lightning-layout-item>
+
+				<lightning-layout-item size="2" padding="around-small">
+					<!-- <lightning-icon icon-name="action:new" alternative-text="Add Row" class="button" size="small"
+                    title="Add Row" onclick={addRow}>
+                </lightning-icon> -->
+				</lightning-layout-item>
+			</lightning-layout>
+
+			<div class="safetyAndRiskAssessment" style="padding-left:13px;">
+				<h1 style="font-size: 18px; font-weight: bold; text-decoration: underline;">REFERRAL INFORMATION </h1>
+			</div>
+			<!-- <div style="background:#16325c; margin-left: 1rem;margin-right: 1rem; padding: 0.2rem;">
+				<div class="slds-text-color_inverse" style="font-family: unset; font-weight: bold;font-size: 1.08rem; padding-left: .4REM;">REFERRAL INFORMATION</div>	</div>
+			<div style="border: 1px solid rgb(203 209 215); margin-left: 1rem; margin-right: 1rem;"  class="slds box"> -->
+			<lightning-layout multiple-rows>
+
+				<lightning-layout-item size="12" small-device-size="5" medium-device-size="3" large-device-size="4"
+					padding="around-small">
+
+					<p style="font-size:15px;">Select Neighborhood:</p>
+					<select class="slds-select" onchange={handleNeighborChange}>
+                    <option value="Select">--Select--</option>
+                    <template if:true={showPickList}>
+                        <template for:each={options} for:item="option">
+                            <option key={option.label} class="custom-label" value={option.value}>{option.value}</option>
+                            <!-- selected={option.value}-->
+
+                        </template>
+                    </template>
+                </select>
+				</lightning-layout-item>
+
+				<!--   Displaying List Of User In dropdown  -->
+				<lightning-layout-item size="12" small-device-size="5" medium-device-size="3" large-device-size="4"
+					padding="around-small">
+					<lightning-combobox name="userDropdown" label="Name of Staff completing Intake"
+						value={selectedUserId} options={userOptions} onchange={handleUserSelection}
+						class="custom-label">
+					</lightning-combobox>
+				</lightning-layout-item>
+				<br />
+        </lightning-layout>
+
+		<lightning-layout multiple-rows>
+		
+				<lightning-layout-item size="12" small-device-size="5" medium-device-size="3" large-device-size="4" padding="around-small">
+
+						<p style="font-size: .96rem;">If Neighborhood is Other</p>
+						 <lightning-input type="text" variant="label-hidden" onchange={handleOtherNeighborhood}></lightning-input>
+								
+
+				</lightning-layout-item>
+
+		</lightning-layout>
+		
+				<!-- </div> -->
+
+				<div class="safetyAndRiskAssessment" style="padding-left:13px;margin-top: 1.5rem;">
+
+					<div class="slds-grid slds-wrap">
+						<div class="slds-col slds-large-size_10-of-12 slds-medium-size_1-of-12 slds-size_1-of-12">
+							<h1
+								style="font-size: 17px; font-weight: bold; text-decoration: underline; margin-top: 0.3rem; margin-right: 0.3rem;">
+								CLIENT DEMOGRAPHIC INFORMATION </h1>
+						</div>
+						<div style="    margin-left: -0.9rem;"
+							class="slds-col slds-large-size_2-of-12 slds-medium-size_1-of-12 slds-size_1-of-12">
+							<lightning-button variant="Brand" label="Add Child" onclick={addRow} icon-name="utility:add"
+								class="slds-m-left_x-small button"></lightning-button>
+						</div>
+					</div>
+
+				</div>
+				<template for:each={testContactChildItemArr} for:item="itemA" for:index="index">
+
+
+					<lightning-record-edit-form key={itemA.id} object-api-name="Contact">
+
+						<lightning-messages> </lightning-messages>
+						<lightning-layout multiple-rows>
+							<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+								large-device-size="4" padding="around-small">
+
+								<lightning-input-field field-name="FirstName" class="custom-label"
+									onchange={handleChange} value={itemA.firstName} variant="label-stacked"
+									data-field="firstName" data-index={index} required>
+								</lightning-input-field>
+								<!--handleFirstNameChange -->
+								<!---data-field="firstName" data-index={index}  data-field="lastName" data-index={index} data-field="Dob" data index={index} -->
+							</lightning-layout-item>
+							<lightning-layout-item size="12" small-device-size="4" medium-device-size="3"
+								large-device-size="3" padding="around-small">
+
+								<lightning-input-field field-name="LastName" class="custom-label"
+									onchange={handleChange} value={itemA.lastName} variant="label-stacked"
+									data-field="lastName" data-index={index} required>
+								</lightning-input-field>
+								
+								<!--handleLastNameChange -->
+							</lightning-layout-item>
+
+							<lightning-layout-item size="12" small-device-size="4" medium-device-size="3"
+								large-device-size="3" padding="around-small">
+								<lightning-input-field field-name="Birthdate" class="custom-label"
+									onchange={handleChange} value={itemA.Dob} variant="label-stacked" data-field="Dob"
+									data-index={index} required>
+								</lightning-input-field>
+								<!--handleBirthdateChange -->
+							</lightning-layout-item>
+
+
+
+
+
+							<lightning-layout-item size="12" small-device-size="2" medium-device-size="2"
+								large-device-size="1">
+								<div style="    padding-top: 2.3rem; display:flex">
+									<!-- access-key={itemA.id} id={index} data-recordid={itemA.Id} value={index}-->
+									<div style="padding-right: 0.7rem; padding-top: 0.4rem;">
+										<template if:true={itemA.isChildSectionOpen}>
+											<lightning-button-icon data-index={index} onclick={handleChildVisiblity}
+												icon-name="utility:arrowdown" variant="bare" size="large"
+												alternative-text="Expand Child Data" title="Collapse Child Data">
+											</lightning-button-icon>
+										</template>
+										<template if:false={itemA.isChildSectionOpen}>
+											<lightning-button-icon data-index={index} onclick={handleChildVisiblity}
+												icon-name="utility:arrowup" variant="bare" size="large"
+												alternative-text="Collapse Child Data" title=" Expand Child Data">
+											</lightning-button-icon>
+										</template>
+
+
+									</div>
+
+									<button type="button"  data-index={index} onclick={handleDeleteRow} class="slds-button slds-button_icon" title="Remove for Intake">
+<lightning-icon icon-name='action:delete' alternative-text='Remove for Intake' size='small' title='Remove for Intake'></lightning-icon>
+</button>
+
+
+									<!-- <lightning-icon icon-name="action:delete" data-index={index}
+										alternative-text="Delete Row" size="small" title="Delete Row"
+										onclick={handleDeleteRow}>
+									</lightning-icon> -->
+									
+								</div>
+							</lightning-layout-item>
+						</lightning-layout>
+
+
+						<!--                                      Testing                                           -->
+
+
+						<!--- These Child Input Boxes are expand or collapse using Accordion Section Logic  -->
+
+						<template if:true={itemA.isChildSectionOpen}>
+							<div style="border: 1px solid rgb(203 209 215); margin-left: 2rem; margin-right: 7rem;"
+								class="slds box">
+								<lightning-layout multiple-rows>
+
+									<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+										large-device-size="4" padding="around-small">
+										<!--onchange={handleChange}-->
+
+										<lightning-input type="text" label="Preferred Name" class="custom-label"
+											onchange={handleChange} value={itemA.preferedName} variant="label-stacked"
+											data-field="preferedName" data-index={index}>
+										</lightning-input>
+									</lightning-layout-item>
+
+									<lightning-layout-item size="12" small-device-size="4" medium-device-size="3"
+										large-device-size="4" padding="around-small">
+
+
+										<lightning-select label="Select Gender Identity"
+											value={itemA.genIdentitySelectedColumn} options={itemA.genIdentityColumn}
+											onchange={handleChange} variant="label-stacked"
+											data-field="genIdentitySelectedColumn" data-index={index}>
+										</lightning-select>
+
+
+
+									</lightning-layout-item>
+
+									<lightning-layout-item size="12" small-device-size="4" medium-device-size="3"
+										large-device-size="4" padding="around-small">
+
+
+										<lightning-select label="Select Gender Pronouns"
+											value={itemA.genPronounSelectedColumn} options={itemA.genPronounColumn}
+											onchange={handleChange} variant="label-stacked"
+											data-field="genPronounSelectedColumn" data-index={index}>
+										</lightning-select>
+									</lightning-layout-item>
+								</lightning-layout>
+								<lightning-layout multiple-rows>
+
+									<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+										large-device-size="4" padding="around-small">
+
+										<!--   <lightning-input type="text" label="Racial/Ethnic Identity" class="custom-label" value={itemA.race} onchange={handleChange} variant="label-stacked" data-field="race" data-index={index}>
+                </lightning-input>-->
+
+										<lightning-select label="Select Racial/Ethnic Identity" class="custom-label"
+											value={itemA.racialEthnicIdentitySelectedColumn}
+											options={itemA.racialEthnicIdentityColumn} onchange={handleChange}
+											variant="label-stacked" data-field="racialEthnicIdentitySelectedColumn"
+											data-index={index}>
+										</lightning-select>
+
+									</lightning-layout-item>
+
+									<lightning-layout-item size="12" small-device-size="4" medium-device-size="3"
+										large-device-size="4" padding="around-small">
+										<lightning-input type="text" label="Identity Expansion" class="custom-label"
+											value={itemA.identityExpansion} onchange={handleChange}
+											variant="label-stacked" data-field="identityExpansion" data-index={index}
+											field-level-help="Is there anything else you would like us to know about who you are?">
+										</lightning-input>
+										<!-- <lightning-helptext  class="help-text" content="Is there anything else you would like us to know about who you are?"></lightning-helptext> -->
+									</lightning-layout-item>
+
+
+									<lightning-layout-item size="12" small-device-size="4" medium-device-size="3"
+										large-device-size="4" padding="around-small">
+
+										<lightning-input type="text" label="Phone number" class="custom-label"
+											value={itemA.homePhn} onchange={handleChange} variant="label-stacked"
+											data-field="homePhn" data-index={index}>
+										</lightning-input>
+									</lightning-layout-item>
+								</lightning-layout>
+
+<!-- 								
+								<lightning-layout>
+
+									<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+										large-device-size="4" padding="around-small">
+
+										<lightning-input type="text" label="Mailing Street" class="custom-label"
+											value={itemA.mailingStreet} onchange={handleChange} variant="label-stacked"
+											data-field="mailingStreet" data-index={index}>
+										</lightning-input>
+									</lightning-layout-item>
+
+									<lightning-layout-item size="12" small-device-size="4" medium-device-size="3"
+										large-device-size="4" padding="around-small">
+										<lightning-input type="text" label="Mailing City" class="custom-label"
+											value={itemA.mailingCity} onchange={handleChange} variant="label-stacked"
+											data-field="mailingCity" data-index={index}>
+										</lightning-input>
+									</lightning-layout-item>
+
+									<lightning-layout-item size="12" small-device-size="4" medium-device-size="3"
+										large-device-size="4" padding="around-small">
+										<lightning-input type="text" label="Mailing State" class="custom-label"
+											value={itemA.mailingState} onchange={handleChange} variant="label-stacked"
+											data-field="mailingState" data-index={index}>
+										</lightning-input>
+
+
+									</lightning-layout-item>
+								</lightning-layout> -->
+
+
+								<lightning-layout multiple-rows>
+
+									<!-- <lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+										large-device-size="4" padding="around-small">
+										<lightning-input type="text" label="Mailing Postal Code" class="custom-label"
+											value={itemA.mailingPostalCode} onchange={handleChange}
+											variant="label-stacked" data-field="mailingPostalCode" data-index={index}>
+										</lightning-input>
+									</lightning-layout-item> -->
+
+
+									<lightning-layout-item size="12" small-device-size="4" medium-device-size="3"
+										large-device-size="4" padding="around-small">
+
+										<lightning-select class="custom-label" label="What is your relationship to this youth?"
+											value={itemA.relationshipToChildSelectedColumn}
+											options={itemA.relationshipToChildColumn} onchange={handleChange}
+											variant="label-stacked" data-field="relationshipToChildSelectedColumn"
+											data-index={index}>
+										</lightning-select>
+
+									</lightning-layout-item>
+								</lightning-layout>
+								<h1 style="margin-top: 1rem;" class="subHeading">TOP 3 CONCERNS FOR CHILD</h1>
+								<div class="subSectionAlign">
+									<lightning-layout multiple-rows>
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="4" padding="around-small">
+
+											<!---             testing on primary concern             -->
+											<lightning-select label="Select Primary Concern"
+												value={itemA.primaryConcernSelectedColumn}
+												options={itemA.primaryConcernColumn} onchange={handleChange}
+												variant="label-stacked" data-field="primaryConcernSelectedColumn"
+												data-index={index}>
+											</lightning-select>
+										</lightning-layout-item>
+
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="8" padding="around-small">
+											<!---{itemA.primaryConcernMultiPickColumn}-->
+											<lightning-dual-listbox name="multiSelectPicklist"
+												label="Primary Concern/Expanded" source-label="Available Options"
+												selected-label="Selected Options"
+												options={itemA.primaryConcernMultiPickColumn}
+												value={itemA.primaryConcrnMultiPickSelectedColumn}
+												onchange={handleChange} class="custom-label"
+												data-field="primaryConcrnMultiPickSelectedColumn" data-index={index}>
+											</lightning-dual-listbox>
+
+										</lightning-layout-item>
+
+
+
+									</lightning-layout><br />
+									<lightning-layout multiple-rows>
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="4" padding="around-small">
+											<lightning-select label="Select Secondary Concern"
+												value={itemA.secondaryConcernSelectedColumn}
+												options={itemA.secondaryConcernColumn} onchange={handleChange}
+												variant="label-stacked" data-field="secondaryConcernSelectedColumn"
+												data-index={index}>
+											</lightning-select>
+										</lightning-layout-item>
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="8" padding="around-small">
+											<lightning-dual-listbox name="multiSelectPicklist"
+												label="Secondary Concern/Expanded" source-label="Available Options"
+												selected-label="Selected Options"
+												options={itemA.secondaryConcernMultiPickColumn}
+												value={itemA.secondaryConcernMultiPickSelectedColumn}
+												onchange={handleChange} class="custom-label"
+												data-field="secondaryConcernMultiPickSelectedColumn" data-index={index}>
+											</lightning-dual-listbox>
+
+										</lightning-layout-item>
+
+									</lightning-layout><br />
+
+									<lightning-layout multiple-rows>
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="4" padding="around-small">
+
+
+											<lightning-select label="Select Third Concern"
+												value={itemA.thirdConcernSelectedColumn}
+												options={itemA.thirdConcernColumn} onchange={handleChange}
+												variant="label-stacked" data-field="thirdConcernSelectedColumn"
+												data-index={index}>
+											</lightning-select>
+
+										</lightning-layout-item>
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="8" padding="around-small">
+
+											<lightning-dual-listbox name="multiSelectPicklist"
+												label="Third Concern/expanded" source-label="Available Options"
+												selected-label="Selected Options"
+												options={itemA.thirdConcernMultiPickColumn}
+												value={itemA.thirdConcernMultiPickSelectedColumn}
+												onchange={handleChange} class="custom-label"
+												data-field="thirdConcernMultiPickSelectedColumn" data-index={index}>
+											</lightning-dual-listbox>
+										</lightning-layout-item>
+
+									</lightning-layout>
+								</div>
+
+								<h1 style="margin-top: 2rem;" class="subHeading">REASON FOR REFERRAL (CONCERNS LIST) -
+									NEEDS CATEGORY</h1>
+
+								<lightning-layout multiple-rows>
+									<div class="subSectionAlign">
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="8" padding="around-small">
+											<!--      <lightning-input type="text" label="Reason for Referral (Concerns List)- Needs Category" class="custom-label" onchange={handleChange} value="" variant="label-stacked" data-field="Dob" data-index={index}>
+                      </lightning-input>-->
+
+											<lightning-dual-listbox name="multiSelectPicklist"
+												style="    margin-top: -1rem;" variant="label-hidden"
+												source-label="Available Options" selected-label="Selected Options"
+												options={itemA.reasonForReferralMultiPickColumn}
+												value={itemA.reasonForReferralMultiPickSelectedColumn}
+												onchange={handleChange} class="custom-label"
+												data-field="reasonForReferralMultiPickSelectedColumn"
+												data-index={index}>
+											</lightning-dual-listbox>
+
+										</lightning-layout-item>
+									</div>
+								</lightning-layout>
+								<h1 style="margin-top: 1rem;" class="subHeading">SAFETY & RISK ASSESSMENT</h1>
+								<div class="subSectionAlign">
+									<lightning-layout multiple-rows>
+
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="3" padding="around-small">
+											<lightning-select label="Are there immediate Safety Concerns?"
+												value={itemA.immSafetyConcernSelectedColumn}
+												options={itemA.immSafetyConcernColumn} onchange={handleChange}
+												variant="label-stacked" data-field="immSafetyConcernSelectedColumn"
+												data-index={index}>
+											</lightning-select>
+										</lightning-layout-item>
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="3" padding="around-small">
+											<lightning-textarea onchange={handleComment} data-index={index}
+												name="input1" label="Comment" value={itemA.comment}>
+											</lightning-textarea>
+										</lightning-layout-item>
+
+
+
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="3" padding="around-small">
+											<lightning-select label="Does the client have a safety plan?"
+												value={itemA.safetyPlanSelectedColumn} options={itemA.safetyPlanColumn}
+												onchange={handleChange} variant="label-stacked"
+												data-field="safetyPlanSelectedColumn" data-index={index}>
+											</lightning-select>
+										</lightning-layout-item>
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="3" padding="around-small">
+											<lightning-textarea data-index={index} onchange={handleSafteyPlanExplaination} name="input1"
+												value={itemA.SafetyPlanExplaination} label="Safety Plan Explanation">
+											</lightning-textarea>
+										</lightning-layout-item>
+
+
+									</lightning-layout>
+									<lightning-layout multiple-rows>
+
+										<!-- <lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="3" padding="around-small">
+											<lightning-select label="Are there immediate Safety Concerns?"
+												value={itemA.immSafetyConcernSelectedColumn}
+												options={itemA.immSafetyConcernColumn} onchange={handleChange}
+												variant="label-stacked" data-field="immSafetyConcernSelectedColumn"
+												data-index={index}>
+											</lightning-select>
+
+										</lightning-layout-item> -->
+										<!-- 
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="3" padding="around-small">
+
+											<lightning-select label="Does the client have a safety plan?"
+												value={itemA.safetyPlanSelectedColumn} options={itemA.safetyPlanColumn}
+												onchange={handleChange} variant="label-stacked"
+												data-field="safetyPlanSelectedColumn" data-index={index}>
+											</lightning-select>
+										</lightning-layout-item> -->
+
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="6" padding="around-small">
+											<!--  <lightning-input type="text"  class="custom-label"    label="Has this youth had any previous system involvement?" onchange={handleSignChange} value={userInput}>
+            </lightning-input>-->
+											<lightning-dual-listbox name="multiSelectPicklist"
+												label="Has this youth had any previous system involvement?"
+												source-label="Available Options" selected-label="Selected Options"
+												options={itemA.previousSystemInvolveMultiPickColumn}
+												value={itemA.previousSystemInvolveMultiPickSelectedColumn}
+												onchange={handleChange} class="custom-label"
+												data-field="previousSystemInvolveMultiPickSelectedColumn"
+												data-index={index}> </lightning-dual-listbox>
+
+											<!--   <lightning-mutli-select-picklist picklistlabel="Industry" ></lightning-mutli-select-picklist>-->
+
+										</lightning-layout-item>
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="4" padding="around-small">
+											<lightning-textarea data-index={index} onchange={handleBriefExplaination}
+												value={itemA.briefExplaination} name="input1"
+												label="System Involvement Brief Explanation"></lightning-textarea>
+										</lightning-layout-item>
+
+
+									</lightning-layout>
+								</div>
+								<h1 style="margin-top: 2rem;" class="subHeading">IF ANY FAMILY MEMBER RECEIVED CYF
+									SERVICES, PLEASE ENTER</h1>
+
+								<div class="subSectionAlign">
+									<lightning-layout multiple-rows>
+
+
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="4" padding="around-small">
+											<!-- onchange={handleChange}-->
+											<lightning-input type="text" class="custom-label" label="CYF Case Number"
+												value={itemA.cyfCaseNumber} onchange={handleChange}
+												variant="label-stacked" data-field="cyfCaseNumber" data-index={index}>
+											</lightning-input>
+										</lightning-layout-item>
+
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="4" padding="around-small">
+											<lightning-input type="text" class="custom-label"
+												label="CYF Caseworker's Name" value={itemA.cyfCaseWorkerName}
+												onchange={handleChange} variant="label-stacked"
+												data-field="cyfCaseWorkerName" data-index={index}>
+											</lightning-input>
+										</lightning-layout-item>
+
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="4" padding="around-small">
+											<!-- data-field="mailingState" data-index={index} -->
+											<lightning-input type="text" class="custom-label" label="Phone number"
+												value={itemA.cyfCasePhoneNumber} onchange={handleChange}
+												variant="label-stacked" data-field="cyfCasePhoneNumber"
+												data-index={index}>
+											</lightning-input>
+										</lightning-layout-item>
+
+									</lightning-layout>
+
+
+									<lightning-layout multiple-rows>
+
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="4" padding="around-small">
+											<lightning-input type="text" class="custom-label"
+												label="Regional Office for CYF Services"
+												value={itemA.cyfRegionalOfficeServices} onchange={handleChange}
+												variant="label-stacked" data-field="cyfRegionalOfficeServices"
+												data-index={index}>
+											</lightning-input>
+
+
+
+
+										</lightning-layout-item>
+
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="4" padding="around-small">
+											<!--onchange={handleFlagCaseChange}-->
+
+
+											<!-- <lightning-input type="checkbox" class="custom-labelCheckbox"
+												label="Is the Family's Case" checked={itemA.cyfFamilyCase}
+												onchange={handleCheckboxChange} variant="label-stacked"
+												data-field="cyfFamilyCase" data-index={index}>
+											</lightning-input> -->
+											<p></p>
+											<label  class="slds-form-element__label slds-no-flex" style="font-size: .95rem;" part="label">Is the family’s case court active?</label>
+											<lightning-radio-group data-index={index} name="radioGroup"
+												data-field="cyfFamilyCase" variant="label-hidden"
+												onchange={handleCheckboxChange} options={getFamilyOption}
+												value={itemA.cyfFamilyCaseString} type="radio">
+											</lightning-radio-group>
+
+											<!-- <template for:each={getFamilyOption} for:item="itemOPt">
+											<fieldset key={itemOPt.value} style="display: block; float: left;">
+												<div class="slds-form-element__control">
+													<span class="slds-radio">
+                            <input  data-index={index} label="Is the Family's Case" name="radioGroup" 
+							data-field="cyfFamilyCase" id={itemOPt.value} type="radio" value={itemA.cyfFamilyCase} 
+							onchange={handleCheckboxChange}/>
+                            <label class="slds-radio__label" for={itemOPt.value}>
+                                <span class="slds-radio_faux"></span>
+													<span class="slds-form-element__label">{itemOPt.label}</span>
+													</label>
+													</span>
+												</div>
+											</fieldset>
+										</template> -->
+
+											<!--itemA.cyfFamilyCase-->
+										</lightning-layout-item>
+
+
+									</lightning-layout>
+									<lightning-layout multiple-rows>
+										<lightning-layout-item size="12" small-device-size="4" medium-device-size="3"
+											large-device-size="3" padding="around-small">
+											<!--onchange={handleChildSignChange}-->
+											<lightning-input type="text" class="custom-label" label="Signature"
+												value={itemA.youthSignature} onchange={handleChange}
+												variant="label-stacked" data-field="youthSignature" data-index={index}>
+											</lightning-input>
+											<p style="    margin-left: 0.2rem;font-size: .71rem;">Note : Youth's
+												Signature
+												(if 14 years and older)</p>
+										</lightning-layout-item>
+									</lightning-layout>
+									<p style="padding-left:13px;font-size:25px;font-weight:bold;">
+										{itemA.youthSignature}
+									</p>
+								</div>
+								<br/>
+
+
+
+		</div>
+
+						</template>
+
+
+						<div class="higlightedLine" style="margin-left: 2rem;margin-right: 7rem;">
+							<p style="border-bottom:3px dotted black; padding-bottom:1rem"></p>
+						</div>
+
+						<!-- <lightning-accordion allow-multiple-sections-open onsectiontoggle={handleSectionToggle}
+							active-section-name={activeSections}>
+							<lightning-accordion-section class="slds-section slds-is-open slds-section__title" name="A"
+								label="Edit Child"> -->
+						<!-- <lightning-layout multiple-rows>
+
+								
+										<lightning-input type="text" label="Preferred Name" class="custom-label"
+											onchange={handleChange} value={itemA.preferedName} variant="label-stacked"
+											data-field="preferedName" data-index={index}>
+										</lightning-input>
+									</lightning-layout-item>
+
+									<lightning-layout-item size="12" small-device-size="4" medium-device-size="3"
+										large-device-size="3" padding="around-small">
+
+
+										<lightning-select label="Select Gender Identity"
+											value={itemA.genIdentitySelectedColumn} options={itemA.genIdentityColumn}
+											onchange={handleChange} variant="label-stacked"
+											data-field="genIdentitySelectedColumn" data-index={index}>
+										</lightning-select>
+
+
+
+									</lightning-layout-item>
+
+									<lightning-layout-item size="12" small-device-size="4" medium-device-size="3"
+										large-device-size="3" padding="around-small">
+
+
+										<lightning-select label="Select Gender Pronouns"
+											value={itemA.genPronounSelectedColumn} options={itemA.genPronounColumn}
+											onchange={handleChange} variant="label-stacked"
+											data-field="genPronounSelectedColumn" data-index={index}>
+										</lightning-select>
+									</lightning-layout-item>
+								</lightning-layout> -->
+
+
+
+
+						<!-- <lightning-layout multiple-rows>
+
+									<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+										large-device-size="4" padding="around-small">
+
+									
+
+										<lightning-select label="Select Racial/Ethnic Identity" class="custom-label"
+											value={itemA.racialEthnicIdentitySelectedColumn}
+											options={itemA.racialEthnicIdentityColumn} onchange={handleChange}
+											variant="label-stacked" data-field="racialEthnicIdentitySelectedColumn"
+											data-index={index}>
+										</lightning-select>
+
+									</lightning-layout-item>
+
+									<lightning-layout-item size="12" small-device-size="4" medium-device-size="3"
+										large-device-size="3" padding="around-small">
+										<lightning-input type="text" label="Identity Expansion" class="custom-label"
+											value={itemA.identityExpansion} onchange={handleChange}
+											variant="label-stacked" data-field="identityExpansion" data-index={index}
+											field-level-help="Is there anything else you would like us to know about who you are?">
+										</lightning-input> 
+									</lightning-layout-item>
+
+
+									<lightning-layout-item size="12" small-device-size="4" medium-device-size="3"
+										large-device-size="3" padding="around-small">
+
+										<lightning-input type="text" label="Phone number" class="custom-label"
+											value={itemA.homePhn} onchange={handleChange} variant="label-stacked"
+											data-field="homePhn" data-index={index}>
+										</lightning-input>
+									</lightning-layout-item>
+								</lightning-layout>  -->
+
+
+						<!-- <lightning-layout>
+
+									<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+										large-device-size="4" padding="around-small">
+
+										<lightning-input type="text" label="Mailing Street" class="custom-label"
+											value={itemA.mailingStreet} onchange={handleChange} variant="label-stacked"
+											data-field="mailingStreet" data-index={index}>
+										</lightning-input>
+									</lightning-layout-item>
+
+									<lightning-layout-item size="12" small-device-size="4" medium-device-size="3"
+										large-device-size="4" padding="around-small">
+										<lightning-input type="text" label="Mailing City" class="custom-label"
+											value={itemA.mailingCity} onchange={handleChange} variant="label-stacked"
+											data-field="mailingCity" data-index={index}>
+										</lightning-input>
+									</lightning-layout-item>
+
+									<lightning-layout-item size="12" small-device-size="4" medium-device-size="3"
+										large-device-size="4" padding="around-small">
+										<lightning-input type="text" label="Mailing State" class="custom-label"
+											value={itemA.mailingState} onchange={handleChange} variant="label-stacked"
+											data-field="mailingState" data-index={index}>
+										</lightning-input>
+
+
+									</lightning-layout-item>
+								</lightning-layout> -->
+
+
+
+						<!-- <lightning-layout multiple-rows>
+
+									<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+										large-device-size="4" padding="around-small">
+										<lightning-input type="text" label="Mailing Postal Code" class="custom-label"
+											value={itemA.mailingPostalCode} onchange={handleChange}
+											variant="label-stacked" data-field="mailingPostalCode" data-index={index}>
+										</lightning-input>
+									</lightning-layout-item>
+
+
+									<lightning-layout-item size="12" small-device-size="4" medium-device-size="3"
+										large-device-size="3" padding="around-small">
+
+										<lightning-select class="custom-label" label="Relationship to child"
+											value={itemA.relationshipToChildSelectedColumn}
+											options={itemA.relationshipToChildColumn} onchange={handleChange}
+											variant="label-stacked" data-field="relationshipToChildSelectedColumn"
+											data-index={index}>
+										</lightning-select>
+
+									</lightning-layout-item>
+								</lightning-layout> -->
+
+
+
+						<lightning-layout multiple-rows>
+
+							<!-- <lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+                                large-device-size="4" padding="around-small"> -->
+
+							<!---             testing on primary concern             -->
+							<!-- <lightning-select label="Select Primary Concern"
+                                    value={itemA.primaryConcernSelectedColumn} options={itemA.primaryConcernColumn}
+                                    onchange={handleChange} variant="label-stacked"
+                                    data-field="primaryConcernSelectedColumn" data-index={index}>
+                                </lightning-select>
+                            </lightning-layout-item> -->
+
+
+
+							<!-- <lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+                                large-device-size="4" padding="around-small">
+                                <lightning-select label="Select Secondary Concern"
+                                    value={itemA.secondaryConcernSelectedColumn} options={itemA.secondaryConcernColumn}
+                                    onchange={handleChange} variant="label-stacked"
+                                    data-field="secondaryConcernSelectedColumn" data-index={index}>
+                                </lightning-select>
+                            </lightning-layout-item> -->
+
+							<!-- <lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+                                large-device-size="4" padding="around-small">
+
+
+                                <lightning-select label="Select Third Concern" value={itemA.thirdConcernSelectedColumn}
+                                    options={itemA.thirdConcernColumn} onchange={handleChange} variant="label-stacked"
+                                    data-field="thirdConcernSelectedColumn" data-index={index}>
+                                </lightning-select>
+
+                            </lightning-layout-item> -->
+						</lightning-layout>
+
+
+						<lightning-layout multiple-rows>
+							<!-- <lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+                                large-device-size="4" padding="around-small"> -->
+							<!---{itemA.primaryConcernMultiPickColumn}-->
+							<!-- <lightning-dual-listbox name="multiSelectPicklist" label="Primary Concern/Expanded"
+                                    source-label="Available Options" selected-label="Selected Options"
+                                    options={itemA.primaryConcernMultiPickColumn}
+                                    value={itemA.primaryConcrnMultiPickSelectedColumn} onchange={handleChange}
+                                    class="custom-label" data-field="primaryConcrnMultiPickSelectedColumn"
+                                    data-index={index}> </lightning-dual-listbox>
+
+                            </lightning-layout-item> -->
+
+
+							<!-- <lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+                                large-device-size="4" padding="around-small">
+                                <lightning-dual-listbox name="multiSelectPicklist" label="Secondary Concern/Expanded"
+                                    source-label="Available Options" selected-label="Selected Options"
+                                    options={itemA.secondaryConcernMultiPickColumn}
+                                    value={itemA.secondaryConcernMultiPickSelectedColumn} onchange={handleChange}
+                                    class="custom-label" data-field="secondaryConcernMultiPickSelectedColumn"
+                                    data-index={index}> </lightning-dual-listbox>
+
+                            </lightning-layout-item> -->
+
+
+							<!-- <lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+                                large-device-size="4" padding="around-small">
+
+                                <lightning-dual-listbox name="multiSelectPicklist" label="Third Concern/expanded"
+                                    source-label="Available Options" selected-label="Selected Options"
+                                    options={itemA.thirdConcernMultiPickColumn}
+                                    value={itemA.thirdConcernMultiPickSelectedColumn} onchange={handleChange}
+                                    class="custom-label" data-field="thirdConcernMultiPickSelectedColumn"
+                                    data-index={index}> </lightning-dual-listbox>
+                            </lightning-layout-item> -->
+
+						</lightning-layout>
+						<!-- <h1 style="margin-top: 1rem;" class="subHeading">TOP 3 CONCERNS FOR CHILD</h1>
+								<div class="subSectionAlign">
+									<lightning-layout multiple-rows>
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="4" padding="around-small">
+
+											<lightning-select label="Select Primary Concern"
+												value={itemA.primaryConcernSelectedColumn}
+												options={itemA.primaryConcernColumn} onchange={handleChange}
+												variant="label-stacked" data-field="primaryConcernSelectedColumn"
+												data-index={index}>
+											</lightning-select>
+										</lightning-layout-item>
+
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="8" padding="around-small">
+											<lightning-dual-listbox name="multiSelectPicklist"
+												label="Primary Concern/Expanded" source-label="Available Options"
+												selected-label="Selected Options"
+												options={itemA.primaryConcernMultiPickColumn}
+												value={itemA.primaryConcrnMultiPickSelectedColumn}
+												onchange={handleChange} class="custom-label"
+												data-field="primaryConcrnMultiPickSelectedColumn" data-index={index}>
+											</lightning-dual-listbox>
+
+										</lightning-layout-item>
+
+
+
+									</lightning-layout><br />
+									<lightning-layout multiple-rows>
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="4" padding="around-small">
+											<lightning-select label="Select Secondary Concern"
+												value={itemA.secondaryConcernSelectedColumn}
+												options={itemA.secondaryConcernColumn} onchange={handleChange}
+												variant="label-stacked" data-field="secondaryConcernSelectedColumn"
+												data-index={index}>
+											</lightning-select>
+										</lightning-layout-item>
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="8" padding="around-small">
+											<lightning-dual-listbox name="multiSelectPicklist"
+												label="Secondary Concern/Expanded" source-label="Available Options"
+												selected-label="Selected Options"
+												options={itemA.secondaryConcernMultiPickColumn}
+												value={itemA.secondaryConcernMultiPickSelectedColumn}
+												onchange={handleChange} class="custom-label"
+												data-field="secondaryConcernMultiPickSelectedColumn" data-index={index}>
+											</lightning-dual-listbox>
+
+										</lightning-layout-item>
+
+									</lightning-layout><br />
+
+									<lightning-layout multiple-rows>
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="4" padding="around-small">
+
+
+											<lightning-select label="Select Third Concern"
+												value={itemA.thirdConcernSelectedColumn}
+												options={itemA.thirdConcernColumn} onchange={handleChange}
+												variant="label-stacked" data-field="thirdConcernSelectedColumn"
+												data-index={index}>
+											</lightning-select>
+
+										</lightning-layout-item>
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="8" padding="around-small">
+
+											<lightning-dual-listbox name="multiSelectPicklist"
+												label="Third Concern/expanded" source-label="Available Options"
+												selected-label="Selected Options"
+												options={itemA.thirdConcernMultiPickColumn}
+												value={itemA.thirdConcernMultiPickSelectedColumn}
+												onchange={handleChange} class="custom-label"
+												data-field="thirdConcernMultiPickSelectedColumn" data-index={index}>
+											</lightning-dual-listbox>
+										</lightning-layout-item>
+
+									</lightning-layout>
+
+
+								</div> -->
+						<!-- <h1 style="margin-top: 2rem;" class="subHeading">REASON FOR REFERRAL (CONCERNS LIST) -
+									NEEDS CATEGORY</h1>
+
+								<lightning-layout multiple-rows>
+									<div class="subSectionAlign">
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="8" padding="around-small">
+										   
+											<lightning-dual-listbox name="multiSelectPicklist"
+												style="    margin-top: -1rem;" variant="label-hidden"
+												source-label="Available Options" selected-label="Selected Options"
+												options={itemA.reasonForReferralMultiPickColumn}
+												value={itemA.reasonForReferralMultiPickSelectedColumn}
+												onchange={handleChange} class="custom-label"
+												data-field="reasonForReferralMultiPickSelectedColumn"
+												data-index={index}>
+											</lightning-dual-listbox>
+
+										</lightning-layout-item>
+									</div>
+								</lightning-layout> -->
+
+						<!-- <h1 style="margin-top: 1rem;" class="subHeading">SAFETY & RISK ASSESSMENT</h1>
+								<div class="subSectionAlign">
+									<lightning-layout multiple-rows>
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="3" padding="around-small">
+
+											<lightning-select label="Are there immediate Safety Concerns?"
+												value={itemA.immSafetyConcernSelectedColumn}
+												options={itemA.immSafetyConcernColumn} onchange={handleChange}
+												variant="label-stacked" data-field="immSafetyConcernSelectedColumn"
+												data-index={index}>
+											</lightning-select>
+
+										</lightning-layout-item>
+
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="3" padding="around-small">
+
+											<lightning-select label="Does the client have a safety plan?"
+												value={itemA.safetyPlanSelectedColumn} options={itemA.safetyPlanColumn}
+												onchange={handleChange} variant="label-stacked"
+												data-field="safetyPlanSelectedColumn" data-index={index}>
+											</lightning-select>
+										</lightning-layout-item>
+
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="6" padding="around-small">
+											
+
+											<lightning-dual-listbox name="multiSelectPicklist"
+												label="Has this youth had any previous system involvement?"
+												source-label="Available Options" selected-label="Selected Options"
+												options={itemA.previousSystemInvolveMultiPickColumn}
+												value={itemA.previousSystemInvolveMultiPickSelectedColumn}
+												onchange={handleChange} class="custom-label"
+												data-field="previousSystemInvolveMultiPickSelectedColumn"
+												data-index={index}> </lightning-dual-listbox>
+
+
+										</lightning-layout-item>
+
+									</lightning-layout>
+								</div> -->
+
+
+
+						<!-- <h1 style="margin-top: 2rem;" class="subHeading">IF ANY FAMILY MEMBER RECEIVED CYF
+									SERVICES, PLEASE ENTER</h1>
+
+								<div class="subSectionAlign">
+									<lightning-layout multiple-rows>
+
+
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="4" padding="around-small">
+											<lightning-input type="text" class="custom-label" label="CYF Case Number"
+												value={itemA.cyfCaseNumber} onchange={handleChange}
+												variant="label-stacked" data-field="cyfCaseNumber" data-index={index}>
+											</lightning-input>
+										</lightning-layout-item>
+
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="4" padding="around-small">
+											<lightning-input type="text" class="custom-label"
+												label="CYF Caseworker's Name" value={itemA.cyfCaseWorkerName}
+												onchange={handleChange} variant="label-stacked"
+												data-field="cyfCaseWorkerName" data-index={index}>
+											</lightning-input>
+										</lightning-layout-item>
+
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="4" padding="around-small">
+											<lightning-input type="text" class="custom-label" label="Phone number"
+												value={itemA.cyfCasePhoneNumber} onchange={handleChange}
+												variant="label-stacked" data-field="cyfCasePhoneNumber"
+												data-index={index}>
+											</lightning-input>
+										</lightning-layout-item>
+
+									</lightning-layout>
+
+
+									<lightning-layout multiple-rows>
+
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="4" padding="around-small">
+											<lightning-input type="text" class="custom-label"
+												label="Regional Office for CYF Services"
+												value={itemA.cyfRegionalOfficeServices} onchange={handleChange}
+												variant="label-stacked" data-field="cyfRegionalOfficeServices"
+												data-index={index}>
+											</lightning-input>
+
+
+
+
+										</lightning-layout-item>
+
+										<lightning-layout-item size="12" small-device-size="5" medium-device-size="3"
+											large-device-size="4" padding="around-small">
+
+
+											<lightning-input type="checkbox" class="custom-labelCheckbox"
+												label="Is the Family's Case" checked={itemA.cyfFamilyCase}
+												onchange={handleCheckboxChange} variant="label-stacked"
+												data-field="cyfFamilyCase" data-index={index}>
+
+											</lightning-input>
+
+											<lightning-radio-group data-index={index} name="radioGroup"
+												data-field="cyfFamilyCase" label="Is the Family's Case"
+												onchange={handleCheckboxChange} options={getFamilyOption}
+												value={itemA.cyfFamilyCase} type="radio">
+											</lightning-radio-group>
+
+										
+										</lightning-layout-item>
+
+
+									</lightning-layout>
+									<lightning-layout multiple-rows>
+										<lightning-layout-item size="12" small-device-size="4" medium-device-size="3"
+											large-device-size="3" padding="around-small">
+											<lightning-input type="text" class="custom-label" label="Signature"
+												value={itemA.youthSignature} onchange={handleChange}
+												variant="label-stacked" data-field="youthSignature" data-index={index}>
+											</lightning-input>
+											<p style="    margin-left: 0.2rem;font-size: .71rem;">Note : Youth's
+												Signature
+												(if 14 years and older)</p>
+										</lightning-layout-item>
+									</lightning-layout>
+									<p style="padding-left:13px;font-size:25px;font-weight:bold;">
+										{itemA.youthSignature}
+									</p>
+								</div>   -->
+
+
+						<!-- </lightning-accordion-section> -->
+
+						<!-- </lightning-accordion> -->
+
+
+
+
+						<!--                   Testing                       -->
+
+
+					</lightning-record-edit-form>
+				</template><br />
+
+
+				<div class="show Parent/Guardian" style="padding-left:13px;">
+					<h1 style="font-size:18px; text-decoration: underline; font-weight: bold;">
+						PARENT&nbsp;/&nbsp;GUARDIAN</h1>
+				</div>
+
+				<lightning-messages> </lightning-messages>
+				<lightning-layout multiple-rows>
+					<lightning-layout-item size="12" small-device-size="5" medium-device-size="3" large-device-size="4"
+						padding="around-small">
+
+						<lightning-input type="text" class="custom-label" label="Parent / Guardian First Name"
+							onchange={handleFNameChange} value={parentGuardianFNm.parentfName} required>
+						</lightning-input>
+
+					</lightning-layout-item>&nbsp;&nbsp;&nbsp;
+
+					<lightning-layout-item size="12" small-device-size="4" medium-device-size="3" large-device-size="3"
+						padding="around-small">
+						<lightning-input type="text" class="custom-label" label="Parent / Guardian Last Name"
+							onchange={handleLNameChange} value={parentGuardianFNm.parentlName} required>
+						</lightning-input>
+					</lightning-layout-item>
+
+
+					<lightning-layout-item size="12" small-device-size="4" medium-device-size="3" large-device-size="3"
+						padding="around-small">
+						<!-- variant="label-stacked" data-field="parentPhnNumber" data-index={index} -->
+
+						<lightning-input type="phone" class="custom-label" label="Parent / Guardian Phone Number"
+							onchange={handlePhnNumberChange} value={parentGuardianFNm.parentPhnNumber} required>
+						</lightning-input>
+
+					</lightning-layout-item>
+				</lightning-layout>
+
+
+				<lightning-layout multiple-rows>
+
+
+					<lightning-layout-item size="12" small-device-size="5" medium-device-size="3" large-device-size="4"
+						padding="around-small">
+						<!--onchange={handleChange} -->
+						<lightning-input type="email" label="Email address" class="custom-label"
+							value={parentGuardianFNm.parentEmail} onchange={handleEmailChange}>
+						</lightning-input>
+					</lightning-layout-item>
+
+					<!--
+    <lightning-layout-item size="12" small-device-size="4" medium-device-size="3" large-device-size="3" padding="around-small">
+    
+                    <lightning-select  class="custom-label" label="Relationship to child" value={parentGuardianFNm.relationshipToChildSelectedColumn}  options={parentGuardianFNm.relationshipToChildColumn} onchange={handleRelationshipToChildPickChange} >
+                      </lightning-select>
+    
+    </lightning-layout-item>  -->
+
+					<lightning-layout-item size="12" small-device-size="4" medium-device-size="3" large-device-size="3"
+						padding="around-small">
+						<lightning-input type="text" label="Mailing Street" class="custom-label"
+							value={parentGuardianFNm.parentMailingStreet} onchange={handleMailingStreetChange}>
+						</lightning-input>
+					</lightning-layout-item>
+
+					<lightning-layout-item size="12" small-device-size="4" medium-device-size="3" large-device-size="3"
+						padding="around-small">
+						<lightning-input type="text" label="Mailing City" class="custom-label"
+							value={parentGuardianFNm.parentMailingCity} onchange={handleMailingCityChange}>
+						</lightning-input>
+					</lightning-layout-item>
+
+				</lightning-layout>
+
+				<lightning-layout multiple-rows>
+
+
+
+					<lightning-layout-item size="12" small-device-size="5" medium-device-size="3" large-device-size="4"
+						padding="around-small">
+						<!--   <lightning-input type="text" label="Mailing State" class="custom-label" value={parentGuardianFNm.parentMailingState} onchange={handleMailingStateChange}>
+                </lightning-input>-->
+
+						<lightning-select label="Mailing State" class="custom-label"
+							value={parentGuardianFNm.guardianMailingStateSelectedColumn}
+							options={parentGuardianFNm.guardianMailingStateColumn} onchange={handleMailingStateChange}>
+						</lightning-select>
+					</lightning-layout-item>
+
+					<lightning-layout-item size="12" small-device-size="4" medium-device-size="3" large-device-size="3"
+						padding="around-small">
+						<lightning-input type="text" label="Mailing Postal Code" class="custom-label"
+							value={parentGuardianFNm.parentMailingPostalCode} onchange={handleMailingPostalCodeChange}>
+						</lightning-input>
+					</lightning-layout-item>
+
+					<lightning-layout-item size="12" small-device-size="4" medium-device-size="3" large-device-size="3"
+						padding="around-small">
+						<lightning-input type="text" label="Best time to contact Parent / Guardian" class="custom-label"
+							onchange={handleBestTimeToContactParentChange}
+							value={parentGuardianFNm.bestTimeToContactParent}>
+							<!--data-field="bestTimeToContactParent" data-index={index}-->
+						</lightning-input>
+
+					</lightning-layout-item>
+				</lightning-layout>
+
+
+
+				<h1 class="subHeading">CONSENT TO TREATMENT</h1>
+				<div class="subSectionAlign">
+					<lightning-layout>
+
+						<lightning-layout-item size="12" small-device-size="6" medium-device-size="5"
+							large-device-size="5" padding="around-small">
+
+							<lightning-select class="custom-label"
+								label="Have the parent(s)/guardian(s) consented to participate in CC4YOUth?"
+								value={parentGuardianFNm.participateInCC4YouthSelectedColumn}
+								options={parentGuardianFNm.participateInCC4YouthColumn}
+								onchange={handleParticipateInCC4YouthChange}>
+								<!--data-field="participateInCC4YouthSelectedColumn" data-index={index}-->
+							</lightning-select>
+						</lightning-layout-item>
+
+
+						<lightning-layout-item size="12" small-device-size="6" medium-device-size="6"
+							large-device-size="6" padding="around-small">
+
+							<lightning-select class="custom-label"
+								label="If the youth is age 14 or older, has the youth consented to participate in CC4YOUth?"
+								value={parentGuardianFNm.youth14SelectedColumn}
+								options={parentGuardianFNm.youth14Column} onchange={handleYouth14Change}>
+								<!--data-field="youth14SelectedColumn" data-index={index}-->
+							</lightning-select>
+
+						</lightning-layout-item>
+
+					</lightning-layout>
+
+
+					<lightning-layout>
+
+						 
+
+
+						<lightning-layout-item size="12" small-device-size="5" medium-device-size="4"
+							large-device-size="5" padding="around-small">
+							<lightning-input type="text" class="custom-label"
+								label="Additional comments regarding consent:"
+								value={parentGuardianFNm.additionalInfoRegardingConsent}
+								onchange={handleAdditionalInfoRegardingChange}>
+							</lightning-input>
+						</lightning-layout-item>
+
+						<lightning-layout-item size="12" small-device-size="6" medium-device-size="5"
+							large-device-size="5" padding="around-small">
+							<!-- <lightning-input type="text" class="custom-label" label="If no, why?"
+								value={parentGuardianFNm.whyConsentNotReceived}
+								onchange={handleWhyConsentNotReceivedChange}>
+								
+							</lightning-input> -->
+							<!-- <p style="font-size:15px;     margin-top: 2rem;">
+								Date:&nbsp;&nbsp; {parentGuardianFNm.currDateOfSignature}
+							</p> -->
+
+						</lightning-layout-item> 
+						<!--value={parentGuardianFNm.whyConsentNotReceived} {itemA.additionalInfoRegardingConsent}-->
+
+					</lightning-layout>
+
+
+
+					<lightning-layout>
+						<lightning-layout-item size="12" small-device-size="6" medium-device-size="5"
+							large-device-size="5" padding="around-small">
+							<lightning-input type="text" class="custom-label" label="Parent / Guardian Signature"
+								onchange={handleSignChange} value={userInput}>
+							</lightning-input>
+							<p style="margin-left: 0.2rem;padding-top: 0.3rem;">By pressing "Submit," you are agreeing to electronically sign this document.</p>
+
+						</lightning-layout-item>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+						<lightning-layout-item size="12" small-device-size="4" medium-device-size="3"
+							large-device-size="3" padding="around-small">
+							<p style="font-size:15px; margin-top: 2rem;">
+								Date:&nbsp;&nbsp; {parentGuardianFNm.currDateOfSignature}
+							</p>
+						</lightning-layout-item>
+					</lightning-layout>
+
+					<p style="padding-left:13px;font-size:25px;font-weight:bold;"> {signature} </p>
+				</div>
+
+				<!---   </lightning-record-edit-form>
+    </template>-->
+
+				<template if:true={isError}>
+					<!--- Please Fill all the required blank fields -->
+
+					{errorMsg}
+
+				</template>
+
+
+				<br /><br />
+
+				<lightning-layout>
+
+					<div class="spinner">
+						<!--style="text-align:bottom;"-->
+						<template if:true={isLoading}>
+							<lightning-spinner alternative-text="Loading" variant="brand" size="large">
+							</lightning-spinner>
+						</template>
+					</div>
+
+					<template if:true={isError}>
+						<!--- Please Fill all the required blank fields -->
+						{errorMsg}
+					</template>
+					<!--  <div class="slds-align_left" style="padding-left:300px;">-->
+					<div class="slds-align_absolute-center">
+
+
+
+						<lightning-button variant="Brand" class="button" onclick={handleSubmit} name="submit"
+							label="Submit">
+						</lightning-button>
+					</div>
+				</lightning-layout>
+
+
+	</lightning-card>
+
+</template>

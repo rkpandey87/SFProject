@@ -1,0 +1,968 @@
+<template>
+    <!-- <lightning-card class="slds-card_boundary" style="text-align: center;" title="Gwen’s Girls AFTER SCHOOL/SUMMER CAMP Program" ></lightning-card>
+    <lightning-card class="slds-card_boundary" slds title="Registration Form" ></lightning-card> -->
+
+
+    <lightning-card>
+        <div class="slds-form-element slds-form_horizontal slds-form slds-grid  ">
+            <label class="slds-form-element__label slds-text-title_bold " for="select-01">How did you hear about us? </label>
+            <div class="slds-form-element__control slds-size_1-of-5  ">
+                <div class="slds-select_container slds-size_1-of-2">
+                    <select class="slds-select" id="select-6">
+                        <option>Social Media</option>
+                        <option>School Referral</option>
+                        <option>Family/Friend Referral</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </lightning-card>
+    
+      <lightning-card class="slds-card_boundary" slds title="CLIENT INFORMATION" ></lightning-card>
+      <lightning-card class="slds-card_boundary" slds title="The information collected is internally reviewed and helps secure grant funding for programs and events." ></lightning-card>
+      <lightning-card >
+       <lightning-layout>
+        <lightning-layout-item padding="around-small">
+            <div class="header-column">
+                <lightning-input type="text" label="Youth’s Name:"></lightning-input>
+            </div>
+        </lightning-layout-item>
+        <lightning-layout-item padding="around-small">
+            <lightning-input type="date" name="input1" label="D.O.B.:" ></lightning-input>
+        </lightning-layout-item>
+    <lightning-layout-item padding="around-small">
+        <lightning-input type="text"  label="Age:" ></lightning-input>
+    </lightning-layout-item>
+    <lightning-layout-item padding="around-small">
+    <lightning-input type="text"  label="SSN:" ></lightning-input>
+   </lightning-layout-item>
+   </lightning-layout>
+</lightning-card>
+
+<lightning-card >
+    <lightning-layout-item padding="around-small">
+        <lightning-checkbox-group name="Checkbox Group"
+                              label="Gender Identity:"
+                              options={options}
+                              value={value}
+                              onchange={handleChange}></lightning-checkbox-group>
+    </lightning-layout-item>
+
+</lightning-card>
+
+<lightning-card >
+    <lightning-layout>
+     <lightning-layout-item padding="around-small">
+         <div class="header-column">
+             <lightning-input type="text" label="Race:"></lightning-input>
+         </div>
+     </lightning-layout-item>
+     <lightning-layout-item padding="around-small">
+         <lightning-input type="textarea" name="input1" label="Weight:" ></lightning-input>
+     </lightning-layout-item>
+ <lightning-layout-item padding="around-small">
+     <lightning-input type="text"  label="Height:" ></lightning-input>
+ </lightning-layout-item>
+</lightning-layout>
+</lightning-card>
+
+<lightning-card >
+    <lightning-layout>
+     <lightning-layout-item padding="around-small">
+         <div class="header-column">
+             <lightning-input type="text" label="Identifying Marks:(Features that can help us identify youth in an emergency)"></lightning-input>
+         </div>
+     </lightning-layout-item>
+     <lightning-layout-item padding="around-small">
+         <lightning-input type="textarea" name="input1" label="Hair Color:" ></lightning-input>
+     </lightning-layout-item>
+ <lightning-layout-item padding="around-small">
+     <lightning-input type="text"  label="Eye Color:" ></lightning-input>
+ </lightning-layout-item>
+</lightning-layout>
+</lightning-card>
+
+<lightning-card class="slds-card_boundary" slds title="SCHOOL INFORMATION" ></lightning-card>
+
+<lightning-card >
+    <lightning-layout>
+     <lightning-layout-item padding="around-small">
+         <div class="header-column">
+             <lightning-input type="textarea" required="School:" label="School:"></lightning-input>
+         </div>
+     </lightning-layout-item>
+     <lightning-layout-item padding="around-small">
+         <lightning-input type="textarea" required="School:" label="Grade:" ></lightning-input>
+     </lightning-layout-item>
+</lightning-layout>
+</lightning-card>
+
+  
+        <lightning-card>
+            <div class="slds-form-element slds-form_horizontal slds-form slds-grid  ">
+                <label class="slds-form-element__label slds-text-title_bold " for="select-01">Is the youth currently enrolled in school?</label>
+                <div class="slds-form-element__control slds-size_1-of-5  ">
+                    <div class="slds-select_container slds-size_1-of-2">
+                        <select class="slds-select" id="select-03">
+                            <option value="">Select…</option>
+                            <option>Yes</option>
+                            <option>No</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </lightning-card>
+        
+        <lightning-card>
+            <div class="slds-form-element slds-form_horizontal slds-form slds-grid  ">
+                <label class="slds-form-element__label slds-text-title_bold " for="select-01">Does the youth have an IEP (Individual Education Plan)?</label>
+                <div class="slds-form-element__control slds-size_1-of-5  ">
+                    <div class="slds-select_container slds-size_1-of-2">
+                        <select class="slds-select" id="select-04">
+                            <option value="">Select…</option>
+                            <option>Yes</option>
+                            <option>No</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </lightning-card>
+        
+        <lightning-card>
+            <div class="slds-form-element slds-form_horizontal slds-form slds-grid  ">
+                <label class="slds-form-element__label slds-text-title_bold " for="select-01">Is the youth enrolled in Special Education classes? </label>
+                <div class="slds-form-element__control slds-size_1-of-5  ">
+                    <div class="slds-select_container slds-size_1-of-2">
+                        <select class="slds-select" id="select-2">
+                            <option value="">Select…</option>
+                            <option>Yes</option>
+                            <option>No</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </lightning-card>
+
+        <lightning-card>
+            <div class="slds-form-element slds-form_horizontal slds-form slds-grid  ">
+                <label class="slds-form-element__label slds-text-title_bold " for="select-01">Are there any specific concerns about the youth’s education?</label>
+                <div class="slds-form-element__control slds-size_1-of-2  ">
+                    
+                        <lightning-input type="textarea"></lightning-input>
+                </div>
+            </div>
+        </lightning-card>
+
+        <lightning-card>
+            <div class="slds-form-element slds-form_horizontal slds-form slds-grid  ">
+                <label class="slds-form-element__label slds-text-title_bold " for="select-01">Is the youth involved in any school related activities? </label>
+                <div class="slds-form-element__control slds-size_1-of-5  ">
+                    <div class="slds-select_container slds-size_1-of-2">
+                        <select class="slds-select" id="select-3">
+                            <option value="">Select…</option>
+                            <option>Yes</option>
+                            <option>No</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </lightning-card>
+
+        <lightning-card>
+            <div class="slds-form-element slds-form_horizontal slds-form slds-grid  ">
+                <label class="slds-form-element__label slds-text-title_bold " for="select-01">If yes, please explain:</label>
+                <div class="slds-form-element__control slds-size_1-of-2  ">
+                    
+                        <lightning-input type="textarea"></lightning-input>
+                </div>
+            </div>
+        </lightning-card>
+
+        <lightning-card>
+            <div class="slds-form-element slds-form_horizontal slds-form slds-grid  ">
+                <label class="slds-form-element__label slds-text-title_bold " for="select-01">Are there any school/community activities that will affect the youth’s participation in Gwen’s Girls? </label>
+                <div class="slds-form-element__control slds-size_1-of-5  ">
+                    <div class="slds-select_container slds-size_1-of-2">
+                        <select class="slds-select" id="select-5">
+                            <option value="">Select…</option>
+                            <option>Yes</option>
+                            <option>No</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </lightning-card>
+
+
+        <lightning-card>
+            <div class="slds-form-element slds-form_horizontal slds-form slds-grid  ">
+                <label class="slds-form-element__label slds-text-title_bold " for="select-01">If yes, please explain:</label>
+                <div class="slds-form-element__control slds-size_1-of-2  ">
+                    
+                        <lightning-input type="textarea"></lightning-input>
+                </div>
+            </div>
+        </lightning-card>
+        <lightning-card class="slds-card_boundary" title="For Youth Ages 14+" ></lightning-card>
+
+        <lightning-card>
+            <div class="slds-form-element slds-form_horizontal slds-form slds-grid  ">
+                <label class="slds-form-element__label slds-text-title_bold " for="select-01">Does the youth work?</label>
+                <div class="slds-form-element__control slds-size_1-of-5  ">
+                    <div class="slds-select_container slds-size_1-of-2">
+                        <select class="slds-select" id="select-5s">
+                            <option value="">Select…</option>
+                            <option>Yes</option>
+                            <option>No</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </lightning-card>
+
+        <lightning-card>
+            <div class="slds-form-element slds-form_horizontal slds-form slds-grid  ">
+                <label class="slds-form-element__label slds-text-title_bold " for="select-01">If yes, where?</label>
+                <div class="slds-form-element__control slds-size_1-of-2  ">
+                    
+                        <lightning-input type="textarea"></lightning-input>
+                </div>
+            </div>
+        </lightning-card>
+
+        <lightning-card>
+            <div class="slds-form-element slds-form_horizontal slds-form slds-grid  ">
+                <label class="slds-form-element__label slds-text-title_bold " for="select-01">How long has the youth worked there?</label>
+                <div class="slds-form-element__control slds-size_1-of-2  ">
+                    
+                        <lightning-input type="textarea"></lightning-input>
+                </div>
+            </div>
+        </lightning-card>
+        <lightning-card>
+            <div class="slds-form-element slds-form_horizontal slds-form slds-grid  ">
+                <label class="slds-form-element__label slds-text-title_bold " for="select-01">Is the youth having any problems at work?</label>
+                <div class="slds-form-element__control slds-size_1-of-5  ">
+                    <div class="slds-select_container slds-size_1-of-2">
+                        <select class="slds-select" id="select-5ss">
+                            <option value="">Select…</option>
+                            <option>Yes</option>
+                            <option>No</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </lightning-card>
+
+        <lightning-card>
+            <div class="slds-form-element slds-form_horizontal slds-form slds-grid  ">
+                <label class="slds-form-element__label slds-text-title_bold " for="select-01">If yes, please explain:</label>
+                <div class="slds-form-element__control slds-size_1-of-2  ">
+                    
+                        <lightning-input type="textarea"></lightning-input>
+                </div>
+            </div>
+        </lightning-card>
+
+        <lightning-card >
+            <lightning-layout-item padding="around-small">
+                <lightning-checkbox-group name="Checkbox Group"
+                                      label="Identify areas of interest:"
+                                      options={options}
+                                      value={value}
+                                      onchange={handleChange}></lightning-checkbox-group>
+            </lightning-layout-item>
+        
+        </lightning-card>
+
+        <lightning-card class="slds-card_boundary" title="PARENT(S)/GUARDIAN(S) INFORMATION" ></lightning-card>
+
+        <lightning-card >
+            <lightning-layout>
+             <lightning-layout-item padding="around-small">
+                 <div class="header-column">
+                     <lightning-input type="text" required="Name of Parent/Guardian:" label="Name of Parent/Guardian:(x2 Primary and Secondary)"></lightning-input>
+                 </div>
+             </lightning-layout-item>
+             <lightning-layout-item padding="around-small">
+                 <lightning-input type="textarea" required="Relationship:" label="Relationship:" ></lightning-input>
+             </lightning-layout-item>
+        </lightning-layout>
+        </lightning-card>
+
+           <lightning-card >
+            <lightning-layout>
+             <lightning-layout-item padding="around-small">
+                 <lightning-input type="textarea" required="Address:" label="Address:" ></lightning-input>
+             </lightning-layout-item>
+        </lightning-layout>
+        </lightning-card>
+
+        <lightning-card >
+            <lightning-layout>
+             <lightning-layout-item padding="around-small">
+                 <div class="header-column">
+                     <lightning-input type="text" required="City:" label="City:"></lightning-input>
+                 </div>
+             </lightning-layout-item>
+             <lightning-layout-item padding="around-small">
+                 <lightning-input type="textarea" required="State:" label="State:" ></lightning-input>
+             </lightning-layout-item>
+             <lightning-layout-item padding="around-small">
+                <lightning-input type="textarea" required="Zip code:" label="Zip code:" ></lightning-input>
+            </lightning-layout-item>
+        </lightning-layout>
+        </lightning-card>
+
+        <lightning-card >
+            <lightning-layout>
+             <lightning-layout-item padding="around-small">
+                 <lightning-input type="textarea" required="Place of Employment:" label="Place of Employment:" ></lightning-input>
+             </lightning-layout-item>
+        </lightning-layout>
+        </lightning-card>
+
+        <lightning-card >
+            <lightning-layout>
+             <lightning-layout-item padding="around-small">
+                 <div class="header-column">
+                     <lightning-input type="text"  label="Home Phone:"></lightning-input>
+                 </div>
+             </lightning-layout-item>
+             <lightning-layout-item padding="around-small">
+                 <lightning-input type="textarea" required="Cell Phone:" label="Cell Phone:" ></lightning-input>
+             </lightning-layout-item>
+        </lightning-layout>
+        </lightning-card>
+
+        <lightning-card >
+            <lightning-layout>
+             <lightning-layout-item padding="around-small">
+                 <div class="header-column">
+                     <lightning-input type="text"  label="Work Phone:"></lightning-input>
+                 </div>
+             </lightning-layout-item>
+             <lightning-layout-item padding="around-small">
+                 <lightning-input type="textarea" required="E-Mail Address:" label="E-Mail Address:" ></lightning-input>
+             </lightning-layout-item>
+        </lightning-layout>
+        </lightning-card>
+
+
+
+        <lightning-card >
+            <lightning-layout>
+             <lightning-layout-item padding="around-small">
+                 <lightning-input type="textarea"  label="Household Monthly Income:" ></lightning-input>
+             </lightning-layout-item>
+        </lightning-layout>
+        </lightning-card>
+
+        Source of Income:
+        <lightning-card>
+            <div class="slds-form-element slds-form_horizontal slds-form slds-grid  ">
+                <label class="slds-form-element__label slds-text-title_bold " for="select-01">Source of Income:</label>
+                <div class="slds-form-element__control slds-size_1-of-5  ">
+                    <div class="slds-select_container slds-size_1-of-2">
+                        <select class="slds-select" id="select-6e">
+                            <option>Employment</option>
+                            <option>Unemployment</option>
+                            <option>SSI</option>
+                            <option>Other</option>
+                            <option>Social Security</option>
+                            <option>Retirement</option>
+                            <option>Public Assistance</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </lightning-card>
+
+        <lightning-card>
+            <div class="slds-form-element slds-form_horizontal slds-form slds-grid  ">
+                <label class="slds-form-element__label slds-text-title_bold " for="select-01">Receive Public Assistance:</label>
+                <div class="slds-form-element__control slds-size_1-of-5  ">
+                    <div class="slds-select_container slds-size_1-of-2">
+                        <select class="slds-select" id="select-5srs">
+                            <option value="">Select…</option>
+                            <option>Yes</option>
+                            <option>No</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </lightning-card>
+        
+        <lightning-card>
+            <div class="slds-form-element slds-form_horizontal slds-form slds-grid  ">
+                <label class="slds-form-element__label slds-text-title_bold " for="select-01">Housing:</label>
+                <div class="slds-form-element__control slds-size_1-of-5  ">
+                    <div class="slds-select_container slds-size_1-of-2">
+                        <select class="slds-select" id="select-5srds">
+                            <option value="">Select…</option>
+                            <option>single family</option>
+                            <option>apartment</option>
+                            <option>other</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </lightning-card>
+
+        <lightning-card>
+            <div class="slds-form-element slds-form_horizontal slds-form slds-grid  ">
+                <label class="slds-form-element__label slds-text-title_bold " for="select-01">Do you currently?</label>
+                <div class="slds-form-element__control slds-size_1-of-5  ">
+                    <div class="slds-select_container slds-size_1-of-2">
+                        <select class="slds-select" id="select-5sfrds">
+                            <option value="">Select…</option>
+                            <option>rent</option>
+                            <option>own</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </lightning-card>
+
+        <lightning-card>
+            <div class="slds-form-element slds-form_horizontal slds-form slds-grid  ">
+                <label class="slds-form-element__label slds-text-title_bold " for="select-01">Length of time in current residence:</label>
+                <div class="slds-form-element__control slds-size_1-of-2  ">
+                    
+                        <lightning-input type="textarea"></lightning-input>
+                </div>
+            </div>
+        </lightning-card>
+
+        <lightning-card class="slds-card_boundary" title="EMERGENCY CONTACTS" ></lightning-card>
+
+
+        <lightning-card >
+            <lightning-layout>
+             <lightning-layout-item padding="around-small">
+                 <div class="header-column">
+                     <lightning-input type="text" required="Name:" label="Name:"></lightning-input>
+                 </div>
+             </lightning-layout-item>
+             <lightning-layout-item padding="around-small">
+                 <lightning-input type="textarea" required="Relationship:" label="Relationship:" ></lightning-input>
+             </lightning-layout-item>
+             <lightning-layout-item padding="around-small">
+                <lightning-input type="textarea" required="Phone:" label="Phone:" ></lightning-input>
+            </lightning-layout-item>
+        </lightning-layout>
+        </lightning-card>
+
+        <lightning-card >
+            <lightning-layout>
+             <lightning-layout-item padding="around-small">
+                 <div class="header-column">
+                     <lightning-input type="text"  label="Name:"></lightning-input>
+                 </div>
+             </lightning-layout-item>
+             <lightning-layout-item padding="around-small">
+                 <lightning-input type="textarea"  label="Relationship:" ></lightning-input>
+             </lightning-layout-item>
+             <lightning-layout-item padding="around-small">
+                <lightning-input type="textarea" label="Phone:" ></lightning-input>
+            </lightning-layout-item>
+        </lightning-layout>
+        </lightning-card>
+
+        <lightning-card class="slds-card_boundary" title="APPROVED PICK-UPS" >
+            <p class="slds-p-horizontal_small">Other than Parent(s)/Guardian(s), who else is allowed to pick up your child?  
+                NOTE:  Individuals must show ID during time of pick-up.</p>
+        </lightning-card>
+
+        <lightning-card >
+            <lightning-layout>
+             <lightning-layout-item padding="around-small">
+                 <div class="header-column">
+                     <lightning-input type="text"  label="Name:"></lightning-input>
+                 </div>
+             </lightning-layout-item>
+             <lightning-layout-item padding="around-small">
+                 <lightning-input type="textarea"  label="Relationship:" ></lightning-input>
+             </lightning-layout-item>
+             <lightning-layout-item padding="around-small">
+                <lightning-input type="textarea" label="Phone:" ></lightning-input>
+            </lightning-layout-item>
+        </lightning-layout>
+        </lightning-card>
+
+        <lightning-card >
+            <lightning-layout>
+             <lightning-layout-item padding="around-small">
+                 <div class="header-column">
+                     <lightning-input type="text"  label="Name:"></lightning-input>
+                 </div>
+             </lightning-layout-item>
+             <lightning-layout-item padding="around-small">
+                 <lightning-input type="textarea"  label="Relationship:" ></lightning-input>
+             </lightning-layout-item>
+             <lightning-layout-item padding="around-small">
+                <lightning-input type="textarea" label="Phone:" ></lightning-input>
+            </lightning-layout-item>
+        </lightning-layout>
+        </lightning-card>
+
+        <lightning-card class="slds-card_boundary" title="TRANSPORTATION METHODS" ></lightning-card>
+
+        <lightning-card>
+            <div class="slds-form-element slds-form_horizontal slds-form slds-grid  ">
+                <label class="slds-form-element__label slds-text-title_bold " for="select-01">How will your child(ren) travel to/from Gwen’s Girls?</label>
+                <div class="slds-form-element__control slds-size_1-of-5  ">
+                    <div class="slds-select_container slds-size_1-of-2">
+                        <select class="slds-select" id="select-5sfdrds">
+                            <option value="">Select…</option>
+                            <option>Public Transportation</option>
+                            <option>Parent/Guardian Drop Off/Pick Up</option>
+                            <option>Gwen’s Girls pick up from school</option>
+                            <option>Gwen’s Girls pick up from home</option>
+                            <option>Gwen’s Girls pick up from alternate address</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </lightning-card>
+
+        <lightning-card class="slds-card_boundary" title="ALTERNATE ADDRESS" >
+            <p class="slds-p-horizontal_small">Complete only if your child needs to be picked up/dropped off at another location other than your home address or school.</p>
+        </lightning-card>
+
+        <lightning-card >
+            <lightning-layout>
+                <lightning-layout-item padding="around-small">
+                    <div class="header-column">
+                        <lightning-input type="text"  label="Address:"></lightning-input>
+                    </div>
+                </lightning-layout-item>
+             <lightning-layout-item padding="around-small">
+                 <div class="header-column">
+                     <lightning-input type="text"  label="City:"></lightning-input>
+                 </div>
+             </lightning-layout-item>
+             <lightning-layout-item padding="around-small">
+                 <lightning-input type="textarea"  label="State:" ></lightning-input>
+             </lightning-layout-item>
+             <lightning-layout-item padding="around-small">
+                <lightning-input type="textarea"  label="Zip code:" ></lightning-input>
+            </lightning-layout-item>
+        </lightning-layout>
+        </lightning-card>
+
+        <lightning-card class="slds-card_boundary" title="HEALTH AND WELLNESS INFORMATION" >
+        <p class="slds-p-horizontal_small bold-text">FAMILY PHYSICIAN</p></lightning-card>
+
+        <lightning-card >
+            <lightning-layout>
+                <lightning-layout-item padding="around-small">
+                    <div class="header-column">
+                        <lightning-input type="text"  label="Name:"></lightning-input>
+                    </div>
+                </lightning-layout-item>
+             <lightning-layout-item padding="around-small">
+                 <div class="header-column">
+                     <lightning-input type="text"  label="Phone:"></lightning-input>
+                 </div>
+             </lightning-layout-item>
+        </lightning-layout>
+        </lightning-card>
+
+        <lightning-card>
+            <div class="slds-form-element slds-form_horizontal slds-form slds-grid  ">
+                <label class="slds-form-element__label slds-text-title_bold " for="select-01">Insurance carrier and number:</label>
+                <div class="slds-form-element__control slds-size_1-of-2  ">
+                    
+                        <lightning-input type="textarea"></lightning-input>
+                </div>
+            </div>
+        </lightning-card>
+
+        <lightning-card >
+            <lightning-layout>
+                <lightning-layout-item padding="around-small">
+                    <div class="header-column">
+                        <lightning-input type="text"  label="Date of last exams:"></lightning-input>
+                    </div>
+                </lightning-layout-item>
+             <lightning-layout-item padding="around-small">
+                 <div class="header-column">
+                     <lightning-input type="text"  label="Physical"></lightning-input>
+                 </div>
+             </lightning-layout-item>
+             <lightning-layout-item padding="around-small">
+                 <lightning-input type="textarea"  label="Vision" ></lightning-input>
+             </lightning-layout-item>
+             <lightning-layout-item padding="around-small">
+                <lightning-input type="textarea"  label="Hearing" ></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small">
+                <lightning-input type="textarea"  label="Dental" ></lightning-input>
+            </lightning-layout-item>
+        </lightning-layout>
+        </lightning-card>
+
+        <lightning-card>
+            <div class="slds-form-element slds-form_horizontal slds-form slds-grid  ">
+                <label class="slds-form-element__label slds-text-title_bold " for="select-01">Operations of serious injuries:</label>
+                <div class="slds-form-element__control slds-size_1-of-2  ">
+                    
+                        <lightning-input type="textarea"></lightning-input>
+                </div>
+            </div>
+        </lightning-card>
+
+        <lightning-card>
+            <div class="slds-form-element slds-form_horizontal slds-form slds-grid  ">
+                <label class="slds-form-element__label slds-text-title_bold " for="select-01">Please describe any physical, mental, or health-related needs you would like us to be aware of:</label>
+                <div class="slds-form-element__control slds-size_1-of-2  ">
+                    
+                        <lightning-input type="textarea"></lightning-input>
+                </div>
+            </div>
+        </lightning-card>
+
+        <lightning-card>
+            <div class="slds-form-element slds-form_horizontal slds-form slds-grid  ">
+                <label class="slds-form-element__label slds-text-title_bold " for="select-01">Current medications (prescription only, must send in original bottle):</label>
+                <div class="slds-form-element__control slds-size_1-of-2  ">
+                    
+                        <lightning-input type="textarea"></lightning-input>
+                </div>
+            </div>
+        </lightning-card>
+
+        <lightning-card>
+            <lightning-layout>
+                <lightning-layout-item padding="around-small">
+            <div class="slds-form-element">
+                <label class="slds-form-element__label">Checkbox Options:</label>
+                <div class="slds-form-element__control">
+                    <label class="slds-checkbox">
+                        <input type="checkbox" name="consistent" value="Consistent" onchange={handleChange} />
+                        <span class="slds-checkbox_faux"></span>
+                        <span class="slds-form-element__label">Consistent</span>
+                    </label>
+                    <label class="slds-checkbox">
+                        <input type="checkbox" name="inconsistent" value="Inconsistent" onchange={handleChange} />
+                        <span class="slds-checkbox_faux"></span>
+                        <span class="slds-form-element__label">Inconsistent</span>
+                    </label>
+                    <label class="slds-checkbox">
+                        <input type="checkbox" name="refuses" value="Refuses to Take" onchange={handleChange} />
+                        <span class="slds-checkbox_faux"></span>
+                        <span class="slds-form-element__label">Refuses to Take</span>
+                    </label>
+                </div>
+            </div>
+        </lightning-layout-item>
+    </lightning-layout>
+        </lightning-card>
+
+
+        <lightning-card>
+            <div class="slds-form-element slds-form_horizontal slds-form slds-grid  ">
+                <label class="slds-form-element__label slds-text-title_bold " for="select-01">Operations or serious injuries:</label>
+                <div class="slds-form-element__control slds-size_1-of-2  ">
+                    
+                        <lightning-input type="textarea"></lightning-input>
+                </div>
+            </div>
+        </lightning-card>
+
+        <lightning-card>
+            <div class="slds-form-element slds-form_horizontal slds-form slds-grid  ">
+                <label class="slds-form-element__label slds-text-title_bold " for="select-01">Any specific activities to be encouraged or limited by physician’s advice:</label>
+                <div class="slds-form-element__control slds-size_1-of-2  ">
+                    
+                        <lightning-input type="textarea"></lightning-input>
+                </div>
+            </div>
+        </lightning-card>
+        
+        <lightning-card>
+            <lightning-layout>
+                <lightning-layout-item padding="around-small">
+            <div class="slds-form-element">
+                <label class="slds-form-element__label">Have had:</label>
+                <div class="slds-form-element__control">
+                    <label class="slds-checkbox">
+                        <input type="checkbox" name="German Measles" value="German Measles" onchange={handleChange} />
+                        <span class="slds-checkbox_faux"></span>
+                        <span class="slds-form-element__label">German Measles</span>
+                    </label>
+                    <label class="slds-checkbox">
+                        <input type="checkbox" name="Mumps" value="Mumps" onchange={handleChange} />
+                        <span class="slds-checkbox_faux"></span>
+                        <span class="slds-form-element__label">Mumps</span>
+                    </label>
+                    <label class="slds-checkbox">
+                        <input type="checkbox" name="Chicken Pox" value="Chicken Pox" onchange={handleChange} />
+                        <span class="slds-checkbox_faux"></span>
+                        <span class="slds-form-element__label">Chicken Pox</span>
+                    </label>
+                    <label class="slds-checkbox">
+                        <input type="checkbox" name="Hay Fever/Seasonal Allergies" value="Hay Fever/Seasonal Allergies" onchange={handleChange} />
+                        <span class="slds-checkbox_faux"></span>
+                        <span class="slds-form-element__label">Hay Fever/Seasonal Allergies</span>
+                    </label>
+                </div>
+            </div>
+        </lightning-layout-item>
+    </lightning-layout>
+        </lightning-card>
+        
+        <lightning-card>
+            <div class="slds-form-element slds-form_horizontal slds-form slds-grid  ">
+                <label class="slds-form-element__label slds-text-title_bold " for="select-01">Details:</label>
+                <div class="slds-form-element__control slds-size_1-of-2  ">
+                    
+                        <lightning-input type="textarea"></lightning-input>
+                </div>
+            </div>
+        </lightning-card>
+
+        <lightning-card class="slds-card_boundary" title="MENTAL HEALTH" >
+            <p class="slds-p-horizontal_small bold-text">To better understand and support your needs, please answer the following questions about your child’s mental health. Your responses will remain confidential and are solely for the purpose of providing your child with the best possible assistance.</p></lightning-card>
+           
+           
+           
+           
+            <lightning-card>
+                <lightning-layout>
+                    <lightning-layout-item padding="around-small">
+                <div class="slds-form-element">
+                    <label class="slds-form-element__label">Has your child been diagnosed with any mental health conditions?</label>
+                    <div class="slds-form-element__control">
+                        <lightning-radio-group name="diagnosis" label="" options={radioOptions} value={selectedValue} onchange={handleChange}></lightning-radio-group>
+                    </div>
+                </div>
+            </lightning-layout-item>
+        </lightning-layout>
+            </lightning-card>
+
+            <lightning-card>
+                <div class="slds-form-element slds-form_horizontal slds-form slds-grid  ">
+                    <label class="slds-form-element__label slds-text-title_bold " for="select-01">If yes, what is the diagnosis?</label>
+                    <div class="slds-form-element__control slds-size_1-of-2  ">
+                        
+                            <lightning-input type="textarea"></lightning-input>
+                    </div>
+                </div>
+            </lightning-card>
+
+            <lightning-card>
+                <div class="slds-form-element slds-form_horizontal slds-form slds-grid">
+                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">Additional information:</label>
+                    <div class="slds-form-element__control slds-size_1-of-2">
+                        <lightning-input type="textarea"></lightning-input>
+                    </div>
+                </div>
+            </lightning-card>
+
+
+            <lightning-card class="slds-card_boundary" title="COVID-19" >
+                <p class="slds-p-horizontal_small bold-text">To better understand and support your needs, please answer the following questions about your child’s mental health. Your responses will remain confidential and are solely for the purpose of providing your child with the best possible assistance.</p></lightning-card>
+            
+                <lightning-card>
+                    <lightning-layout>
+                        <lightning-layout-item padding="around-small">
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label">1. Have you had close contact with someone who has tested positive for COVID-19 in the last 14 days?</label>
+                        <div class="slds-form-element__control">
+                            <lightning-radio-group name="diagnosis" label="" options={radioOptions} value={selectedValue} onchange={handleChange}></lightning-radio-group>
+                        </div>
+                    </div>
+                </lightning-layout-item>
+            </lightning-layout>
+                </lightning-card>
+
+                <lightning-card>
+                    <lightning-layout>
+                        <lightning-layout-item padding="around-small">
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label">2. Have you traveled internationally in the last 14 days or been in contact with anyone who has recently traveled internationally?</label>
+                        <div class="slds-form-element__control">
+                            <lightning-radio-group name="diagnosis" label="" options={radioOptions} value={selectedValue} onchange={handleChange}></lightning-radio-group>
+                        </div>
+                    </div>
+                </lightning-layout-item>
+            </lightning-layout>
+                </lightning-card>
+
+                <lightning-card>
+                    <lightning-layout>
+                        <lightning-layout-item padding="around-small">
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label">3. Have you been in a crowded or high-risk setting where social distancing was not possible in the last 14 days?</label>
+                        <div class="slds-form-element__control">
+                            <lightning-radio-group name="diagnosis" label="" options={radioOptions} value={selectedValue} onchange={handleChange}></lightning-radio-group>
+                        </div>
+                    </div>
+                </lightning-layout-item>
+            </lightning-layout>
+                </lightning-card>
+
+                <lightning-card>
+                    <lightning-layout>
+                        <lightning-layout-item padding="around-small">
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label">4. Do you or anyone in your household have a confirmed COVID-19 diagnosis?</label>
+                        <div class="slds-form-element__control">
+                            <lightning-radio-group name="diagnosis" label="" options={radioOptions} value={selectedValue} onchange={handleChange}></lightning-radio-group>
+                        </div>
+                    </div>
+                </lightning-layout-item>
+            </lightning-layout>
+                </lightning-card>
+
+                <lightning-card class="slds-card_boundary" title="ALLERGIES" ></lightning-card>
+
+
+            <lightning-card>
+                <lightning-layout>
+                    <lightning-layout-item padding="around-small">
+            <div class="checkbox-list">
+                <label class="slds-checkbox">
+                    <input type="checkbox" name="food" checked={foodChecked} onchange={handleCheckboxChange} />
+                    <span class="slds-checkbox_faux"></span>
+                    <span class="slds-form-element__label">Food</span>
+                </label>
+                <label class="slds-checkbox">
+                    <input type="checkbox" name="medicine" checked={medicineChecked} onchange={handleCheckboxChange} />
+                    <span class="slds-checkbox_faux"></span>
+                    <span class="slds-form-element__label">Medicine</span>
+                </label>
+                <label class="slds-checkbox">
+                    <input type="checkbox" name="insects" checked={insectsChecked} onchange={handleCheckboxChange} />
+                    <span class="slds-checkbox_faux"></span>
+                    <span class="slds-form-element__label">Insects</span>
+                </label>
+                <label class="slds-checkbox">
+                    <input type="checkbox" name="other" checked={otherChecked} onchange={handleCheckboxChange} />
+                    <span class="slds-checkbox_faux"></span>
+                    <span class="slds-form-element__label">Other</span>
+                </label>
+            </div>
+        </lightning-layout-item>
+    </lightning-layout>
+        </lightning-card>
+
+        <lightning-card>
+            <div class="slds-form-element slds-form_horizontal slds-form slds-grid">
+                <label class="slds-form-element__label slds-text-title_bold" for="select-01">Details:</label>
+                <div class="slds-form-element__control slds-size_1-of-2">
+                    <lightning-input type="textarea"></lightning-input>
+                </div>
+            </div>
+        </lightning-card>
+
+        <lightning-card class="slds-card_boundary" title="PROGRAM ATTENDANCE" >
+
+        </lightning-card>
+         
+         <lightning-card>
+            <p class="slds-p-horizontal_small">Please check the days your child will attend programming:</p>
+         </lightning-card>
+          
+
+         <lightning-card>
+            <lightning-layout>
+                <lightning-layout-item padding="around-small">
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label">Select Days of the Week:</label>
+                        <div class="slds-form-element__control">
+                            <label class="slds-checkbox">
+                                <input type="checkbox" name="monday" value="Monday" onchange={handleChange} />
+                                <span class="slds-checkbox_faux"></span>
+                                <span class="slds-form-element__label">Monday</span>
+                            </label>
+                            <label class="slds-checkbox">
+                                <input type="checkbox" name="tuesday" value="Tuesday" onchange={handleChange} />
+                                <span class="slds-checkbox_faux"></span>
+                                <span class="slds-form-element__label">Tuesday</span>
+                            </label>
+                            <label class="slds-checkbox">
+                                <input type="checkbox" name="wednesday" value="Wednesday" onchange={handleChange} />
+                                <span class="slds-checkbox_faux"></span>
+                                <span class="slds-form-element__label">Wednesday</span>
+                            </label>
+                            <label class="slds-checkbox">
+                                <input type="checkbox" name="thursday" value="Thursday" onchange={handleChange} />
+                                <span class="slds-checkbox_faux"></span>
+                                <span class="slds-form-element__label">Thursday</span>
+                            </label>
+                        </div>
+                    </div>
+        </lightning-layout-item>
+    </lightning-layout>
+        </lightning-card>
+    
+        <lightning-card class="slds-card_boundary" title="AUTHORIZATION AND PERMISSION" > 
+            <p class="slds-p-horizontal_small">PARENT AUTHORIZATION:  I hereby confirm my child/children are in good physical health and possess the necessary medical clearance to partake in Gwen’s Girls activities. The health history provided is accurate to the best of my knowledge, and the individual described herein is authorized to participate in all program activities, unless otherwise specified.
+
+                Additionally, I am aware neither Gwen’s Girls nor its paid staff and volunteers can be held liable in the event of an accident.
+                
+                I also affirm my child/children are receptive to discipline and do not exhibit any behaviors, habits, or attitudes that would render them unsuitable for participation
+                :</p>
+                <br>
+                <br>
+
+
+
+                <p class="slds-p-horizontal_small"><b>EMERGENY AUTHORIZATION:</b> I hereby grant consent for Gwen’s Girls Staff to authorize medical professionals to conduct X-rays, routine tests, and administer treatment to my child/children as deemed necessary.
+
+                    In circumstances where I am unable to communicate or cannot be reached during an emergency, I also authorize the designated physician, as selected by the staff, to hospitalize, provide appropriate treatment, and, if required, administer injections, anesthesia, or conduct surgery for the above-named child/children.
+                    
+                    I understand I will assume full financial responsibility for any associated treatment costs, including expenses not covered by insurance.
+                    </p>
+                    <br>
+                    <br>
+    
+
+                    <p class="slds-p-horizontal_small"><b>PARENT/GUARDIAN PERMISSION:</b> My signature below affirms my legal authority to register the child or children whose names appear on this form. I attest that, to the best of my knowledge, the information provided in this application is both comprehensive and accurate.
+
+                        I am fully aware that this is an application, and the participation of the specified child or children is subject to available space within the program. 
+                        </p>
+                        <br>
+                        <br>
+        
+                        <p class="slds-p-horizontal_small">
+                            Furthermore, I acknowledge that, upon confirmation of my application, I am responsible for completing and signing all essential forms, as outlined in the program packet. These forms encompass matters related to health, security, and waivers and must be submitted before my child or children can partake in the program.
+                        </p>
+        </lightning-card>
+        <lightning-card >
+            <lightning-layout>
+                <lightning-layout-item padding="around-small">
+                    <div class="header-column " >
+                        <lightning-input type="text"  label="Print Name of Parent/Guardian"></lightning-input>
+                    </div>
+                </lightning-layout-item>
+             <lightning-layout-item padding="around-small">
+                 <div class="header-column  ">
+                     <lightning-input type="Date"  label="Date"></lightning-input>
+                 </div>
+             </lightning-layout-item>
+        </lightning-layout>
+        </lightning-card>
+
+        <lightning-card >
+            <lightning-layout>
+                <lightning-layout-item padding="around-small">
+                    <div class="header-column " >
+                        <lightning-input type="text"  label="Print Name of Parent/Guardian"></lightning-input>
+                    </div>
+                </lightning-layout-item>
+             <lightning-layout-item padding="around-small">
+                 <div class="header-column  ">
+                     <lightning-input type="Date"  label="Date"></lightning-input>
+                 </div>
+             </lightning-layout-item>
+        </lightning-layout>
+        </lightning-card>
+
+
+
+
+</template>
