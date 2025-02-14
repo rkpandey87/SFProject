@@ -1,0 +1,25 @@
+public class SdfParticipantRegistrationForm {
+    
+    public string firstName {get;set;}
+    public string lastName {get;set;}
+    public string birthDate {get;set;}
+    
+    public String currentRecordId {get;set;}
+    public list<Contact> lstcon = new list<Contact>();
+    
+    
+    
+    public static Contact getRecordsDetails(){
+        Contact cont= [Select firstName,lastName,Birthdate from Contact Limit 1];
+        return cont;
+    }
+    
+    
+    // method are used to called record ID dynamically to show the details of Contact over Form UI
+    public SdfParticipantRegistrationForm(ApexPages.StandardController con){
+        currentRecordId  = ApexPages.CurrentPage().getparameters().get('id');
+        System.debug('currentRecordId==>'+currentRecordId);
+        lstcon = [SELECT Id, FirstName, LastName, Birthdate FROM Contact where id =:currentRecordId];
+        System.debug('lstcon==>'+lstcon);
+    }
+}

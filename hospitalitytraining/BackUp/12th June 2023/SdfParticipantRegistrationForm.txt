@@ -1,0 +1,1519 @@
+<apex:page StandardController="Contact" extensions="SdfParticipantRegistrationForm"  sidebar="false" showHeader="false" docType="html-5.0" >
+   <!--- renderAs="pdf"  -->
+ <apex:form >
+        <html> 
+            <head></head>
+            <body>
+              <table cellpadding="0" cellspacing="0"  style="padding-left:80px;padding-right:80px;margin-left:5.0pt;border-collapse:collapse;border:none;margin-bottom:10px;">
+                    <tbody>                        
+                        <tr>
+                            <td style="width:15%;">
+                                <div class="page-form-heading" style="width: 151px;  margin-right: 50px;">
+                                    <img alt="image not found" src="{!$Resource.OntarioLogo}" style="padding-top:12px;width: 138px;height: 36px;float: right;" />
+                                </div>
+                            </td>
+                            
+                            
+                            <td style="width:20%;" > 
+                                <div style = "margin-right: 100px;">
+                                    <p>
+                                        Ministry of Labour, Immigration,<br/>
+                                        Training and Skills Development  
+                                    </p>
+                                  </div>
+                            </td> 
+                            <td style="width:30%;" >
+                                <div style = "margin-right: 100px;">
+                                    <p>
+                                        Ministère du Travail, de l'Immigration,<br/>
+                                        de la Formation et du Développement<br/>
+                                        des compétences
+                                    </p>
+                                </div>
+                               
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            <div class="Page1" style="">
+                    <table cellpadding="0" cellspacing="0"  style="margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;margin-bottom:10px;">
+                        
+                        <tbody>
+                            <tr> 
+                                <td style="font-weight:bold;font-size: 20px;margin-right:0in;margin-bottom:.0001pt;font-size:17px;font-family:Trebuchet MS,sans-serif;">
+                                    Skills Development Fund (SDF) Participant Registration 
+                                </td>
+                            </tr>
+                            
+                            <tr> 
+                                <td style="font-size: 20px;margin-right:0in;margin-bottom:.0001pt;font-size:17px;font-family:Trebuchet MS,sans-serif;">
+                                    Fields marked with an asterisk (<span style="color:red;font-weight:bold;">*</span>) are mandatory. Staff is available to help you complete this form.
+                                </td>  
+                            </tr>
+                        </tbody>    
+                    </table>
+                    
+                    
+                    <div style="width:100%; background-color:#c7c7c7; height:70px; margin-bottom: 12px;">
+                        <table cellpadding="0" cellspacing="0" style="margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;margin-bottom:10px;">
+                            <tbody>
+                                
+                                
+                                <tr> 
+                                    <th style="font-size: 20px;">
+                                        Service Provider Use Only
+                                    </th>
+                                </tr>
+                                
+                                
+                                <td> 
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0008pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;padding-bottom:10px;">Date of Registration<apex:inputText style="background-color:#c7c7c7;"></apex:inputText></p>
+                                </td>
+                                <tr> 
+                                    <td style="font-size: 17px;font-weight:bold; width:100%; height:1px;background:grey;margin-top:10%;">
+                                        Participant Details
+                                    </td>
+                                </tr>
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    
+                    <table cellpadding="0" cellspacing="0" width="100%">
+                        <tbody>
+                            
+                            <tr>
+                                
+                                <td style="padding: 0in 5.4pt;">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Last Name<span style="color:red;font-weight:bold;">*</span><br/><apex:outputText value="{!Contact.LastName}"/></p>
+                                    
+                                    <!--- <apex:inputText ></apex:inputText> -->  
+                                </td>
+                                
+                                <!--- <input type="text" name="thePage:frm:j_id183:0:j_id185"/>-->
+                                
+                                <td style="padding: 0in 5.4pt;">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">First Name<span style="color:red;font-weight:bold;">*</span><br/><apex:outputText value="{!Contact.FirstName}"/></p>
+                                </td>
+                                
+                                <td style="padding: 0in 5.4pt;">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Middle Initial<br/><apex:inputText ></apex:inputText></p>
+                                </td>
+                            </tr>   
+                            
+                            <br/>
+                            
+                            <tr>
+                                
+                                <td style="padding: 0in 5.4pt;">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Preferred Name<br/><apex:inputText ></apex:inputText></p>
+                                </td>
+                                
+                                
+                                <td style="padding: 0in 5.4pt;">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Date of Birth<span style="color:red;font-weight:bold;">*</span><br/><apex:outputText value="{!Contact.Birthdate}"/></p>
+                                </td>
+                            </tr>   
+                        </tbody>
+                        
+                    </table>
+                    
+                    
+                    <div style="width:100%; height:1px; background:black;"></div>
+                    
+                    <table  cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:10px;">
+                        <tbody>
+                            
+                            <tr> 
+                                <td>
+                                    <p style="font-size: 20px;">I identify as:<span style="color:red;font-weight:bold;">*</span></p>   
+                                </td>
+                            </tr>
+                            
+                            
+                            <tr>
+                                <td style="padding: 0in 5.4pt;">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;"> <apex:selectRadio ></apex:selectRadio>	Man	</p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;"> <apex:selectRadio ></apex:selectRadio>Woman</p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;"> <apex:selectRadio ></apex:selectRadio>	Gender non-binary</p>
+                                </td>
+                                
+                                <td style="padding: 0in 5.4pt;">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;"> <apex:selectRadio ></apex:selectRadio>	Two-spirit</p>
+                                </td>
+                                
+                                
+                            </tr>   
+                            
+                            
+                            
+                            
+                            
+                            
+                            <tr>
+                                <td style="padding: 0in 5.4pt;">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;"> <apex:selectRadio ></apex:selectRadio>	Another gender identity (Specify)<apex:inputText ></apex:inputText>	</p>
+                                </td>
+                            </tr>
+                            
+                            <tr>
+                                <td style="padding: 0in 5.4pt;">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;"> <apex:selectRadio ></apex:selectRadio>	Prefer not to answer</p>
+                                </td>
+                            </tr>
+                            
+                            
+                            
+                        </tbody>
+                    </table>
+                    
+                    
+                    <div style="width:100%; height:1px; background:black;"></div>
+                    
+                    <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom:10px;" width="100%">
+                        <tbody>
+                            
+                            <tr> 
+                                <td>
+                                    <p style="margin-top:0.15pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;"> Do you identify as transgender? (optional)</p>  <br/> 
+                                </td>
+                            </tr>
+                            
+                            
+                            <tr>
+                                <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Transgender is an umbrella term that refers to people whose gender identity, expression or behaviour is<br/>
+                                        different from those typically associated with their assigned sex at birth. Identities considered to fall under this<br/>
+                                        umbrella can include trans, transsexual, non-binary, gender fluid, and genderqueer – as well as many more.</p><br/><br/>
+                                </td>
+                            </tr>
+                            <br/><br/>
+                            
+                            <tr>
+                                <td style="padding: 0in 5.4pt;">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;"><apex:selectRadio ></apex:selectRadio> 	Yes</p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;"><apex:selectRadio ></apex:selectRadio> 	No</p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;"><apex:selectRadio ></apex:selectRadio> 	Questionning</p>
+                                </td>
+                                
+                                <td style="padding: 0in 5.4pt;">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;"><apex:selectRadio ></apex:selectRadio> 	Prefer not to answer</p>
+                                </td>
+                                
+                                
+                            </tr>   
+                            
+                            
+                            
+                            
+                            
+                        </tbody>
+                    </table>
+                    
+                    
+                    
+                    <div style="width:100%; height:1px; background:black;"></div>
+                    
+                    
+                    
+                    <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom:10px;" width="100%">
+                        <tbody>
+                            
+                            <tr style="font-size: 20px;"> 
+                                <td>
+                                    Status in Canada:<span style="color:red;font-weight:bold;">*</span>
+                                </td>
+                                
+                                <td>
+                                    <p>
+                                        <apex:selectRadio ></apex:selectRadio> 	Canadian Citizen </p>
+                                </td> 
+                                
+                                <td>
+                                    <p>
+                                        <apex:selectRadio ></apex:selectRadio>  Permanent Resident </p>
+                                </td> 
+                                <td>
+                                    <p>
+                                        <apex:selectRadio ></apex:selectRadio> Naturalized Canadian Citizen </p>
+                                </td> 
+                                
+                                <!--- <td><apex:selectRadio ></apex:selectRadio> </td> 
+<td>French</td> -->
+                            </tr>
+                            
+                            
+                            
+                        </tbody>
+                    </table>
+                    
+                    <div style="width:100%; height:1px; background:black;"></div>
+                    
+                    <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom:10px;" width="100%">
+                        
+                        <tr> 
+                            <td style="font-size: 20px;">
+                                <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;"> If you have immigrated to Canada, please indicate:</p>       
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            
+                            <td style="padding: 0in 5.4pt;">
+                                <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Country of Origin<br/><apex:inputText ></apex:inputText></p>
+                            </td>
+                            <!--   <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><input type="text" name="thePage:frm:j_id183:0:j_id185"/></td>-->
+                            
+                            <td style="padding: 0in 5.4pt;">
+                                <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Date of Entry into Canada<br/><apex:inputText ></apex:inputText></p>
+                            </td>
+                            <!---   <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"></td>-->
+                            
+                        </tr>   
+                        
+                        
+                        
+                    </table>
+                    
+                    <div style="width:100%; height:1px; background:black;"></div>
+                    
+                    <table>
+                        <tr style="font-size: 20px;"> 
+                            <td>
+                                Preferred Language:<span style="color:red;font-weight:bold;">*</span>
+                            </td>
+                            
+                            <td>
+                                <p>
+                                    <apex:selectRadio ></apex:selectRadio> English </p>
+                            </td> 
+                            
+                            <td>
+                                <p>
+                                    <apex:selectRadio ></apex:selectRadio> French </p>
+                            </td> 
+                            <!--- <td><apex:selectRadio ></apex:selectRadio> </td> 
+<td>French</td> -->
+                        </tr>
+                    </table>
+                    
+                    
+                </div>
+                <div style="width:100%; height:1px; background:black;"></div>
+                 <div style="page-break-after:always;"/>
+                <br/><br/><br/><br/> 
+                 
+                <!--------------------------------------- Form Page-2 ---------------------------------------->
+                
+                
+                
+                
+                
+            
+                
+                <div style="width:100%; height:1px; background:black;"></div>
+                <table>
+                    <tr style="font-size: 20px;"> 
+                        <td>
+                            Preferred Communication:
+                        </td>
+                        
+                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                        <td>Phone</td>
+                        
+                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                        <td>Email</td>
+                        
+                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                        <td>Hard Copy</td>
+                    </tr>
+                </table>
+                
+                <div style="width:100%; height:1px; background:black;"></div>
+                
+                
+                <table>
+                    <tr> 
+                        <td style="font-size: 20px;">
+                            Marital Status:<span style="color:red;font-weight:bold;">*</span>
+                        </td>
+                        
+                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                        <td style="font-size: 20px;">Married</td>
+                        
+                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                        <td style="font-size: 20px;">Common Law</td>
+                        
+                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                        <td style="font-size: 20px;">Separated</td>
+                    </tr>
+                </table>
+                
+                
+                <table style="padding:0px 150px;">
+                    <tr> 
+                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                        <td style="font-size: 20px;">Divorced </td>
+                        
+                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                        <td style="font-size: 20px;">Widowed</td>
+                        
+                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                        <td style="font-size: 20px;">Single</td>
+                        
+                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                        <td style="font-size: 20px;">Prefer not to say</td>
+                    </tr>
+                </table>
+                
+                <div style="width:100%; height:1px; background:black;"></div>
+                
+                
+                
+                <div style="page-break-after:always;"/>
+                <br/><br/><br/><br/> <br/><br/><br/><br/> 
+                
+             
+                
+                
+                <!--------------------------------------- Form Page-3 ---------------------------------------->
+                
+             
+                
+                <table width="100%">
+                    <thead>
+                        <tr> 
+                            <th style="font-size: 20px; width:100%; height:1px; background:grey;">
+                                Participant Address and Contact Information
+                            </th>
+                        </tr>
+                    </thead>
+                    
+                    <table>
+                        
+                        
+                        <tbody>
+                            <tr><th style="font-size: 20px;">Primary Mailing Address</th></tr>
+                            
+                            
+                            <tr > 
+                                <td style="font-size: 20px;">Unit Number<br/><apex:inputText ></apex:inputText></td>
+                                <td style="font-size: 20px;"> Street Number*<br/><apex:inputText required="true"></apex:inputText> </td> 
+                                <td style="font-size: 20px;">Street Name*<br/><apex:inputText required="true"></apex:inputText> </td> 
+                                <td style="font-size: 20px;">PO Box<br/><apex:inputText ></apex:inputText> </td> 
+                            </tr>
+                            
+                            
+                            <tr style="padding:0px 166px;"> 
+                                <td style="font-size: 20px;">City/Town*<br/><apex:inputText required="true"></apex:inputText></td>
+                                <td style="font-size: 20px;"> Province*<br/><apex:inputText required="true"></apex:inputText> </td> 
+                                <td style="font-size: 20px;">Postal Code*<br/><apex:inputText required="true"></apex:inputText> </td>
+                            </tr>
+                            
+                            <tr><th style="font-size: 20px;">Alternate Mailing Address</th></tr>
+                            
+                            <tr style="padding:0px 166px;"> 
+                                <td style="font-size: 20px;">Unit Number<br/><apex:inputText ></apex:inputText></td>
+                                <td style="font-size: 20px;"> Street Number<br/><apex:inputText ></apex:inputText> </td> 
+                                <td style="font-size: 20px;">Street Name<br/><apex:inputText ></apex:inputText> </td>
+                                <td style="font-size: 20px;">PO Box<br/><apex:inputText ></apex:inputText> </td> 
+                            </tr>
+                            
+                            <tr style="padding:0px 166px;"> 
+                                <td style="font-size: 20px;">City/Town<br/><apex:inputText ></apex:inputText></td>
+                                <td style="font-size: 20px;"> Province<br/><apex:inputText ></apex:inputText> </td> 
+                                <td style="font-size: 20px;">Postal Code<br/><apex:inputText ></apex:inputText> </td>
+                                
+                            </tr>
+                            <br/>
+                            
+                        </tbody>
+                    </table>
+                </table>
+                
+                <table width="100%">
+                    
+                    <tr>
+                        
+                        
+                        <td>
+                            <table style="font-size: 20px;  height:1px;border: 2px solid gray;">
+                                <tbody>
+                                    <tr>
+                                        <th style="font-size: 20px;">Primary Phone Number*</th></tr>
+                                    
+                                    <tr>
+                                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                                        <td style="font-size: 20px;">  Home </td>
+                                        
+                                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                                        <td style="font-size: 20px;">Mobile</td>
+                                        
+                                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                                        <td style="font-size: 20px;">Other</td>
+                                    </tr>
+                                    <tr> <td style="font-size: 20px;">Telephone Number<apex:inputText ></apex:inputText></td><br/><br/></tr>
+                                    
+                                </tbody>
+                            </table>
+                        </td>
+                        
+                        
+                        
+                        <td>
+                            <table style="font-size: 20px;  height:1px;border: 2px solid gray;">
+                                <tbody>
+                                    <tr>
+                                        <td style="font-size: 20px; font-weight:bold;">Alternate Phone Number</td></tr>
+                                    
+                                    <tr>
+                                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                                        <td style="font-size: 20px;">Home </td>
+                                        
+                                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                                        <td style="font-size: 20px;">Mobile</td>
+                                        
+                                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                                        <td style="font-size: 20px;">Other</td>
+                                    </tr>
+                                    <tr> <td style="font-size: 20px;">Telephone Number<apex:inputText ></apex:inputText></td></tr><br/><br/>
+                                    
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                </table>
+                
+                <table width="100%">
+                    <tr><td style="font-size: 20px;">Email</td>
+                        <td><apex:inputText style="width:58%;text-align:left; padding:0px 250px;"></apex:inputText></td>  
+                    </tr>
+                </table>
+                <br/>
+                
+                <table width="100%">
+                    
+                    <tr> 
+                        <th style="font-size: 20px; width:100%; height:1px; background:grey;">
+                            Profile Information
+                        </th>
+                    </tr> <br/>
+                    
+                    <tr><th style="font-size: 20px;">Labour force attachment*</th></tr>
+                </table>
+                
+                <table width="100%">
+                    <tr>
+                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                        <td style="font-size: 20px;">Employed </td>
+                    </tr>
+                    <tr>
+                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                        <td style="font-size: 20px;">Self-Employed</td>
+                    </tr>
+                    
+                    
+                    <tr>
+                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                        <td style="font-size: 20px;">Employed, but currently on a leave</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                        <td style="font-size: 20px;">Unemployed</td>
+                    </tr>
+                    <tr>
+                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                        <td style="font-size: 20px;">Not employed and looking for work</td>
+                    </tr>
+                    <tr>
+                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                        <td style="font-size: 20px;">Not employed with an employment offer</td>
+                    </tr>
+                    <tr>
+                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                        <td style="font-size: 20px;">Not employed and not looking for work</td>
+                    </tr>
+                    <tr>
+                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                        <td style="font-size: 20px;">Not employed and unable to work</td>
+                    </tr>
+                    <tr>
+                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                        <td style="font-size: 20px;">Attending a school (elementary, high school or equivalent)</td>
+                    </tr>
+                    <tr>
+                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                        <td style="font-size: 20px;">Attending a university</td>
+                    </tr> <tr>
+                    <td><apex:selectRadio ></apex:selectRadio> </td> 
+                    <td style="font-size: 20px;">Attending a college</td>
+                    </tr>
+                    <tr>
+                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                        <td style="font-size: 20px;">Registered in an apprenticeship program</td>
+                    </tr>
+                    <tr>
+                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                        <td style="font-size: 20px;">In other training or skills development program</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                        <td style="font-size: 20px;">Not sure</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><apex:selectRadio ></apex:selectRadio> </td> 
+                        <td style="font-size: 20px;">Prefer not to say</td>
+                    </tr>
+                    
+                </table>
+                
+                <div style="page-break-after:always;">
+                </div>
+
+                <br/><br/><br/><br/> <br/><br/><br/><br/> 
+                
+             
+                
+                
+                
+                
+                
+                
+       <!--------------------------------------- Form Page-4 ---------------------------------------->
+              
+                
+                <!---     <table cellpadding="0" cellspacing="0"  style="margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;margin-bottom:10px;">
+                   
+                       
+                        <tr><th style="font-size: 20px;">Source of Income<span style="color:red;font-weight:bold;">*</span></th></tr>
+                </table>
+                
+                <table width="100%">
+                    
+                    <tbody>
+                        <tr>
+                            <td>
+                                <table width="100%">
+                                    <tr>
+                                        <td><apex:selectRadio ></apex:selectRadio> </td>
+                                        <td style="font-size: 20px;padding-right:1000px;">Employment Insurance (EI)*</td>
+                                        
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>  
+                        
+                        <tr>
+                            <td>
+                                <table width="100%">
+                                    <tr>
+                                        <td><apex:selectRadio ></apex:selectRadio> </td>
+                                        <td style="font-size: 20px;padding-right:1000px;">Ontario Works (OW)</td>
+                                        
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>  
+                        
+                        
+                        <tr>
+                            <td>
+                                <table width="100%">
+                                    <tr>
+                                        <td><apex:selectRadio ></apex:selectRadio> </td>
+                                        <td style="font-size: 20px;padding-right:1000px;">Ontario Disability Support Program (ODSP)</td>
+                                        
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>   
+                        
+                        
+                        <tr>
+                            <td>
+                                <table width="100%">
+                                    <tr>
+                                        <td><apex:selectRadio ></apex:selectRadio> </td>
+                                        <td style="font-size: 20px;padding-right:1000px;">Crown Ward Extended Care and Maintenance</td>
+                                        
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>   
+                        
+                        <tr>
+                            <td>
+                                <table width="100%">
+                                    <tr>
+                                        <td><apex:selectRadio ></apex:selectRadio> </td>
+                                        <td style="font-size: 20px;padding-right:1000px;">Dependent of OW/ODSP</td>
+                                        
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>      
+                        
+                        
+                        <tr>
+                            <td>
+                                <table width="100%">
+                                    <tr>
+                                        <td><apex:selectRadio ></apex:selectRadio> </td>
+                                        <td style="font-size: 20px;padding-right:1000px;">No income</td>
+                                        
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>    
+                        
+                        <tr>
+                            <td>
+                                <table width="100%">
+                                    <tr>
+                                        <td><apex:selectRadio ></apex:selectRadio> </td>
+                                        <td style="font-size: 20px;padding-right:1000px;">Employed with employer</td>
+                                        
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>    
+                        
+                        
+                        <tr>
+                            <td>
+                                <table width="100%">
+                                    <tr>
+                                        <td><apex:selectRadio ></apex:selectRadio> </td>
+                                        <td style="font-size: 20px;padding-right:1000px;">Self-Employed</td>
+                                        
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>    
+                        
+                        
+                        
+                        
+                        
+                        
+                        <tr>
+                            <td>
+                                <table width="100%">
+                                    <tr>
+                                        <td><apex:selectRadio ></apex:selectRadio> </td>
+                                        <td style="font-size: 20px;padding-right:1000px;">Non-EI (other)</td>
+                                        
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>    
+                        
+                        
+                        
+                        
+                        
+                        
+                        <tr>
+                            <td>
+                                <table width="100%">
+                                    <tr>
+                                        <td><apex:selectRadio ></apex:selectRadio> </td>
+                                        <td style="font-size: 20px;">Other (Specify)</td>
+                                        <td><apex:inputText style="width:58%;text-align:left; padding:0px 250px;"></apex:inputText></td>   
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr> <br/> <br/>
+                        
+                        <tr><td style="font-size: 15px;"><h style="font-size: 15px;font-weight:bold;">*Note for individuals who selected EI:</h>Your Social Insurance Number will be used by Canada to<br/>
+                            help monitor and assess the EI program and the Service Provider to request approval to continue to<br/>
+                            receive regular EI benefits in order to take part in training programs and other employment activities.</td>
+                        </tr><br/><br/>
+                        
+                        <tr><td style="font-size: 15px;padding-top:10px;">Social Insurance Number*</td></tr>
+                      
+                    </tbody>
+                     
+                </table> -->
+               
+                
+                
+                 <table  cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:10px;">
+                        <tbody>
+                            
+                            <tr> 
+                                <td>
+                                    <p style="font-size: 20px;">Source of Income<span style="color:red;font-weight:bold;">*</span></p>   
+                                </td>
+                            </tr>
+                            
+                            
+                          	
+					<tr>
+                            <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectRadio ></apex:selectRadio> 
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+							<td style="padding: 0in 5.4pt;">
+								<p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Employment Insurance (EI) *	</p>
+							</td>
+						</tr>   
+					
+					
+					
+					<tr>
+                            <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectRadio ></apex:selectRadio> 
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+							<td style="padding: 0in 5.4pt;">
+								<p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Ontario Works (OW)	</p>
+							</td>
+						</tr>   
+					
+					
+					
+					<tr>
+                            <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectRadio ></apex:selectRadio> 
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+							<td style="padding: 0in 5.4pt;">
+								<p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Ontario Disability Support Program (ODSP)	</p>
+							</td>
+						</tr>   
+					
+					
+					
+					
+					<tr>
+                            <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectRadio ></apex:selectRadio> 
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+							<td style="padding: 0in 5.4pt;">
+								<p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Crown Ward Extended Care and Maintenance	</p>
+							</td>
+						</tr>   
+					
+					
+					
+					
+					
+					<tr>
+                            <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectRadio ></apex:selectRadio> 
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+							<td style="padding: 0in 5.4pt;">
+								<p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Dependent of OW/ODSP	</p>
+							</td>
+						</tr>   
+					
+					
+					
+					
+					<tr>
+                            <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectRadio ></apex:selectRadio> 
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+							<td style="padding: 0in 5.4pt;">
+								<p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">No income</p>
+							</td>
+						</tr>   
+					
+					
+					
+					<tr>
+                            <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectRadio ></apex:selectRadio> 
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+							<td style="padding: 0in 5.4pt;">
+								<p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Employed with employer	</p>
+							</td>
+						</tr>  
+                            
+                            <tr>
+                            <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectRadio ></apex:selectRadio> 
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+							<td style="padding: 0in 5.4pt;">
+								<p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Self-Employed	</p>
+							</td>
+						</tr>  
+                            
+                            <tr>
+                            <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectRadio ></apex:selectRadio> 
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+							<td style="padding: 0in 5.4pt;">
+								<p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Non-EI (other)	</p>
+							</td>
+						</tr>  
+						
+                        	<tr>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectRadio ></apex:selectRadio> 
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Other (Specify)<td><apex:inputText /></td></p>
+                                </td>
+								
+                            </tr>
+						
+							
+                            <tr>
+                                <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;"><strong><em>*Note for individuals who selected EI: </em></strong> Your Social Insurance Number will be used by Canada to<br/>
+                                        help monitor and assess the EI program and the Service Provider to request approval to continue to<br/>
+                                        receive regular EI benefits in order to take part in training programs and other employment activities.</p>
+                                </td>
+                            </tr>
+						
+                       <!---     <tr>
+                                <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Social Insurance Number*</p><br/>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:inputText ></apex:inputText>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                            </tr>-->
+                            
+                            <tr>
+                                <td style="padding: 0in 5.4pt;">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Social Insurance Number*</p>
+                                </td>
+                            </tr>
+                            
+                            
+                            <tr><td rowspan="2"><apex:inputText /></td></tr>
+                     </tbody>
+                            
+						
+						</table>
+                
+                 <div style="width:100%; height:1px; background:black;"></div>
+                
+                
+                
+                
+                
+             <table cellpadding="0" cellspacing="0"  style="margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;margin-bottom:10px;">
+      
+                    
+                        <tr>
+                            <td colspan="2" style="padding: 0in 5.4pt;">
+                                <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Please complete if you wish to self-identify as a member of a designated group(s). Your response to<br/>
+                                    this question is entirely voluntary and will not affect your eligibility. This information will be used by <br/>
+                                    the Governments of Ontario and Canada for policy analysis and statistical purposes related to<br/>
+                                    employment programs and services. (You may select more than one option):</p>
+                            </td>
+                            </tr>
+                    
+                 <!---   
+                    <tr>
+                        <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectRadio ></apex:selectRadio> 
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                            </p>
+                        </td>
+                        <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Newcomer</p>
+                        </td>
+                    </tr>
+                    -->
+                    
+                    
+                    
+                           <tr>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectCheckboxes ></apex:selectCheckboxes>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Newcomer</p>
+                                </td>
+								
+								
+								
+								   <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectCheckboxes ></apex:selectCheckboxes>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Francophone</p>
+                                </td>
+								
+								
+								   <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectCheckboxes ></apex:selectCheckboxes>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">First Nations</p>
+                                </td>
+								
+								
+								
+                            </tr>
+							
+							
+							
+							
+							
+							<tr>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectCheckboxes ></apex:selectCheckboxes>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Racialized Person</p>
+                                </td>
+								
+								
+								
+								   <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectCheckboxes ></apex:selectCheckboxes>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Person with Disability</p>
+                                </td>
+								
+								
+								   <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectCheckboxes ></apex:selectCheckboxes>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Métis</p>
+                                </td>
+								
+                            </tr>
+							
+							
+							
+							<tr>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectCheckboxes ></apex:selectCheckboxes>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Veteran</p>
+                                </td>
+								
+								
+								
+								   <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectCheckboxes ></apex:selectCheckboxes>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Inuit</p>
+                                </td>
+								
+								
+								   <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectCheckboxes ></apex:selectCheckboxes>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Women</p>
+                                </td>
+								
+								
+								
+                            </tr>
+							
+							
+							
+							<tr>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectCheckboxes ></apex:selectCheckboxes>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Youth</p>
+                                </td>
+								
+								
+								
+								   <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectCheckboxes ></apex:selectCheckboxes>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Justice System Involved</p>
+                                </td>
+								
+								
+								   <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectCheckboxes ></apex:selectCheckboxes>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Immigrant</p>
+                                </td>
+								
+								
+                            </tr>
+							
+							<tr>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectCheckboxes ></apex:selectCheckboxes>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Prefer not to say</p>
+                                </td>
+								</tr>
+						
+							
+						
+                    
+                    
+                    
+                </table>
+                
+                
+                <table cellpadding="0" cellspacing="0"  style="margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;margin-bottom:10px;">
+                    <tbody>
+                        
+                        
+                    </tbody>
+                </table>
+                
+                
+                
+                  <table cellpadding="0" cellspacing="0"  style="margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;margin-bottom:10px;">
+                    <tbody>
+                        
+                        <tr> 
+                            <td style="width:100%; height:0.3px;background:grey;">
+                             <p style="font-size: 17px;font-weight:bold;">
+                             Education
+                            </p>
+                            </td>
+                           <!-- <td style="">-->
+                           
+                        </tr>
+						<tr>
+                            <td>
+                           <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Indicate your Highest Level of Education/Qualification*:</p>
+						  
+                            </td>
+						
+                        </tr>
+						
+						
+						
+						
+						<tr>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectRadio ></apex:selectRadio>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Grade 0 - 8</p>
+                                </td>
+								
+								
+								
+								 <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectRadio ></apex:selectRadio>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">OAC</p>
+                                </td>
+								
+								
+								  <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectRadio ></apex:selectRadio>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Bachelor’s Degree</p>
+                                </td>
+								
+                            </tr>
+							
+							
+							
+							
+							<tr>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectRadio ></apex:selectRadio>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Grade 9</p>
+                                </td>
+								
+								
+								
+								 <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectRadio ></apex:selectRadio>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Certificate of Apprenticeship</p>
+                                </td>
+								
+								
+								  <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectRadio ></apex:selectRadio>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Post Graduate</p>
+                                </td>
+								
+                            </tr>
+							
+							
+							
+							<tr>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectRadio ></apex:selectRadio>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Grade 10</p>
+                                </td>
+								
+								
+								
+								 <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectRadio ></apex:selectRadio>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Journeyperson</p>
+                                </td>
+								
+								
+								  <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectRadio ></apex:selectRadio>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Other</p>
+                                </td>
+								
+                            </tr>
+                        
+						
+						<tr>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectRadio ></apex:selectRadio>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Grade 11</p>
+                                </td>
+								
+								
+								
+								 <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectRadio ></apex:selectRadio>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Certificate/Diploma</p>
+                                </td>
+								</tr>
+							
+							
+								<tr>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectRadio ></apex:selectRadio>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Grade 12 (or equivalent)</p>
+                                </td>
+								</tr>
+							
+                        
+                    </tbody>
+                </table>
+                
+                
+                
+                
+                
+                <div style="page-break-after:always;"/>
+                <br/><br/><br/><br/> <br/><br/><br/><br/> 
+                
+             
+                
+                
+                <!--------------------------------------- Form Page-5 ---------------------------------------->
+                
+                
+                  <table cellpadding="0" cellspacing="0"  style="margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;margin-bottom:10px;">
+                    
+                    
+                       <table cellpadding="0" cellspacing="0"  style="margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;margin-bottom:10px;">
+              
+                       
+                        <tr> 
+                            <th style="font-size: 20px; width:100%; height:1px; background:grey;">
+                               Employment
+                            </th>
+                        </tr>
+                   
+ 
+                    </table>
+                                        
+                    
+                    
+                    
+                    
+                    <tbody>
+                        <tr>
+						 <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">List your work experience, including volunteer work. Start with the most recent job/volunteer activity.</p><br/>
+						
+						</tr>
+						
+						<tr>
+						 <p style="margin-top:3.85pt;font-weight:bold;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Work Experience 1</p><br/>
+						
+						</tr>
+						
+							<tr>
+							
+							<td>
+                                <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Employment Type:</p>
+							</td>
+							
+                                <td style="padding: 0in 5.4pt;"><apex:selectRadio ></apex:selectRadio>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;" >
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Paid</p>
+                                </td>
+								
+								
+								
+								 <td style="padding: 0in 5.4pt;"><apex:selectRadio ></apex:selectRadio>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Self-Employed</p>
+                                </td>
+								
+								
+								  <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectRadio ></apex:selectRadio>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Unpaid</p>
+                                </td>
+								
+								 <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top"><apex:selectRadio ></apex:selectRadio>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Volunteer</p>
+                                </td>
+								
+                            </tr>
+							
+							
+							
+						</tbody>
+                </table>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <div style="page-break-after:always;"/>
+                <br/><br/><br/><br/> <br/><br/><br/><br/> 
+                
+                
+              <!--------------------------------------- Form Page-6 ---------------------------------------->   
+                
+                
+             
+                
+                
+                
+                <table cellpadding="0" cellspacing="0"  style="margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;margin-bottom:10px;">
+                    
+                    
+                       <table cellpadding="0" cellspacing="0"  style="margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;margin-bottom:10px;">
+              
+                       
+                        <tr> 
+                            <th style="font-size: 20px; width:100%; height:1px; background:grey;">
+                                Participant Address and Contact Information
+                            </th>
+                        </tr>
+                   
+ 
+                    </table>
+                                        
+                    
+                    
+                    
+                    
+                    <tbody>
+                        <tr>
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Organizations delivering Skills Development Fund under an agreement with the Ministry of Labour, Immigration,<br/>
+                                Training and Skills Development (the “Ministry”) are required to make its records available to the Ministry for<br/>
+                                inspection, investigation or audit.</p>
+                            
+                        </tr>
+                        
+                        <tr>
+                            
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">For those organizations in a Partnership Agreement with a lead organization, please note that the lead organization<br/>
+                                has an agreement with the Ministry . In accordance with the Partnership Agreement your information will be shared<br/>
+                                with the lead organization. The lead organization, in turn, will share your information with the Ministry. The<br/>
+                                partnership agreement requires that your organization make its records available to the lead organization. In turn,<br/>
+                                the lead organization will share your information with the Ministry for inspection, investigation, or audit, as<br/>
+                                appropriate and as necessary.</p>	<br/>			
+                        </tr>
+                        
+                        <tr>
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Your organization/the lead organization in the consortia is also required to report to the Ministry on:</p><br/><br/>
+                            
+                        </tr>
+                        
+                        
+                        <tr>
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">The service it tailors and provides you;</p><br/><br/>
+                            
+                        </tr>
+                        
+                        <tr>
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Your employment progress and outcome; and</p><br/><br/>
+                            
+                        </tr>
+                        
+                        <tr>
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Your satisfaction with the services you receive.</p><br/><br/>
+                            
+                        </tr>
+                        
+                        <tr>
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">The Ministry will also collect relevant personal information about you from the Government of Canada (Canada) if<br/>
+                                necessary. The purpose of this information is to determine your eligibility for Employment Insurance benefits, the<br/>
+                                nature and level of Employment Insurance benefits, and to monitor, assess and evaluate the effectiveness of<br/>
+                                Skills Development Fund. Depending on the type of service or support you receive and any incentives available to<br/>
+                                your employer to hire you, your organization or the Ministry may also collect personal information about you from<br/>
+                                your employer. The Ministry may use contractors and auditors to administer and finance Skills Development<br/>
+                                Fund.</p><br/>
+                            
+                        </tr>
+                        
+                        
+                        <tr>
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Administration includes:</p><br/><br/>
+                            
+                        </tr>
+                        
+                        
+                        <tr>
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Assessing the performance of your organization, its effectiveness, efficiency and customer service results;<br/>
+                                monitoring, inspecting, investigating, auditing and enforcing your organization's compliance with its<br/>
+                                agreement with the ministry.</p><br/><br/>
+                            
+                        </tr>
+                        
+                        
+                        <tr>
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Planning, evaluating and monitoring Skills Development Fund - this includes conducting surveys, and<br/>
+                                conducting policy and statistical analysis and research related to all aspects of Skills Development Fund.<br/>
+                                You may be contacted to request your voluntary participation in surveys.</p><br/><br/>
+                            
+                        </tr>
+                        
+                        
+                        <tr>
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Promoting Skills Development Fund - you may be contacted to request your voluntary participation in<br/>
+                                public relations campaigns related to Skills Development Fund.</p><br/><br/>
+                            
+                        </tr>
+                        
+                        
+                        <tr>
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">If you are a client of, or applying to, the Ontario Disability Support Program or Ontario Works, the Ministry will<br/>
+                                provide your personal information to the Ministry of Children, Community and Social Services (MCCSS) for the<br/>
+                                purposes of administering employment services and managing the participation of MCCSS clients within<br/>
+                                employment support programs under the Ontario Works Act, 1997, and the Ontario Disability Support Program<br/>
+                                Act, 1997.</p><br/>
+                            
+                        </tr>
+                        
+                        <tr>
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Skills Development Fund is funded by the Ministry, in part with funds provided by Canada under Part II of the<br/>
+                                Employment Insurance Act. When funds are provided by Canada, the ministry is required to provide information<br/>
+                                to Canada to help monitor and assess the Employment Insurance Program, as required under s.3 of the<br/>
+                                Employment Insurance Act.</p><br/><br/>
+                            
+                        </tr>
+                        
+                        <tr>
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Under the Labour Market Development Agreement between Canada and Ontario (LMDA) and the Workforce<br/>
+                                Development Agreement between Canada and Ontario (WDA), the Ministry is required to collect social insurance<br/>
+                                numbers from EI beneficiaries to request approval to continue to receive regular EI benefits in order to take part in<br/>
+                                training programs and other employment activities.</p><br/><br/>
+                            
+                        </tr>
+                        
+                        
+                    </tbody>
+                    
+                    
+               
+                
+                
+                
+                
+                
+                
+                
+                <tfooter style="font-size: 20px; font-weight:bold;">May 2023</tfooter>
+                 </table>
+                     
+               
+                
+            </body>
+        </html>             
+    </apex:form>
+    
+    
+    
+    
+    
+</apex:page>

@@ -1,0 +1,2509 @@
+<apex:page StandardController="Contact" extensions="SdfRegistrationForm" sidebar="false" showHeader="false" docType="html-5.0"  renderAs="pdf">
+    <!--- renderAs="pdf"  -->
+    
+    <!--<html> -->
+    <head>
+        
+        <style>
+            @page {
+            margin-bottom: 3cm;
+            
+            @bottom-center {
+            content: element(footer);
+            }
+            }
+            
+            .footer {
+            display: block;
+            padding: 10px;
+            position: running(footer);
+            }
+            
+            .heightOfInputBox td {
+            height:20px;
+            }
+            
+        </style>
+        
+    </head>
+    
+    <body>
+        <apex:form > 
+            <!--some elements-->
+            <!--  <div class="footer" name="footer">
+<p>May 2023</p>
+</div>  
+-->   
+            
+            <table cellpadding="0" cellspacing="0"  style="padding-left:80px;padding-right:80px;margin-left:5.0pt;border-collapse:collapse;border:none;margin-bottom:3px;" width= "100%">
+                
+                <tr>
+                    <td>
+                        <div class="page-form-heading" style="width: 151px;vertical-align: top;float-left: 50px;" valign="top">
+                            <img alt="image not found" src="{!$Resource.OntarioLogo}" style="padding-top:3px;width:138px;height:40px;" />
+                        </div>
+                    </td>
+                    
+                    
+                    <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                        <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Ministry of Labour, Immigration,<br/>
+                            Training and Skills Development</p>
+                    </td>
+                    
+                    
+                    
+                    
+                    <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                        <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;font-wight:bold"> Ministère du Travail, de l'Immigration,<br/>
+                            de la Formation et du Développement<br/>
+                            des compétences</p>
+                    </td>
+                    
+                </tr>
+                
+            </table>       
+            
+            
+            
+            <!-------------------------------------- Sdf Form Page 1 start  --------------------------------------->
+            
+            <div class="Page1" style="">
+                
+                <table cellpadding="0" cellspacing="0"  style="margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;">
+                    
+                    <tbody>
+                        <tr> 
+                            <td style="font-weight:bold;font-size: 20px;margin-right:0in;margin-bottom:.0001pt;font-size:17px;font-family:Trebuchet MS,sans-serif;padding-top:10px;">
+                                Skills Development Fund (SDF) Participant Registration 
+                            </td>
+                        </tr>
+                        
+                        <tr> 
+                            <td style="margin-right:0in;margin-bottom:.0001pt;font-size:15px;font-family:Trebuchet MS,sans-serif;padding-bottom:5px;">
+                                Fields marked with an asterisk (<span style="color:red;font-weight:bold;">*</span>) are mandatory. Staff is available to help you complete this form.
+                            </td>  
+                        </tr>
+                    </tbody>    
+                </table>
+                
+                
+                <div style="width:100%;background-color:#c7c7c7;height:104px;">
+                    <table cellpadding="0" cellspacing="0" style="margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;">
+                        <tbody>
+                            
+                            
+                            <tr> 
+                                <td style="font-size: 20px; font-weight:bold;">
+                                    Service Provider Use Only
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <table style="" width="100%">
+                        <tbody>
+                            <tr>           
+                                
+                                <td width="60%">
+                                    <table>
+                                        <tbody>
+                                            <tr><td style="">Date of Registration</td></tr>
+                                            <tr><td style="border:1px solid black;height:20px;width:200px;"><apex:outputText rendered="true" style="" value="{0, date, }">  <apex:param value="{!currentDate}" /> </apex:outputText></td></tr>
+                                            
+                                        </tbody>
+                                    </table>
+                                </td>                   
+                                
+                            </tr>
+                            
+                            <tr>
+                                <td width="60%">
+                                    <table style="" width="100%">
+                                        <tbody>
+                                            <tr style=""> 
+                                                <td style="font-size: 17px;font-weight:bold; width:100%; height:1px;background-color:#A8A8A8;">
+                                                    Participant Details
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>         
+                            
+                        </tbody>
+                    </table>
+                </div>
+                                   
+                
+                
+                
+                
+                
+                <!--------------------------------------------------Test  ------------------------------------------------------------------------------------> 
+                
+                <div class= "heightOfInputBox"> 
+                    <table style="" width="100%">
+                        <tbody>
+                            <tr>
+                                <td width="40%">
+                                    <table>
+                                        <tbody>
+                                            <tr><td style="">Last Name<span style="color:red;font-weight:bold;">*</span></td></tr>
+                                            <tr><td style="border:1px solid black;width:300px;height:20px;">{!Contact.LastName}</td></tr>
+                                            <!--      <tr><td style="padding: 1px 250px;font-size: 20px;">accCity&nbsp;accState &nbsp; {!opp.Account.BillingPostalCode}</td></tr>-->
+                                        </tbody>
+                                    </table>
+                                </td>
+                                <!--- <td  style="padding: 05px 35px;"></td>-->
+                                
+                                <td width="40%">
+                                    <table>
+                                        <tbody>
+                                            <tr><td style="">First Name<span style="color:red;font-weight:bold;">*</span></td></tr>
+                                            <tr><td style="border:1px solid black;width:250px;height:20px;">{!Contact.FirstName}</td></tr>
+                                        </tbody>
+                                    </table>
+                                </td> 
+                                
+                                
+                                <td width="20%">
+                                    <table>
+                                        <tbody>
+                                            <tr><td style="">Middle Initial</td></tr>
+                                            <tr><td style="border:1px solid black;width:100px;height:20px;"></td></tr>
+                                            <!--      <tr><td style="padding: 1px 250px;font-size: 20px;">accCity&nbsp;accState &nbsp; {!opp.Account.BillingPostalCode}</td></tr>-->
+                                        </tbody>
+                                    </table>
+                                </td> 
+                            </tr>
+                        </tbody>
+                    </table> 
+                </div>
+                
+                
+                <div class="heightOfInputBox">    
+                    <table style="padding-top:9px;" width="100%">
+                        <tbody>
+                            <tr>
+                                <td width="60%">
+                                    <table>
+                                        <tbody>
+                                            <tr><td style="">Preferred Name</td></tr>
+                                            <tr><td style="border:1px solid black;height:20px;width:500px;">{!Contact.Preferred_Name__c}</td></tr>
+                                            <!--      <tr><td style="padding: 1px 250px;font-size: 20px;">accCity&nbsp;accState &nbsp; {!opp.Account.BillingPostalCode}</td></tr>-->
+                                        </tbody>
+                                    </table>
+                                </td>
+                                <!--- <td  style="padding: 05px 35px;"></td>-->
+                                
+                                <td width="40%">
+                                    <table>
+                                        <tbody>
+                                          
+                             <tr>
+                             <td style="">Date of Birth<span style="color:red;font-weight:bold;">*</span></td></tr>
+                                            <tr><td style="border:1px solid black;height:20px;width:200px;"><apex:outputText rendered="true" style="" value="{0, date, }">  <apex:param value="{!brthDate}" /> </apex:outputText></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td> 
+                                
+                                
+                            </tr>
+                        </tbody>
+                    </table>  
+                </div>  
+                
+                
+                <!-------------------------------------------------------------------------------------------------------------------------------------->                    
+                
+                
+                <div style="width:100%; height:1px; background:black;"></div>
+                
+                
+                <!--  rendered="{!IF(Object.picklistfieldapiname1 ='picklist value 1' || lead.Buyer_Type__c ='picklist value 2' ,true,false)}"/>-->
+                
+                
+                
+                
+                <table cellpadding="0" cellspacing="0" style="margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;padding-bottom:10px;">
+                    
+                    <tbody>
+                        <tr style="">
+                            <td style="font-size: 17px;"><p style="margin-bottom:10px;">
+                                
+                                I identify as:<span style="color:red;font-weight:bold;">*</span> </p></td></tr> </tbody></table>
+                
+                <table cellpadding="0" cellspacing="0" style="margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding-bottom:10px;">
+                    
+                    <tbody>
+                        <tr> 
+                            <apex:repeat value="{!GenderDataTest}" var="edu">
+                                
+                                <td style="padding:0in 1.5pt;">
+                                    <apex:outputLabel rendered="{!IF((edu.selected==True),true,false)}" >  <img alt="image not found" src="{!$Resource.radio_IconChecked}" style="width:12px;"/></apex:outputLabel>
+                                    <apex:outputLabel rendered="{!IF((edu.selected== false),true,false)}">  <img alt="image not found" src="{!$Resource.radio_IconUnchecked}" style="width:12px;"/></apex:outputLabel>
+                                    
+                                    <apex:outputLabel value="{!edu.data}" style=""></apex:outputLabel>  </td>
+                                
+                            </apex:repeat> 
+                        </tr>  </tbody></table><br/>
+                
+                <table cellpadding="0" cellspacing="0" style="margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;padding-top:10px;padding-bottom:10px;">
+                    
+                    <tbody>
+                        <tr> 
+                            
+                            <apex:repeat value="{!GenderDifferentValue}" var="Gen">
+                                
+                                <td>
+                                    <table>
+                                        <tr>
+                                            <td width="40%">
+                                                <apex:outputLabel rendered="{!IF((Gen.selected==True),true,false)}" >  <img alt="image not found" src="{!$Resource.radio_IconChecked}" style="width:12px;"/></apex:outputLabel>
+                                                <apex:outputLabel rendered="{!IF((Gen.selected== false),true,false)}">  <img alt="image not found" src="{!$Resource.radio_IconUnchecked}" style="width:12px;"/></apex:outputLabel>
+                                                
+                                                <apex:outputLabel value="{!Gen.data}"></apex:outputLabel> 
+                                            </td>
+                                            
+                                            <td width="40%" style="border:1px solid black;height:2px;width:380px;"></td>
+                                        </tr>
+                                        
+                                        
+                                    </table>
+                                </td> 
+                                
+                            </apex:repeat> 
+                        </tr> 
+                        
+                    </tbody></table>
+                
+                
+                <table cellpadding="0" cellspacing="0" style="margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;margin-top:4px;padding-bottom:10px;">
+                    
+                    <tbody>
+                        <tr> 
+                            
+                            
+                            <apex:repeat value="{!GenderDifferentValue2}" var="Gen2">
+                                
+                                <td style="padding:0in 2.0pt;">
+                                    <apex:outputLabel rendered="{!IF((Gen2.selected==True),true,false)}" >  <img alt="image not found" src="{!$Resource.radio_IconChecked}" style="width:12px;"/></apex:outputLabel>
+                                    <apex:outputLabel rendered="{!IF((Gen2.selected== false),true,false)}">  <img alt="image not found" src="{!$Resource.radio_IconUnchecked}" style="width:12px;"/></apex:outputLabel>
+                                    
+                                    <apex:outputLabel value="{!Gen2.data}"></apex:outputLabel>  </td>
+                                
+                            </apex:repeat> 
+                        </tr> 
+                    </tbody>
+                </table>
+                
+                
+                
+                
+                <br/>
+                
+                
+                <!--   </div>-->
+                
+                <div style="width:100%; height:1px; background:black;"></div>
+                
+                <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom:4px;" width="100%">
+                    <tbody>
+                        
+                        <tr> 
+                            <td>
+                                <p style="padding:0in 2.5pt;margin-top:0.15pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;"> Do you identify as transgender? (optional)</p>  <br/> 
+                            </td>
+                        </tr>
+                        
+                        
+                        <tr>
+                            <td>
+                                <p style="padding:0in 5.0pt;margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:14px;font-family:Tahoma,sans-serif;">Transgender is an umbrella term that refers to people whose gender identity, expression or behaviour is<br/>
+                                    different from those typically associated with their assigned sex at birth. Identities considered to fall under this<br/>
+                                    umbrella can include trans, transsexual, non-binary, gender fluid, and genderqueer – as well as many more.</p><br/>
+                            </td>
+                        </tr>
+                        <br/>
+                        <tr>
+                         <apex:repeat value="{!GenderValue3}" var="GenVal">
+                                
+                                <td style="padding:0in 10.0pt;">
+                                    <apex:outputLabel rendered="{!IF((GenVal.selected==True),true,false)}" >  <img alt="image not found" src="{!$Resource.radio_IconChecked}" style="width:12px;"/></apex:outputLabel>
+                                    <apex:outputLabel rendered="{!IF((GenVal.selected== false),true,false)}">  <img alt="image not found" src="{!$Resource.radio_IconUnchecked}" style="width:12px;"/></apex:outputLabel>
+                                    
+                                    <apex:outputLabel value="{!GenVal.data}"></apex:outputLabel>  </td>
+                                
+                            </apex:repeat> 
+                        </tr>
+                        
+                    </tbody>
+                </table>
+                
+                
+                
+                
+                
+                <div style="width:100%; height:1px; background:black;"></div>
+                
+                
+                <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom:10px;padding-top:10px" width="100%">
+                    <tbody>
+                        
+                        <tr>
+                            <td style="font-size: 20px;">
+                                Status in Canada:<span style="color:red;font-weight:bold;">*</span>
+                            </td>
+                            
+                            
+                            
+                            <apex:repeat value="{!StatusInCanadaValuesRow1}" var="gen3">
+                                
+                                <td>
+                                    <apex:outputLabel rendered="{!IF((gen3.selected==True),true,false)}" >  <img alt="image not found" src="{!$Resource.radio_IconChecked}" style="width:15px;"/></apex:outputLabel>
+                                    <apex:outputLabel rendered="{!IF((gen3.selected== false),true,false)}">  <img alt="image not found" src="{!$Resource.radio_IconUnchecked}" style="width:15px;"/></apex:outputLabel>
+                                </td>
+                                <td> <apex:outputLabel value="{!gen3.data}"></apex:outputLabel>  </td>
+                                
+                            </apex:repeat> 
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom:10px;padding-top:10px" width="100%">
+                    <tbody>
+                        
+                        <tr>
+                            
+                            <td width="24%"></td>
+                            
+                            
+                            <td width="20%">
+                                <table>
+                                    
+                                    <tr>
+                                        
+                                        <apex:repeat value="{!StatusInCanadaProtectedPerson}" var="gen4">
+                                            
+                                            <td style="">
+                                                <apex:outputLabel rendered="{!IF((gen4.selected==True),true,false)}" >  <img alt="image not found" src="{!$Resource.radio_IconChecked}" style="width:15px;"/></apex:outputLabel>
+                                                <apex:outputLabel rendered="{!IF((gen4.selected== false),true,false)}">  <img alt="image not found" src="{!$Resource.radio_IconUnchecked}" style="width:15px;"/></apex:outputLabel>
+                                                
+                                            </td>
+                                            <td> <apex:outputLabel value="{!gen4.data}"></apex:outputLabel></td>
+                                            <!--  <td style="padding-left:20px;">  <apex:outputLabel value="{!gen4.data}" style="padding-left:20px"></apex:outputLabel>  </td>-->
+                                            
+                                        </apex:repeat>   
+                                        
+                                    </tr>
+                                </table>
+                                
+                            </td>
+                            
+                            
+                            
+                            <td width="20%">
+                                <table>
+                                    
+                                    <tr>
+                                        
+                                        <apex:repeat value="{!StatusInCanadaPreferNotSay}" var="gen5">
+                                            
+                                            <td style="">
+                                                <apex:outputLabel rendered="{!IF((gen5.selected==True),true,false)}" >  <img alt="image not found" src="{!$Resource.radio_IconChecked}" style="width:15px;"/></apex:outputLabel>
+                                                <apex:outputLabel rendered="{!IF((gen5.selected== false),true,false)}">  <img alt="image not found" src="{!$Resource.radio_IconUnchecked}" style="width:15px;"/></apex:outputLabel>
+                                            </td>
+                                            <td style="">  <apex:outputLabel value="{!gen5.data}"></apex:outputLabel>  </td>
+                                            
+                                        </apex:repeat>   
+                                        
+                                    </tr>
+                                </table>
+                                
+                            </td>
+                            
+                            
+                            <td width="36%">
+                                <table>
+                                    
+                                    <tr>
+                                        
+                                        <apex:repeat value="{!OtherVal}" var="gen6">
+                                            
+                                            <td style="">
+                                                <apex:outputLabel rendered="{!IF((gen6.selected==True),true,false)}" >  <img alt="image not found" src="{!$Resource.radio_IconChecked}" style="width:15px;"/></apex:outputLabel>
+                                                <apex:outputLabel rendered="{!IF((gen6.selected== false),true,false)}">  <img alt="image not found" src="{!$Resource.radio_IconUnchecked}" style="width:15px;"/></apex:outputLabel>
+                                            </td>
+                                            <td style="">  <apex:outputLabel value="{!gen6.data}"></apex:outputLabel>  </td>
+                                            <td width="73%" style="border:1px solid black;height:5px;"></td>
+                                        </apex:repeat>   
+                                        
+                                    </tr>
+                                </table>
+                                
+                            </td>
+                            
+                            
+                        </tr>
+                    </tbody>
+                </table>
+                
+                
+                
+                
+                
+                
+                <div style="width:100%; height:1px; background:black;"></div>
+                
+                <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom:10px;" width="100%">
+                    
+                    <tr> 
+                        <td style="font-size: 20px;">
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;"> If you have immigrated to Canada, please indicate:</p>       
+                        </td>
+                    </tr>
+                </table>
+                
+                
+                
+                
+                
+                <div class="heightOfInputBox">    
+                    <table style="padding-top:8px;" width="100%">
+                        <tbody>
+                            <tr>
+                                <td width="60%">
+                                    <table>
+                                        <tbody>
+                                            <tr><td style="">Country of Origin</td></tr>
+                                            <tr><td style="border:1px solid black;height:20px;width:400px;">{!Contact.Country_of_Origin__c}</td></tr>
+                                            
+                                        </tbody>
+                                    </table>
+                                </td>
+                                
+                                
+                                <td width="40%">
+                                    <table>
+                                        <tbody>
+                                            <!-- {!Contact.Date_of_Arrival_in_Canada__c} -->
+                                           <tr><td style="">Date of Entry into Canada<span style="color:red;font-weight:bold;">*</span></td></tr>
+                                            <tr><td style="border:1px solid black;height:20px;width:200px;"><apex:outputText rendered="true" style="" value="{0, date, }">  <apex:param value="{!DateOfEntryInCanada}" /> </apex:outputText></td></tr> 
+                                        </tbody>
+                                    </table>
+                                </td> 
+                                
+                                
+                            </tr>
+                        </tbody>
+                    </table>  
+                </div>               
+                
+                
+                
+                
+                
+                
+                
+                <div style="width:100%; height:1px; background:black;"></div>
+                
+                
+                
+                
+                
+                <table style="padding-top:8px;">
+                    <tr  style="font-size: 20px;">
+                        <td>
+                            Preferred Language:<span style="color:red;font-weight:bold;">*</span>&nbsp;&nbsp;
+                        </td>
+                        <apex:repeat value="{!PreferredLanguage}" var="pref">
+                            
+                            <td>
+                                
+                                <apex:outputLabel rendered="{!IF((pref.selected==True),true,false)}" >  <img alt="image not found" src="{!$Resource.radio_IconChecked}" style="width:15px;"/></apex:outputLabel>
+                                <apex:outputLabel rendered="{!IF((pref.selected== false),true,false)}">  <img alt="image not found" src="{!$Resource.radio_IconUnchecked}" style="width:15px;"/></apex:outputLabel>
+                                <apex:outputLabel value="{!pref.data}"></apex:outputLabel> 
+                            </td>
+                        </apex:repeat> 
+                    </tr>
+                </table>  
+            </div>
+            
+            
+            <div style="width:100%; height:1px; background:black;"></div>  <br/><br/><br/><br/>
+            
+            <!--    <div class="footer"><div>May 2023 </div> </div> -->
+            <tfooter style="font-size: 20px;padding-top:9px;">May 2023</tfooter>
+            
+            <!-------------------------------------- Sdf Form Page-1 End  --------------------------------------->  
+            
+            
+            <div style="page-break-after:always;"/>
+            <br/>
+            
+            
+            <!---------------------------------------Sdf Form Page-2  Start---------------------------------------->
+            
+            
+            
+            <div style="width:100%; height:1px; background:black;"></div>
+            <table style="margin-top:5px;margin-bottom:2px;">
+                <tr style="font-size: 20px;"> 
+                    <td>
+                        Preferred Communication:&nbsp;&nbsp;
+                    </td>
+                    
+                    <apex:repeat value="{!PreferredContactValues}" var="gen4">
+                        
+                        <td style="">
+                            <!--  rendered="{!IF(Object.picklistfieldapiname1 ='picklist value 1' || lead.Buyer_Type__c ='picklist value 2' ,true,false)}"/>-->
+                            <apex:outputLabel rendered="{!IF((gen4.selected==True),true,false)}" >  <img alt="image not found" src="{!$Resource.radio_IconChecked}" style="width:15px;"/></apex:outputLabel>
+                            <apex:outputLabel rendered="{!IF((gen4.selected== false),true,false)}">  <img alt="image not found" src="{!$Resource.radio_IconUnchecked}" style="width:15px;"/></apex:outputLabel>
+                       
+                        </td>
+                        <!--   -->
+                        <!--   <apex:outputPanel > -->
+                        
+                        
+                        <!--  </apex:outputPanel>-->
+                        
+                        
+                   <td>  <apex:outputLabel value="{!gen4.data}"></apex:outputLabel> </td> 
+                        
+                    </apex:repeat> 
+                    
+                </tr>
+            </table>
+            
+            <div style="width:100%; height:1px; background:black;"></div>
+            
+            
+            <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom:10px;margin-top:7px;" width="100%">
+                <tr> 
+                    <td style="font-size: 20px;">
+                        Marital Status:<span style="color:red;font-weight:bold;">*</span>
+                    </td>
+                    
+                    <apex:repeat value="{!MaritalStatusValuesRow1}" var="gen5">
+                        
+                        <td>
+                            <!--  rendered="{!IF(Object.picklistfieldapiname1 ='picklist value 1' || lead.Buyer_Type__c ='picklist value 2' ,true,false)}"/>-->
+                            <apex:outputLabel rendered="{!IF((gen5.selected==True),true,false)}" >  <img alt="image not found" src="{!$Resource.radio_IconChecked}" style="width:15px;"/></apex:outputLabel>
+                            <apex:outputLabel rendered="{!IF((gen5.selected== false),true,false)}">  <img alt="image not found" src="{!$Resource.radio_IconUnchecked}" style="width:15px;"/></apex:outputLabel>
+                        </td>
+                        
+                        <td> <apex:outputLabel value="{!gen5.data}"></apex:outputLabel>  </td>
+                        
+                    </apex:repeat> 
+                    
+                    
+                </tr>
+                
+                <tr>
+                    <td></td>
+                    <apex:repeat value="{!MaritalStatusValuesRow2}" var="gen6">
+                        
+                        <td>
+                            <!--  rendered="{!IF(Object.picklistfieldapiname1 ='picklist value 1' || lead.Buyer_Type__c ='picklist value 2' ,true,false)}"/>-->
+                            <apex:outputLabel rendered="{!IF((gen6.selected==True),true,false)}" >  <img alt="image not found" src="{!$Resource.radio_IconChecked}" style="width:15px;"/></apex:outputLabel>
+                            <apex:outputLabel rendered="{!IF((gen6.selected== false),true,false)}">  <img alt="image not found" src="{!$Resource.radio_IconUnchecked}" style="width:15px;"/></apex:outputLabel>
+                        </td>
+                        
+                        <td> <apex:outputLabel value="{!gen6.data}"></apex:outputLabel>  </td>
+                        
+                    </apex:repeat> 
+                </tr>
+                
+                <div style="width:100%; height:1px; background:black;margin-bottom:550px;"></div>
+                <br/><br/> <br/><br/> <br/><br/> <br/><br/> <br/><br/><br/><br/> <br/><br/>
+                
+                
+                <!-- <div class="footer" style="page-break-after:always;">
+May 2023
+
+</div>-->
+                
+                <tfooter style="font-size: 20px; ">May 2023</tfooter>                   
+            </table>
+            
+            
+            
+            
+            
+            
+            <!-------------------------------------- Sdf Form Page-2 End  --------------------------------------->
+            
+            
+            
+            
+            <div style="page-break-after:always;"/>
+            
+            
+            
+            
+            
+            <!---------------------------------------Sdf Form Page-3 Start---------------------------------------->
+            
+            
+            <div style="width:100%;background-color:#c7c7c7;  height:30px; margin-bottom: 3px;">
+                <table cellpadding="0" cellspacing="0" style="margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;margin-bottom:4px;">
+                    
+                    <tr> 
+                        <td style="font-size: 20px;font-weight:bold; width:100%;height:1px;background:grey;">
+                            Participant Address and Contact Information
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+            <table cellpadding="0" cellspacing="0" style="margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;margin-bottom:4px;">
+                
+                <tbody>
+                    
+                    <table style="padding-top:2px;" width="100%">
+                        <tbody>
+                            <tr> <td style="font-size:20px;font-weight:bold;width:80%;">Primary Mailing Address</td></tr>
+                        </tbody>
+                    </table>
+                    
+                    
+                    
+                    
+                    <div class="heightOfInputBox">    
+                        <table style="padding-top:2px;" width="100%">
+                            <tbody>
+                                
+                                <tr>
+                                    <td width="40%">
+                                        <table>
+                                            <tbody>
+                                                <tr><td style="">Unit Number</td></tr>
+                                                <tr><td style="border:1px solid black;height:20px;width:300px;">{!Contact.mailingStreet}</td></tr>
+                                                
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                    
+                                    
+                                    <td width="20%">
+                                        <table>
+                                            <tbody>
+                                                <tr><td style="">Street Number<span style="color:red;font-weight:bold;">*</span></td></tr>
+                                                <tr><td style="border:1px solid black;box-sizing:border-box;width:170px;height:20px;width:90px;"></td></tr>
+                                                
+                                            </tbody>
+                                        </table>
+                                    </td> 
+                                    
+                                    <td width="20%">
+                                        <table>
+                                            <tbody>
+                                                <tr><td style="">Street Name<span style="color:red;font-weight:bold;">*</span></td></tr>
+                                                <tr><td style="border:1px solid black;box-sizing:border-box;height:20px;width:100px;"></td></tr>
+                                                
+                                            </tbody>
+                                        </table>
+                                    </td>          
+                                    
+                                    
+                                    <td width="20%">
+                                        <table>
+                                            <tbody>
+                                                <tr><td style="">PO Box</td></tr>
+                                                <tr><td style="border:1px solid black;box-sizing:border-box;width:90px;height:20px;"></td></tr>
+                                                
+                                            </tbody>
+                                        </table>
+                                    </td> 
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    
+                    
+                    
+                    <div class="heightOfInputBox">    
+                        <table style="" width="100%">
+                            <tbody>
+                                <tr>
+                                    <td width="30%">
+                                        <table>
+                                            <tbody>
+                                                <tr><td style="">City/Town<span style="color:red;font-weight:bold;">*</span></td></tr>
+                                                <tr><td style="border:1px solid black;height:20px;width:500px;">{!Contact.mailingCity}</td></tr>
+                                                
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                    
+                                    
+                                    <td width="20%">
+                                        <table>
+                                            <tbody>
+                                                <tr><td style="">Province<span style="color:red;font-weight:bold;">*</span></td></tr>
+                                                <tr><td style="border:1px solid black;box-sizing:border-box;width:100px;height:20px;width:100px;">{!Contact.mailingState}</td></tr>
+                                                
+                                            </tbody>
+                                        </table>
+                                    </td> 
+                                    
+                                    <td width="80%">
+                                        <table>
+                                            <tbody>
+                                                <tr><td style="">Postal Code<span style="color:red;font-weight:bold;">*</span></td></tr>
+                                                <tr><td style="border:1px solid black;box-sizing:border-box;width:100px;height:20px;width:100px;">{!Contact.mailingPostalCode}</td></tr>
+                                                
+                                            </tbody>
+                                        </table>
+                                    </td>   
+                                </tr>
+                                
+                            </tbody>
+                        </table>  
+                    </div>               
+                    
+                    
+                    <table style="padding-top:5px;" width="100%">
+                        <tbody>
+                            <tr> <td style="font-size: 20px;font-weight:bold;width:80%;">Alternate Mailing Address</td></tr>
+                        </tbody>
+                    </table>
+                    
+                    
+                    <div class="heightOfInputBox">    
+                        <table style="padding-top:2px;" width="100%">
+                            <tbody>
+                                
+                                <tr>
+                                    <td width="40%">
+                                        <table>
+                                            <tbody>
+                                                <tr><td style="">Unit Number</td></tr>
+                                                <tr><td style="border:1px solid black;height:20px;width:350px;">{!Contact.mailingStreet}</td></tr>
+                                                
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                    
+                                    
+                                    <td width="20%">
+                                        <table>
+                                            <tbody>
+                                                <tr><td style="">Street Number</td></tr>
+                                                <tr><td style="border:1px solid black;box-sizing:border-box;height:20px;width:100px;"></td></tr>
+                                                
+                                            </tbody>
+                                        </table>
+                                    </td> 
+                                    
+                                    <td width="20%">
+                                        <table>
+                                            <tbody>
+                                                <tr><td style="">Street Name</td></tr>
+                                                <tr><td style="border:1px solid black;box-sizing:border-box;width:100px;height:20px;"></td></tr>
+                                                
+                                            </tbody>
+                                        </table>
+                                    </td>          
+                                    
+                                    
+                                    <td width="20%">
+                                        <table>
+                                            <tbody>
+                                                <tr><td style="">PO Box</td></tr>
+                                                <tr><td style="border:1px solid black;box-sizing:border-box;width:90px;height:20px;"></td></tr>
+                                                
+                                            </tbody>
+                                        </table>
+                                    </td> 
+                                </tr>
+                                
+                                
+                            </tbody>
+                        </table>    
+                    </div>
+                    
+                    
+                    
+                    <div class="heightOfInputBox">    
+                        <table style="" width="100%">
+                            <tbody>
+                                <tr>
+                                    <td width="30%">
+                                        <table>
+                                            <tbody>
+                                                <tr><td style="">City/Town</td></tr>
+                                                <tr><td style="border:1px solid black;height:20px;width:500px;">{!Contact.mailingCity}</td></tr>
+                                                
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                    
+                                    
+                                    <td width="20%">
+                                        <table>
+                                            <tbody>
+                                                <tr><td style="">Province</td></tr>
+                                                <tr><td style="border:1px solid black;box-sizing:border-box;width:100px;height:20px;width:100px;">{!Contact.mailingState}</td></tr>
+                                                
+                                            </tbody>
+                                        </table>
+                                    </td> 
+                                    
+                                    <td width="80%">
+                                        <table>
+                                            <tbody>
+                                                <tr><td style="">Postal Code</td></tr>
+                                                <tr><td style="border:1px solid black;box-sizing:border-box;width:100px;height:20px;width:100px;">{!Contact.mailingPostalCode}</td></tr>
+                                                
+                                            </tbody>
+                                        </table>
+                                    </td>   
+                                </tr>
+                                
+                            </tbody>
+                        </table>  
+                    </div>                         
+                    
+                    
+                    
+                    <br/>
+                    
+                </tbody>
+            </table>
+            
+            
+            
+            
+   <!--        <table cellpadding="0" cellspacing="0" style= "border:none;width:100%;">
+                
+                
+                <tr>
+                    <td width="48%" style="border:1px solid black;padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                        <table cellpadding="0" cellspacing="0" style="border:1px solid black;border-collapse: collapse;">
+                            
+                            <tr>   
+                                <td>
+                                    <h1 style="padding:0in 2.5pt;font-weight:bold;font-size:17px;">
+                                        Primary Phone Number<span style="color:red;font-weight:bold;">*</span>  
+                                    </h1>
+                                    
+                                   <apex:repeat value="{!PreferredPhone}" var="pre">
+                                        
+                                        <apex:outputLabel rendered="{!IF((pre.selected==True),true,false)}" >  <img alt="image not found" src="{!$Resource.radio_IconChecked}" style="width:15px;"/></apex:outputLabel>
+                                        <apex:outputLabel rendered="{!IF((pre.selected== false),true,false)}">  <img alt="image not found" src="{!$Resource.radio_IconUnchecked}" style="width:15px;"/></apex:outputLabel>
+                                        
+                                        
+                                        
+                                        <apex:outputLabel value="{!pre.data}"></apex:outputLabel>
+                                        
+                                    </apex:repeat> 
+                                    <br/><br/>
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;padding-bottom:18px">Telephone Number&nbsp;<apex:inputText ></apex:inputText><apex:outputText rendered="true"  style="border: 1px solid black;padding-right:50px;" value="{!Contact.Phone}"/></p>
+                                </td> 
+                                
+                            </tr></table>
+                    </td>
+                    
+                    <td width="2%">
+                        
+                    </td>
+                    
+                    
+                    
+                    <td width= "50%" style="border:1px solid black;padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                        <table cellpadding="0" cellspacing="0" style="border:1px solid black; border-collapse:collapse;">
+                            
+                            <tr>   
+                                <td style="width:20%;" valign="top">
+                                    <h1 style="font-weight:bold;font-size:17px;">
+                                        Alternate Phone Number 
+                                    </h1><br/>
+                                    
+                                    <br/>
+                                    
+                                    
+                                    <p style="padding: 0in 5.4pt;margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;padding-bottom:10px">Telephone Number&nbsp;<apex:inputText ></apex:inputText><apex:outputText rendered="true"  style="border:1px solid black;padding-right:48px;" value="{!Contact.HomePhone}"/></p>
+                                    
+                                </td>
+                            </tr></table>
+                    </td>
+                </tr>
+            </table>            --->
+            
+            
+            
+            <table cellpadding="0" cellspacing="0" style= "border:none;width:100%;">
+                
+                <tr>
+                    <td width="48%" style="border:1px solid black;border-collapse: collapse;">
+                        
+                        <table>
+                            <tr>   
+                                <td>
+                                    <table width="100%">
+                                        <tr>
+                                        <td>
+                                             <p style="font-weight:bold;font-size:17px;margin-top:0px;">
+                                        Primary Phone Number<span style="color:red;font-weight:bold;">*</span>  
+                                    </p>
+
+                                            </td>
+                                            
+                                        </tr>
+                                        <tr>
+                                            <td style="padding:0in 2.5pt;margin-top:0px;">
+                                                <apex:repeat value="{!PreferredPhone}" var="pre">
+                                                    
+                                                    <apex:outputLabel rendered="{!IF((pre.selected==True),true,false)}" >  <img alt="image not found" src="{!$Resource.radio_IconChecked}" style="width:15px;"/></apex:outputLabel>
+                                                    <apex:outputLabel rendered="{!IF((pre.selected== false),true,false)}">  <img alt="image not found" src="{!$Resource.radio_IconUnchecked}" style="width:15px;"/></apex:outputLabel>
+                                                    
+                                                    
+                                                    
+                                                    <apex:outputLabel value="{!pre.data}"></apex:outputLabel>
+                                                    
+                                                </apex:repeat>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                   
+                                </td>
+                            </tr>
+                            
+                            <tr>
+                                <td>
+                                    <table width="100%" style="margin-bottom:5px;">
+                                          <tr><td style="padding: 0in 3.5pt;vertical-align:top;width:43%;">Telephone Number</td>
+                                        <td style="border:1px solid black;height:20px;width:150px;">{!Contact.Phone}</td>
+                                    </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                           </table>
+                    </td>
+                      
+                    
+                    <td width="2%">
+                        
+                    </td>
+                    
+                    
+                    
+                     <td width="48%" style="border:1px solid black;border-collapse: collapse;">
+                        
+                        <table>
+                            <tr>   
+                                <td>
+                                    <table width="100%">
+                                        <tr>
+                                        <td style="padding-bottom:10px;">
+                                             <p style="padding:0in 2.5pt;font-weight:bold;font-size:17px;margin-top:0px;">
+                                        Alternate Phone Number
+                                    </p>
+                                            </td>
+                                        </tr>
+                                       
+                                    </table>
+                                   
+                                </td>
+                            </tr>
+                            
+                            <tr>
+                                <td>
+                                    <table width="100%" style="">
+                                          <tr><td style="padding: 0in 3.5pt;vertical-align:top;width:43%;">Telephone Number</td>
+                                        <td style="border:1px solid black;height:20px;width:150px;">{!Contact.HomePhone}</td>
+                                    </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                           </table>
+                    </td>
+                </tr>
+            </table>  
+            
+            
+            
+            
+            
+            
+            
+            <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom:10px;margin-top:7px;" width="100%">
+                
+                <tbody>
+                    <tr>
+                        <td width="20%">
+                            <table>
+                                <tbody>
+                                    <tr><td style="">Email&nbsp;&nbsp;&nbsp;</td>
+                                        <td style="border:1px solid black;height:20px;width:660px;">{!Contact.Email}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>  
+                    </tr>
+                </tbody>  
+                
+                
+                
+            </table>
+            <br/>
+            
+            
+            
+            
+            
+            <div style="width:100%;background-color:#c7c7c7;  height:30px; margin-bottom: 12px;">
+                <table cellpadding="0" cellspacing="0" style="margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;margin-bottom:10px;">
+                    
+                    <tr> 
+                        <td style="font-size: 20px;font-weight:bold; width:100%;height:1px;background:grey;">
+                            Profile Information
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+            
+            <table cellpadding="0" cellspacing="0" style="margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;padding-bottom:15px;">
+                
+                <tbody>
+                    <tr style="">
+                        <td style="font-size: 20px;font-weight:bold;">Labour force attachment<span style="color:red;font-weight:bold;">*</span></td>
+                    </tr>
+                    <apex:repeat value="{!LabourForceAttachment}" var="lab">
+                        <tr > 
+                            <td>
+                                <apex:outputLabel rendered="{!IF((lab.selected==True),true,false)}" >  <img alt="image not found" src="{!$Resource.radio_IconChecked}" style="width:15px;"/></apex:outputLabel>
+                                <apex:outputLabel rendered="{!IF((lab.selected== false),true,false)}">  <img alt="image not found" src="{!$Resource.radio_IconUnchecked}" style="width:15px;"/></apex:outputLabel>
+                                
+                                <apex:outputLabel value="{!lab.data }"></apex:outputLabel>  </td>
+                        </tr>  
+                    </apex:repeat> 
+                </tbody>
+                <br/><br/><br/><br/>
+                <tfooter style="font-size: 20px;">May 2023</tfooter>
+            </table>
+            
+            
+            
+            
+            
+            <!-------------------------------------- Sdf Form Page-3 End  --------------------------------------->
+            
+            <div style="page-break-after:always;">
+            </div>
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            <!---------------------------------------Sdf Form Page-4 Start---------------------------------------->
+            
+            
+            
+            <table cellpadding="0" cellspacing="0" style="margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;padding-bottom:10px;">
+                
+                <tbody>
+                    <tr style="">
+                        <td style="font-size: 20px;font-weight:bold;"><p style= "margin-bottom:10px;">
+                            
+                            Source of Income<span style="color:red;font-weight:bold;">*</span></p></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <table cellpadding="0" cellspacing="0" style="">
+                <tbody>
+                    <apex:repeat value="{!IncomeSource}" var="src">
+                        <tr style="">
+                            
+                            <td style="margin-top:3.85pt;">
+                                <apex:outputLabel rendered="{!IF((src.selected==True),true,false)}" >  <img alt="image not found" src="{!$Resource.radio_IconChecked}" style="width:15px;"/></apex:outputLabel>
+                                <apex:outputLabel rendered="{!IF((src.selected== false),true,false)}">  <img alt="image not found" src="{!$Resource.radio_IconUnchecked}" style="width:15px;"/></apex:outputLabel>
+                                
+                                <apex:outputLabel value="{!src.data }"></apex:outputLabel>  </td>
+                        </tr>  
+                    </apex:repeat>
+                </tbody>
+            </table>
+            
+            
+            <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:none;width:100%;padding:9px;padding-bottom:10px;">
+                <tbody>
+                    <apex:repeat value="{!IncomeSource2}" var="src">
+                        <tr style="">
+                            
+                            <td width="10">
+                                <apex:outputLabel rendered="{!IF((src.selected==True),true,false)}" >  <img alt="image not found" src="{!$Resource.radio_IconChecked}" style="width:15px;"/></apex:outputLabel>
+                                <apex:outputLabel rendered="{!IF((src.selected== false),true,false)}">  <img alt="image not found" src="{!$Resource.radio_IconUnchecked}" style="width:15px;"/></apex:outputLabel>
+                                
+                                <apex:outputLabel value="{!src.data }"></apex:outputLabel>  </td>
+                            <td width="70%" style="border:1px solid black;height:5px;width:340px;"></td>
+                        </tr>
+                    </apex:repeat>
+                </tbody>
+            </table>
+            
+            <table cellpadding="0" cellspacing="0" style="margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;padding-bottom:10px;margin-top:5px;">
+                
+                <tbody>
+                    
+                    <tr>
+                        <td  style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:15px;font-family:Tahoma,sans-serif;"><strong><em>*Note for individuals who selected EI: </em></strong> Your Social Insurance Number will be used by Canada to<br/>
+                                help monitor and assess the EI program and the Service Provider to request approval to continue to<br/>
+                                receive regular EI benefits in order to take part in training programs and other employment activities.</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <table style="">
+                
+                <tbody>
+                    <tr>
+                        <td width="100%" style="padding:0in 6.0pt;">
+                            <p style="font-size:17px;font-family:Tahoma,sans-serif;">Social Insurance Number*</p>
+                        </td>                    
+                    </tr>
+                </tbody>
+            </table>
+            
+            <!--  <td style="padding: 0in 5.4pt;">
+<p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;">Social Insurance Number*<br/><apex:inputText ></apex:inputText><apex:outputText rendered="true"  style="border-bottom: 1px solid black;" value=""/></p>
+</td><br/>-->
+            <!-- border:1px solid black;width:120px;height:12px;-->
+            <table style="border:1px solid black;border-collapse: collapse;margin:0in 6.0pt;">
+                <tbody>
+                    <tr style="border:1px solid black;border-collapse: collapse;">
+                        
+                        <td style="border:1px solid black;border-collapse: collapse;width:25px;height:22px;"></td>
+                        <td style="border:1px solid black;border-collapse: collapse;width:25px;height:22px;"></td>
+                        <td style="border:1px solid black;border-collapse: collapse;width:25px;height:22px;"></td>
+                        <td  style="border:1px solid black;border-collapse: collapse;width:25px;height:22px;"></td>
+                        <td style="border:1px solid black;border-collapse: collapse;width:25px;height:22px;"></td>
+                        <td style="border:1px solid black;border-collapse: collapse;width:25px;height:22px;"></td>
+                        <td style="border:1px solid black;border-collapse: collapse;width:25px;height:22px;"></td>
+                        <td style="border:1px solid black;border-collapse: collapse;width:25px;height:22px;"></td>
+                        <td style="border:1px solid black;border-collapse: collapse;width:25px;height:22px;"></td>
+                    </tr></tbody></table>     
+            
+            
+            <br/>
+            <div style="width:100%; height:1px; background:black;"></div>
+            
+            <table cellpadding="0" cellspacing="0" style="margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;margin-bottom:4px;margin-top:5px;">
+                
+                <tr>
+                    <td>
+                        <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:15px;font-family:Tahoma,sans-serif;margin-bottom:5px;">Please complete if you wish to self-identify as a member of a designated group(s). Your response to<br/>
+                            this question is entirely voluntary and will not affect your eligibility. This information will be used by <br/>
+                            the Governments of Ontario and Canada for policy analysis and statistical purposes related to<br/>
+                            employment programs and services. (You may select more than one option):</p>
+                    </td>
+                </tr>
+                
+            </table> 
+            
+            
+            
+            
+            <table cellpadding="0" cellspacing="0" style="margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;">                    
+                
+                
+                
+                
+                <tr> 
+                    <td>
+                        <apex:outputLabel rendered="{!IF((Newcomer ==True),true,false)}" >  <img alt="image not found" src="{!$Resource.checkboxCheckedImg}" style="width:15px;"/></apex:outputLabel>
+                        <apex:outputLabel rendered="{!IF((Newcomer== false),true,false)}">  <img alt="image not found" src="{!$Resource.checkboxUnCheckedImg}" style="width:15px;"/></apex:outputLabel>
+                        <apex:outputLabel title="newComer">Newcomer</apex:outputLabel>
+                    </td>
+                    
+                    
+                    <td>
+                        <apex:outputLabel rendered="{!IF((Francophone ==True),true,false)}" >  <img alt="image not found" src="{!$Resource.checkboxCheckedImg}" style="width:15px;"/></apex:outputLabel>
+                        <apex:outputLabel rendered="{!IF((Francophone== false),true,false)}">  <img alt="image not found" src="{!$Resource.checkboxUnCheckedImg}" style="width:15px;"/></apex:outputLabel>
+                        <apex:outputLabel title="newComer">Francophone</apex:outputLabel>
+                    </td>
+                    
+                    
+                    <td>
+                        <apex:outputLabel rendered="{!IF((FirstNations ==True),true,false)}" >  <img alt="image not found" src="{!$Resource.checkboxCheckedImg}" style="width:15px;"/></apex:outputLabel>
+                        <apex:outputLabel rendered="{!IF((FirstNations== false),true,false)}">  <img alt="image not found" src="{!$Resource.checkboxUnCheckedImg}" style="width:15px;"/></apex:outputLabel>
+                        <apex:outputLabel title="newComer">FirstNations</apex:outputLabel>
+                    </td>
+                    
+                    
+                </tr>  
+                
+                
+                
+                
+                <tr> 
+                    <td>
+                        <apex:outputLabel rendered="{!IF((RacializedPerson ==True),true,false)}" >  <img alt="image not found" src="{!$Resource.checkboxCheckedImg}" style="width:15px;"/></apex:outputLabel>
+                        <apex:outputLabel rendered="{!IF((RacializedPerson== false),true,false)}">  <img alt="image not found" src="{!$Resource.checkboxUnCheckedImg}" style="width:15px;"/></apex:outputLabel>
+                        <apex:outputLabel title="newComer">RacializedPerson</apex:outputLabel>
+                    </td>
+                    
+                    
+                    <td>
+                        <apex:outputLabel rendered="{!IF((PersonWithDisability ==True),true,false)}" >  <img alt="image not found" src="{!$Resource.checkboxCheckedImg}" style="width:15px;"/></apex:outputLabel>
+                        <apex:outputLabel rendered="{!IF((PersonWithDisability== false),true,false)}">  <img alt="image not found" src="{!$Resource.checkboxUnCheckedImg}" style="width:15px;"/></apex:outputLabel>
+                        <apex:outputLabel title="newComer">PersonWithDisability</apex:outputLabel>
+                    </td>
+                    
+                    
+                    <td>
+                        <apex:outputLabel rendered="{!IF((Metis ==True),true,false)}" >  <img alt="image not found" src="{!$Resource.checkboxCheckedImg}" style="width:15px;"/></apex:outputLabel>
+                        <apex:outputLabel rendered="{!IF((Metis== false),true,false)}">  <img alt="image not found" src="{!$Resource.checkboxUnCheckedImg}" style="width:15px;"/></apex:outputLabel>
+                        <apex:outputLabel title="newComer">Metis</apex:outputLabel>
+                    </td>
+                    
+                    
+                </tr>  
+                
+                
+                
+                
+                
+                
+                <tr> 
+                    <td>
+                        <apex:outputLabel rendered="{!IF((Veteran ==True),true,false)}" >  <img alt="image not found" src="{!$Resource.checkboxCheckedImg}" style="width:15px;"/></apex:outputLabel>
+                        <apex:outputLabel rendered="{!IF((Veteran== false),true,false)}">  <img alt="image not found" src="{!$Resource.checkboxUnCheckedImg}" style="width:15px;"/></apex:outputLabel>
+                        <apex:outputLabel title="newComer">Veteran</apex:outputLabel>
+                    </td>
+                    
+                    
+                    
+                    <td>
+                        <apex:outputLabel rendered="{!IF((Inuit ==True),true,false)}" >  <img alt="image not found" src="{!$Resource.checkboxCheckedImg}" style="width:15px;"/></apex:outputLabel>
+                        <apex:outputLabel rendered="{!IF((Inuit== false),true,false)}">  <img alt="image not found" src="{!$Resource.checkboxUnCheckedImg}" style="width:15px;"/></apex:outputLabel>
+                        <apex:outputLabel title="newComer">Inuit </apex:outputLabel>
+                    </td>
+                    
+                    
+                    <td>
+                        <apex:outputLabel rendered="{!IF((Women ==True),true,false)}" >  <img alt="image not found" src="{!$Resource.checkboxCheckedImg}" style="width:15px;"/></apex:outputLabel>
+                        <apex:outputLabel rendered="{!IF((Women== false),true,false)}">  <img alt="image not found" src="{!$Resource.checkboxUnCheckedImg}" style="width:15px;"/></apex:outputLabel>
+                        <apex:outputLabel title="newComer">Women</apex:outputLabel>
+                    </td>
+                    
+                    
+                </tr>  
+                
+                
+                
+                <tr> 
+                    
+                    <td>
+                        <apex:outputLabel rendered="{!IF((Youth ==True),true,false)}" >  <img alt="image not found" src="{!$Resource.checkboxCheckedImg}" style="width:15px;"/></apex:outputLabel>
+                        <apex:outputLabel rendered="{!IF((Youth== false),true,false)}">  <img alt="image not found" src="{!$Resource.checkboxUnCheckedImg}" style="width:15px;"/></apex:outputLabel>
+                        <apex:outputLabel title="newComer">Youth</apex:outputLabel>
+                    </td>
+                    
+                    
+                    <td> 
+                        <apex:outputLabel rendered="{!IF((JusticeSystemInvolved ==True),true,false)}" >  <img alt="image not found" src="{!$Resource.checkboxCheckedImg}" style="width:15px;"/></apex:outputLabel>
+                        <apex:outputLabel rendered="{!IF((JusticeSystemInvolved== false),true,false)}">  <img alt="image not found" src="{!$Resource.checkboxUnCheckedImg}" style="width:15px;"/></apex:outputLabel>
+                        <apex:outputLabel title="newComer">Justice System Involved</apex:outputLabel>
+                    </td>
+                    
+                    
+                    <td>
+                        <apex:outputLabel rendered="{!IF((Immigrant ==True),true,false)}" >  <img alt="image not found" src="{!$Resource.checkboxCheckedImg}" style="width:15px;"/></apex:outputLabel>
+                        <apex:outputLabel rendered="{!IF((Immigrant== false),true,false)}">  <img alt="image not found" src="{!$Resource.checkboxUnCheckedImg}" style="width:15px;"/></apex:outputLabel>
+                        <apex:outputLabel title="newComer">Immigrant</apex:outputLabel>
+                    </td>
+                    
+                    
+                </tr>  
+                
+                
+                
+                <tr> 
+                    <td>
+                        <apex:outputLabel rendered="{!IF((PreferNotToSay ==True),true,false)}" >  <img alt="image not found" src="{!$Resource.checkboxCheckedImg}" style="width:15px;"/></apex:outputLabel>
+                        <apex:outputLabel rendered="{!IF((PreferNotToSay== false),true,false)}">  <img alt="image not found" src="{!$Resource.checkboxUnCheckedImg}" style="width:15px;"/></apex:outputLabel>
+                        <apex:outputLabel title="newComer">Prefer not to say</apex:outputLabel>
+                    </td>
+                    
+                    
+                    
+                </tr>  
+                
+                
+                
+                
+            </table>
+            
+            
+            
+            <div style="width:100%;background-color:#c7c7c7;  height:30px; margin-bottom:1px;margin-top:9px;">
+                <table cellpadding="0" cellspacing="0" style="margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;margin-bottom:1px;">
+                    
+                    <tr> 
+                        <td style="font-size: 20px;font-weight:bold; width:100%;height:1px;background:grey;">
+                            Education
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+            
+             <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:none;width:100%;">
+                
+                <tbody>
+                     <tr style="">
+                        <td style="font-size: 15px;font-weight:bold;"><p style="margin-bottom:10px;">
+                            
+                            Indicate your Highest Level of Education/Qualification<span style="color:red;font-weight:bold;">*</span>: </p></td>
+                    </tr>
+                 </tbody>
+            </table>
+            
+            <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:none;width:100%;padding:9px;padding-bottom:10px;">
+                
+                <tbody>
+                   
+                    <tr> 
+                        <apex:repeat value="{!EducationRow1}" var="edu">
+                            
+                            <td >
+                                <apex:outputLabel rendered="{!IF((edu .selected==True),true,false)}" >  <img alt="image not found" src="{!$Resource.radio_IconChecked}" style="width:15px;"/></apex:outputLabel>
+                                <apex:outputLabel rendered="{!IF((edu.selected== false),true,false)}">  <img alt="image not found" src="{!$Resource.radio_IconUnchecked}" style="width:15px;"/></apex:outputLabel>
+                                
+                                <apex:outputLabel value="{!edu.data }"></apex:outputLabel>  </td>
+                            
+                        </apex:repeat> 
+                    </tr> 
+                    
+                    <tr> 
+                        <apex:repeat value="{!EducationRow2}" var="edu">
+                            
+                          <td>
+                                <apex:outputLabel rendered="{!IF((edu .selected==True),true,false)}" >  <img alt="image not found" src="{!$Resource.radio_IconChecked}" style="width:15px;"/></apex:outputLabel>
+                                <apex:outputLabel rendered="{!IF((edu.selected== false),true,false)}">  <img alt="image not found" src="{!$Resource.radio_IconUnchecked}" style="width:15px;"/></apex:outputLabel>
+                                
+                                <apex:outputLabel value="{!edu.data }"></apex:outputLabel>  </td>
+                            
+                        </apex:repeat> 
+                    </tr> 
+                    
+                    <tr> 
+                        <apex:repeat value="{!EducationRow3}" var="edu">
+                            
+                            <td>
+                                <apex:outputLabel rendered="{!IF((edu .selected==True),true,false)}" >  <img alt="image not found" src="{!$Resource.radio_IconChecked}" style="width:15px;"/></apex:outputLabel>
+                                <apex:outputLabel rendered="{!IF((edu.selected== false),true,false)}">  <img alt="image not found" src="{!$Resource.radio_IconUnchecked}" style="width:15px;"/></apex:outputLabel>
+                                
+                                <apex:outputLabel value="{!edu.data }"></apex:outputLabel>  </td>
+                            
+                        </apex:repeat> 
+                    </tr> 
+                    
+                    <tr> 
+                        <apex:repeat value="{!EducationRow4}" var="edu">
+                            
+                            <td>
+                                <apex:outputLabel rendered="{!IF((edu .selected==True),true,false)}" >  <img alt="image not found" src="{!$Resource.radio_IconChecked}" style="width:15px;"/></apex:outputLabel>
+                                <apex:outputLabel rendered="{!IF((edu.selected== false),true,false)}">  <img alt="image not found" src="{!$Resource.radio_IconUnchecked}" style="width:15px;"/></apex:outputLabel>
+                                
+                                <apex:outputLabel value="{!edu.data }"></apex:outputLabel>  </td>
+                            
+                        </apex:repeat> 
+                    </tr> 
+                    
+                    <tr> 
+                        <apex:repeat value="{!EducationRow5}" var="edu">
+                            
+                            <td>
+                                <apex:outputLabel rendered="{!IF((edu .selected==True),true,false)}" >  <img alt="image not found" src="{!$Resource.radio_IconChecked}" style="width:15px;"/></apex:outputLabel>
+                                <apex:outputLabel rendered="{!IF((edu.selected== false),true,false)}">  <img alt="image not found" src="{!$Resource.radio_IconUnchecked}" style="width:15px;"/></apex:outputLabel>
+                                
+                                <apex:outputLabel value="{!edu.data }"></apex:outputLabel>  </td>
+                            
+                        </apex:repeat> 
+                    </tr> 
+                </tbody>
+                <br/><br/><br/><br/><br/><br/><br/><br/><br/>
+                <tfooter style="font-size: 20px;">May 2023</tfooter>
+            </table>
+            
+            
+            
+            <!-------------------------------------- Sdf Form Page-4 End  --------------------------------------->
+            
+            
+            
+            <div style="page-break-after:always;"/>
+            
+            
+            
+            
+            <!---------------------------------------Sdf Form Page-5 Start---------------------------------------->
+            
+            <!--    <table cellpadding="0" cellspacing="0"  style="margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;margin-bottom:10px;">-->
+            
+            
+            
+            
+            <!-- <div style="">-->
+            <table cellpadding="0" cellspacing="0" style="width:100%;background-color:#c7c7c7;height:30px; margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;">
+                
+                <tr> 
+                    <td style="font-size: 20px;font-weight:bold; width:100%;height:1px;background:grey;">
+                        Employment
+                    </td>
+                </tr>
+            </table>
+            <!--     </div>-->
+            
+            
+            <table cellpadding="0" cellspacing="0" width="100%">
+                <tbody>
+                    <tr>
+                        <td style="padding: 0in 5.4pt;width:100%;vertical-align: top;" valign="top">
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:15px;font-family:Tahoma,sans-serif;">List your work experience, including volunteer work. Start with the most recent job/volunteer activity.</p>
+                        </td>
+                    </tr>    
+                </tbody>
+            </table>
+            
+            
+            
+            
+            
+            
+            <table cellpadding="0" cellspacing="0" width="100%">
+                <tbody>
+                    <!--    <tr>
+<td style="padding: 0in 5.4pt;width:100%;vertical-align: top;" valign="top">
+<p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:13px;font-family:Tahoma,sans-serif;">List your work experience, including volunteer work. Start with the most recent job/volunteer activity.</p>
+</td>
+</tr>    -->
+                    
+                    
+                    <tr>
+                        <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;font-weight:bold;margin-bottom:7px;">Work Experience 1</p>
+                        </td>
+                    </tr> 
+                </tbody>
+            </table>
+            
+            
+            <table border="0" cellpadding="0" cellspacing="0" style="" width="100%">
+                <tbody>
+                    <tr>
+                        <td style="font-size: 20px;padding: 0in 7.4pt;vertical-align:top;" valign="top">
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:15px;font-family:Tahoma,sans-serif;">Employment Type:</p>
+                            
+                        </td>
+                        
+                        
+                        
+                        <apex:repeat value="{!CurrEmploymentStatus}" var="emp">
+                            
+                            <td>
+                                
+                                <apex:outputLabel rendered="{!IF((emp.selected==True),true,false)}" >  <img alt="image not found" src="{!$Resource.radio_IconChecked}" style="width:15px;"/></apex:outputLabel>
+                                <apex:outputLabel rendered="{!IF((emp.selected== false),true,false)}">  <img alt="image not found" src="{!$Resource.radio_IconUnchecked}" style="width:15px;"/></apex:outputLabel>
+                            </td>
+                            <td> <apex:outputLabel value="{!emp.data}"></apex:outputLabel>  </td>
+                            
+                        </apex:repeat> 
+                    </tr>
+                </tbody>
+            </table>
+            
+            
+            <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom:10px;" width="100%">
+                
+                <tbody>
+                    <tr>
+                        <td width="100%">
+                            <table>
+                                <tbody>
+                                    <tr><td style="padding: 0in 6.4pt;vertical-align:top;width:24%;">Name of Employer&nbsp;&nbsp;&nbsp;</td>
+                                        <td style="border:1px solid black;height:20px;width:800px;">{!Organization}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>  
+                    </tr>
+                    
+                    <tr>
+                        <td width="100%">
+                            <table>
+                                <tbody>
+                                    <tr><td valign="top" style="padding: 0in 6.4pt;vertical-align:top;width:24%;">Job Title/Duties</td>
+                                        <td style="border:1px solid black;height:20px;width:800px;">{!Role}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>  
+                    </tr> 
+                </tbody>
+            </table>
+                    
+                    <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom:10px;" width="100%">
+                
+                <tbody>
+                    <tr>
+                        <td width="50%">
+                            <table>
+                                <tbody>
+                                    <tr><td style="padding: 0in 3.6pt;vertical-align:top;width:50%;">Employment Start Date&nbsp;&nbsp;&nbsp;</td>
+                                        <td style="border:1px solid black;height:20px;width:90px;"><apex:outputText rendered="true" style="" value="{0, date, }">  <apex:param value="{!empStrtDate}" /> </apex:outputText></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td> 
+                        
+                        <td width="50%">
+                            <table>
+                                <tbody>
+                                    <tr><td style="width:50%;">Employment End Date&nbsp;&nbsp;&nbsp;</td>
+                                        <td style="border:1px solid black;height:20px;width:100px;"><apex:outputText rendered="true" style="" value="{0, date, }">  <apex:param value="{!empEndDate}" /> </apex:outputText></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>    
+                    </tr> 
+                </tbody>  
+            </table>
+            
+            
+            <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom:10px;" width="100%">
+                
+                <tbody>
+                    <tr>
+                        <td width="20%">
+                            <table>
+                                <tbody>
+                                    <tr><td style="padding: 0in 7.4pt;vertical-align:top;">Country of Employment&nbsp;&nbsp;&nbsp;</td>
+                                        <td style="border:1px solid black;height:20px;width:500px;">{!countryOfEmployment}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>  
+                    </tr>
+                </tbody>
+            </table>                     
+            
+            
+            
+            <table border="0" cellpadding="0" cellspacing="0" style="" width="100%">
+                <tbody>
+                    
+                    <tr>
+                        <td style="padding: 0in 7.4pt;vertical-align:top;font-size: 16px;">
+                            Preferred method of reporting wage:
+                        </td>
+                        
+                        
+                        
+                        <apex:repeat value="{!PreferReportingWage}" var="preferWg">
+                            
+                            <td>
+                                
+                                <apex:outputLabel rendered="{!IF((preferWg.selected==True),true,false)}" >  <img alt="image not found" src="{!$Resource.radio_IconChecked}" style="width:15px;"/></apex:outputLabel>
+                                <apex:outputLabel rendered="{!IF((preferWg.selected== false),true,false)}">  <img alt="image not found" src="{!$Resource.radio_IconUnchecked}" style="width:15px;"/></apex:outputLabel>
+                            </td>
+                            <td> <apex:outputLabel value="{!preferWg.data}"></apex:outputLabel>  </td>
+                            
+                        </apex:repeat> 
+                    </tr>
+                </tbody>
+            </table>
+            
+            
+            
+            
+            <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom:10px;margin-top:5px;" width="100%">
+                
+                <tbody>
+                    <tr>
+                        <td width="20%">
+                            <table>
+                                <tbody>
+                                    <tr><td style="padding: 0in 5.4pt;vertical-align:top;">Wage Amount ($)<span style="color:red;font-weight:bold;">*</span>&nbsp;&nbsp;&nbsp;</td>
+                                        <td style="border:1px solid black;height:20px;width:100px;">{!WageAmount}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>  
+                    </tr>
+                </tbody>
+            </table>       
+            
+             <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom:10px;" width="100%">
+                
+                <tbody>
+                    <tr>
+                        <td width="20%">
+                            <table>
+                                <tbody>
+                                    <tr><td style="padding: 0in 5.4pt;vertical-align:top;">Hourly wage (including tips and commissions) ($)<span style="color:red;font-weight:bold;">*</span>&nbsp;&nbsp;&nbsp;</td>
+                                        <td style="border:1px solid black;height:20px;width:107px;">{!hourlyWage}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>  
+                    </tr>
+                </tbody>
+            </table>    
+            
+            
+            <!--
+            <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom:10px;" width="100%">
+                
+                <tbody>
+                    <tr>
+                       
+                            
+                               
+                                    <td style="padding: 0in 5.4pt;vertical-align:top;width:40%;">Hourly wage (including tips and commissions) ($)<span style="color:red;font-weight:bold;">*</span>&nbsp;&nbsp;&nbsp;</td>
+                                        <td style="border:1px solid black;height:10px;width:5px;">{!hourlyWage}</td>
+                                   
+                               
+                            
+                         
+                    </tr>
+                </tbody>
+            </table>                
+            -->
+            
+            
+            
+            <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom:10px;" width="100%">
+                
+                <tbody>
+                    <tr>
+                        <td width="20%">
+                            <table>
+                                <tbody>
+                                    <tr><td style="padding: 0in 5.4pt;vertical-align:top;"> Average Paid Hours per Week (excluding overtime)<span style="color:red;font-weight:bold;">*</span>&nbsp;</td>
+                                        <td style="border:1px solid black;height:20px;width:104px;">{!avgPaidHrPerWeek}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>  
+                    </tr>
+                </tbody>
+            </table>                
+            
+            
+            
+            
+            
+            <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom:10px;" width="100%">
+                
+                <tbody>
+                    <tr>
+                        <td width="20%">
+                            <table>
+                                <tbody>
+                                    <tr><td style="padding: 0in 5.4pt;vertical-align:top;width:25%;"> Reason for Leaving</td>
+                                        <td style="border:1px solid black;height:20px;width:550px;">{!reasonLeaving}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>  
+                    </tr>
+                </tbody>
+            </table>                
+            
+            
+            
+            
+            
+            <table cellpadding="0" cellspacing="0" style="width:100%;background-color:#c7c7c7;height:30px; margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;">
+                
+                
+                <tr>
+                    <td width="30%">
+                        <table>
+                            <tbody>
+                                <tr><td style="width:180px;padding-top:9px;">Service Provider Use Only</td>
+                                </tr></tbody></table></td>  
+                    
+                    <td width="7%">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td style="">NOC<span style="color:red;font-weight:bold;">*</span></td></tr></tbody></table></td>  
+                   
+                    <td width="28%">
+                    <!--     <apex:repeat value="{!remainderList}" var="rem">-->
+                        <table style="border:1px solid black;border-collapse: collapse;">
+                            
+                            <tbody>
+                                <tr>
+                                    <!-- border:1px solid black;width:120px;height:12px;-->
+                                    <td style="border:1px solid black;border-collapse: collapse;width:150px;height:22px;text-align:center;">{!NocRow5}</td>
+                                    <td style="border:1px solid black;border-collapse: collapse;width:150px;height:22px;text-align:center;">{!NocRow4}</td>
+                                    <td style="border:1px solid black;border-collapse: collapse;width:150px;height:22px;text-align:center;">{!NocRow3}</td>
+                                    <td  style="border:1px solid black;border-collapse: collapse;width:150px;height:22px;text-align:center;">{!NocRow2}</td>
+                                    <td style="border:1px solid black;border-collapse: collapse;width:150px;height:22px;text-align:center;">{!NocRow1}</td>
+                                </tr></tbody></table>
+                   <!-- </apex:repeat>-->
+            </td>                                            
+                    
+                    
+                    <td width="9%">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td style="">NAICS<span style="color:red;font-weight:bold;">*</span></td>
+                                    
+                                </tr></tbody></table> </td>    
+                    
+                    
+                    
+                    <td width="29%">
+                        <table style="border:1px solid black;border-collapse: collapse;">
+                            <tbody>
+                                <tr style="border:1px solid black;border-collapse: collapse;width:120px;height:12px;">
+                                    <!-- border:1px solid black;width:120px;height:12px;-->
+                                    <td style="border:1px solid black;border-collapse: collapse;width:120px;height:22px;text-align:center;">{!NaicsRow6}</td>
+                                    <td style="border:1px solid black;border-collapse: collapse;width:120px;height:22px;text-align:center;">{!NaicsRow5}</td>
+                                    <td style="border:1px solid black;border-collapse: collapse;width:120px;height:22px;text-align:center;">{!NaicsRow4}</td>
+                                    <td  style="border:1px solid black;border-collapse: collapse;width:120px;height:22px;text-align:center;">{!NaicsRow3}</td>
+                                    <td style="border:1px solid black;border-collapse: collapse;width:120px;height:2px;text-align:center;">{!NaicsRow2}</td>
+                                    <td style="border:1px solid black;border-collapse: collapse;width:120px;height:22px;text-align:center;">{!NaicsRow1}</td>
+                                </tr></tbody></table>  </td>                                                    
+                </tr>            
+                
+            </table>                
+            <br/>
+            
+            
+            
+            
+            
+            
+            <!--    <apex:outputPanel id="theHeaderDiv" rendered="{!IF((lstAffliation==''),true,false)}">  -->      
+            <div class="Page5">    
+                <table cellpadding="0" cellspacing="0" width="100%">
+                    <tbody>
+                        
+                        
+                        <tr>
+                            <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;font-weight:bold;margin-bottom:7px;">Additional Work Experience (if applicable)</p>
+                            </td>
+                        </tr> 
+                    </tbody>
+                </table>
+                
+                
+                <table border="0" cellpadding="0" cellspacing="0" style="" width="100%">
+                    <tbody>
+                        
+                        <tr>
+                            <td style="padding: 0in 6.4pt;vertical-align:top;font-size: 15px;">
+                                Employment Type:
+                            </td>
+                            
+                            
+                            
+                            <apex:repeat value="{!CurrEmpStatus2}" var="emp2">
+                                
+                                <td>
+                                    
+                                    <apex:outputLabel rendered="{!IF((emp2.selected==True),true,false)}" >  <img alt="image not found" src="{!$Resource.radio_IconChecked}" style="width:15px;"/></apex:outputLabel>
+                                    <apex:outputLabel rendered="{!IF((emp2.selected== false),true,false)}">  <img alt="image not found" src="{!$Resource.radio_IconUnchecked}" style="width:15px;"/></apex:outputLabel>
+                                </td>
+                                <td> <apex:outputLabel value="{!emp2.data}"></apex:outputLabel>  </td>
+                                
+                            </apex:repeat> 
+                        </tr>
+                    </tbody>
+                </table>
+                
+                
+                <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom:10px;" width="100%">
+                    
+                    <tbody>
+                        <tr>
+                            <td width="100%">
+                                <table>
+                                    <tbody>
+                                        <tr><td style="padding: 0in 5.9pt;vertical-align:top;width:24%;">Name of Employer&nbsp;&nbsp;&nbsp;</td>
+                                            <td style="border:1px solid black;height:20px;width:800px;">{!org2}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>  
+                        </tr>
+                        
+                        <tr>
+                            <td width="100%">
+                                <table>
+                                    <tbody>
+                                        <tr><td style="padding: 0in 5.9pt;vertical-align:top;width:24%;">Job Title/Duties&nbsp;&nbsp;&nbsp;</td>
+                                            <td style="border:1px solid black;height:20px;width:800px;">{!role2}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>  
+                        </tr> 
+                    </tbody>
+                </table>
+                
+                
+                         <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom:10px;" width="100%">
+                    
+                    <tbody>
+                        <tr>
+                            <td width="50%">
+                                <table>
+                                    <tbody>
+                                        <tr><td style="padding: 0in 2.9pt;vertical-align:top;width:50%;">Employment Start Date&nbsp;&nbsp;&nbsp;</td>
+                                            <td style="border:1px solid black;height:20px;width:90px;"><apex:outputText rendered="true" style="" value="{0, date, }">  <apex:param value="{!empStrtDate2}" /> </apex:outputText></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td> 
+                            
+                            <td width="50%">
+                                <table>
+                                    <tbody>
+                                        <tr><td style="width:50%;">Employment End Date&nbsp;&nbsp;&nbsp;</td>
+                                            <td style="border:1px solid black;height:20px;width:100px;"><apex:outputText rendered="true" style="" value="{0, date, }">  <apex:param value="{!empEndDate2}" /> </apex:outputText></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>    
+                        </tr> 
+                    </tbody>  
+                </table>
+                
+                
+                <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom:10px;" width="100%">
+                    
+                    <tbody>
+                        <tr>
+                            <td>
+                                <table>
+                                    <tbody>
+                                        <tr><td style="padding: 0in 5.9pt;vertical-align:top;width:25%;">Country of Employment</td>
+                                            <td style="border:1px solid black;height:20px;width:570px;">{!countryOfEmployment2}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>  
+                        </tr>
+                    </tbody>
+                </table>                     
+                
+                <table border="0" cellpadding="0" cellspacing="0" style="" width="100%">
+                    <tbody>
+                        
+                        <tr>
+                            <td style="padding: 0in 6.5pt;vertical-align:top;font-size: 16px;">
+                                Preferred method of reporting wage:
+                            </td>
+                            
+                            
+                            
+                            <apex:repeat value="{!PreferReportingWage2}" var="preferWg2">
+                                
+                                <td>
+                                    
+                                    <apex:outputLabel rendered="{!IF((preferWg2.selected==True),true,false)}" >  <img alt="image not found" src="{!$Resource.radio_IconChecked}" style="width:15px;"/></apex:outputLabel>
+                                    <apex:outputLabel rendered="{!IF((preferWg2.selected== false),true,false)}">  <img alt="image not found" src="{!$Resource.radio_IconUnchecked}" style="width:15px;"/></apex:outputLabel>
+                                </td>
+                                <td> <apex:outputLabel value="{!preferWg2.data}"></apex:outputLabel>  </td>
+                                
+                            </apex:repeat> 
+                        </tr>
+                    </tbody>
+                </table>
+                
+                
+                
+                
+                <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom:10px;margin-top:5px;" width="100%">
+                    
+                    <tbody>
+                        <tr>
+                            <td width="20%">
+                                <table>
+                                    <tbody>
+                                        <tr><td style="padding: 0in 5.4pt;vertical-align:top;">Wage Amount ($)<span style="color:red;font-weight:bold;">*</span>&nbsp;&nbsp;&nbsp;</td>
+                                            <td style="border:1px solid black;height:20px;width:100px;">{!WgAmount2}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>  
+                        </tr>
+                    </tbody>
+                </table>       
+                
+                
+                
+                
+                
+                <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom:10px;" width="100%">
+                    
+                    <tbody>
+                        <tr>
+                            <td width="20%">
+                                <table>
+                                    <tbody>
+                                        <tr><td style="padding: 0in 5.4pt;vertical-align:top;">Hourly wage (including tips and commissions) ($)<span style="color:red;font-weight:bold;">*</span>&nbsp;&nbsp;</td>
+                                            <td style="border:1px solid black;height:20px;width:107px;">{!hrWage2}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>  
+                        </tr>
+                    </tbody>
+                </table>                
+                
+                
+                
+                
+                <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom:10px;" width="100%">
+                    
+                    <tbody>
+                        <tr>
+                            <td width="20%">
+                                <table>
+                                    <tbody>
+                                        <tr><td style="padding: 0in 5.4pt;vertical-align:top;"> Average Paid Hours per Week (excluding overtime)<span style="color:red;font-weight:bold;">*</span></td>
+                                            <td style="border:1px solid black;height:20px;width:104px;">{!averagegPaidHrPerWeek2}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>  
+                        </tr>
+                    </tbody>
+                </table>                
+                
+                
+                
+                
+                
+                <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom:10px;" width="100%">
+                    
+                    <tbody>
+                        <tr>
+                            <td width="20%">
+                                <table>
+                                    <tbody>
+                                        <tr><td style="padding: 0in 2.9pt;vertical-align:top;width:25%;"> Reason for Leaving</td>
+                                            <td style="border:1px solid black;height:20px;width:550px;">{!rsnLeaving2}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>  
+                        </tr>
+                    </tbody>
+                </table>                
+                
+                
+                
+                
+                
+                <table cellpadding="0" cellspacing="0" style="width:100%;background-color:#c7c7c7;height:30px; margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;">
+                    
+                    
+                    <tr>
+                        <td width="30%">
+                            <table>
+                                <tbody>
+                                    <tr><td style="width:180px;">Service Provider Use Only</td>
+                                    </tr></tbody></table></td>  
+                        
+                        <td width="7%">
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        <td style="">NOC<span style="color:red;font-weight:bold;">*</span></td></tr></tbody></table></td>  
+                        
+                        <td width="25%">
+                            <table style="border:1px solid black;border-collapse: collapse;">
+                                <tbody>
+                                    <tr>
+                                        <!-- border:1px solid black;width:120px;height:12px;-->
+                                        <td style="border:1px solid black;border-collapse: collapse;width:150px;height:22px;text-align:center;">{!NocAffRow5}</td>
+                                        <td style="border:1px solid black;border-collapse: collapse;width:150px;height:22px;text-align:center;">{!NocAffRow4}</td>
+                                        <td style="border:1px solid black;border-collapse: collapse;width:150px;height:22px;text-align:center;">{!NocAffRow3}</td>
+                                        <td  style="border:1px solid black;border-collapse: collapse;width:150px;height:22px;text-align:center;">{!NocAffRow2}</td>
+                                        <td style="border:1px solid black;border-collapse: collapse;width:150px;height:22px;text-align:center;">{!NocAffRow1}</td>
+                                    </tr></tbody></table>  </td>                                            
+                        
+                        
+                        <td width="9%">
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        <td style="">NAICS<span style="color:red;font-weight:bold;">*</span></td>
+                                        
+                                    </tr></tbody></table> </td>    
+                        
+                        
+                        
+                        <td width="29%">
+                            <table style="border:1px solid black;border-collapse: collapse;">
+                                <tbody>
+                                    <tr style="border:1px solid black;border-collapse: collapse;width:120px;height:12px;">
+                                        <!-- border:1px solid black;width:120px;height:12px;-->
+                                        <td style="border:1px solid black;border-collapse: collapse;width:120px;height:22px;text-align:center;">{!NaicsAffRow6}</td>
+                                        <td style="border:1px solid black;border-collapse: collapse;width:120px;height:22px;text-align:center;">{!NaicsAffRow5}</td>
+                                        <td style="border:1px solid black;border-collapse: collapse;width:120px;height:22px;text-align:center;">{!NaicsAffRow4}</td>
+                                        <td  style="border:1px solid black;border-collapse: collapse;width:120px;height:22px;text-align:center;">{!NaicsAffRow3}</td>
+                                        <td style="border:1px solid black;border-collapse: collapse;width:120px;height:22px;text-align:center;">{!NaicsAffRow2}</td>
+                                        <td style="border:1px solid black;border-collapse: collapse;width:120px;height:22px;text-align:center;">{!NaicsAffRow1}</td>
+                                    </tr></tbody></table>  </td>                                                    
+                    </tr>            
+                    
+                </table>   
+            </div>                   
+            <!--    </apex:outputPanel> -->
+            
+            
+            
+            
+            
+            
+            <br/><br/><br/><br/><br/>
+            <tfooter style="font-size: 20px;margin-top:100px;">May 2023</tfooter>
+            
+            
+            
+            <!-------------------------------------- Sdf Form Page-5 End  --------------------------------------->
+            
+            
+            
+            
+            <div style="page-break-after:always;"/>
+            
+            
+            
+            <!---------------------------------------Sdf Form Page-6 Start---------------------------------------->   
+            
+            
+            
+            <!--   <table cellpadding="0" cellspacing="0"  style="margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;margin-bottom:10px;">-->
+            <table cellpadding="0" cellspacing="0" style="width:100%;background-color:#c7c7c7;height:20px; margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;">
+                
+                <tr> 
+                    <td style="font-size: 17px;font-weight:bold; width:100%;height:0.5px;background-color:#c7c7c7;">
+                        Notice of Collection and Consent - Skills Development Fund Sole
+                    </td>
+                </tr>
+            </table> 
+            
+            
+            
+            
+            <table cellpadding="0" cellspacing="0" width="100%">
+                <tbody>
+                    <tr>
+                        <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-top:10px;margin-bottom:.0001pt;margin-left:0in;font-size:13px;font-family:Tahoma,sans-serif;margin-top:9px;">Organizations delivering Skills Development Fund under an agreement with the Ministry of Labour, Immigration,<br/>
+                                Training and Skills Development (the “Ministry”) are required to make its records available to the Ministry for<br/>
+                                inspection, investigation or audit.</p>
+                        </td>
+                    </tr>    
+                    
+                    
+                    <tr>
+                        <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:13px;font-family:Tahoma,sans-serif;margin-top:9px;">For those organizations in a Partnership Agreement with a lead organization, please note that the lead organization<br/>
+                                has an agreement with the Ministry . In accordance with the Partnership Agreement your information will be shared<br/>
+                                with the lead organization. The lead organization, in turn, will share your information with the Ministry. The<br/>
+                                partnership agreement requires that your organization make its records available to the lead organization. In turn,<br/>
+                                the lead organization will share your information with the Ministry for inspection, investigation, or audit, as<br/>
+                                appropriate and as necessary.</p>
+                        </td>
+                    </tr> 
+                    
+                    
+                    
+                    <tr>
+                        <td >
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:13px;font-family:Tahoma,sans-serif;margin-top:9px;">&nbsp;&nbsp;Your organization/the lead organization in the consortia is also required to report to the Ministry on:</p>
+                        </td>
+                    </tr>       
+                    
+                    
+                    <tr>
+                        <td style="padding: 0in 13.4pt;vertical-align: top;" valign="top">
+                            <p style="margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:13px;font-family:Tahoma,sans-serif;margin-top:4px;"><span style="color:black;font-weight:bold;font-size:25px;">.</span>&nbsp;&nbsp;&nbsp; The service it tailors and provides you;</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0in 13.4pt;vertical-align: top;" valign="top">
+                            <p style="margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:13px;font-family:Tahoma,sans-serif;margin-top:4px;">
+                                <span style="color:black;font-weight:bold;font-size:25px;">.</span>&nbsp;&nbsp;&nbsp; Your employment progress and outcome; and
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0in 13.4pt;vertical-align: top;" valign="top">
+                            <p style="margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:13px;font-family:Tahoma,sans-serif;margin-top:4px;">
+                                <span style="color:black;font-weight:bold;font-size:25px;">.</span>&nbsp;&nbsp;&nbsp; Your satisfaction with the services you receive.
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    
+                    <tr>
+                        <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:13px;font-family:Tahoma,sans-serif;margin-top:9px;">
+                                The Ministry will also collect relevant personal information about you from the Government of Canada (Canada) if<br/>
+                                necessary. The purpose of this information is to determine your eligibility for Employment Insurance benefits, the<br/>
+                                nature and level of Employment Insurance benefits, and to monitor, assess and evaluate the effectiveness of<br/>
+                                Skills Development Fund. Depending on the type of service or support you receive and any incentives available to<br/>
+                                your employer to hire you, your organization or the Ministry may also collect personal information about you from<br/>
+                                your employer. The Ministry may use contractors and auditors to administer and finance Skills Development<br/>
+                                Fund.
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    
+                    <tr>
+                        <td style="vertical-align: top;" valign="top">
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:13px;font-family:Tahoma,sans-serif;margin-top:9px;">
+                                &nbsp; Administration includes:
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    
+                    
+                    <tr>
+                        <td style="padding: 0in 13.4pt;vertical-align: top;" valign="top">
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:13px;font-family:Tahoma,sans-serif;">
+                                <span style="color:black;font-weight:bold;font-size:25px;">.</span>&nbsp;&nbsp;&nbsp; Assessing the performance of your organization, its effectiveness, efficiency and customer service results;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; monitoring, inspecting, investigating, auditing and enforcing your organization's compliance with its<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; agreement with the ministry.
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    
+                    
+                    <tr>
+                        <td style="padding: 0in 13.4pt;vertical-align: top;" valign="top">
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:13px;font-family:Tahoma,sans-serif;">
+                                <span style="color:black;font-weight:bold;font-size:25px;">.</span>&nbsp;&nbsp;&nbsp;  Planning, evaluating and monitoring Skills Development Fund - this includes conducting surveys, and<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; conducting policy and statistical analysis and research related to all aspects of Skills Development Fund.<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;You may be contacted to request your voluntary participation in surveys.
+                            </p>
+                        </td>
+                    </tr>   
+                    
+                    
+                    
+                    <tr>
+                        <td style="padding: 0in 13.4pt;vertical-align: top;" valign="top">
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:13px;font-family:Tahoma,sans-serif;">
+                                <span style="color:black;font-weight:bold;font-size:25px;">.</span>&nbsp;&nbsp;&nbsp;  Promoting Skills Development Fund - you may be contacted to request your voluntary participation in<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  public relations campaigns related to Skills Development Fund.
+                            </p>
+                        </td>
+                    </tr>       
+                    
+                    
+                    <tr>
+                        <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:13px;font-family:Tahoma,sans-serif;margin-top:9px;">
+                                If you are a client of, or applying to, the Ontario Disability Support Program or Ontario Works, the Ministry will <br/>
+                                provide your personal information to the Ministry of Children, Community and Social Services (MCCSS) for the <br/>
+                                purposes of administering employment services and managing the participation of MCCSS clients within <br/>
+                                employment support programs under the Ontario Works Act, 1997, and the Ontario Disability Support Program <br/>
+                                Act, 1997.
+                            </p>
+                        </td>
+                    </tr>       
+                    
+                    
+                    <tr>
+                        <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:13px;font-family:Tahoma,sans-serif;margin-top:9px;">
+                                Skills Development Fund is funded by the Ministry, in part with funds provided by Canada under Part II of the<br/>
+                                Employment Insurance Act. When funds are provided by Canada, the ministry is required to provide information<br/>
+                                to Canada to help monitor and assess the Employment Insurance Program, as required under s.3 of the<br/>
+                                Employment Insurance Act.
+                            </p>
+                        </td>
+                    </tr>       
+                    
+                    
+                    <tr>
+                        <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                            <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:13px;font-family:Tahoma,sans-serif;margin-top:9px;">
+                                Under the Labour Market Development Agreement between Canada and Ontario (LMDA) and the Workforce<br/>
+                                Development Agreement between Canada and Ontario (WDA), the Ministry is required to collect social insurance<br/>
+                                numbers from EI beneficiaries to request approval to continue to receive regular EI benefits in order to take part in<br/>
+                                training programs and other employment activities.
+                            </p>
+                        </td>
+                    </tr>       
+                    
+                    
+                    
+                    
+                </tbody>
+            </table>
+            
+            
+            
+            
+            
+            <table cellpadding="0" cellspacing="0" width="100%;margin-top:82px;">
+                
+                <tfooter style="font-size: 20px;margin-top:100px;">May 2023</tfooter>
+            </table>
+            
+            
+            <!-------------------------------------- Sdf Form Page-6 End --------------------------------------->
+            
+            <div style="page-break-after:auto;"/>
+            
+            
+            
+            
+            
+            <!---------------------------------------Sdf Form Page-7 Start---------------------------------------->    
+            
+             <div class="Page7">
+            
+            <table cellpadding="0" cellspacing="0" style="border:1px solid black; margin-left:5.0pt;border-collapse:collapse;border:none;padding:9px;margin-bottom:5px;" width= "100%">
+                
+                <tr style= "font-size:13px;margin-bottom:5px;">
+                    
+                    <td>
+                        <p style="font-size:14px;">
+                            
+                            
+                            The Ministry collects your personal information pursuant to the LMDA and WDA, ss. 3 and 63 of the Employment<br/>
+                            Insurance Act, S.C. 1996, C.23 as amended, and s.76.29 of the Employment Insurance Regulations,<br/>
+                            SOR/96-332. The Ministry will collect personal information from clients who identify as Ontario Disability Support<br/>
+                            Program or Ontario Works recipients and disclose your personal information to MCCSS in accordance with the<br/>
+                            s.71 of the Ontario Works Act, 1997, and s.53 of the Ontario Disability Support Program Act, 1997.
+                        </p>                            
+                    </td>
+                    
+                </tr> 
+                
+                <tr style= "font-size:13px;margin-top:10px;margin-bottom:10px;">
+                    <td><p style= "font-size:14px;margin-top:5px;">
+                        
+                        
+                        For more information about the collection and use of your personal information to administer and finance Skills<br/>
+                        Development Fund, you can contact the Manager, Employment Ontario Call Centre, in writing at the Ministry of<br/>
+                        Labour, Immigration, Training and Skills Development, 33 Bloor Street East, 2nd Floor, Toronto, Ontario M7A 2S3<br/>
+                        or by phone
+                        </p></td> 
+                </tr>  
+                
+                
+                <tr><td style= "font-size:13px;margin-bottom:10px;margin-top:10px;margin-bottom:10px;"><p style= "font-size:14px;margin-top:5px;">   at 1-800-387-5656. For the hearing impaired, TTY is available at 1-866-533-6339.</p></td></tr>                 
+                
+            </table>
+            
+            
+            
+            
+            <div style="width:100%;background-color:#c7c7c7;  height:30px; margin-bottom: 12px;">
+                <table cellpadding="0" cellspacing="0" style="margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;margin-bottom:10px;">
+                    
+                    <tr> 
+                        <td style="font-size: 20px;font-weight:bold; width:100%;height:1px;background:grey;">
+                            Signatures
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+            
+            
+            <table width= "100%">
+                <tr>
+                    <td>
+                        <img alt="image not found" src="{!$Resource.checkboxUnCheckedImg}" style="width:15px;"/></td><td>I/we acknowledge that my Service Provider has explained its use and disclosure of my personal
+                    &nbsp;&nbsp;  information for its purpose.</td> 
+                </tr>
+            </table>
+            <br/>
+            
+            
+            <table cellpadding="0" cellspacing="0" style="border:1px solid black; margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;margin-bottom:4px;">
+                
+                
+                <tr>
+                    <!-- <div></div>  --> 
+                    <td colspan="" style="border:1px solid black;padding: 0in 5.4pt;vertical-align: top; width:60%;" valign="top">
+                        <p style="font-size:17px;">
+                            Participant's Name<span style="color:red;font-weight:bold;">*</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <apex:inputText ></apex:inputText><apex:outputText rendered="true" style=""  value="{!Contact.Name}"/></p>
+                        
+                    </td>
+                    
+                    
+                    
+                    
+                    <td colspan="" style="border:1px solid black;padding: 0in 5.4pt;vertical-align: top; width:30%;" valign="top">
+                        <p style="font-size:17px;">
+                            Date<span style="color:red;font-weight:bold;">*</span>&nbsp;&nbsp;&nbsp;&nbsp; <apex:inputText ></apex:inputText><apex:outputText rendered="true" style="" value="{0, date, }">  <apex:param value="{!currentDate}" /> </apex:outputText>
+                        </p><br/>
+                        
+                        
+                    </td>  
+                </tr>
+                
+                
+                <tr>
+                    <!-- <div></div>  --> 
+                    <td colspan="" style="border:1px solid black;padding: 0in 5.4pt;vertical-align: top; width:60%;" valign="top">
+                        <p style="font-size:17px;">
+                            Parent's/Guardian's Name (if participant is under 18)<br/> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                           &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <apex:inputText ></apex:inputText><apex:outputText rendered="true" style=""  value="{!ParentName}"/></p>
+                        
+                    </td>
+                    
+                    
+                    
+                    
+                    <td colspan="" style="border:1px solid black;padding: 0in 5.4pt;vertical-align: top; width:30%;" valign="top">
+                        <p style="font-size:17px;">
+                            Date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<apex:inputText ></apex:inputText><apex:outputText rendered="true" style="" value="{0, date, }">  <apex:param value="{!currentDate}" /> </apex:outputText>
+                        </p><br/>
+                        
+                        
+                    </td>  
+                </tr>
+                
+                
+            </table>
+            <br/>   
+            <table width= "100%">
+                <tr>
+                    <td>
+                        <img alt="image not found" src="{!$Resource.checkboxUnCheckedImg}" style="width:15px;"/></td> <td><p style="margin-bottom;10px;">
+                    I/we give consent to the Ministry to indirectly collect, use and disclose my personal information<br/>
+                    for the purposes set out above.</p></td>
+                </tr>
+            </table>
+            
+            <table cellpadding="0" cellspacing="0" style="border:1px solid black; margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;margin-bottom:10px;">
+                
+                
+                <tr>
+                    <!-- <div></div>  --> 
+                    <td colspan="" style="border:1px solid black;padding: 0in 5.4pt;vertical-align: top; width:60%;" valign="top">
+                        <p style="font-size:17px;">
+                            Participant's Name<span style="color:red;font-weight:bold;">*</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <apex:inputText ></apex:inputText><apex:outputText rendered="true" style=""  value="{!Contact.Name}"/></p>
+                        
+                    </td>
+                    
+                    
+                    
+                    
+                    <td colspan="" style="border:1px solid black;padding: 0in 5.4pt;vertical-align: top; width:30%;" valign="top">
+                        <p style="font-size:17px;">
+                            Date<span style="color:red;">*</span>&nbsp;&nbsp;&nbsp; <apex:inputText ></apex:inputText><apex:outputText rendered="true" style="" value="{0, date, }">  <apex:param value="{!currentDate}" /> </apex:outputText>
+                        </p><br/>
+                        
+                        
+                    </td>  
+                </tr>
+                
+                
+                
+                
+                <tr>
+                    
+                    <td colspan="" style="border:1px solid black;padding: 0in 5.4pt;vertical-align: top; width:60%;" valign="top">
+                        <p style="font-size:17px;">
+                            Parent's/Guardian's Name (if participant is under 18)<br/> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                           &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <apex:inputText ></apex:inputText><apex:outputText rendered="true" style=""  value="{!ParentName}"/></p>
+                        
+                    </td>
+                    
+                    
+                    
+                    
+                    <td colspan="" style="border:1px solid black;padding: 0in 5.4pt;vertical-align: top; width:30%;" valign="top">
+                        <p style="font-size:17px;">
+                            Date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<apex:inputText ></apex:inputText><apex:outputText rendered="true" style="" value="{0, date, }">  <apex:param value="{!currentDate}" /> </apex:outputText>
+                            <!---<apex:outputText rendered="true"  style="border: 1px solid black;"  value="{!currentDate}"/>-->
+                        </p><br/>
+                        
+                        
+                    </td>  
+                </tr>
+                <br/>
+            </table>   
+            <!--   <div  style="font-size: 20px;font-weight:bold; width:10%;height:1px;background:grey; border:1px black;"></div> -->
+            
+            
+            
+            
+            <!--    <div  style="font-size: 20px;font-weight:bold;">-->
+            <table cellpadding="0" cellspacing="0" style="border:none;width:30%;padding:9px;margin-bottom:10px;">
+                
+                
+                <tbody>
+                    <tr>
+                        
+                        <td width="40%" style="background-color:#C0C0C0;">
+                            <table style= "background-color:#C0C0C0;">
+                                <tr>
+                                    <td style="padding: 0in 12.4pt;width:50%;height:0.3px;background-color:#C0C0C0; border:1px solid black;">
+                                        
+                                        Print
+                                        
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                        
+                        <td></td>
+                        
+                        <td width="42%" style="background-color:#C0C0C0;" >
+                            <table style="background-color:#C0C0C0;">
+                                <tr>
+                                    <td style="padding: 0in 12.4pt;width:20%;height:0.3px;background-color:#C0C0C0; border:1px solid black;">
+                                        
+                                        Clear
+                                        
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>                       
+                    </tr>
+                    
+                    <br/>  <br/> <br/><br/><br/>  <br/>
+                    <tfooter style="font-size: 20px;">May 2023</tfooter>  
+                    
+                </tbody>
+            </table>
+                 </div>
+           
+           
+            
+            <!-------------------------------------- Sdf Form Page-7 End  --------------------------------------->
+            
+        </apex:form>   
+    </body>
+    
+</apex:page>

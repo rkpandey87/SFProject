@@ -1,0 +1,63 @@
+<!-- c:CustomEvent.cmp -->
+<aura:event type="COMPONENT" description="Event to pass ID">
+    <aura:attribute name="recordId" type="String" />
+</aura:event>
+
+
+
+
+
+
+
+
+---------------------------------------------------------------
+
+
+
+{
+    handleIdEvent: function(component, event, helper) {
+        var recordId = event.getParam("recordId");
+        // Now you can use the recordId in this component
+    }
+	
+	
+	
+	// YourComponentController.js
+({
+    handleLinkClick: function(component, event, helper) {
+        var recordId = event.currentTarget.dataset.recordid;
+
+        // Create the custom event
+        var customEvent = component.getEvent("passIdEvent");
+        customEvent.setParams({ "recordId": recordId });
+
+        // Fire the event
+        customEvent.fire();
+    }
+})
+
+
+
+
+
+{
+    handleIdEvent: function(component, event, helper) {
+        var recordId = event.getParam("recordId");
+        // Now you can use the recordId in this component
+    }
+	
+	
+	{
+    handleIdEvent: function(component, event, helper) {
+        var recordId = event.getParam("recordId");
+        // Now you can use the recordId in this component
+    }
+	
+	your component 
+	
+	<!-- YourComponent.cmp -->
+<aura:iteration items="{!yourList}" var="item">
+    <a onclick="{!c.handleLinkClick}" data-recordid="{!item.Id}">
+        <!-- Your hyperlink content -->
+    </a>
+</aura:iteration>

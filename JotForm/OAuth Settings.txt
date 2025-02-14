@@ -1,0 +1,34 @@
+OAuth and OpenID Connect Settings
+
+we can connect salesforce org by two methods 
+
+1 - By Username, password and connected app details 
+
+- Rquired pass username, passwordwithAccesstoken , clientid and clientSecret(generated when created connected app)
+
+and make setup-->OAuth and OpenID Connect Settings
+
+- Allow OAuth Username-Password Flows - True
+   Allow your org to use the legacy OAuth 2.0 username-password flow to authorize an app that already has the user’s credentials.
+
+
+- Allow OAuth User-Agent Flows - True
+  Allow your org to use the OAuth 2.0 user-agent flow to authorize apps such as mobile apps and desktop clients.
+  Allow OAuth User-Agent Flows
+
+2- only using connected app details clientid and clientSecret(generated when created connected app)
+
+When create a connected app enter all required detail  check 
+
+Require Secret for Web Server Flow - True	
+
+Require Secret for Refresh Token Flow	- True
+
+Enable Client Credentials Flow	- True 
+
+Enable Authorization Code and Credentials Flow - True	
+
+click on manage
+
+Client Credentials Flow
+Run As-	Sanjay Jindal(assign user for permission access)

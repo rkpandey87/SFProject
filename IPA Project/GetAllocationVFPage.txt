@@ -1,0 +1,49 @@
+<apex:page standardController="Opportunity"  standardStylesheets="true">
+    
+    
+    <apex:form > 
+        
+        <div  align="left" draggable="false" style="color:blue">
+            <apex:commandButton action="{!URLFOR($Action.Allocation__c.new)}" value="Create New Allocation" /> 
+        </div><br/>
+        
+             <apex:pageBlock title="{!Opportunity.Name}" >
+                        
+                        <apex:pageBlockTable value="{!Opportunity}" var="opp">
+                            <apex:column value="{!opp.Total_Funding_Amount__c}"/>
+                            <apex:column value="{!opp.Total_Allocations_Amount__c}"/>
+                            <apex:column value="{!opp.Cumulative_Spend_to_Date__c}"/>
+                        </apex:pageBlockTable>
+                        
+                    </apex:pageBlock>
+            
+         
+     
+        
+        
+        
+        <div align="right" draggable="false"  >
+            <apex:commandButton action="{!save}" value="Export Allocation to Excel" /> 
+        </div><br/>
+        
+        <apex:pageBlock title="Allocations">
+            
+            <apex:pageBlockTable value="{!Opportunity.Allocations__r}" var="Alloc">
+                <apex:column value="{!Alloc.Name}"/>
+                <apex:column value="{!Alloc.Allocation_Type__c}"/>
+                <apex:column value="{!Alloc.Subaward__c}"/>
+                <apex:column value="{!Alloc.IPA_Allocation_Code__c}"/>
+                <apex:column value="{!Alloc.Project__c}"/>
+                <apex:column value="{!Alloc.Status__c}"/>
+                <apex:column value="{!Alloc.Amount_Allocated__c}"/>
+                <apex:column value="{!Alloc.Amount_Proposed__c}"/>
+                <apex:column value="{!Alloc.Budget_Holder__c}"/>
+                <apex:column value="{!Alloc.Location_of_Work__c}"/>
+                <apex:column value="{!Alloc.Managing_Team__c}"/>				
+                <apex:column value="{!Alloc.Funding_Team__c}"/>
+            </apex:pageBlockTable>
+            
+        </apex:pageBlock>
+        
+    </apex:form>
+</apex:page>

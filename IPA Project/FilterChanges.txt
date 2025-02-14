@@ -1,0 +1,72 @@
+.cmp
+
+ <aura:attribute name="navigateParameter" type="string" default="initialLoad"/>
+
+<aura:attribute name="statusValueSelected" type="String" default="--None--"/>
+
+<div class="slds-box slds-theme_shade slds-theme_alert-texture" style="font-size: 13px;">      
+    <lightning:select name="select" label="Select Allocation_Type" onchange="{!c.handleStatusChange}" value="{!v.statusValueSelected}">
+        <option value="Allocation">--None--</option>
+        <option value="Allocation">Allocation</option>
+        <option value="External Subaward">External Subaward</option>
+        <option value="Internal Subaward">Internal Subaward</option>
+        <option value="Placeholder">Placeholder</option>
+    </lightning:select>
+    </div>
+    <br></br>
+
+contoller
+
+handleStatusChange : function (component, event, helper) {
+   
+        helper.helperMethod(component,'initialLoad');
+     
+    },
+
+
+Helper 
+
+	 helperMethod : function(component,type) {
+        
+        if(type=='initialLoad')
+        {
+         var OppId= component.get("v.recordId");
+        var statusValueSelected=component.get("v.statusValueSelected");
+            //alert('statusValueSelected'+statusValueSelected);
+        var action=component.get('c.getfilterAllocation');
+            
+            action.setParams({
+                recordId:OppId,
+                StatusValue:statusValueSelected
+                
+            });
+       action.setCallback(this,function(response){   
+            var state=response.getState();
+            var resultData=response.getReturnValue();         
+            if(state==="SUCCESS")
+            {
+              component.set("v.allocationList",resultData);                                
+             $A.get('e.force:refreshView').fire();
+            }
+     
+        });
+        $A.enqueueAction(action);
+ }
+        
+       
+    },
+
+
+
+Apex Controller 
+
+
+ @AuraEnabled  
+    public static List<Allocation__c> getfilterAllocation(Id recordId, String StatusValue){
+        string AllocationStatus=StatusValue;
+        List<Allocation__c> allocationList= [Select Id,Name,Subaward__c,Opportunity__c,Allocation_Type__c,IPA_Allocation_Code__c,Project__c,Status__c,Amount_Allocated__c,
+                                         Amount_Proposed__c,Budget_Holder__c,Location_of_Work__c,Managing_Team__c,Funding_Team__c from Allocation__c Where Opportunity__c=:recordId AND Allocation_Type__c=:AllocationStatus ]; 
+        return allocationList;
+        
+    } 
+     

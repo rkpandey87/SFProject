@@ -1,0 +1,86 @@
+Total Funding Amount
+.................................................
+Total_Amendments_Amount__c +  Amount
+
+Total Amendments Amount - Roll-Up Summary
+
+Master Object - Opportunity	 	 
+
+Summarized Object -	Amendments(Amount Approved field)
+
+Amount Approved - Validation Rule Detail(AND(RecordType.Name = "Cost Extension", ISPICKVAL(Amendment_Status__c, "Approved"), ISBLANK( Amount_Approved__c ))
+
+Opp Field Name on Amendments Object - (Parent_Grant_Award__c) 
+
+
+Amount - Original Won Amount
+help text - Anticipated award amount. Will be confirmed at Closed Won stage. Includes Indirect
+
+
+Total Allocated Amount
+.............................
+Total_Allocations_Amount__c  Data Type  - Number 
+
+Description- Sum of Allocated Amount on Allocations for Opportunity record
+
+Used in 
+
+Custom Field - Remaining Allocations Amount(Remaining_Allocations_Amount__c)
+
+Remaining Allocations Amount = Total_Funding_Amount__c - Total_Allocations_Amount__c
+
+ApexClass	- AllocationTriggerHandler
+
+Validation Error 
+.....................................................
+ for (Allocation__c objAllocation : lstNewRecord) {
+                if (objAllocation.Amount_Allocated__c > OpportunityRemaingAllocationMap.get(objAllocation.Opportunity__c) && objAllocation.Status__c == 'Confirmed') {
+                    objAllocation.addError('The Sum of Allocated Amounts in Allocations should not be greater than the Opportunity Total Amount ');
+                    }
+
+            }
+
+Description -  All related Allocation Amount_Allocated__c < Remaining_Allocations_Amount__c on Opportuninty otherwise show error 
+
+ApexClass	- getOppAndAllocationListController
+
+.......................................................
+Cumulative Spend to Date(Cumulative_Spend_to_Date__c) Object - Opportunity  Data Type-Currency
+
+
+
+Used In 
+
+ApexClass	getOppAndAllocationListController
+CustomField	Grant_Balance
+CustomField	Grant_Spent
+CustomField	Potentially_Billable
+CustomField	Deferred_Revenue
+CustomField	Overspend_Amount
+.....................................................
+
+
+
+
+
+
+Fields Not existed in Opportunity Object Of IPA 
+
+Total Unallocated Amount ( Total_Unallocated_Amount__c)
+
+Total Amount Proposed (Total_Amount_Proposed)
+
+
+AND(RecordType.Name = "Cost Extension", ISPICKVAL(Amendment_Status__c, "Approved"), ISBLANK( Amount_Approved__c )
+
+
+
+
+
+
+Allocation Type 
+
+Allocation
+External Subaward
+Internal Subaward
+Placeholder

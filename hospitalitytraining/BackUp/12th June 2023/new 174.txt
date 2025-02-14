@@ -1,0 +1,396 @@
+public class MakePaymentController {
+    
+    @AuraEnabled
+    public static List<wprCountryList> getCountryList(String objectName,String fieldName){
+        List<wprCountryList> listCountry = new List<wprCountryList>();
+    
+        Schema.SObjectType s = Schema.getGlobalDescribe().get(objectName) ;
+        Schema.DescribeSObjectResult r = s.getDescribe() ;
+        Map<String,Schema.SObjectField> fields = r.fields.getMap() ;
+        Schema.DescribeFieldResult fieldResult = fields.get(fieldName).getDescribe();
+        List<Schema.PicklistEntry> ple = fieldResult.getPicklistValues();
+        for( Schema.PicklistEntry pickListVal : ple){
+            System.debug(pickListVal.getLabel() +' '+pickListVal.getValue());
+            wprCountryList ct=new wprCountryList();
+            ct.CountryName=pickListVal.getLabel();
+            
+            listCountry.add(ct);
+            
+        }  
+        wprCountryList ct1=new wprCountryList();
+        ct1.CountryName ='No Preference';
+        listCountry.add(ct1);
+        system.debug('Size===>'+listCountry.size());
+      return listCountry;  
+        
+    }
+    @AuraEnabled
+    public static void CreateDonations(string itemData){
+        
+       List<Object> lstItemData = (List<Object>)JSON.deserializeUntyped(itemData); 
+        List<CreateDonationsRequest.DonationDetails>donationList = new List<CreateDonationsRequest.DonationDetails>();
+        CreateDonationsRequest.DonorDetails donarRecord = new CreateDonationsRequest.DonorDetails();
+        CreateDonationsRequest reqParams =new CreateDonationsRequest();
+        
+        
+        string UserId = userinfo.getUserId();
+        String contactId;
+
+        User cUser = [Select id,contactId from user where id=:UserId];
+        if(cUser!=Null){contactId = cUser.contactId;}
+        system.debug('##currentUser====>'+cUser);
+        system.debug('##contactId====>'+contactId);
+         string donorContactId = contactId;
+         
+        if(donorContactId!=null){            
+        //  contact conRec = [Select Id,AccountId from Contact Where Id=:donorContactId];
+        
+        }
+       
+        
+        
+        
+        String errorMessage = '';
+        system.debug('reqParams# '+reqParams);
+        
+     
+         for(Object itemObj : lstItemData) {                        
+                    Map<String, Object> mapItem = (Map<String, Object>) itemObj;
+                    
+                    Boolean isMonthly = Boolean.valueof(mapItem.get('isMonthly'));
+                    string recordType = string.valueOf(mapItem.get('recordType'));                    
+                    string ptype = string.valueOf(mapItem.get('type'));
+                    String pAmount = String.valueOf(mapItem.get('Amount'));
+             
+                     System.debug('isMonthly====>'+isMonthly);
+                    System.debug('isMonthly====>'+recordType);
+                    System.debug('ptype====>'+ptype);
+                    System.debug('pAmount====>'+pAmount);
+                    
+                   CreateDonationsRequest.DonationDetails da = new  CreateDonationsRequest.DonationDetails();
+                     da.isMonthly = isMonthly;
+                     da.recordType =recordType;
+                     da.type = ptype;
+                     da.Amount =Decimal.valueof(pAmount);
+                    donationList.add(da);
+                }
+       
+         System.debug('donationList Size====>'+donationList.size());
+        if(donationList!=Null && donationList.size()>0){
+            reqParams.donationDetails=donationList;
+        }
+        
+        
+        
+
+        
+        
+        
+        
+        
+        if(reqParams.donorDetails.contactId!=null){
+            donorContactId = reqParams.donorDetails.contactId;
+        } else {
+            List<Contact> listCon = [Select Id from Contact Where RecordType.Name='Adult Contact' AND FirstName=:reqParams.donorDetails.firstName AND LastName=:reqParams.donorDetails.lastName AND Email=:reqParams.donorDetails.email];
+            if(listCon!=null && listCon.size()>0){
+                donorContactId = listCon[0].Id;
+            } else if(reqParams.donorDetails.street==null || reqParams.donorDetails.city==null || reqParams.donorDetails.state==null || reqParams.donorDetails.zip==null){
+                errorMessage = errorMessage + 'Invalid/Incomplete address!';
+            } else if(reqParams.donorDetails.lastName!=null && reqParams.donorDetails.lastName!=''){
+                Id conRecordTypeId = Schema.SObjectType.Contact.getRecordTypeInfosByName().get('Adult Contact').getRecordTypeId();
+                
+                Contact con = new Contact();
+                if(reqParams.donorDetails.firstName!=null)
+                con.firstName = reqParams.donorDetails.firstName;
+                
+                if(reqParams.donorDetails.lastName!=null)
+                con.lastName = reqParams.donorDetails.lastName;
+                
+                if(reqParams.donorDetails.email!=null)
+                con.Email = reqParams.donorDetails.email;
+                
+                if(reqParams.donorDetails.phone!=null)
+                con.Phone = reqParams.donorDetails.phone;
+                
+                if(reqParams.donorDetails.leadSource!=null)
+                con.LeadSource = reqParams.donorDetails.leadSource;
+               
+                
+                con.RecordTypeId = conRecordTypeId;
+                
+                try{
+                    insert con;
+                    
+                    donorContactId = con.Id;
+                    
+                } catch(Exception ex){
+                    errorMessage = errorMessage + ex.getMessage()+' Line number: '+ex.getLineNumber()+'#';
+                }                
+            } else {
+                errorMessage = errorMessage + 'Last Name is required to create Contact.#';
+            }
+        } 
+               
+        List<npe03__Recurring_Donation__c> insertRD = new List<npe03__Recurring_Donation__c>();
+        List<Opportunity> insertOpp = new List<Opportunity>();
+        List<Contact> updateCon = new List<Contact>();
+        set<string> setConIds = new set<string>();
+        Contact adultCon = new Contact();
+         
+        if(donorContactId!=null){            
+            adultCon = [Select Id,AccountId from Contact Where Id=:donorContactId];
+            adultCon.Customer_Id__c = reqParams.donorDetails.customerId;
+            adultCon.Source_Id__c = reqParams.donorDetails.sourceId;
+            
+            if(reqParams.donorDetails.phone!=null)
+            adultCon.Phone = reqParams.donorDetails.phone;
+            
+            if(reqParams.donorDetails.street!=null)
+            adultCon.MailingStreet = reqParams.donorDetails.street;
+            
+            if(reqParams.donorDetails.city!=null)
+            adultCon.MailingCity = reqParams.donorDetails.city;
+            
+            if(reqParams.donorDetails.state!=null)
+            adultCon.MailingState = reqParams.donorDetails.state;
+            
+            if(reqParams.donorDetails.zip!=null)
+            adultCon.MailingPostalCode = reqParams.donorDetails.zip;
+            
+            adultCon.MailingCountry = 'United States';
+            
+            Id childRecordTypeId = Schema.SObjectType.npe03__Recurring_Donation__c.getRecordTypeInfosByName().get('Child Sponsorship').getRecordTypeId();
+            Id projectRecordTypeId = Schema.SObjectType.npe03__Recurring_Donation__c.getRecordTypeInfosByName().get('Project Sponsorship').getRecordTypeId();
+            
+            Id donationRecordTypeId = Schema.SObjectType.Opportunity.getRecordTypeInfosByName().get('Donation').getRecordTypeId();
+            Id sponsorshipRecordTypeId = Schema.SObjectType.Opportunity.getRecordTypeInfosByName().get('Sponsorship').getRecordTypeId();
+            
+            for(CreateDonationsRequest.DonationDetails dd:reqParams.donationDetails){
+                if(dd.recordType == 'Child Sponsorship'){
+                    if(dd.sponsoredChildSFID!=null && dd.sponsoredChildSFID!=''){
+                        setConIds.add(dd.sponsoredChildSFID);
+                    }    
+                    if(dd.isMonthly){
+                        npe03__Recurring_Donation__c rdOpportunity = new npe03__Recurring_Donation__c();
+                        rdOpportunity.Sponsored_Child__c = dd.sponsoredChildSFID;
+                        rdOpportunity.npe03__Organization__c = adultCon.AccountId;
+                        rdOpportunity.npe03__Amount__c = dd.Amount;
+                        rdOpportunity.npe03__Contact__c = adultCon.Id;
+                        rdOpportunity.npsp__Day_of_Month__c = String.valueOf(System.now().Day());
+                        rdOpportunity.npsp__PaymentMethod__c = reqParams.PaymentDetails.paymentMethod;
+                        rdOpportunity.Project_Initiative__c = 'Child Sponsorship';
+                        rdOpportunity.npsp__Status__c = 'Active';
+                        rdOpportunity.recordTypeId = childRecordTypeId;
+                        rdOpportunity.Name = 'test';
+                        insertRD.add(rdOpportunity);
+                    } else {
+                        Opportunity opp = new Opportunity();
+                        opp.AccountId = adultCon.AccountId;
+                        opp.ContactId = adultCon.Id;
+                        opp.npsp__Primary_Contact__c = adultCon.Id;
+                        opp.recordTypeId = sponsorshipRecordTypeId;
+                        opp.Amount = dd.Amount;
+                        opp.CloseDate = Date.Today();
+                        opp.StageName = 'Pledged';
+                        opp.Type = 'Child Sponsorship';
+                        opp.Project_Initiative__c = 'Child Sponsorship';
+                        opp.Sponsored_Child__c = dd.sponsoredChildSFID;
+                        opp.Name = 'test';
+                        opp.Site_Payment__c = true;
+                        insertOpp.add(opp);
+                    }
+                } else if(dd.recordType == 'Project Sponsorship'){
+                    if(dd.type!=null && dd.type!=''){
+                        if(dd.isMonthly){
+                            npe03__Recurring_Donation__c rdOpportunity = new npe03__Recurring_Donation__c();
+                            rdOpportunity.npe03__Organization__c = adultCon.AccountId;
+                            rdOpportunity.npe03__Amount__c = dd.Amount;
+                            rdOpportunity.npe03__Contact__c = adultCon.Id;
+                            rdOpportunity.npsp__Day_of_Month__c = String.valueOf(System.now().Day());
+                            rdOpportunity.npsp__PaymentMethod__c = reqParams.PaymentDetails.paymentMethod;
+                            rdOpportunity.Project_Initiative__c = dd.type;
+                            rdOpportunity.npsp__Status__c = 'Active';
+                            rdOpportunity.recordTypeId = projectRecordTypeId;
+                            rdOpportunity.Name = 'test';
+                            insertRD.add(rdOpportunity);
+                        } else {
+                            Opportunity opp = new Opportunity();
+                            opp.AccountId = adultCon.AccountId;
+                            opp.ContactId = adultCon.Id;
+                            opp.npsp__Primary_Contact__c = adultCon.Id;
+                            opp.recordTypeId = sponsorshipRecordTypeId;
+                            opp.Amount = dd.Amount;
+                            opp.CloseDate = Date.Today();
+                            opp.StageName = 'Pledged';
+                            opp.Type = 'Project Sponsorship';
+                            opp.Project_Initiative__c = dd.type;
+                            opp.Name = 'test';
+                            opp.Site_Payment__c = true;
+                            insertOpp.add(opp);
+                        }
+                    } else {
+                        errorMessage = errorMessage + 'Type is required to create Project Sponsorship Donation.#';
+                    }                    
+                } else if(dd.recordType == 'Donation'){
+                    if(dd.isMonthly){
+                        npe03__Recurring_Donation__c rdOpportunity = new npe03__Recurring_Donation__c();
+                        rdOpportunity.npe03__Organization__c = adultCon.AccountId;
+                        rdOpportunity.npe03__Amount__c = dd.Amount;
+                        rdOpportunity.npe03__Contact__c = adultCon.Id;
+                        rdOpportunity.npsp__Day_of_Month__c = String.valueOf(System.now().Day());
+                        rdOpportunity.npsp__PaymentMethod__c = reqParams.PaymentDetails.paymentMethod;
+                        rdOpportunity.Project_Initiative__c = dd.type;
+                        rdOpportunity.npsp__Status__c = 'Active';
+                        rdOpportunity.recordTypeId = projectRecordTypeId;
+                        rdOpportunity.Name = 'test';
+                        insertRD.add(rdOpportunity);
+                    } else {
+                        Opportunity opp = new Opportunity();
+                        opp.AccountId = adultCon.AccountId;
+                        opp.ContactId = adultCon.Id;
+                        opp.npsp__Primary_Contact__c = adultCon.Id;
+                        opp.recordTypeId = donationRecordTypeId;
+                        opp.Amount = dd.Amount;
+                        opp.CloseDate = Date.Today();
+                        opp.StageName = 'Pledged';
+                        opp.Type = 'Project Sponsorship';
+                        opp.Project_Initiative__c = dd.type;
+                        opp.Name = 'test';
+                        opp.Site_Payment__c = true;
+                        insertOpp.add(opp);
+                    }
+                }
+            }
+        }
+        
+        Savepoint sp = Database.setSavepoint();
+        
+        try{
+            system.debug('insertRD# '+insertRD.size());
+            system.debug('insertOpp# '+insertOpp.size());
+            
+            set<Id> idsRD = new set<id>();
+            set<Id> idsOpp = new set<id>();
+            
+            if(insertRD.size()>0){
+                insert insertRD;
+                
+                for(npe03__Recurring_Donation__c rd:insertRD)
+                idsRD.add(rd.Id);
+                
+                List<Opportunity> listOpp = [Select Id from Opportunity where npe03__Recurring_Donation__c IN:idsRD];
+                
+                for(Opportunity opp:listOpp){
+                    idsOpp.add(opp.Id);
+                    opp.Site_Payment__c = true;
+                }
+                update listOpp;
+            }            
+            
+            if(insertOpp.size()>0){
+                insert insertOpp;
+                
+                for(Opportunity opp:insertOpp)
+                idsOpp.add(opp.Id);
+            }
+            String Send_Receipts = 'true';
+            if(reqParams.PaymentDetails.paymentMethod=='ACH')
+            Send_Receipts = 'false';
+            
+            if(idsOpp.size()>0){
+                List<npe01__OppPayment__c> listPayments = [Select Id from npe01__OppPayment__c where npe01__Opportunity__c IN:idsOpp];
+                
+                for(npe01__OppPayment__c pay:listPayments){
+                    pay.npe01__Check_Reference_Number__c = reqParams.PaymentDetails.transactionNumber;
+                    pay.npe01__Payment_Method__c = reqParams.PaymentDetails.paymentMethod;
+                    if(reqParams.PaymentDetails.paymentMethod=='ACH'){
+                      pay.npsp__ACH_Last_4__c = reqParams.PaymentDetails.ACHLast4;  
+                    }
+                    else{
+                       pay.npsp__Card_Last_4__c = reqParams.PaymentDetails.CardLast4; 
+                    }
+                    pay.npsp__Card_Expiration_Month__c = reqParams.PaymentDetails.CardExpirationMonth;
+                    pay.npsp__Card_Expiration_Year__c = reqParams.PaymentDetails.CardExpirationYear;
+                    
+                    if(reqParams.PaymentDetails.paymentStatus=='Success'){
+                        pay.npe01__Paid__c = true;
+                        pay.npe01__Payment_Date__c = Date.Today();                        
+                    }
+                }
+                
+                update listPayments;
+                
+            }
+            
+            
+            Map<String,String> mapAdultCon = new Map<String,String>();
+            mapAdultCon.put('Id',adultCon.Id);
+            mapAdultCon.put('Customer_Id',adultCon.Customer_Id__c);
+            mapAdultCon.put('Source_Id',adultCon.Source_Id__c);
+            mapAdultCon.put('Phone',adultCon.Phone);
+            mapAdultCon.put('MailingStreet',adultCon.MailingStreet);
+            mapAdultCon.put('MailingCity',adultCon.MailingCity);
+            mapAdultCon.put('MailingState',adultCon.MailingState);
+            mapAdultCon.put('MailingPostalCode',adultCon.MailingPostalCode);
+            mapAdultCon.put('MailingCountry','United States');
+            mapAdultCon.put('Send_Receipts',Send_Receipts);
+            
+            CreateDonations.updateContacts(mapAdultCon,setConIds);
+            
+        } catch(Exception ex){
+            Database.rollback(sp);
+            errorMessage = errorMessage + ex.getMessage()+' Line number: '+ex.getLineNumber()+'#';
+        }
+        
+        
+    }
+    
+   @AuraEnabled
+    public static List<DonationDetails> getGiftList(){
+        List<DonationDetails>lst =new  List<DonationDetails>();
+        List<String>pjList =New List<String>{'Education', 'Income Generation', 'Water & Sanitation','Health & Nutrition','Emergency Relief & Humanitarian Assistance','General Donation'};
+         DonationDetails dr = new DonationDetails(); 
+            dr.isMonthly =false;
+            dr.projectList =pjList;
+            dr.SelectedProject =pjList[0];
+            dr.Amount =0.0;
+            lst.add(dr);
+        return lst;
+        
+    }
+    
+     @AuraEnabled
+    public static List<DonationDetails> getGiftMonthlyList(){
+        List<DonationDetails>lst =new  List<DonationDetails>();
+        List<String>pjList =New List<String>{'Education', 'Income Generation', 'Water & Sanitation','Health & Nutrition','Emergency Relief & Humanitarian Assistance','General Donation'};
+        DonationDetails dr = new DonationDetails(); 
+        dr.isMonthly =true;
+        dr.projectList =pjList;
+        dr.SelectedProject =pjList[0];
+        dr.Amount =0.0;
+        lst.add(dr);
+        return lst;
+        
+    }
+     
+public class wprCountryList {
+	@AuraEnabled
+	public string CountryName{get;set;}  
+	
+	} 
+    
+    public class DonationDetails{
+        @AuraEnabled
+        public boolean isMonthly;
+        @AuraEnabled
+        public List<string> projectList;
+        @AuraEnabled
+        public string SelectedProject;
+        @AuraEnabled
+        public string recordType;
+        @AuraEnabled
+        public string type;
+        @AuraEnabled
+        public Decimal Amount;
+    }
+}

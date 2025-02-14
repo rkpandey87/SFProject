@@ -1,0 +1,166 @@
+@isTest
+public class SdfRegistrationForm_Test {
+    
+    @isTest static void testMethod1(){
+        Integer data= 10;
+        
+        Account acc= new Account();
+        acc.Name= 'Test Account record';
+        insert acc;
+        
+        Contact conRec = new Contact();
+        conRec.LastName='Test Contact record';
+        conRec.Gender__c= 'Transgender';
+        conRec.Preferred_Language__c='English';
+        conRec.Status_in_Canada__c='Canadian Citizen';
+        conRec.Preferred_Contact_Method__c='Hard Copy';
+        conRec.Marital_status__c='Single';
+        conRec.Current_Employment_Status__c='Employed, but currently on a leave';
+        conRec.Current_Source_of_Income__c='Ontario Works (OW)';
+        conRec.Highest_level_of_education__c='Grade 11';
+        conRec.Birthdate= date.today().addDays(-360);
+        conRec.Date_of_Arrival_in_Canada__c= date.today();
+        //  conRec.Parent_Guardian__c= conRec.Id;
+        insert conRec;
+        
+        
+        Contact conRec2 = new Contact();
+        conRec2.LastName='Test 2';
+        conRec2.Gender__c= 'Man';
+        conRec2.Preferred_Language__c='French';
+        conRec2.Status_in_Canada__c='Prefer not to say';
+        conRec2.Preferred_Contact_Method__c='Phone';
+        conRec2.Marital_status__c='Married';
+        conRec2.Current_Employment_Status__c='Self-employed';
+        conRec2.Current_Source_of_Income__c='Other';
+        conRec2.Highest_level_of_education__c='Grade 12 (or equivalent)';
+        conRec2.Birthdate= date.today().addDays(-100);
+        conRec2.Date_of_Arrival_in_Canada__c= date.today();
+        conRec2.Parent_Guardian__c= conRec.Id;
+        insert conRec2;
+        
+        System.debug('conRec==>'+conRec);
+        
+        List<npe5__Affiliation__c> lstAffliation=new  List<npe5__Affiliation__c>();
+        npe5__Affiliation__c aff= new npe5__Affiliation__c();
+        aff.npe5__Contact__c= conRec.id;
+        aff.Hourly_Wage__c= 10;
+        aff.npe5__Role__c= 'Sr. Programmer';
+        aff.noc__c= 5;
+        aff.NAICS__c= 6;
+        aff.npe5__StartDate__c= date.today();
+        aff.npe5__EndDate__c=date.today().addDays(30);
+        aff.npe5__Organization__c= acc.Id;
+        lstAffliation.add(aff);
+        
+        npe5__Affiliation__c aff2= new npe5__Affiliation__c();
+        aff2.npe5__Contact__c= conRec.id;
+        aff2.Hourly_Wage__c= 20;
+        aff2.npe5__Role__c= 'Sr. Salesforce Developer';
+        aff2.noc__c= 4;
+        aff2.NAICS__c= 5;
+        aff2.npe5__StartDate__c= date.today();
+        aff2.npe5__EndDate__c=date.today().addDays(15);
+        aff2.npe5__Organization__c= acc.Id;
+        lstAffliation.add(aff2);
+        insert lstAffliation;
+        System.debug('lstAffliation==>'+lstAffliation);
+        
+        
+        Test.startTest();
+        
+        Apexpages.StandardController sc= new Apexpages.StandardController(conRec); 
+        SdfRegistrationForm sdf= new SdfRegistrationForm(sc);
+        
+        //Adding Vf Page
+        PageReference pageRef= Page.SdfRegistrationForm;
+        pageRef.getParameters().put('id', String.valueOf(conRec.Id));
+        Test.setCurrentPage(pageRef);
+        
+        sdf= new SdfRegistrationForm(sc);
+        sdf.getIncomeSource();
+        sdf.getGenderValues();
+        sdf.getPreferReportingWage();
+        sdf.getPreferReportingWage2();
+        sdf.getGenderDataTest();
+        sdf.getGenderDifferentValue();
+        sdf.getGenderDifferentValue2();
+        sdf.getGenderValue3();
+        sdf.getStatusInCanadaValuesRow1();
+        sdf.getStatusInCanadaProtectedPerson();
+        sdf.getStatusInCanadaPreferNotSay();
+        sdf.getOtherVal();
+        sdf.getPreferredLanguage();
+        sdf.getCurrEmploymentStatus();
+        sdf.getCurrEmpStatus2();
+        sdf.getPreferredContactValues();
+        sdf.getMaritalStatusValuesRow1();
+        sdf.getMaritalStatusValuesRow2();
+        sdf.getLabourForceAttachment();
+        sdf.getIncomeSource2();
+        sdf.getEducationRow1();
+        sdf.getEducationRow2();
+        sdf.getEducationRow3();
+        sdf.getEducationRow4();
+        sdf.getEducationRow5();
+        sdf.getPreferredPhone();
+        sdf.generatePDF();
+        sdf.redirectOnFilePage();
+        sdf.Cancel();
+        
+        
+        // Initialised all Used Number Variable
+        sdf.dataInNocNaic= 1;
+        sdf.firstName= 'Test';
+        sdf.lastName= 'Contact Rec';
+        sdf.birthDate= String.valueOf(date.today());
+        sdf.SelectedGender='Man';
+        sdf.mailingCity= 'Dallas';
+        sdf.mailingState='texas';
+        sdf.mailingPostalCode= '453556';
+        sdf.OtherCity= 'Washington';
+        sdf.OtherState= 'AZ';
+        sdf.OtherPostalCode= '353556';
+        sdf.PersonWithDisability= false;
+        sdf.NocRow1= 1;
+        sdf.NocRow2= 2;
+        sdf.NocRow3= 3;
+        sdf.NocRow4= 4;
+        sdf.NocRow5= 5;
+        sdf.NaicsRow1= 1;
+        sdf.NaicsRow2= 2;
+        sdf.NaicsRow3= 3;
+        sdf.NaicsRow4= 4;
+        sdf.NaicsRow5= 5;
+        sdf.NaicsRow6= 6;
+        sdf.NocAffRow1= 1;
+        sdf.NocAffRow2= 2;
+        sdf.NocAffRow3= 3;
+        sdf.NocAffRow4= 4;
+        sdf.NocAffRow5= 5;
+        sdf.NaicsAffRow1= 1;
+        sdf.NaicsAffRow2= 2;
+        sdf.NaicsAffRow3= 3;
+        sdf.NaicsAffRow4= 4;
+        sdf.NaicsAffRow5= 5;
+        sdf.NaicsAffRow6= 6;
+        sdf.remNoc2= 1.0;
+        sdf.holdNocRem1= 1;
+        sdf.dividend= 1;
+        sdf.quotient= 1;
+        sdf.remainder= 1;
+        sdf.dividendNaics= 1;
+        sdf.quotientNaics= 1;
+        sdf.remainderNaics= 1;
+        sdf.quotientNocAff2= 1;
+        sdf.remainderNocAff2= 1;
+        sdf.quotientNaicsAff2= 1;
+        sdf.remainderNaicsAff2= 1;
+        sdf.ParentName= 'Test1';
+        
+        Test.stopTest();
+        
+        
+       
+    }
+}

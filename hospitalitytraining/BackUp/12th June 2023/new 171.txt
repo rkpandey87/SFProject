@@ -1,0 +1,88 @@
+/s/community-page?param1=value1&param2=value2
+
+
+// ReceivingComponentController.js
+({
+    doInit: function(component, event, helper) {
+        // Get URL parameters
+        var urlParams = helper.getUrlParameters();
+        var param1Value = urlParams.param1;
+        var param2Value = urlParams.param2;
+
+        // Now you can use the parameter values in this component
+        console.log("Param1 Value: " + param1Value);
+        console.log("Param2 Value: " + param2Value);
+    }
+})
+
+
+
+// ReceivingComponentHelper.js
+({
+    getUrlParameters: function() {
+        var url = window.location.href;
+        var urlParams = {};
+        var params = url.split("?")[1];
+
+        if (params) {
+            params = params.split("&");
+
+            for (var i = 0; i < params.length; i++) {
+                var pair = params[i].split("=");
+                urlParams[pair[0]] = pair[1];
+            }
+        }
+
+        return urlParams;
+    }
+})
+
+
+<!-- ReceivingComponent.cmp -->
+<aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+
+
+
+// SendingComponentController.js
+({
+    navigateToReceivingComponent: function(component, event, helper) {
+        // Get parameter values
+        var param1Value = 'value1';
+        var param2Value = 'value2';
+
+        // Construct the URL
+        var url = '/s/community-page?param1=' + param1Value + '&param2=' + param2Value;
+
+        // Use the navigation service to navigate to the URL
+        var urlEvent = $A.get("e.force:navigateToURL");
+        urlEvent.setParams({
+            "url": url
+        });
+        urlEvent.fire();
+    }
+})
+
+
+<!-- SendingComponent.cmp -->
+<aura:component>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <lightning:button label="Navigate to Receiving Component" onclick="{!c.navigateToReceivingComponent}" />
+</aura:component>
+
+
+
+
+// ReceivingComponentController.js
+({
+    doInit: function(component, event, helper) {
+        // Get URL parameters
+        var urlParams = helper.getUrlParameters();
+        var param1Value = urlParams.param1;
+        var param2Value = urlParams.param2;
+
+        // Now you can use the parameter values in this component
+        console.log("Param1 Value: " + param1Value);
+        console.log("Param2 Value: " + param2Value);
+    }
+})

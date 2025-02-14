@@ -1,0 +1,1455 @@
+public class SdfRegistrationForm {
+    
+    public Integer dataInNocNaic{get;set;}
+    public string firstName {get;set;}
+    public string lastName {get;set;}
+    public string birthDate {get;set;}
+    public string Gender {get;set;}
+    public decimal hourlyWage {get;set;}
+    public decimal WageAmount {get;set;} 
+    public string preferMethodOfReportingWage{get;set;}
+    public decimal avgPaidHrPerWeek {get;set;}
+    public string reasonLeaving{get;set;}
+    public decimal noc{get;set;}
+    public decimal naics{get;set;}
+    public string preferredPhn {get;set;}
+    public string HighestLevelOfEducation {get;set;} 
+    public string currentEmploymentStatus {get;set;} 
+    public string LabourForce {get;set;}
+    public string sourceOfIncome {get;set;}
+    public string SelectedGender {get;set;}
+    public string statusInCanada {get;set;}
+    public string preferredLanguages {get;set;}
+    public string preferredContact {get;set;}
+    public string maritalstatus {get;set;}
+    public string mailingCity {get;set;}
+    public string mailingState {get;set;}
+    public string mailingPostalCode {get;set;}
+    public string OtherCity {get;set;}
+    public string OtherState {get;set;}
+    public string OtherPostalCode {get;set;}
+    public date StartDate {get;set;}
+    public date EndDate {get;set;} 
+    public string Role {get;set;}
+    public string Organization {get;set;} 
+    public Boolean Newcomer{get;set;}
+    public Boolean Francophone{get;set;}
+    public Boolean FirstNations{get;set;}
+    public Boolean RacializedPerson{get;set;}
+    public Boolean PersonWithDisability{get;set;}
+    public Boolean Metis{get;set;}
+    public Boolean Veteran{get;set;}
+    public Boolean Inuit{get;set;}
+    public Boolean Women{get;set;}
+    public Boolean Youth{get;set;}
+    public Boolean JusticeSystemInvolved{get;set;}
+    public Boolean Immigrant{get;set;}
+    public Boolean PreferNotToSay{get;set;}  
+    public String currentRecordId {get;set;}
+    public date currentDate {get;set;}
+    public date empStrtDate {get;set;}
+    public date empEndDate {get;set;}
+    public string countryOfEmployment{get;set;}
+    public date btDate {get;set;}
+    public String btDateVal {get;set;} 
+    public date brthDate {get;set;}
+    public date DtEntryInCanada {get;set;}
+    public String DtEntryInCanadaVal {get;set;} 
+    public date DateOfEntryInCanada {get;set;}
+    public decimal hrWage2 {get;set;} 
+    public string prefMethodOfReportingWage2{get;set;} 
+    public string currEmploymentStatus2 {get;set;}  
+    public decimal WgAmount2 {get;set;}  
+    
+    public decimal noc2{get;set;} 
+    public decimal naics2{get;set;} 
+    
+    
+    
+    public Integer NocRow1{get;set;}
+    public Integer NocRow2{get;set;}
+    public Integer NocRow3{get;set;}
+    public Integer NocRow4{get;set;}
+    public Integer NocRow5{get;set;}
+    
+    
+    public Integer NaicsRow1{get;set;}
+    public Integer NaicsRow2{get;set;}
+    public Integer NaicsRow3{get;set;}
+    public Integer NaicsRow4{get;set;}
+    public Integer NaicsRow5{get;set;}
+    public Integer NaicsRow6{get;set;}
+    
+    
+    public Integer NocAffRow1{get;set;}
+    public Integer NocAffRow2{get;set;}
+    public Integer NocAffRow3{get;set;}
+    public Integer NocAffRow4{get;set;}
+    public Integer NocAffRow5{get;set;}
+    
+    
+    public Integer NaicsAffRow1{get;set;}
+    public Integer NaicsAffRow2{get;set;}
+    public Integer NaicsAffRow3{get;set;}
+    public Integer NaicsAffRow4{get;set;}
+    public Integer NaicsAffRow5{get;set;}
+    public Integer NaicsAffRow6{get;set;}
+    
+    public double remNoc2{get;set;}
+    public integer holdNocRem1{get;set;}
+    
+    
+    public Integer dividend{get;set;}
+    public Integer divisor{get;set;}
+    public integer quotient{get;set;}
+    public integer remainder{get;set;}
+    public List<Integer> remainderList= new List<Integer>();
+    
+    public Integer dividendNaics{get;set;}
+    public integer quotientNaics{get;set;}
+    public integer remainderNaics{get;set;}
+    public List<Integer> remainderListNaics= new List<Integer>();
+    
+    
+    public Integer dividendNocAff2{get;set;}
+    public integer quotientNocAff2{get;set;}
+    public integer remainderNocAff2{get;set;}
+    public List<Integer> remainderListNocAff2= new List<Integer>(); 
+    
+    public Integer dividendNaicsAff2{get;set;}
+    public integer quotientNaicsAff2{get;set;}
+    public integer remainderNaicsAff2{get;set;}
+    public List<Integer> remainderListNaicsAff2= new List<Integer>();
+    
+    
+    
+    public decimal averagegPaidHrPerWeek2 {get;set;} 
+    public string rsnLeaving2{get;set;}
+    public date StDate2 {get;set;}
+    public date EDate {get;set;} 
+    public string role2 {get;set;}
+    public string org2 {get;set;} 
+    public string countryOfEmployment2{get;set;}
+    public String stDateVal2 {get;set;} 
+    public String endDateVal2 {get;set;}
+    public date empStrtDate2 {get;set;}
+    public date empEndDate2 {get;set;}
+    public String dateVal {get;set;}  
+    public String stDateVal {get;set;} 
+    public String endDateVal {get;set;}
+    public string ParentName {get;set;}
+    
+    
+    
+    public list<Contact> lstcon = new list<Contact>();
+    public list<Lead> lstLead = new list<Lead>();
+    public list<npe5__Affiliation__c> lstAffliation = new list<npe5__Affiliation__c>();
+    public list<npe5__Affiliation__c> lstAffliation2 = new list<npe5__Affiliation__c>();
+    public List<getWprData> WrapperList {get;set;}
+    public List<getWprData> WrapperToShowValue {get;set;} 
+    public List<getWprData> WprToShowStatusInCanadaValue {get;set;} 
+    public List<Schema.PicklistEntry> pick_list_values {get;set;}
+    public List<selectOption> options {get;set;}
+    public List<SelectOption> LeadLangOptions {get;set;}
+    
+    
+    String abc= 'Bachelor\'s';
+    //String.escapeSingleQuotes('\');
+    
+    String oldString= 'Bachelor';
+    String newString = oldString + '\''+'s '+'degree';
+    //  System.debug('newString '+newString);
+    
+    Set<String> setpreferredPhone= new Set<String>{'Home','Mobile','Other'};
+        Set<String> setPreferredReportingWage= new Set<String>{'Hourly','Weekly','Bi-Weekly','Monthly','Yearly'};
+            Set<String> maritalStatusRow= new Set<String>{'Married','Common Law','Separated'};
+                Set<String> setEducationRow1= new Set<String>{'Primary (grade 0 - 8)','OAC',newString};  
+                    //'Bachelor's degree'
+                    Set<String> setEducationRow2= new Set<String>{'Grade 9','Certificate of Apprentice', 'Post graduate degree'}; 
+                        Set<String> setEducationRow3= new Set<String>{'Grade 10','Journeyperson', 'Other'};
+                            Set<String> setEducationRow4= new Set<String>{'Grade 11','Certificate/diploma'};
+                                Set<String> setEducationRow5= new Set<String>{'Grade 12 (or equivalent)'}; 
+                                    
+                                    Set<String> setProtectedPerson=new Set<String>{'Protected Persons'};
+                                        Set<String> setPrefferNotSay=new Set<String>{'Prefer not to say'} ;
+                                            Set<String> setOtherVal=new Set<String>{'Other'} ;
+                                                
+                                                Set<String> excludePreferredValue= new Set<String>{'No preference'};
+                                                    Set<String> containsEmploymentType= new Set<String>{'Self-Employed','Paid','Unpaid','Volunteer'};             
+                                                        
+                                                        Set<String> notContainsValue= new Set<String>{'Do not know','Prefer not to say','Transgender'};
+                                                            Set<String> StatusInCanadaRow1= new Set<String>{'Citizen','Work visa','Canada-Ukraine Authorization for Emergency Travel',
+                                                                'Protected Person','International Student','Temporary Foreign Worker','CUAET (Canada-Ukraine Authorization for Emergency Travel)'
+                                                                ,'Protected Persons','Prefer not to say','Other'};
+                                                                    
+                                                                    Set<String> StatusInCanadaRow2= new Set<String>{'Citizen','Work visa','Canada-Ukraine Authorization for Emergency Travel',
+                                                                        'Protected Person','International Student','Temporary Foreign Worker','CUAET (Canada-Ukraine Authorization for Emergency Travel)'
+                                                                        ,'Canadian Citizen','Permanent Resident','Naturalized Canadian Citizen'};          
+                                                                            
+                                                                            Set<String> laborforceAttachment= new Set<String>{'Employed Full-time','Self-employed','Employed, but currently on a leave','Unemployed','Not employed looking for work',
+                                                                                'Not employed with an employment offer','Not employed not actively looking for work', 'Not employed and unable to work',
+                                                                                'Attending a school (high school or equivalent)','Attending a university','Attending a college',
+                                                                                'Registered in an apprenticeship program', 'In other training or skills development program','Not sure', 'Prefer not to say' };
+                                                                                    
+                                                                                    Set<String> sourceIncome= new Set<String>{'Employment Insurance (EI)','Ontario Works (OW)','Ontario Disability Support Program (ODSP)', 
+                                                                                        'No income', 'Employed with employer','Crown Ward Extended Care and Maintenance','Dependent of OW/ODSP', 'Self-Employed', 'Non-EI (other)'};  
+                                                                                            
+                                                                                            Set<String> sourceIncome2= new Set<String>{'Other'};     
+                                                                                                
+                                                                                                
+                                                                                                /*************Constructor*****************/    
+                                                                                                
+                                                                                                // method are used to called record ID dynamically to show the details of Contact over Form UI
+                                                                                                public SdfRegistrationForm(ApexPages.StandardController con){
+                                                                                                    currentRecordId  = ApexPages.CurrentPage().getparameters().get('id');
+                                                                                                    System.debug('currentRecordId==>'+currentRecordId);
+                                                                                                    lstcon = [SELECT Id, FirstName, LastName, Birthdate,Gender__c,Preferred_Name__c,Status_in_Canada__c,
+                                                                                                              Country_of_Origin__c,Date_of_Arrival_in_Canada__c,Preferred_Contact_Method__c,Marital_status__c,
+                                                                                                              MailingAddress, OtherAddress,Phone,OtherPhone,Email,Current_Employment_Status__c,
+                                                                                                              Current_Source_of_Income__c,Is_Newcomer__c,Is_racialized_Person_of_Colour__c,Is_Veteran__c,Francophone__c,
+                                                                                                              Disability__c,Women__c,Preferred_Language__c,Immigrant__c,Youth__c,npe01__PreferredPhone__c,Parent_Guardian__r.Name,Justice_System_Involved__c,Prefer_not_to_say__c,Is_Inuit__c,Is_First_Nations__c,Is_Metis__c,Highest_level_of_education__c,
+                                                                                                              (Select Id,name,Preferred_Language__c from Leads__r) FROM Contact where id =:currentRecordId];
+                                                                                                    
+                                                                                                    lstLead=   [Select Id,Preferred_Language__c, Name,Matching_Contact__c	 FROM Lead WHERE Matching_Contact__c =:currentRecordId];
+                                                                                                    lstAffliation=  [Select Id,Hourly_Wage__c,npe5__StartDate__c,npe5__EndDate__c,npe5__Role__c,npe5__Organization__c,npe5__Organization__r.Name, npe5__Contact__c,npe5__Contact__r.Current_Employment_Status__c,
+                                                                                                                     Current_Employment_Status__c,NOC__c,NAICS__c,Wage_amount__c,Average_Paid_Hours_per_Week_no_overtime__c,Country_of_employment__c,
+                                                                                                                     Reason_for_leaving__c, Preferred_method_of_reporting_wage__c FROM npe5__Affiliation__c WHERE npe5__Contact__c =:currentRecordId order by createdDate desc];
+                                                                                                    
+                                                                                                    System.debug('lstcon==>'+lstcon);
+                                                                                                    
+                                                                                                    
+                                                                                                    System.debug('preferredLanguages==>'+preferredLanguages);                       
+                                                                                                    
+                                                                                                    if(lstcon!=null && lstcon.size()>0){
+                                                                                                        
+                                                                                                        if(lstcon[0].Gender__c!=NUll){
+                                                                                                            Gender= lstcon[0].Gender__c;
+                                                                                                        }
+                                                                                                        if(lstcon[0].Preferred_Language__c!=NUll){
+                                                                                                            preferredLanguages=  lstcon[0].Preferred_Language__c;
+                                                                                                        }
+                                                                                                        if(lstcon[0].Status_in_Canada__c!=NUll){
+                                                                                                            statusInCanada= lstcon[0].Status_in_Canada__c;
+                                                                                                        }
+                                                                                                        
+                                                                                                        if(lstcon[0].Preferred_Contact_Method__c!=NUll){  
+                                                                                                            preferredContact= lstcon[0].Preferred_Contact_Method__c;
+                                                                                                        }
+                                                                                                        if(lstcon[0].Marital_status__c!=NUll){
+                                                                                                            maritalstatus= lstcon[0].Marital_status__c;
+                                                                                                        }
+                                                                                                        if(lstcon[0].Current_Employment_Status__c!=NUll){
+                                                                                                            LabourForce= lstcon[0].Current_Employment_Status__c;
+                                                                                                        }
+                                                                                                        if(lstcon[0].Current_Source_of_Income__c!=NUll){    
+                                                                                                            sourceOfIncome= lstcon[0].Current_Source_of_Income__c;
+                                                                                                        }
+                                                                                                        if(lstcon[0].Is_Newcomer__c!=NUll){
+                                                                                                            Newcomer= lstcon[0].Is_Newcomer__c;
+                                                                                                        }
+                                                                                                        if(lstcon[0].Francophone__c!=NUll){
+                                                                                                            Francophone= lstcon[0].Francophone__c;
+                                                                                                        }
+                                                                                                        if(lstcon[0].Is_First_Nations__c!=NUll){
+                                                                                                            
+                                                                                                            FirstNations  =lstcon[0].Is_First_Nations__c;
+                                                                                                        }
+                                                                                                        if(lstcon[0].Is_racialized_Person_of_Colour__c!=NUll){
+                                                                                                            RacializedPerson= lstcon[0].Is_racialized_Person_of_Colour__c;
+                                                                                                        }
+                                                                                                        if(lstcon[0].Is_Metis__c!=NUll){
+                                                                                                            Metis= lstcon[0].Is_Metis__c;
+                                                                                                        }
+                                                                                                        if(lstcon[0].Is_Veteran__c!=NUll){
+                                                                                                            Veteran= lstcon[0].Is_Veteran__c;
+                                                                                                        }
+                                                                                                        if(lstcon[0].Is_Inuit__c!=NUll){
+                                                                                                            Inuit =lstcon[0].Is_Inuit__c;
+                                                                                                        }
+                                                                                                        if(lstcon[0].Women__c!=NUll){
+                                                                                                            Women=lstcon[0].Women__c;
+                                                                                                        }
+                                                                                                        if(lstcon[0].Youth__c!=NUll){
+                                                                                                            Youth=lstcon[0].Youth__c;
+                                                                                                        }
+                                                                                                        if(lstcon[0].Immigrant__c!=NUll){
+                                                                                                            Immigrant=lstcon[0].Immigrant__c;
+                                                                                                        }
+                                                                                                        
+                                                                                                        if(lstcon[0].Justice_System_Involved__c!=NUll){
+                                                                                                            JusticeSystemInvolved=lstcon[0].Justice_System_Involved__c;
+                                                                                                        }
+                                                                                                        
+                                                                                                        if(lstcon[0].Is_Inuit__c!=NUll){
+                                                                                                            PreferNotToSay=lstcon[0].Prefer_not_to_say__c;
+                                                                                                        }
+                                                                                                        
+                                                                                                        if(lstcon[0].npe01__PreferredPhone__c!=NUll){     
+                                                                                                            preferredPhn=lstcon[0].npe01__PreferredPhone__c;
+                                                                                                        }
+                                                                                                        if(lstcon[0].Parent_Guardian__r.Name!=NUll){   
+                                                                                                            ParentName= lstcon[0].Parent_Guardian__r.Name;
+                                                                                                        }
+                                                                                                        if(lstcon[0].Highest_level_of_education__c!=NUll){
+                                                                                                            HighestLevelOfEducation=lstcon[0].Highest_level_of_education__c; 
+                                                                                                        }
+                                                                                                        
+                                                                                                        dateVal=  String.valueOf(Date.today()).removeEnd('00:00:00 GMT 2023');
+                                                                                                        System.debug('dateVal==>'+dateVal);
+                                                                                                        currentDate= Date.valueOf(dateVal);
+                                                                                                        
+                                                                                                        if(lstcon[0].Birthdate!=NUll){
+                                                                                                            btDate= lstcon[0].Birthdate;
+                                                                                                            btDateVal=  String.valueOf(btDate).removeEnd('00:00:00 GMT 2023');
+                                                                                                            System.debug('btDateVal==>'+btDateVal);
+                                                                                                            brthDate= Date.valueOf(btDateVal);      
+                                                                                                        }
+                                                                                                        
+                                                                                                        if(lstcon[0].Date_of_Arrival_in_Canada__c!=NUll){
+                                                                                                            DtEntryInCanada= lstcon[0].Date_of_Arrival_in_Canada__c;
+                                                                                                            DtEntryInCanadaVal=  String.valueOf(DtEntryInCanada).removeEnd('00:00:00 GMT 2023');
+                                                                                                            System.debug('DtEntryInCanadaVal==>'+DtEntryInCanadaVal);
+                                                                                                            DateOfEntryInCanada= Date.valueOf(DtEntryInCanadaVal);
+                                                                                                        }
+                                                                                                    }
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    if(lstAffliation!=null && lstAffliation.size()>0){
+                                                                                                        hourlyWage= lstAffliation[0].Hourly_Wage__c;
+                                                                                                        preferMethodOfReportingWage= lstAffliation[0].Preferred_method_of_reporting_wage__c;
+                                                                                                        currentEmploymentStatus= lstAffliation[0].Current_Employment_Status__c;
+                                                                                                        WageAmount= lstAffliation[0].Wage_amount__c;
+                                                                                                        noc= lstAffliation[0].NOC__c;
+                                                                                                        naics= lstAffliation[0].NAICS__c;
+                                                                                                        avgPaidHrPerWeek=  lstAffliation[0].Average_Paid_Hours_per_Week_no_overtime__c;
+                                                                                                        reasonLeaving= lstAffliation[0].Reason_for_leaving__c;
+                                                                                                        Role= lstAffliation[0].npe5__Role__c;
+                                                                                                        Organization= lstAffliation[0].npe5__Organization__r.Name;
+                                                                                                        countryOfEmployment= lstAffliation[0].Country_of_employment__c;
+                                                                                                        
+                                                                                                        
+                                                                                                        // Data for the Noc Table in Pdf Page
+                                                                                                        if(lstAffliation[0].noc__c!=Null){
+                                                                                                            
+                                                                                                            
+                                                                                                            dividend = Integer.valueOf(lstAffliation[0].noc__c);
+                                                                                                            divisor = 10;
+                                                                                                            System.debug('dividend==>'+dividend);
+                                                                                                            
+                                                                                                            while(dividend>0){
+                                                                                                                
+                                                                                                                remainder = math.mod(dividend,divisor);
+                                                                                                                quotient= dividend / divisor;
+                                                                                                                dividend= quotient;
+                                                                                                                
+                                                                                                                remainderList.add(remainder);
+                                                                                                                
+                                                                                                                System.debug('remainderList==>'+remainderList);
+                                                                                                                System.debug('quotient==>'+quotient);
+                                                                                                                System.debug('remainder==>'+remainder);     
+                                                                                                            }
+                                                                                                            
+                                                                                                            
+                                                                                                            
+                                                                                                            if(remainderList!=Null){
+                                                                                                                //  if(remainderList.size()==0){
+                                                                                                                
+                                                                                                                //     System.debug('NocRow1==>'+NocRow1);
+                                                                                                                //  }
+                                                                                                                if(remainderList.size()>0){
+                                                                                                                    NocRow1= remainderList[0];
+                                                                                                                    System.debug('NocRow1==>'+NocRow1);
+                                                                                                                }
+                                                                                                                if(remainderList.size()>1){
+                                                                                                                    NocRow2= remainderList[1];
+                                                                                                                    System.debug('NocRow1==>'+NocRow2);
+                                                                                                                }
+                                                                                                                if(remainderList.size()>2){
+                                                                                                                    NocRow3= remainderList[2];
+                                                                                                                    System.debug('NocRow1==>'+NocRow3);
+                                                                                                                }
+                                                                                                                if(remainderList.size()>3){
+                                                                                                                    NocRow4= remainderList[3];
+                                                                                                                    System.debug('NocRow1==>'+NocRow4);
+                                                                                                                }
+                                                                                                                if(remainderList.size()>4){
+                                                                                                                    NocRow5= remainderList[4];
+                                                                                                                    System.debug('NocRow1==>'+NocRow5);
+                                                                                                                }
+                                                                                                                System.debug('Test1');
+                                                                                                            }
+                                                                                                        }
+                                                                                                        
+                                                                                                        
+                                                                                                        
+                                                                                                        // Data for the Naics Table in Pdf Page
+                                                                                                        if(lstAffliation[0].NAICS__c!= Null) {
+                                                                                                            dividendNaics = Integer.valueOf(lstAffliation[0].NAICS__c);
+                                                                                                            divisor = 10;
+                                                                                                            System.debug('dividendNaics==>'+dividendNaics);
+                                                                                                            
+                                                                                                            while(dividendNaics>0){
+                                                                                                                
+                                                                                                                remainderNaics = math.mod(dividendNaics,divisor);
+                                                                                                                quotientNaics= dividendNaics / divisor;
+                                                                                                                dividendNaics= quotientNaics;
+                                                                                                                
+                                                                                                                remainderListNaics.add(remainderNaics);
+                                                                                                                
+                                                                                                                System.debug('remainderList==>'+remainderListNaics);
+                                                                                                                System.debug('quotient==>'+quotientNaics);
+                                                                                                                System.debug('remainder==>'+remainderNaics);     
+                                                                                                            }
+                                                                                                            
+                                                                                                            
+                                                                                                            
+                                                                                                            if(remainderListNaics!=Null){
+                                                                                                                //  if(remainderList.size()==0){
+                                                                                                                
+                                                                                                                //     System.debug('NocRow1==>'+NocRow1);
+                                                                                                                //  }
+                                                                                                                if(remainderListNaics.size()>0){
+                                                                                                                    NaicsRow1= remainderListNaics[0];
+                                                                                                                    System.debug('NaicsRow1==>'+NaicsRow1);
+                                                                                                                }
+                                                                                                                if(remainderListNaics.size()>1){
+                                                                                                                    NaicsRow2= remainderListNaics[1];
+                                                                                                                    System.debug('NaicsRow2==>'+NaicsRow2);
+                                                                                                                }
+                                                                                                                if(remainderListNaics.size()>2){
+                                                                                                                    NaicsRow3= remainderListNaics[2];
+                                                                                                                    System.debug('NaicsRow3==>'+NaicsRow3);
+                                                                                                                }
+                                                                                                                if(remainderListNaics.size()>3){
+                                                                                                                    NaicsRow4= remainderListNaics[3];
+                                                                                                                    System.debug('NaicsRow4==>'+NaicsRow4);
+                                                                                                                }
+                                                                                                                if(remainderListNaics.size()>4){
+                                                                                                                    NaicsRow5= remainderListNaics[4];
+                                                                                                                    System.debug('NaicsRow5==>'+NaicsRow5);
+                                                                                                                }
+                                                                                                                System.debug('Test1');
+                                                                                                                if(remainderListNaics.size()>5){
+                                                                                                                    NaicsRow6= remainderListNaics[5];
+                                                                                                                    System.debug('NaicsRow6==>'+NaicsRow6);
+                                                                                                                }
+                                                                                                                
+                                                                                                            }
+                                                                                                        }
+                                                                                                        
+                                                                                                    }
+                                                                                                    
+                                                                                                    
+                                                                                                    // Data for the NocAffliation2 Table in Pdf Page 
+                                                                                                    
+                                                                                                    if(lstAffliation!=null && lstAffliation.size()>1){
+                                                                                                        
+                                                                                                        
+                                                                                                        dividendNocAff2 = Integer.valueOf(lstAffliation[1].noc__c);
+                                                                                                        divisor = 10;
+                                                                                                        System.debug('dividendNocAff2==>'+dividendNocAff2);
+                                                                                                        
+                                                                                                        while(dividendNocAff2>0){
+                                                                                                            
+                                                                                                            remainderNocAff2 = math.mod(dividendNocAff2,divisor);
+                                                                                                            quotientNocAff2= dividendNocAff2 / divisor;
+                                                                                                            dividendNocAff2= quotientNocAff2;
+                                                                                                            
+                                                                                                            remainderListNocAff2.add(remainderNocAff2);
+                                                                                                            
+                                                                                                            System.debug('remainderListNocAff2==>'+remainderListNocAff2);
+                                                                                                            System.debug('quotientNocAff2==>'+quotientNocAff2);
+                                                                                                            System.debug('remainderNocAff2==>'+remainderNocAff2);     
+                                                                                                        }
+                                                                                                        
+                                                                                                        
+                                                                                                        
+                                                                                                        if(remainderListNocAff2!=Null){
+                                                                                                            //  if(remainderListNocAff2.size()==0){
+                                                                                                            
+                                                                                                            //     System.debug('NocAffRow1==>'+NocAffRow1);
+                                                                                                            //  }
+                                                                                                            if(remainderListNocAff2.size()>0){
+                                                                                                                NocAffRow1= remainderListNocAff2[0];
+                                                                                                                System.debug('NocAffRow1==>'+NocAffRow1);
+                                                                                                            }
+                                                                                                            if(remainderListNocAff2.size()>1){
+                                                                                                                NocAffRow2= remainderListNocAff2[1];
+                                                                                                                System.debug('NocAffRow2==>'+NocAffRow2);
+                                                                                                            }
+                                                                                                            if(remainderListNocAff2.size()>2){
+                                                                                                                NocAffRow3= remainderListNocAff2[2];
+                                                                                                                System.debug('NocAffRow3==>'+NocAffRow3);
+                                                                                                            }
+                                                                                                            if(remainderListNocAff2.size()>3){
+                                                                                                                NocAffRow4= remainderListNocAff2[3];
+                                                                                                                System.debug('NocAffRow4==>'+NocAffRow4);
+                                                                                                            }
+                                                                                                            if(remainderListNocAff2.size()>4){
+                                                                                                                NocAffRow5= remainderListNocAff2[4];
+                                                                                                                System.debug('NocAffRow5==>'+NocAffRow5);
+                                                                                                            }
+                                                                                                            System.debug('Test1');
+                                                                                                        }
+                                                                                                        
+                                                                                                        
+                                                                                                        
+                                                                                                        
+                                                                                                        // Data for the NaicsAffliation2 Table in Pdf Page 
+                                                                                                        
+                                                                                                        dividendNaicsAff2 = Integer.valueOf(lstAffliation[1].NAICS__c);
+                                                                                                        divisor = 10;
+                                                                                                        System.debug('dividendNaicsAff2==>'+dividendNaicsAff2);
+                                                                                                        
+                                                                                                        while(dividendNaicsAff2>0){
+                                                                                                            
+                                                                                                            remainderNaicsAff2 = math.mod(dividendNaicsAff2,divisor);
+                                                                                                            quotientNaicsAff2= dividendNaicsAff2 / divisor;
+                                                                                                            dividendNaicsAff2= quotientNaicsAff2;
+                                                                                                            
+                                                                                                            remainderListNaicsAff2.add(remainderNaicsAff2);
+                                                                                                            
+                                                                                                            System.debug('remainderListNocAff2==>'+remainderListNaicsAff2);
+                                                                                                            System.debug('quotientNocAff2==>'+quotientNaicsAff2);
+                                                                                                            System.debug('remainderNocAff2==>'+remainderNaicsAff2);     
+                                                                                                        }
+                                                                                                        
+                                                                                                        
+                                                                                                        
+                                                                                                        if(remainderListNaicsAff2!=Null){
+                                                                                                            //  if(remainderListNocAff2.size()==0){
+                                                                                                            
+                                                                                                            //     System.debug('NocAffRow1==>'+NocAffRow1);
+                                                                                                            //  }
+                                                                                                            if(remainderListNaicsAff2.size()>0){
+                                                                                                                NaicsAffRow1= remainderListNaicsAff2[0];
+                                                                                                                System.debug('NaicsAffRow1==>'+NaicsAffRow1);
+                                                                                                            }
+                                                                                                            if(remainderListNaicsAff2.size()>1){
+                                                                                                                NaicsAffRow2= remainderListNaicsAff2[1];
+                                                                                                                System.debug('NaicsAffRow2==>'+NaicsAffRow2);
+                                                                                                            }
+                                                                                                            if(remainderListNaicsAff2.size()>2){
+                                                                                                                NaicsAffRow3= remainderListNaicsAff2[2];
+                                                                                                                System.debug('NaicsAffRow3==>'+NaicsAffRow3);
+                                                                                                            }
+                                                                                                            if(remainderListNaicsAff2.size()>3){
+                                                                                                                NaicsAffRow4= remainderListNaicsAff2[3];
+                                                                                                                System.debug('NaicsAffRow4==>'+NaicsAffRow4);
+                                                                                                            }
+                                                                                                            if(remainderListNaicsAff2.size()>4){
+                                                                                                                NaicsAffRow5= remainderListNaicsAff2[4];
+                                                                                                                System.debug('NaicsAffRow5==>'+NaicsAffRow5);
+                                                                                                            }
+                                                                                                            
+                                                                                                            if(remainderListNaicsAff2.size()>5){
+                                                                                                                NaicsAffRow6= remainderListNaicsAff2[5];
+                                                                                                                System.debug('NaicsAffRow6==>'+NaicsAffRow6);
+                                                                                                            }
+                                                                                                            System.debug('Test1');
+                                                                                                        }
+                                                                                                        //    }
+                                                                                                        
+                                                                                                    }
+                                                                                                    
+                                                                                                    if(lstAffliation!=null && lstAffliation.size()>0){ 
+                                                                                                        if(lstAffliation[0].npe5__StartDate__c!= NULL){
+                                                                                                            StartDate= lstAffliation[0].npe5__StartDate__c;
+                                                                                                            stDateVal=  String.valueOf(StartDate).removeEnd('00:00:00 GMT 2023');
+                                                                                                            System.debug('stDateVal==>'+stDateVal);
+                                                                                                            empStrtDate= Date.valueOf(stDateVal);   
+                                                                                                        }
+                                                                                                        
+                                                                                                        if(lstAffliation[0].npe5__EndDate__c!= NULL){
+                                                                                                            EndDate= lstAffliation[0].npe5__EndDate__c;
+                                                                                                            endDateVal=String.valueOf(EndDate).removeEnd('00:00:00 GMT 2023');
+                                                                                                            System.debug('endDateVal==>'+endDateVal);
+                                                                                                            empEndDate= Date.valueOf(endDateVal);
+                                                                                                        }
+                                                                                                    }
+                                                                                                    // Organization= lstAffliation[1].npe5__Organization__r.Name;
+                                                                                                    
+                                                                                                    System.debug('preferMethodOfReportingWage==>'+preferMethodOfReportingWage);
+                                                                                                    
+                                                                                                    if(lstAffliation!=null && lstAffliation.size()>1){
+                                                                                                        hrWage2= lstAffliation[1].Hourly_Wage__c;
+                                                                                                        prefMethodOfReportingWage2= lstAffliation[1].Preferred_method_of_reporting_wage__c;
+                                                                                                        currEmploymentStatus2= lstAffliation[1].Current_Employment_Status__c;
+                                                                                                        WgAmount2= lstAffliation[1].Wage_amount__c;
+                                                                                                        noc2= lstAffliation[1].NOC__c;
+                                                                                                        naics2= lstAffliation[1].NAICS__c;
+                                                                                                        averagegPaidHrPerWeek2=  lstAffliation[1].Average_Paid_Hours_per_Week_no_overtime__c;
+                                                                                                        rsnLeaving2= lstAffliation[1].Reason_for_leaving__c;
+                                                                                                        role2= lstAffliation[1].npe5__Role__c;
+                                                                                                        org2= lstAffliation[1].npe5__Organization__r.Name;
+                                                                                                        countryOfEmployment2= lstAffliation[1].Country_of_employment__c;
+                                                                                                        
+                                                                                                        if(lstAffliation[1].npe5__StartDate__c!= Null){
+                                                                                                            StDate2= lstAffliation[1].npe5__StartDate__c;
+                                                                                                            stDateVal2=  String.valueOf(StDate2).removeEnd('00:00:00 GMT 2023');
+                                                                                                            System.debug('stDateVal==>'+stDateVal);
+                                                                                                            empStrtDate2= Date.valueOf(stDateVal2);
+                                                                                                        }
+                                                                                                        
+                                                                                                        if(lstAffliation[1].npe5__EndDate__c!= Null){
+                                                                                                            EDate= lstAffliation[1].npe5__EndDate__c;
+                                                                                                            endDateVal2=String.valueOf(EDate).removeEnd('00:00:00 GMT 2023');
+                                                                                                            System.debug('endDateVal==>'+endDateVal);
+                                                                                                            empEndDate2= Date.valueOf(endDateVal2);                  
+                                                                                                        }
+                                                                                                                                                                          
+                                                                                                        
+                                                                                                    }
+                                                                                                    
+                                                                                                    System.debug('prefMethodOfReportingWage2==>'+prefMethodOfReportingWage2);
+                                                                                                    System.debug('hourlyWage==>'+hourlyWage);
+                                                                                                    System.debug('StartDate==>'+currentEmploymentStatus);
+                                                                                                    System.debug('Organization==>'+hourlyWage);
+                                                                                                    System.debug('EndDate==>'+currentEmploymentStatus);
+                                                                                                    System.debug('Role==>'+hourlyWage);
+                                                                                                    
+                                                                                                    WrapperList= new List<getWprData>();
+                                                                                                    WrapperToShowValue= new List<getWprData>();
+                                                                                                    WprToShowStatusInCanadaValue= new List<getWprData>();
+                                                                                                    //  generatePDF();
+                                                                                                }
+    
+    
+    
+    
+    public List<SelectOption> getGenderValues(){
+        Schema.sObjectType sobject_type = Contact.getSObjectType();
+        Schema.DescribeSObjectResult sobject_describe = sobject_type.getDescribe();
+        Map<String, Schema.SObjectField> field_map = sobject_describe.fields.getMap();
+        pick_list_values   = field_map.get('Gender__c').getDescribe().getPickListValues();
+        options = new List<selectOption>();
+        for(Schema.PicklistEntry a : pick_list_values) {
+            options.add(new selectOption(a.getLabel(), a.getValue(), true));
+        }
+        return options;
+    }
+    
+    
+    
+    public List<getWprData> getPreferReportingWage(){
+        WrapperList= new List<getWprData>();
+        Schema.sObjectType sobject_type = npe5__Affiliation__c.getSObjectType();
+        Schema.DescribeSObjectResult sobject_describe = sobject_type.getDescribe();
+        Map<String, Schema.SObjectField> field_map = sobject_describe.fields.getMap();
+        List<Schema.PicklistEntry> pick_list_values= field_map.get('Preferred_method_of_reporting_wage__c').getDescribe().getPickListValues();
+        List<selectOption> options = new List<selectOption>();
+        System.debug('pick_list_values '+pick_list_values);
+        for (Schema.PicklistEntry a : pick_list_values) {
+            options.add(new selectOption(a.getLabel(), a.getValue(), true));
+            System.debug('options==>'+options);
+            
+            if(string.isNotEmpty(a.getValue()) && setPreferredReportingWage.contains(a.getValue())){
+                if(a.getValue()==preferMethodOfReportingWage){
+                    WrapperList.add(new getWprData(true,a.getValue())); 
+                }else{
+                    WrapperList.add(new getWprData(false,a.getValue())); 
+                }
+                //WrapperList.remove('Do not know');
+            }
+            System.debug('WrapperList==>'+WrapperList);
+            
+        }
+        
+        return WrapperList;
+    }
+    
+    
+    
+    public List<getWprData> getPreferReportingWage2(){
+        
+        // To display value for each picklist need to clean the Wrapper List and hold with null value
+        WrapperList= new List<getWprData>();
+        Schema.sObjectType sobject_type = npe5__Affiliation__c.getSObjectType();
+        Schema.DescribeSObjectResult sobject_describe = sobject_type.getDescribe();
+        Map<String, Schema.SObjectField> field_map = sobject_describe.fields.getMap();
+        List<Schema.PicklistEntry> pick_list_values= field_map.get('Preferred_method_of_reporting_wage__c').getDescribe().getPickListValues();
+        List<selectOption> options = new List<selectOption>();
+        System.debug('pick_list_values '+pick_list_values);
+        for (Schema.PicklistEntry a : pick_list_values) {
+            options.add(new selectOption(a.getLabel(), a.getValue(), true));
+            System.debug('options==>'+options);
+            
+            if(string.isNotEmpty(a.getValue()) && setPreferredReportingWage.contains(a.getValue())){
+                if(a.getValue()==prefMethodOfReportingWage2){
+                    WrapperList.add(new getWprData(true,a.getValue())); 
+                }else{
+                    WrapperList.add(new getWprData(false,a.getValue())); 
+                }
+                //WrapperList.remove('Do not know');
+            }
+            System.debug('WrapperList==>'+WrapperList);
+            
+        }
+        
+        return WrapperList;
+    } 
+    
+    
+    
+    
+    
+    public List<getWprData> getGenderDataTest(){
+        WrapperList= new List<getWprData>();
+        Schema.sObjectType sobject_type = Contact.getSObjectType();
+        Schema.DescribeSObjectResult sobject_describe = sobject_type.getDescribe();
+        Map<String, Schema.SObjectField> field_map = sobject_describe.fields.getMap();
+        List<Schema.PicklistEntry> pick_list_values= field_map.get('Gender__c').getDescribe().getPickListValues();
+        List<selectOption> options = new List<selectOption>();
+        System.debug('pick_list_values '+pick_list_values);
+        for (Schema.PicklistEntry a : pick_list_values) {
+            options.add(new selectOption(a.getLabel(), a.getValue(), true));
+            System.debug('options==>'+options);
+            
+            if(string.isNotEmpty(a.getValue()) && !notContainsValue.contains(a.getValue())){
+                if(a.getValue()==Gender){
+                    WrapperList.add(new getWprData(true,a.getValue())); 
+                }else{
+                    WrapperList.add(new getWprData(false,a.getValue())); 
+                }
+                //WrapperList.remove('Do not know');
+            }
+            System.debug('WrapperList==>'+WrapperList);
+            
+        }
+        
+        return WrapperList;
+    }
+    
+    public List<getWprData> getGenderDifferentValue(){
+        //  for (String st : notContainsValue) {
+        if(Gender== 'Transgender'){
+            
+            // Another gender identity (Specify) 
+            WrapperToShowValue.add(new getWprData(true,'Another gender identity (Specify)'));
+            // WrapperToShowValue.add(new getWprData(false,'Prefer not to answer'));
+        }else{
+            WrapperToShowValue.add(new getWprData(false,'Another gender identity (Specify)'));
+            // WrapperToShowValue.add(new getWprData(false,'Prefer not to answer'));  
+        }
+        
+        // }
+        
+        
+        return WrapperToShowValue;
+    }
+    
+    
+    public List<getWprData> getGenderDifferentValue2(){
+        WrapperToShowValue= new List<getWprData>();
+        //  for (String st : notContainsValue) {
+        if(Gender== 'Prefer not to say'){
+            WrapperToShowValue.add(new getWprData(true,'Prefer not to answer')); 
+            // WrapperToShowValue.add(new getWprData(false,'Another gender identity (Specify)'));
+        }else{
+            WrapperToShowValue.add(new getWprData(false,'Prefer not to answer'));
+            //  WrapperToShowValue.add(new getWprData(false,'Prefer not to answer'));  
+        }
+        
+        // }
+        
+        
+        return WrapperToShowValue;
+    }
+    
+    
+    public List<getWprData> getGenderValue3(){
+        WrapperToShowValue= new List<getWprData>();
+        
+        if(Gender== 'Transgender'){
+            WrapperToShowValue.add(new getWprData(true,'Yes')); 
+            WrapperToShowValue.add(new getWprData(false,'No'));
+            WrapperToShowValue.add(new getWprData(false,'Questionning'));
+            WrapperToShowValue.add(new getWprData(false,'Prefer not to answer'));
+            
+        }else{
+            WrapperToShowValue.add(new getWprData(false,'Yes')); 
+            WrapperToShowValue.add(new getWprData(false,'No'));
+            WrapperToShowValue.add(new getWprData(false,'Questionning'));
+            WrapperToShowValue.add(new getWprData(false,'Prefer not to answer'));     
+        }
+        
+        return WrapperToShowValue;
+    }
+    
+    
+    
+    
+    public List<getWprData> getStatusInCanadaValuesRow1(){
+        WrapperList= new List<getWprData>();
+        Schema.sObjectType sobject_type = Contact.getSObjectType();
+        Schema.DescribeSObjectResult sobject_describe = sobject_type.getDescribe();
+        Map<String, Schema.SObjectField> field_map = sobject_describe.fields.getMap();
+        List<Schema.PicklistEntry> pick_list_values = field_map.get('Status_in_Canada__c').getDescribe().getPickListValues();
+        List<selectOption> options = new List<selectOption>();
+        for (Schema.PicklistEntry a : pick_list_values) {
+            options.add(new selectOption(a.getLabel(), a.getValue()));
+            
+            if(string.isNotEmpty(a.getValue()) && !StatusInCanadaRow1.contains(a.getValue())){
+                if(a.getValue()==statusInCanada){
+                    WrapperList.add(new getWprData(true,a.getValue()));
+                }else{
+                    WrapperList.add(new getWprData(false,a.getValue())); 
+                }
+            }
+            
+        }
+        return WrapperList;
+    }
+    
+    
+    
+    
+    public List<getWprData> getStatusInCanadaProtectedPerson(){
+        WrapperList= new List<getWprData>();
+        Schema.sObjectType sobject_type = Contact.getSObjectType();
+        Schema.DescribeSObjectResult sobject_describe = sobject_type.getDescribe();
+        Map<String, Schema.SObjectField> field_map = sobject_describe.fields.getMap();
+        List<Schema.PicklistEntry> pick_list_values = field_map.get('Status_in_Canada__c').getDescribe().getPickListValues();
+        List<selectOption> options = new List<selectOption>();
+        for (Schema.PicklistEntry a : pick_list_values) {
+            options.add(new selectOption(a.getLabel(), a.getValue()));
+            
+            if(string.isNotEmpty(a.getValue()) && setProtectedPerson.contains(a.getValue())){
+                if(a.getValue()==statusInCanada){
+                    WrapperList.add(new getWprData(true,a.getValue()));
+                }else{
+                    WrapperList.add(new getWprData(false,a.getValue())); 
+                }
+            }
+            
+        }
+        return WrapperList;
+    }
+    
+    
+    public List<getWprData> getStatusInCanadaPreferNotSay(){
+        WrapperList= new List<getWprData>();
+        Schema.sObjectType sobject_type = Contact.getSObjectType();
+        Schema.DescribeSObjectResult sobject_describe = sobject_type.getDescribe();
+        Map<String, Schema.SObjectField> field_map = sobject_describe.fields.getMap();
+        List<Schema.PicklistEntry> pick_list_values = field_map.get('Status_in_Canada__c').getDescribe().getPickListValues();
+        List<selectOption> options = new List<selectOption>();
+        for (Schema.PicklistEntry a : pick_list_values) {
+            options.add(new selectOption(a.getLabel(), a.getValue()));
+            
+            if(string.isNotEmpty(a.getValue()) && setPrefferNotSay.contains(a.getValue())){
+                if(a.getValue()==statusInCanada){
+                    WrapperList.add(new getWprData(true,a.getValue()));
+                }else{
+                    WrapperList.add(new getWprData(false,a.getValue())); 
+                }
+            }
+            
+        }
+        return WrapperList;
+    }
+    
+    
+    
+    public List<getWprData> getOtherVal(){
+        WrapperList= new List<getWprData>();
+        Schema.sObjectType sobject_type = Contact.getSObjectType();
+        Schema.DescribeSObjectResult sobject_describe = sobject_type.getDescribe();
+        Map<String, Schema.SObjectField> field_map = sobject_describe.fields.getMap();
+        List<Schema.PicklistEntry> pick_list_values = field_map.get('Status_in_Canada__c').getDescribe().getPickListValues();
+        List<selectOption> options = new List<selectOption>();
+        for (Schema.PicklistEntry a : pick_list_values) {
+            options.add(new selectOption(a.getLabel(), a.getValue()));
+            
+            if(string.isNotEmpty(a.getValue()) && setOtherVal.contains(a.getValue())){
+                if(a.getValue()==statusInCanada){
+                    WrapperList.add(new getWprData(true,a.getValue()));
+                }else{
+                    WrapperList.add(new getWprData(false,a.getValue())); 
+                }
+            }
+            
+        }
+        return WrapperList;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    public List<getWprData> getPreferredLanguage(){
+        WrapperList= new List<getWprData>();
+        Schema.sObjectType sobject_type = Contact.getSObjectType();
+        Schema.DescribeSObjectResult sobject_describe = sobject_type.getDescribe();
+        Map<String, Schema.SObjectField> field_map = sobject_describe.fields.getMap();
+        List<Schema.PicklistEntry> pick_list_values= field_map.get('Preferred_Language__c').getDescribe().getPickListValues();
+        List<selectOption> options = new List<selectOption>();
+        System.debug('pick_list_values '+pick_list_values);
+        for(Schema.PicklistEntry a : pick_list_values) {
+            options.add(new selectOption(a.getLabel(), a.getValue(), true));
+            System.debug('options==>'+options);
+            
+            if(string.isNotEmpty(a.getValue()) ){
+                //&& !notContainsValue.contains(a.getValue())
+                
+                if(a.getValue()==preferredLanguages){
+                    WrapperList.add(new getWprData(true,a.getValue())); 
+                }else{
+                    WrapperList.add(new getWprData(false,a.getValue())); 
+                }
+                //WrapperList.remove('Do not know');
+            }
+            System.debug('WrapperList==>'+WrapperList);
+        }
+        return WrapperList;
+    }
+    
+    public List<getWprData> getCurrEmploymentStatus(){
+        WrapperList= new List<getWprData>();
+        Schema.sObjectType sobject_type = npe5__Affiliation__c.getSObjectType();
+        Schema.DescribeSObjectResult sobject_describe = sobject_type.getDescribe();
+        Map<String, Schema.SObjectField> field_map = sobject_describe.fields.getMap();
+        List<Schema.PicklistEntry> pick_list_values= field_map.get('Current_Employment_Status__c').getDescribe().getPickListValues();
+        List<selectOption> options = new List<selectOption>();
+        System.debug('pick_list_values '+pick_list_values);
+        for(Schema.PicklistEntry a : pick_list_values) {
+            options.add(new selectOption(a.getLabel(), a.getValue(), true));
+            System.debug('options==>'+options);
+            
+            if(string.isNotEmpty(a.getValue()) && containsEmploymentType.contains(a.getValue())){
+                //&& !notContainsValue.contains(a.getValue())
+                
+                if(a.getValue()==currentEmploymentStatus){
+                    WrapperList.add(new getWprData(true,a.getValue())); 
+                }else{
+                    WrapperList.add(new getWprData(false,a.getValue())); 
+                }
+                //WrapperList.remove('Do not know');
+            }
+            System.debug('WrapperList==>'+WrapperList);
+        }
+        return WrapperList;
+    }
+    
+    
+    
+    
+    public List<getWprData> getCurrEmpStatus2(){
+        WrapperList= new List<getWprData>();
+        Schema.sObjectType sobject_type = npe5__Affiliation__c.getSObjectType();
+        Schema.DescribeSObjectResult sobject_describe = sobject_type.getDescribe();
+        Map<String, Schema.SObjectField> field_map = sobject_describe.fields.getMap();
+        List<Schema.PicklistEntry> pick_list_values= field_map.get('Current_Employment_Status__c').getDescribe().getPickListValues();
+        List<selectOption> options = new List<selectOption>();
+        System.debug('pick_list_values '+pick_list_values);
+        for(Schema.PicklistEntry a : pick_list_values) {
+            options.add(new selectOption(a.getLabel(), a.getValue(), true));
+            System.debug('options==>'+options);
+            
+            if(string.isNotEmpty(a.getValue()) && containsEmploymentType.contains(a.getValue())){
+                //&& !notContainsValue.contains(a.getValue())
+                
+                if(a.getValue()==currEmploymentStatus2){
+                    WrapperList.add(new getWprData(true,a.getValue())); 
+                }else{
+                    WrapperList.add(new getWprData(false,a.getValue())); 
+                }
+                //WrapperList.remove('Do not know');
+            }
+            System.debug('WrapperList==>'+WrapperList);
+        }
+        return WrapperList;
+    }
+    
+    
+    
+    
+    
+    public List<getWprData> getPreferredContactValues(){
+        WrapperList= new List<getWprData>();
+        Schema.sObjectType sobject_type = Contact.getSObjectType();
+        Schema.DescribeSObjectResult sobject_describe = sobject_type.getDescribe();
+        Map<String, Schema.SObjectField> field_map = sobject_describe.fields.getMap();
+        List<Schema.PicklistEntry> pick_list_values = field_map.get('Preferred_Contact_Method__c').getDescribe().getPickListValues();
+        List<selectOption> options = new List<selectOption>();
+        for (Schema.PicklistEntry a : pick_list_values) {
+            options.add(new selectOption(a.getLabel(), a.getValue()));
+            if(string.isNotEmpty(a.getValue()) && !excludePreferredValue.contains(a.getValue())){
+                if(a.getValue()==preferredContact){
+                    WrapperList.add(new getWprData(true,a.getValue())); 
+                }else{
+                    WrapperList.add(new getWprData(false,a.getValue())); 
+                }
+                //WrapperList.remove('Do not know');
+            }
+            System.debug('WrapperList==>'+WrapperList);
+            
+        }
+        
+        return WrapperList;
+    }
+    
+    
+    public List<getWprData> getMaritalStatusValuesRow1(){
+        WrapperList= new List<getWprData>();
+        Schema.sObjectType sobject_type = Contact.getSObjectType();
+        Schema.DescribeSObjectResult sobject_describe = sobject_type.getDescribe();
+        Map<String, Schema.SObjectField> field_map = sobject_describe.fields.getMap();
+        List<Schema.PicklistEntry> pick_list_values = field_map.get('Marital_status__c').getDescribe().getPickListValues();
+        List<selectOption> options = new List<selectOption>();
+        for (Schema.PicklistEntry a : pick_list_values) {
+            options.add(new selectOption(a.getLabel(), a.getValue()));
+            if(string.isNotEmpty(a.getValue()) && maritalStatusRow.contains(a.getValue())){
+                if(a.getValue()==maritalstatus){
+                    WrapperList.add(new getWprData(true,a.getValue())); 
+                }else{
+                    WrapperList.add(new getWprData(false,a.getValue())); 
+                }
+                //WrapperList.remove('Do not know');
+            }
+            System.debug('WrapperList==>'+WrapperList);
+            
+        }
+        
+        return WrapperList;
+    }
+    
+    public List<getWprData> getMaritalStatusValuesRow2(){
+        WrapperList= new List<getWprData>();
+        Schema.sObjectType sobject_type = Contact.getSObjectType();
+        Schema.DescribeSObjectResult sobject_describe = sobject_type.getDescribe();
+        Map<String, Schema.SObjectField> field_map = sobject_describe.fields.getMap();
+        List<Schema.PicklistEntry> pick_list_values = field_map.get('Marital_status__c').getDescribe().getPickListValues();
+        List<selectOption> options = new List<selectOption>();
+        for (Schema.PicklistEntry a : pick_list_values) {
+            options.add(new selectOption(a.getLabel(), a.getValue()));
+            if(string.isNotEmpty(a.getValue()) && !maritalStatusRow.contains(a.getValue())){
+                if(a.getValue()==maritalstatus){
+                    WrapperList.add(new getWprData(true,a.getValue())); 
+                }else{
+                    WrapperList.add(new getWprData(false,a.getValue())); 
+                }
+                //WrapperList.remove('Do not know');
+            }
+            System.debug('WrapperList==>'+WrapperList);
+            
+        }
+        
+        return WrapperList;
+    }
+    
+    
+    
+    public List<getWprData> getLabourForceAttachment(){
+        WrapperList= new List<getWprData>();
+        Schema.sObjectType sobject_type = Contact.getSObjectType();
+        Schema.DescribeSObjectResult sobject_describe = sobject_type.getDescribe();
+        Map<String, Schema.SObjectField> field_map = sobject_describe.fields.getMap();
+        List<Schema.PicklistEntry> pick_list_values= field_map.get('Current_Employment_Status__c').getDescribe().getPickListValues();
+        List<selectOption> options = new List<selectOption>();
+        System.debug('pick_list_values '+pick_list_values);
+        for (Schema.PicklistEntry a : pick_list_values) {
+            options.add(new selectOption(a.getLabel(), a.getValue(), true));
+            System.debug('options==>'+options);
+            
+            if(string.isNotEmpty(a.getValue()) && laborforceAttachment.contains(a.getValue())){
+                //&& !notContainsValue.contains(a.getValue())
+                
+                if(a.getValue()==LabourForce){
+                    WrapperList.add(new getWprData(true,a.getValue())); 
+                }else{
+                    WrapperList.add(new getWprData(false,a.getValue())); 
+                }
+                //WrapperList.remove('Do not know');
+            }
+            System.debug('WrapperList==>'+WrapperList);
+            
+        }
+        
+        return WrapperList;
+    }
+    
+    
+    
+    public List<getWprData> getIncomeSource(){
+        WrapperList= new List<getWprData>();
+        Schema.sObjectType sobject_type = Contact.getSObjectType();
+        Schema.DescribeSObjectResult sobject_describe = sobject_type.getDescribe();
+        Map<String, Schema.SObjectField> field_map = sobject_describe.fields.getMap();
+        List<Schema.PicklistEntry> pick_list_values= field_map.get('Current_Source_of_Income__c').getDescribe().getPickListValues();
+        List<selectOption> options = new List<selectOption>();
+        System.debug('pick_list_values '+pick_list_values);
+        for(Schema.PicklistEntry a : pick_list_values) {
+            options.add(new selectOption(a.getLabel(), a.getValue(), true));
+            System.debug('options==>'+options);
+            
+            if(string.isNotEmpty(a.getValue()) && sourceIncome.contains(a.getValue()) ){
+                //&& !notContainsValue.contains(a.getValue())
+                
+                if(a.getValue()==sourceOfIncome){
+                    WrapperList.add(new getWprData(true,a.getValue())); 
+                }else{
+                    WrapperList.add(new getWprData(false,a.getValue())); 
+                }
+                //WrapperList.remove('Do not know');
+            }
+            System.debug('WrapperList==>'+WrapperList);
+        }
+        return WrapperList;
+    }
+    
+    
+    public List<getWprData> getIncomeSource2(){
+        WrapperList= new List<getWprData>();
+        Schema.sObjectType sobject_type = Contact.getSObjectType();
+        Schema.DescribeSObjectResult sobject_describe = sobject_type.getDescribe();
+        Map<String, Schema.SObjectField> field_map = sobject_describe.fields.getMap();
+        List<Schema.PicklistEntry> pick_list_values= field_map.get('Current_Source_of_Income__c').getDescribe().getPickListValues();
+        List<selectOption> options = new List<selectOption>();
+        System.debug('pick_list_values '+pick_list_values);
+        for(Schema.PicklistEntry a : pick_list_values) {
+            options.add(new selectOption(a.getLabel(), a.getValue(), true));
+            System.debug('options==>'+options);
+            
+            if(string.isNotEmpty(a.getValue()) && sourceIncome2.contains(a.getValue()) ){
+                //&& !notContainsValue.contains(a.getValue())
+                
+                if(a.getValue()==sourceOfIncome){
+                    WrapperList.add(new getWprData(true,'Other (Specify)')); 
+                }else{
+                    WrapperList.add(new getWprData(false,'Other (Specify)')); 
+                }
+                //WrapperList.remove('Do not know');
+            }
+            System.debug('WrapperList==>'+WrapperList);
+        }
+        return WrapperList;
+    }
+    
+    
+    
+    public List<getWprData> getEducationRow1(){
+        WrapperList= new List<getWprData>();
+        Schema.sObjectType sobject_type = Contact.getSObjectType();
+        Schema.DescribeSObjectResult sobject_describe = sobject_type.getDescribe();
+        Map<String, Schema.SObjectField> field_map = sobject_describe.fields.getMap();
+        List<Schema.PicklistEntry> pick_list_values= field_map.get('Highest_level_of_education__c').getDescribe().getPickListValues();
+        List<selectOption> options = new List<selectOption>();
+        System.debug('pick_list_values '+pick_list_values);
+        for(Schema.PicklistEntry a : pick_list_values) {
+            options.add(new selectOption(a.getLabel(), a.getValue(), true));
+            System.debug('options==>'+options);
+            
+            if(string.isNotEmpty(a.getValue())&& setEducationRow1.contains(a.getValue())){
+                //   && setEducationRow1.contains(String.escapeSingleQuotes(a.getValue())
+                //&& !notContainsValue.contains(a.getValue())
+                
+                if(a.getValue()==HighestLevelOfEducation){
+                    WrapperList.add(new getWprData(true,a.getValue())); 
+                }else{
+                    WrapperList.add(new getWprData(false,a.getValue())); 
+                }
+                //WrapperList.remove('Do not know');
+            }
+            System.debug('WrapperList==>'+WrapperList);
+        }
+        return WrapperList;
+    }
+    
+    public List<getWprData> getEducationRow2(){
+        WrapperList= new List<getWprData>();
+        Schema.sObjectType sobject_type = Contact.getSObjectType();
+        Schema.DescribeSObjectResult sobject_describe = sobject_type.getDescribe();
+        Map<String, Schema.SObjectField> field_map = sobject_describe.fields.getMap();
+        List<Schema.PicklistEntry> pick_list_values= field_map.get('Highest_level_of_education__c').getDescribe().getPickListValues();
+        List<selectOption> options = new List<selectOption>();
+        System.debug('pick_list_values '+pick_list_values);
+        for(Schema.PicklistEntry a : pick_list_values) {
+            options.add(new selectOption(a.getLabel(), a.getValue(), true));
+            System.debug('options==>'+options);
+            
+            if(string.isNotEmpty(a.getValue()) && setEducationRow2.contains(a.getValue())){
+                //&& !notContainsValue.contains(a.getValue())
+                
+                if(a.getValue()==HighestLevelOfEducation){
+                    WrapperList.add(new getWprData(true,a.getValue())); 
+                }else{
+                    WrapperList.add(new getWprData(false,a.getValue())); 
+                }
+                //WrapperList.remove('Do not know');
+            }
+            System.debug('WrapperList==>'+WrapperList);
+        }
+        return WrapperList;
+    }
+    
+    
+    public List<getWprData> getEducationRow3(){
+        WrapperList= new List<getWprData>();
+        Schema.sObjectType sobject_type = Contact.getSObjectType();
+        Schema.DescribeSObjectResult sobject_describe = sobject_type.getDescribe();
+        Map<String, Schema.SObjectField> field_map = sobject_describe.fields.getMap();
+        List<Schema.PicklistEntry> pick_list_values= field_map.get('Highest_level_of_education__c').getDescribe().getPickListValues();
+        List<selectOption> options = new List<selectOption>();
+        System.debug('pick_list_values '+pick_list_values);
+        for(Schema.PicklistEntry a : pick_list_values) {
+            options.add(new selectOption(a.getLabel(), a.getValue(), true));
+            System.debug('options==>'+options);
+            
+            if(string.isNotEmpty(a.getValue()) && setEducationRow3.contains(a.getValue())){
+                //&& !notContainsValue.contains(a.getValue())
+                
+                if(a.getValue()==HighestLevelOfEducation){
+                    WrapperList.add(new getWprData(true,a.getValue())); 
+                }else{
+                    WrapperList.add(new getWprData(false,a.getValue())); 
+                }
+                //WrapperList.remove('Do not know');
+            }
+            System.debug('WrapperList==>'+WrapperList);
+        }
+        return WrapperList;
+    }
+    
+    
+    public List<getWprData> getEducationRow4(){
+        WrapperList= new List<getWprData>();
+        Schema.sObjectType sobject_type = Contact.getSObjectType();
+        Schema.DescribeSObjectResult sobject_describe = sobject_type.getDescribe();
+        Map<String, Schema.SObjectField> field_map = sobject_describe.fields.getMap();
+        List<Schema.PicklistEntry> pick_list_values= field_map.get('Highest_level_of_education__c').getDescribe().getPickListValues();
+        List<selectOption> options = new List<selectOption>();
+        System.debug('pick_list_values '+pick_list_values);
+        for(Schema.PicklistEntry a : pick_list_values) {
+            options.add(new selectOption(a.getLabel(), a.getValue(), true));
+            System.debug('options==>'+options);
+            
+            if(string.isNotEmpty(a.getValue()) && setEducationRow4.contains(a.getValue())){
+                //&& !notContainsValue.contains(a.getValue())
+                
+                if(a.getValue()==HighestLevelOfEducation){
+                    WrapperList.add(new getWprData(true,a.getValue())); 
+                }else{
+                    WrapperList.add(new getWprData(false,a.getValue())); 
+                }
+                //WrapperList.remove('Do not know');
+            }
+            System.debug('WrapperList==>'+WrapperList);
+        }
+        return WrapperList;
+    }
+    
+    
+    public List<getWprData> getEducationRow5(){
+        WrapperList= new List<getWprData>();
+        Schema.sObjectType sobject_type = Contact.getSObjectType();
+        Schema.DescribeSObjectResult sobject_describe = sobject_type.getDescribe();
+        Map<String, Schema.SObjectField> field_map = sobject_describe.fields.getMap();
+        List<Schema.PicklistEntry> pick_list_values= field_map.get('Highest_level_of_education__c').getDescribe().getPickListValues();
+        List<selectOption> options = new List<selectOption>();
+        System.debug('pick_list_values '+pick_list_values);
+        for(Schema.PicklistEntry a : pick_list_values) {
+            options.add(new selectOption(a.getLabel(), a.getValue(), true));
+            System.debug('options==>'+options);
+            
+            if(string.isNotEmpty(a.getValue()) && setEducationRow5.contains(a.getValue())){
+                //&& !notContainsValue.contains(a.getValue())
+                
+                if(a.getValue()==HighestLevelOfEducation){
+                    WrapperList.add(new getWprData(true,a.getValue())); 
+                }else{
+                    WrapperList.add(new getWprData(false,a.getValue())); 
+                }
+                //WrapperList.remove('Do not know');
+            }
+            System.debug('WrapperList==>'+WrapperList);
+        }
+        return WrapperList;
+    }
+    
+    
+    
+    
+    public List<getWprData> getPreferredPhone(){
+        WrapperList= new List<getWprData>();
+        Schema.sObjectType sobject_type = Contact.getSObjectType();
+        Schema.DescribeSObjectResult sobject_describe = sobject_type.getDescribe();
+        Map<String, Schema.SObjectField> field_map = sobject_describe.fields.getMap();
+        List<Schema.PicklistEntry> pick_list_values= field_map.get('npe01__PreferredPhone__c').getDescribe().getPickListValues();
+        List<selectOption> options = new List<selectOption>();
+        System.debug('pick_list_values '+pick_list_values);
+        for(Schema.PicklistEntry a : pick_list_values) {
+            options.add(new selectOption(a.getLabel(), a.getValue(), true));
+            System.debug('options==>'+options);
+            
+            if(string.isNotEmpty(a.getValue()) && setpreferredPhone.contains(a.getValue())){
+                //&& !notContainsValue.contains(a.getValue())
+                
+                if(a.getValue()==preferredPhn){
+                    WrapperList.add(new getWprData(true,a.getValue())); 
+                }else{
+                    WrapperList.add(new getWprData(false,a.getValue())); 
+                }
+                //WrapperList.remove('Do not know');
+            }
+            System.debug('WrapperList==>'+WrapperList);
+        }
+        return WrapperList;
+    }
+    
+    /*
+    public static List<string> generateStringArray(Integer data){
+        
+        List<String> myArray = new List<String>();
+        
+        for(Integer i=0;i<data;i++){
+            
+            myArray.add('Test'+i);
+            System.debug('myArray[i]==>'+myArray[i]);
+        }
+        return myArray;
+    }
+    */
+    
+    /*   
+public void saveAttach()
+{
+PageReference pdfPage = Page.MyAttach_V2;
+Blob pdfBlob = pdfPage.getContent();
+Attachment a = new Attachment(parentId = ApexPages.currentPage().getParameters().get('id'), name='Astala' + '.pdf', body = pdfBlob);﻿
+insert a ;
+}    
+*/
+    
+    
+    
+    // Generate pdf page into Contact's File
+    public pageReference generatePDF() { 
+        
+        Date todaydDate = date.today();
+        String dt = DateTime.newInstance(todaydDate.year(),todaydDate.month(),todaydDate.day()).format('MM-dd-YYYY');
+        system.debug('Date In mmddyyFormat'+ dt);
+        ContentDocumentLink cDocLink;
+        ContentVersion cVersion;    
+        Contact cont;
+        pageReference pdfPage;
+        Blob pdfBody;
+        Id conDocument;
+        ContentDistribution cd;
+        system.debug('## currentRecordId--------->>'+currentRecordId);
+        
+        if(currentRecordId != Null) {
+            cont = [SELECT Id, FirstName, LastName, Birthdate,Gender__c,Preferred_Name__c,Status_in_Canada__c,
+                    Country_of_Origin__c,Date_of_Arrival_in_Canada__c,Preferred_Contact_Method__c,Marital_status__c,
+                    MailingAddress, OtherAddress,Phone,OtherPhone,Email,Current_Employment_Status__c,
+                    Current_Source_of_Income__c,Is_Newcomer__c,Is_racialized_Person_of_Colour__c,Is_Veteran__c,Francophone__c,
+                    Disability__c,Women__c,Preferred_Language__c,Immigrant__c,Youth__c,npe01__PreferredPhone__c,Parent_Guardian__r.Name,Justice_System_Involved__c,Prefer_not_to_say__c,Is_Inuit__c,Is_First_Nations__c,Is_Metis__c,Highest_level_of_education__c,
+                    (Select Id,name,Preferred_Language__c from Leads__r) FROM Contact where id =:currentRecordId Limit 1];  //ORDER BY CreatedDate DESC         
+            
+            pdfPage = Page.SdfRegistrationForm_V2;
+            pdfPage.getParameters().put('id',currentRecordId);
+            if(Test.isRunningTest()) { 
+                pdfBody = blob.valueOf('Unit.Test');
+            } else {
+                pdfBody = pdfPage.getContent();
+            }
+            System.debug('pdfBody==>'+pdfBody);
+            
+            
+            
+            /* insert case pdf file into attachement */
+            /*       
+attachment pdfFile = new attachment();
+pdfFile.isPrivate  = false;
+pdfFile.body       = pdfBody;
+pdfFile.parentId   = cont.Id; // '5003B000005oRIx';
+pdfFile.Name       = 'Sdf Registration Form.pdf';        
+insert pdfFile; 
+system.debug('## pdfFile===>'+pdfFile);
+
+*/   
+            
+            
+            /* insert case pdf file into File */
+            cVersion = new ContentVersion();
+            cVersion.ContentLocation = 'S';                         
+            cVersion.PathOnClient ='Sdf Registration Form.pdf';       
+            cVersion.Title = 'Sdf Registration Form.pdf '+dt;         
+            cVersion.VersionData = pdfBody;                   
+            Insert cVersion;
+            System.debug('cVersion==>'+cVersion);
+            System.debug('File Title==>'+cVersion.Title );
+            
+            //After saved the Content Verison, get the ContentDocumentId
+            conDocument = [SELECT ContentDocumentId FROM ContentVersion WHERE Id =:cVersion.Id].ContentDocumentId;
+            
+            //Insert ContentDocumentLink
+            cDocLink = new ContentDocumentLink();
+            cDocLink.ContentDocumentId = conDocument;            
+            cDocLink.LinkedEntityId = cont.Id;                    
+            cDocLink.ShareType = 'V';                             
+            cDocLink.Visibility = 'AllUsers';                  
+            Insert cDocLink;
+            System.debug('cDocLink==>'+cDocLink);
+            
+            /* 
+//Insert ContentDistribution
+cd = new ContentDistribution();
+cd.Name = 'TestPage';
+cd.ContentVersionId = cVersion.id;
+cd.PreferencesAllowViewInBrowser= true;
+cd.PreferencesLinkLatestVersion=true;
+cd.PreferencesNotifyOnVisit=false;
+cd.PreferencesPasswordRequired=false;
+cd.PreferencesAllowOriginalDownload= true;
+insert cd;
+System.debug('ContentDistribution==> '+cd);
+
+ContentDistribution distribution = [Select Name,ContentDownloadUrl,DistributionPublicUrl from ContentDistribution where id=: cd.id];
+
+// return new PageReference(distribution.DistributionPublicUrl);//ContentDistributionUrl
+*/ 
+        }
+        return null;
+    } 
+    
+    public PageReference redirectOnFilePage(){
+        Id contentDocId;
+        Id contId=  ApexPages.CurrentPage().getparameters().get('id');
+        System.debug('contId==>'+contId);
+        ContentDocumentLink cdLink= [Select Id,LinkedEntityId,ContentDocumentId from ContentDocumentLink Where LinkedEntityId=:contId order  by ContentDocumentId desc Limit 1];
+        contentDocId= cdLink.ContentDocumentId;
+        // return null;
+        return new PageReference('/' + contentDocId);        
+    }
+    
+    
+    
+    public PageReference Cancel(){
+        Id contId=  ApexPages.CurrentPage().getparameters().get('id');
+        return new PageReference('/' + contId);          
+    }
+    
+    
+    
+    public class getWprData{
+        public boolean selected{get;set;}
+        public string data {get;set;}
+        
+        public  getWprData(boolean d, string str){
+            this.selected= d;
+            this.data= str;
+        }
+    }
+    
+    
+}

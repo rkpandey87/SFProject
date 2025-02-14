@@ -1,0 +1,20 @@
+<apex:page StandardController="Contact" extensions="SdfRegistrationForm" sidebar="false" showHeader="false" action="{!generatePDF}">     <!-- action="{!generatePDF}" -->
+    
+    <apex:form >
+        <!--  <div style="border:1px solid black;">-->
+        
+        
+        <div class="Test1" style="color:rgb(1, 118, 211);text-align:center;font-size:20px;">
+            PDF saved successfully in Files
+        </div>
+        <br/> <br/> <br/>
+        
+        <div align="center" draggable="false" style="Font-weight:bold;margin-bottom:10px;">
+            <apex:commandButton action="{!redirectOnFilePage}" value="Go To PDF File" style="font-weight:bold;width:170px;font-size:15px;color:rgb(1, 118, 211);"/>
+            &nbsp; &nbsp; &nbsp; &nbsp;  <apex:commandButton action="{!Cancel}" value="Close" style="font-weight:bold;width:130px;font-size:15px;color:rgb(1, 118, 211);"/>
+            <!--   <button class="btn" style="padding:4px;text-align:center;" onclick="window.open('/{!$currentpage.parameters.id}', target='_self');return false;">Close</button>-->
+        </div>
+        <!--    </div> -->
+    </apex:form>
+    
+</apex:page>
