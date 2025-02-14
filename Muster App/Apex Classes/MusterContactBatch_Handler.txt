@@ -1,0 +1,837 @@
+public with sharing class MusterContactBatch_Handler {
+    
+    public static Boolean havePermission = true; 
+    
+    public static Map<String,Muster_Custom_Fields__c> getCustomFields() {
+        Map<String,Muster_Custom_Fields__c> musterCustomRecordsMap = new Map<String,Muster_Custom_Fields__c>();
+        try {
+            if((Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c').getDescribe().isAccessible() 
+                && Schema.sObjectType.Muster_Custom_Fields__c.fields.uuid_muster__c.isAccessible() 
+                && Schema.sObjectType.Muster_Custom_Fields__c.fields.Field_Type__c.isAccessible() 
+                && Schema.sObjectType.Muster_Custom_Fields__c.fields.SF_API_Name__c.isAccessible()   
+               )) {
+                   List<Muster_Custom_Fields__c>musterCustomList = [Select Id
+                                                                    , uuid_muster__c
+                                                                    , Field_Type__c
+                                                                    , SF_API_Name__c
+                                                                    from Muster_Custom_Fields__c
+                                                                    Where SF_API_Name__c != null WITH USER_MODE];    
+                   if(musterCustomList!=null && musterCustomList.size()>0){
+                       for(Muster_Custom_Fields__c mcf: musterCustomList){                
+                           if(mcf.uuid_muster__c!= null) {
+                               musterCustomRecordsMap.put(mcf.uuid_muster__c, mcf); 
+                           }                
+                       }            
+                   }
+               } 
+        }
+        catch(Exception ex) {/*MusterCustomCallout.creatBatchLog('Exception MusterContactBatch_Handler.getCustomFields() '+ex.getMessage());*/ }
+        return musterCustomRecordsMap;
+    }
+    
+    public static sObject getContactFromCustomSetting(MusterWrapper.Results resW, Muster_Settings__mdt musterRec) {        
+        sObject conMuster;        
+        try{
+            Boolean permissionFlag = Check_Permissions.isMetadatAccesible();
+            string objectName = '';
+            if(permissionFlag) {
+                if(musterRec.Entity__c == MusterStrings.STR_CONTACT) {objectName = MusterStrings.STR_CONTACT;} else{objectName = MusterStrings.STR_ACCOUNT;}
+                if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+objectName).getDescribe().isAccessible() ) {
+                    
+                    string sObjRecTypeId;
+                    if(musterRec.Record_Type_Muster_to_SF__c!=Null ){
+                        sObjRecTypeId = musterRec.Record_Type_Muster_to_SF__c;
+                    }
+                    if(musterRec.Entity__c == MusterStrings.STR_CONTACT) {
+                        conMuster = new contact();
+                        if(string.isNotEmpty(sObjRecTypeId)){
+                            conMuster.put('RecordTypeId',sObjRecTypeId);  
+                        }
+                        if (Schema.sObjectType.Contact.fields.Muster_UUID__c.isCreateable()) {
+                            conMuster.put(MusterStrings.STR_NAMESPACE+'Muster_UUID__c',string.valueOf(resW.uuid) ); 
+                        }
+                    }
+                    else {
+                        conMuster = new Account();
+                        if(string.isNotEmpty(sObjRecTypeId)){
+                            conMuster.put('RecordTypeId',sObjRecTypeId);
+                        }
+                        if (Schema.sObjectType.Account.fields.Muster_UUID__c.isCreateable()) {
+                            conMuster.put(MusterStrings.STR_NAMESPACE+'Muster_UUID__c',string.valueOf(resW.uuid) );  
+                        }
+                    }
+                    if(string.isNotBlank(string.valueOf(musterRec.Prefix__c) )){
+                        conMuster.put(string.valueOf(musterRec.Prefix__c),string.valueOf(resW.prefix) ); 
+                    } if(string.isNotBlank(string.valueOf(musterRec.First_Name__c))){
+                        conMuster.put(string.valueOf(musterRec.First_Name__c),string.valueOf(resW.first_name) );
+                    } if(string.isNotBlank(string.valueOf(musterRec.Last_Name__c))){
+                        conMuster.put(string.valueOf(musterRec.Last_Name__c),string.valueOf(resW.last_name) ); 
+                    }  if(string.isNotBlank(string.valueOf(musterRec.Primary_Email__c)) ){
+                        conMuster.put(string.valueOf(musterRec.Primary_Email__c),string.valueOf(resW.primary_email) ); 
+                    } if(string.isNotBlank(string.valueOf(musterRec.Phone_Number__c))){
+                        conMuster.put(string.valueOf(musterRec.Phone_Number__c),string.valueOf(resW.primary_phone_number) );             
+                    } if(musterRec.Advocate__c != null  ) {
+                        conMuster.put(musterRec.Advocate__c,boolean.valueOf(resW.is_advocate) ); 
+                    } if(musterRec.Text_Opt_in__c != null ) {
+                        conMuster.put(musterRec.Text_Opt_in__c,boolean.valueOf(resW.is_opt_in_text) ); 
+                    } if(musterRec.Email_Opt_in__c != null ) {
+                        conMuster.put(musterRec.Email_Opt_in__c,boolean.valueOf(resW.is_opt_in_email) ); 
+                    }
+                    
+                } 
+            }
+        } catch(Exception ex) {/* MusterCustomCallout.creatBatchLog('Exception MusterContactBatch_Handler.getContactFromCustomSetting() : '+ex.getMessage()+' Line no :'+ex.getLineNumber());*/}        
+        return conMuster;
+    }
+    
+    public static string getValues(MusterWrapper.Custom_fields resCustom) {
+        String mulPickVal;
+        if(resCustom.values !=Null && resCustom.values.size()>0){
+            for(string str:resCustom.values) {
+                if(mulPickVal==Null && str!=Null) {
+                    mulPickVal=str+';';
+                }
+                else{
+                    mulPickVal+=str+';';
+                }
+            }
+        }
+        else{
+            mulPickVal = resCustom.value;
+        }
+        if(mulPickVal!=Null) {
+            mulPickVal =mulPickVal.removeEnd(';');
+        }
+        return mulPickVal;
+    }
+    
+    public static sObject setCustomFieldValueInContact(sObject conMuster,MusterWrapper.Results resW, Map<String,Muster_Custom_Fields__c>musterCustomRecordsMap, Muster_Settings__mdt musterRec) {
+        try {
+            string objectName = '';
+            if(musterRec.Entity__c == MusterStrings.STR_CONTACT) {objectName = MusterStrings.STR_CONTACT;} else{objectName = MusterStrings.STR_ACCOUNT;}
+            if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+objectName).getDescribe().isAccessible()
+               && Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c').getDescribe().isAccessible()
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.Field_Type__c.isAccessible() 
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.SF_API_Name__c.isAccessible() 
+              ) {
+                  if(musterRec.Entity__c == MusterStrings.STR_CONTACT) {
+                      conMuster = (Contact)conMuster;
+                  }
+                  else {
+                      conMuster = (Account)conMuster;
+                  }
+                  for(MusterWrapper.Custom_fields resCustom: resW.custom_fields) {
+                      Muster_Custom_Fields__c mRecord = new Muster_Custom_Fields__c();
+                      
+                      String mulPickVal;
+                      if(resCustom.values!=Null) {
+                          mulPickVal = getValues(resCustom);
+                      }
+                      if(musterCustomRecordsMap!=null && resCustom.custom_field!=Null && musterCustomRecordsMap.containsKey(resCustom.custom_field)) {
+                          mRecord= musterCustomRecordsMap.get(resCustom.custom_field);
+                          if( mRecord.Field_Type__c!=Null ) {
+                              
+                              if(mRecord.Field_Type__c == MusterStrings.strSingleChoice || mRecord.Field_Type__c ==MusterStrings.strText ) {
+                                  conMuster.put(String.valueof(mRecord.SF_API_Name__c) ,resCustom.value);
+                              }
+                              else if(mRecord.Field_Type__c == MusterStrings.strMulti ) {
+                                  conMuster.put(String.valueof(mRecord.SF_API_Name__c) ,mulPickVal);
+                              }  
+                          }
+                      }
+                  }
+              } 
+        } catch(Exception ex) { /*MusterCustomCallout.creatBatchLog('Exception MusterContactBatch_Handler.setCustomFieldValueInContact() : '+ex.getMessage()+' Line no :'+ex.getLineNumber());*/}        
+        return conMuster;
+    }
+    
+    public static List<sObject> CheckContactForDuplicate(string musterDuplicateField, string sfDuplicateField, Map<Id,MusterWrapper.Results> mapSFID, Map<String,MusterWrapper.Results> mapUUID, Map<string,string> mapEmailORNameForDuplicate, Map<string,List<string>> mapOtherFieldForDuplicate, Muster_Settings__mdt musterRec,DateTime currentDateTime) {
+        List<String> DupfieldList = new List<String>();
+        Boolean isSfIdFound=False;
+        Boolean isUuidFound=False;
+        Boolean isEmailNameFound=False;
+        String objAddress1 = musterRec.Address_1__c;
+        string objectName = musterRec.Entity__c;
+        
+        string queryStr = '';
+        List<sObject> objList = new List<sObject>();
+        try {
+            if(Schema.getGlobalDescribe().get(objectName).getDescribe().isAccessible() && checkFieldPermission(objectName, sfDuplicateField, objAddress1) ) {
+                if(string.isNotBlank(objAddress1)){
+                    if(string.isNotBlank(sfDuplicateField)) {
+                        queryStr = 'Select Id,Muster_UUID__c,'+sfDuplicateField +','+objAddress1+' from '+objectName+' Where';
+                    } else {
+                        queryStr = 'Select Id,Muster_UUID__c,'+objAddress1+' from '+objectName+' Where';
+                    }  
+                }
+                else{
+                    if(string.isNotBlank(sfDuplicateField)) {
+                        queryStr = 'Select Id,Muster_UUID__c,'+sfDuplicateField +' from '+objectName+' Where';
+                    } else {
+                        queryStr = 'Select Id,Muster_UUID__c from '+objectName+' Where';
+                    }
+                    
+                }
+                string oRCondition = '';
+                if(mapSFID!=Null && mapSFID.size()>0){
+                    set<Id> setSfId = mapSFID.KeySet();
+                    oRCondition+= ' Id =:setSfId';
+                    isSfIdFound = true;
+                }
+                if(mapUUID!=Null && mapUUID.size()>0){
+                    set<string> setUUId = mapUUID.KeySet();
+                    if(isSfIdFound == False){
+                        oRCondition+= ' Muster_UUID__c =:setUUId';  
+                    }
+                    else{
+                        oRCondition+= ' OR Muster_UUID__c =:setUUId';  
+                    }
+                    isUuidFound = True;
+                }
+                if(mapEmailORNameForDuplicate!=Null && mapEmailORNameForDuplicate.size()>0 && string.isnotEmpty(sfDuplicateField)){
+                    Set<string> lstStr = mapEmailORNameForDuplicate.KeySet();
+                    if(isUuidFound == False && isSfIdFound == False){
+                        oRCondition+= (objectName == MusterStrings.STR_CONTACT && sfDuplicateField== 'Email') ? ' Email =:lstStr' : sfDuplicateField+' =:lstStr';
+                    }
+                    else{
+                        oRCondition+= (objectName == MusterStrings.STR_CONTACT && sfDuplicateField== 'Email') ? ' OR  Email =:lstStr' : ' OR '+sfDuplicateField+' =:lstStr';
+                    }
+                    isEmailNameFound = true; 
+                }       
+                if(mapOtherFieldForDuplicate!=Null && mapOtherFieldForDuplicate.size()>0 && string.isnotEmpty(sfDuplicateField)){ 
+                    set<string> setOther = mapOtherFieldForDuplicate.KeySet(); 
+                    if( isUuidFound == False && isSfIdFound == False && isEmailNameFound == False){
+                        oRCondition+= ' '+sfDuplicateField +' =:setOther ';
+                    }
+                    else{
+                        oRCondition+= ' OR '+sfDuplicateField +' =:setOther ';
+                    }                
+                }
+                if(string.isNotBlank(oRCondition)) {
+                    queryStr += ' ( '+oRCondition +' ) ';
+                }
+                
+                String fiterDate = ''+currentDateTime;
+                fiterDate = fiterDate.replace(' ','T');
+                fiterDate = fiterDate+'Z';
+                queryStr+= ' AND LastModifiedDate <= ' + fiterDate ;
+                queryStr+= ' WITH USER_MODE';
+                objList =  Database.query(String.escapeSingleQuotes(queryStr));
+            } 
+        } catch(Exception ex ) {
+            MusterCustomCallout.creatBatchLog('Exception in MusterContactBatch_Handler.CheckContactForDuplicate : '+ex.getMessage() +' Line no :'+ex.getLineNumber());
+        }
+        return objList;
+    } 
+    
+    public static Map<Integer,List<locations__c>> getLocationLst(MusterWrapper.Results resW, Integer temp) {
+        List<locations__c> lstLocation = new List<locations__c>();
+        Map<Integer,List<locations__c>> mapLocation = new Map<Integer,List<locations__c>>();
+        try {  
+            if( resW.locations!= Null) {  
+                if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'locations__c').getDescribe().isAccessible()) {
+                    for(MusterWrapper.Locations resLocation: resW.locations) {                    
+                        locations__c ln = new locations__c();                    
+                        if (Schema.sObjectType.locations__c.fields.Temp_Id__c.isCreateable()) {
+                            ln.Temp_Id__c= temp;
+                        }  
+                        if (Schema.sObjectType.locations__c.fields.street_address__c.isCreateable()) {
+                            ln.street_address__c= resLocation.street_address;
+                        } 
+                        if (Schema.sObjectType.locations__c.fields.street_address_2__c.isCreateable()) {
+                            ln.street_address_2__c= resLocation.street_address_2;
+                        } 
+                        if (Schema.sObjectType.locations__c.fields.city__c.isCreateable()) {
+                            ln.city__c= resLocation.city;
+                        }
+                        if (Schema.sObjectType.locations__c.fields.state__c.isCreateable()) {
+                            ln.state__c= resLocation.state;
+                        }
+                        if (Schema.sObjectType.locations__c.fields.zip_code__c.isCreateable()) {
+                            ln.zip_code__c= resLocation.zip_code;
+                        }
+                        
+                        if(resLocation.boundaries!=Null){
+                            for(MusterWrapper.Boundaries  bon: resLocation.boundaries){
+                                
+                                if(bon.boundary_type == 'State') {                         
+                                    if(Schema.sObjectType.locations__c.fields.State_boundary__c.isCreateable()) {
+                                        ln.State_boundary__c= bon.name;
+                                    } 
+                                }  
+                                else if(bon.boundary_type == 'Legislative District (Lower Chamber)') {
+                                    if(Schema.sObjectType.locations__c.fields.Legislative_Dist_LC__c.isCreateable()) {
+                                        ln.Legislative_Dist_LC__c= bon.name;                            
+                                    } 
+                                } 
+                                else if(bon.boundary_type == 'Congressional District' ) {
+                                    if(Schema.sObjectType.locations__c.fields.Congressional_Dist__c.isCreateable()) {
+                                        ln.Congressional_Dist__c= bon.name;
+                                    }
+                                } 
+                                else if(bon.boundary_type == 'Legislative District (Upper Chamber)') {                            
+                                    if(Schema.sObjectType.locations__c.fields.Legislative_Dist_UC__c.isCreateable()) {
+                                        ln.Legislative_Dist_UC__c= bon.name;
+                                    }
+                                }  
+                            }
+                        }
+                        
+                        lstLocation.add(ln);                            
+                    } 
+                } 
+            }
+            mapLocation.put(temp,lstLocation);
+        } catch(Exception ex) {          
+            /*MusterCustomCallout.creatBatchLog('Exception in MusterContactBatch_Handler.getLocationLst() :'+ex.getMessage() +' Line no : '+ex.getLineNumber());*/
+        }
+        return mapLocation;
+    }
+    
+    public static sObject setLocationInContact(locations__c location, Muster_Settings__mdt musterRec, sObject conMuster) {                
+        try {
+            Boolean flag = false;
+            if(musterRec.Entity__c == MusterStrings.STR_CONTACT ) {
+                flag = Schema.sObjectType.Contact.fields.State_Boundary__c.isAccessible() && Schema.sObjectType.Contact.fields.Legislative_District_Lower_Chamber__c.isAccessible()
+                    && Schema.sObjectType.Contact.fields.Congressional_District_Boundary__c.isAccessible() && Schema.sObjectType.Contact.fields.Legislative_District_Upper_Chamber__c.isAccessible();
+            } else {
+                flag = Schema.sObjectType.Account.fields.State_Boundary__c.isAccessible() && Schema.sObjectType.Account.fields.Legislative_District_Lower_Chamber__c.isAccessible()
+                    && Schema.sObjectType.Account.fields.Congressional_District_Boundary__c.isAccessible() && Schema.sObjectType.Account.fields.Legislative_District_Upper_Chamber__c.isAccessible();
+            }
+            if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'locations__c').getDescribe().isAccessible()
+               && Schema.sObjectType.locations__c.fields.street_address__c.isAccessible()
+               && Schema.sObjectType.locations__c.fields.street_address_2__c.isAccessible()
+               && Schema.sObjectType.locations__c.fields.city__c.isAccessible()
+               && Schema.sObjectType.locations__c.fields.state__c.isAccessible()
+               && Schema.sObjectType.locations__c.fields.zip_code__c.isAccessible()
+               && Schema.sObjectType.locations__c.fields.State_boundary__c.isAccessible()
+               && Schema.sObjectType.locations__c.fields.Legislative_Dist_LC__c.isAccessible()
+               && Schema.sObjectType.locations__c.fields.Congressional_Dist__c.isAccessible()
+               && Schema.sObjectType.locations__c.fields.Legislative_Dist_UC__c.isAccessible()
+               && flag
+              ) {
+                  if(string.isNotBlank(string.valueOf(musterRec.Address_1__c)) ){ 
+                      conMuster.put(string.valueOf(musterRec.Address_1__c),string.valueOf(location.street_address__c) );
+                  }
+                  if(string.isNotBlank(string.valueOf(musterRec.Address_2__c))  ){ 
+                      conMuster.put(string.valueOf(musterRec.Address_2__c),string.valueOf(location.street_address_2__c) );
+                  }
+                  if(string.isNotBlank(string.valueOf(musterRec.City__c)) ){ 
+                      conMuster.put(string.valueOf(musterRec.City__c),string.valueOf(location.city__c) );
+                  }
+                  if(string.isNotBlank(string.valueOf(musterRec.State__c)) ){ 
+                      conMuster.put(string.valueOf(musterRec.State__c),string.valueOf(location.state__c) );
+                  }
+                  if(string.isNotBlank(string.valueOf(musterRec.ZIP__c)) ){ 
+                      conMuster.put(string.valueOf(musterRec.ZIP__c),string.valueOf(location.zip_code__c) );
+                  }
+                  conMuster.put(MusterStrings.STR_NAMESPACE+'State_Boundary__c', location.State_boundary__c);
+                  conMuster.put(MusterStrings.STR_NAMESPACE+'Legislative_District_Lower_Chamber__c', location.Legislative_Dist_LC__c);
+                  conMuster.put(MusterStrings.STR_NAMESPACE+'Congressional_District_Boundary__c', location.Congressional_Dist__c);
+                  conMuster.put(MusterStrings.STR_NAMESPACE+'Legislative_District_Upper_Chamber__c', location.Legislative_Dist_UC__c);
+              }
+        } catch(Exception ex) {         
+            /* MusterCustomCallout.creatBatchLog('Exception MusterContactBatch_Handler.setLocationInContact()  :'+ex.getMessage() +' Line no : '+ex.getLineNumber());*/
+        }
+        return conMuster;
+    }
+    
+    public static Map<Integer,List<Emails__c>> getEmailLst(MusterWrapper.Results resW, Integer temp){
+        List<Emails__c> lstEmail = new List<Emails__c>();
+        Map<Integer,List<Emails__c>> mapEmail = new Map<Integer,List<Emails__c>>();
+        try {
+            if(resW.emails!= Null){
+                if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'emails__c').getDescribe().isAccessible()){
+                    for(MusterWrapper.Emails resMail: resW.emails){
+                        emails__c em= new emails__c();                   
+                        if (Schema.sObjectType.emails__c.fields.email__c.isCreateable()) {
+                            em.email__c= resMail.email;
+                        } 
+                        if (Schema.sObjectType.emails__c.fields.Temp_Id__c.isCreateable()) {
+                            em.Temp_Id__c= temp;
+                        } 
+                        lstEmail.add(em);
+                    }
+                } 
+            }
+            mapEmail.put(temp,lstEmail); 
+        } catch(Exception ex) {           
+            // MusterCustomCallout.creatBatchLog('Exception MusterContactBatch_Handler.getEmailLst() '+ex.getMessage() +' Line no : '+ex.getLineNumber());
+        }
+        return mapEmail;
+    }
+    
+    public static Map<Integer,List<Phone_numbers__c>> getPhoneNumberLst(MusterWrapper.Results resW, Integer temp) {
+        List<Phone_numbers__c> lstPhoneNumber = new List<Phone_numbers__c>();
+        Map<Integer,List<Phone_numbers__c>> mapPhoneNumber = new Map<Integer,List<Phone_numbers__c>>();
+        try {
+            if(resW.phone_numbers!=null){ 
+                if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Phone_numbers__c').getDescribe().isAccessible()){
+                    for(MusterWrapper.Phone_numbers resPhone: resW.phone_numbers){                
+                        Phone_numbers__c phnNumber = new Phone_numbers__c();                    
+                        if (Schema.sObjectType.Phone_numbers__c.fields.phone_number__c.isCreateable()) {
+                            phnNumber.phone_number__c= resPhone.phone_number; 
+                        } 
+                        if (Schema.sObjectType.Phone_numbers__c.fields.Temp_Id__c.isCreateable()) {
+                            phnNumber.Temp_Id__c= temp; 
+                        } 
+                        lstPhoneNumber.add(phnNumber);
+                    }
+                } 
+            } 
+            mapPhoneNumber.put(temp,lstPhoneNumber);    
+        } catch(Exception ex) {           
+            //MusterCustomCallout.creatBatchLog('Exception MusterContactBatch_Handler.getPhoneNumberLst() '+ex.getMessage()+' Line no : '+ex.getLineNumber());
+        }
+        return mapPhoneNumber;
+    }   
+    
+    public static string getValue(sObject obj, string fieldApi) {       
+        string fieldValue =  (fieldApi == '' || fieldApi == null)? '' : (string)obj.get(fieldApi);
+        fieldValue = (fieldValue == null)? '' : fieldValue;
+        return fieldValue;
+    }
+    
+    public static Boolean checkFieldPermission(string objectName, string sfDuplicateField, string objAddress1) {
+        Set<string> setFields = new Set<string>();  
+        set<string> strExcluded = Check_Permissions.getExcludedFields();                       
+        
+        if(string.isNotEmpty(sfDuplicateField)) {
+            if(!strExcluded.contains(sfDuplicateField)) { 
+                if(objectName == MusterStrings.STR_CONTACT && sfDuplicateField == 'Email') { setFields.add(objectName+'.Email'); } 
+                else {setFields.add(objectName+'.'+sfDuplicateField);}
+            } 
+        }
+        
+        if(string.isNotEmpty(objAddress1)) {
+            if(!strExcluded.contains(objAddress1)) { 
+                setFields.add(objectName+'.'+objAddress1);
+            } 
+        }
+        
+        setFields.add(objectName+'.'+MusterStrings.STR_NAMESPACE+'Muster_UUID__c'); 
+        Boolean flag = Check_Permissions.checkFieldPermission(setFields, objectName, 'Read');      
+        if(Test.isRunningTest()) {flag = true;}
+        return flag;
+    }
+    
+    public static Map<String,List<locations__c>> getLocationLstForUpdateObj(MusterWrapper.Results resW,sObject conMuster,Muster_Settings__mdt musterRec) {
+        List<locations__c> lstLocation = new List<locations__c>();
+        Map<String,List<locations__c>> mapLocation = new Map<String,List<locations__c>>();
+        string objectName = '';
+        string objId = '';
+        try { 
+            //Boolean flag = false;
+            if(musterRec.Entity__c == MusterStrings.STR_CONTACT) {
+                objectName = MusterStrings.STR_CONTACT;
+                //flag = Schema.sObjectType.locations__c.fields.Contact_Lookup__c.isAccessible();
+            } 
+            else{
+                objectName = MusterStrings.STR_ACCOUNT; 
+                //flag = Schema.sObjectType.locations__c.fields.Account_Lookup__c.isAccessible();
+            }
+            
+            if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+objectName).getDescribe().isAccessible() 
+               && Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'locations__c').getDescribe().isAccessible()
+               && Schema.sObjectType.locations__c.fields.street_address__c.isCreateable()
+               && Schema.sObjectType.locations__c.fields.street_address_2__c.isCreateable()
+               && Schema.sObjectType.locations__c.fields.city__c.isCreateable()
+               && Schema.sObjectType.locations__c.fields.state__c.isCreateable()
+               && Schema.sObjectType.locations__c.fields.zip_code__c.isCreateable()
+               && Schema.sObjectType.locations__c.fields.State_boundary__c.isCreateable()
+               && Schema.sObjectType.locations__c.fields.Legislative_Dist_LC__c.isCreateable()
+               && Schema.sObjectType.locations__c.fields.Congressional_Dist__c.isCreateable()
+               && Schema.sObjectType.locations__c.fields.Legislative_Dist_UC__c.isCreateable()
+              ) {
+                  if(conMuster!=Null){
+                      if(objectName == MusterStrings.STR_CONTACT){
+                          contact con = (Contact)conMuster;
+                          objId = con.Id;
+                      } 
+                      else {
+                          account acc = (account)conMuster;
+                          objId = acc.Id;
+                      } 
+                  }
+                  if( resW.locations!= Null && String.isNotEmpty(objId) && resW.locations.size()>0) {  
+                      for(MusterWrapper.Locations resLocation: resW.locations) {                    
+                          locations__c ln = new locations__c();
+                          if(objectName == MusterStrings.STR_CONTACT ) { 
+                              if(Schema.sObjectType.locations__c.fields.Contact_Lookup__c.isCreateable()) {ln.Contact_Lookup__c = objId;}
+                          }  
+                          else {
+                              if(Schema.sObjectType.locations__c.fields.Account_Lookup__c.isCreateable()) {ln.Account_Lookup__c = objId; }
+                          }   
+                          
+                          ln.street_address__c= resLocation.street_address;
+                          ln.street_address_2__c= resLocation.street_address_2;
+                          ln.city__c= resLocation.city;
+                          ln.state__c= resLocation.state;
+                          ln.zip_code__c= resLocation.zip_code;
+                          if(resLocation.boundaries!=Null && resLocation.boundaries.size()>0){
+                              for(MusterWrapper.Boundaries  bon: resLocation.boundaries){
+                                  if(bon.boundary_type == 'State') {                         
+                                      ln.State_boundary__c= bon.name;
+                                  }  
+                                  else if(bon.boundary_type == 'Legislative District (Lower Chamber)') {
+                                      ln.Legislative_Dist_LC__c= bon.name;                            
+                                  } 
+                                  else if(bon.boundary_type == 'Congressional District' ) {
+                                      ln.Congressional_Dist__c= bon.name;
+                                  } 
+                                  else if(bon.boundary_type == 'Legislative District (Upper Chamber)') {                            
+                                      ln.Legislative_Dist_UC__c= bon.name;
+                                  }   
+                              }
+                          }
+                          lstLocation.add(ln); 
+                      } 
+                  }
+              }
+            mapLocation.put(objId,lstLocation);
+        } catch(Exception ex) {           
+            //MusterCustomCallout.creatBatchLog('Exception in MusterContactBatch_Handler.getLocationLstForUpdateObj() :'+ex.getMessage() +' Line no : '+ex.getLineNumber());
+        }
+        return mapLocation;
+    }
+    
+    public static Map<String,List<Phone_numbers__c>> getPhoneNumbersForUpdateObj(MusterWrapper.Results resW,sObject conMuster,Muster_Settings__mdt musterRec) {
+        List<Phone_numbers__c> lstPhoneNumber = new List<Phone_numbers__c>();
+        Map<String,List<Phone_numbers__c>> mapPhoneNumber = new Map<String,List<Phone_numbers__c>>();
+        string objId = '';
+        String objectName='';
+        
+        try {
+            //Boolean flag = false;
+            if(musterRec.Entity__c == MusterStrings.STR_CONTACT) 
+            {
+                objectName = MusterStrings.STR_CONTACT;
+            } 
+            else{
+                objectName = MusterStrings.STR_ACCOUNT;
+            }
+            //flag =(objectName == MusterStrings.STR_CONTACT)? (Schema.sObjectType.Phone_numbers__c.fields.Contact_Lookup__c.isAccessible()):(Schema.sObjectType.Phone_numbers__c.fields.Account_Lookup__c.isAccessible());
+            if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+objectName).getDescribe().isAccessible() &&
+               Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Phone_numbers__c').getDescribe().isAccessible() &&
+               Schema.sObjectType.Phone_numbers__c.fields.phone_number__c.isCreateable() &&
+               Schema.sObjectType.Phone_numbers__c.fields.Contact_Lookup__c.isCreateable() &&
+               Schema.sObjectType.Phone_numbers__c.fields.Account_Lookup__c.isCreateable()) { 
+                   if(conMuster!=Null){
+                       if(objectName == MusterStrings.STR_CONTACT) {
+                           contact con = (Contact)conMuster;objId = con.Id;
+                       } 
+                       else {
+                           account acc = (account)conMuster;objId = acc.Id;
+                       }  
+                   }
+                   if(resW.phone_numbers!=null && String.isNotEmpty(objId) && resW.phone_numbers.size()>0){ 
+                       for(MusterWrapper.Phone_numbers resPhone: resW.phone_numbers){                
+                           Phone_numbers__c phnNumber = new Phone_numbers__c();                    
+                           if(objectName == MusterStrings.STR_CONTACT ) { 
+                               phnNumber.Contact_Lookup__c = objId;
+                           }  
+                           else {
+                               phnNumber.Account_Lookup__c = objId;
+                           }  
+                           
+                           phnNumber.phone_number__c= resPhone.phone_number; 
+                           lstPhoneNumber.add(phnNumber);   
+                       }
+                       mapPhoneNumber.put(objId,lstPhoneNumber);   
+                   } 
+               }                   
+        } catch(Exception ex) {
+            //MusterCustomCallout.creatBatchLog('Exception MusterContactBatch_Handler.getPhoneNumbersForUpdateObj() '+ex.getMessage()+' Line no : '+ex.getLineNumber());
+        }
+        return mapPhoneNumber;
+    }
+    
+    public static Map<String,List<Emails__c>> getEmailsForUpdateObj(MusterWrapper.Results resW,sObject conMuster,Muster_Settings__mdt musterRec) {
+        
+        List<Emails__c> lstEmail = new List<Emails__c>();
+        Map<String,List<Emails__c>> mapEmail = new Map<String,List<Emails__c>>();
+        String objectName='';
+        string objId = '';
+        
+        try {
+            //Boolean flag = false;
+            if(musterRec.Entity__c == MusterStrings.STR_CONTACT) {
+                objectName = MusterStrings.STR_CONTACT;
+            } 
+            else{
+                objectName = MusterStrings.STR_ACCOUNT;
+            }
+            //flag =(objectName == MusterStrings.STR_CONTACT)? (Schema.sObjectType.Emails__c.fields.Contact_Lookup__c.isAccessible()):(Schema.sObjectType.Emails__c.fields.Account_Lookup__c.isAccessible());
+            if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+objectName).getDescribe().isAccessible() &&
+               Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'emails__c').getDescribe().isAccessible() &&
+               Schema.sObjectType.emails__c.fields.email__c.isCreateable() && 
+               Schema.sObjectType.emails__c.fields.Contact_Lookup__c.isCreateable() && 
+               Schema.sObjectType.emails__c.fields.Account_Lookup__c.isCreateable()) {
+                   if(conMuster!=Null){
+                       if(objectName == MusterStrings.STR_CONTACT) { 
+                           contact con = (Contact)conMuster;objId = con.Id;
+                       } 
+                       else {
+                           account acc = (account)conMuster;objId = acc.Id;
+                       }
+                   }
+                   
+                   if(resW.phone_numbers!=null && String.isNotEmpty(objId) && resW.phone_numbers.size()>0){ 
+                       for(MusterWrapper.Emails resMail: resW.emails){                
+                           emails__c em= new emails__c();                     
+                           if(objectName == MusterStrings.STR_CONTACT ) { 
+                               em.Contact_Lookup__c = objId;
+                           }  
+                           else {
+                               em.Account_Lookup__c = objId;
+                           } 
+                           em.email__c= resMail.email;
+                           lstEmail.add(em);  
+                       }                            
+                       mapEmail.put(objId,lstEmail);
+                   } 
+               }
+        } catch(Exception ex) {
+            //MusterCustomCallout.creatBatchLog('Exception MusterContactBatch_Handler.getEmailsForUpdateObj() '+ex.getMessage()+' Line no : '+ex.getLineNumber());
+        }
+        return mapEmail;
+    }
+    
+    public static Map<String,List<locations__c>> getExistingLocationLst(Muster_Settings__mdt musterRec, Set<Id>ObjIdSet){
+        Map<String,List<locations__c>> mapLocation = new Map<String,List<locations__c>>();
+        List<locations__c> locationLst = new List<locations__c>();
+        string objectName = '';
+        string objId = '';
+        try {
+            if(ObjIdSet!=Null && ObjIdSet.size()>0){
+                Boolean flag = false;
+                if(musterRec.Entity__c == MusterStrings.STR_CONTACT){
+                    objectName = MusterStrings.STR_CONTACT;
+                } 
+                else{
+                    objectName = MusterStrings.STR_ACCOUNT;
+                }    
+                flag = (objectName == MusterStrings.STR_CONTACT)? (Schema.sObjectType.locations__c.fields.Contact_Lookup__c.isAccessible()):(Schema.sObjectType.locations__c.fields.Account_Lookup__c.isAccessible());
+                    if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+objectName).getDescribe().isAccessible() &&
+                       Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'locations__c').getDescribe().isAccessible()
+                       && flag) {
+                           if(objectName == MusterStrings.STR_CONTACT) {
+                               locationLst = [select id ,Contact_Lookup__c from locations__c where Contact_Lookup__c IN:ObjIdSet WITH USER_MODE];
+                               if(locationLst!=Null && locationLst.size()>0){
+                                   for (locations__c lc : locationLst) {
+                                       if(mapLocation.containsKey(lc.Contact_Lookup__c)) {
+                                           mapLocation.get(lc.Contact_Lookup__c).add(lc);
+                                       }
+                                       else {
+                                           mapLocation.put(lc.Contact_Lookup__c, new List<locations__c>{lc}); 
+                                       } 
+                                   } 
+                               }
+                           } 
+                           else {
+                               locationLst = [select id, Account_Lookup__c from locations__c where Account_Lookup__c  IN:ObjIdSet WITH USER_MODE];
+                               if(locationLst!=Null && locationLst.size()>0){
+                                   for (locations__c lc : locationLst) {
+                                       if(mapLocation.containsKey(lc.Account_Lookup__c)) {
+                                           mapLocation.get(lc.Account_Lookup__c).add(lc);
+                                       }
+                                       else {
+                                           mapLocation.put(lc.Account_Lookup__c, new List<locations__c>{lc});
+                                       } 
+                                   } 
+                               }
+                           } 
+                           return mapLocation;
+                       }
+            }
+        }
+        catch(Exception ex) {
+            //MusterCustomCallout.creatBatchLog('Exception MusterContactBatch_Handler.getExistingLocationLst()  :'+ex.getMessage() +' Line no : '+ex.getLineNumber());
+        }
+        return mapLocation;
+    }
+    
+    public static Map<String,List<Phone_numbers__c>> getExistingPhoneLst(Muster_Settings__mdt musterRec, Set<Id>ObjIdSet){
+        Map<String,List<Phone_numbers__c>> mapPhoneNumber = new Map<String,List<Phone_numbers__c>>();
+        List<Phone_numbers__c> phoneNumberLst = new List<Phone_numbers__c>();
+        string objectName = '';
+        string objId = '';
+        try {
+            Boolean flag = false;
+            if(ObjIdSet!=Null&& ObjIdSet.size()>0){
+                if(musterRec.Entity__c == MusterStrings.STR_CONTACT) {
+                    objectName = MusterStrings.STR_CONTACT;
+                } 
+                else{
+                    objectName = MusterStrings.STR_ACCOUNT;
+                }
+                flag = (objectName == MusterStrings.STR_CONTACT)? (Schema.sObjectType.Phone_numbers__c.fields.Contact_Lookup__c.isAccessible()):(Schema.sObjectType.Phone_numbers__c.fields.Account_Lookup__c.isAccessible());
+                    if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+objectName).getDescribe().isAccessible() &&
+                       Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Phone_numbers__c').getDescribe().isAccessible()
+                       && flag) {
+                           if(objectName == MusterStrings.STR_CONTACT) {
+                               phoneNumberLst = [select id ,Contact_Lookup__c from Phone_numbers__c where Contact_Lookup__c IN:ObjIdSet WITH USER_MODE];
+                               if(phoneNumberLst!=Null && phoneNumberLst.size()>0){
+                                   for (Phone_numbers__c ph : phoneNumberLst) {
+                                       if(mapPhoneNumber.containsKey(ph.Contact_Lookup__c)) {
+                                           mapPhoneNumber.get(ph.Contact_Lookup__c).add(ph);}
+                                       else {
+                                           mapPhoneNumber.put(ph.Contact_Lookup__c, new List<Phone_numbers__c>{ph}); }
+                                   } 
+                               }
+                           } else {
+                               phoneNumberLst = [select id ,Account_Lookup__c from Phone_numbers__c where Account_Lookup__c  IN:ObjIdSet WITH USER_MODE];
+                               if(phoneNumberLst!=Null && phoneNumberLst.size()>0){
+                                   for (Phone_numbers__c ph : phoneNumberLst) {
+                                       if(mapPhoneNumber.containsKey(ph.Account_Lookup__c)) {
+                                           mapPhoneNumber.get(ph.Account_Lookup__c).add(ph);}
+                                       else { mapPhoneNumber.put(ph.Account_Lookup__c, new List<Phone_numbers__c>{ph}); } 
+                                   }
+                               } 
+                           } 
+                       }
+            }
+        }
+        catch(Exception ex) {
+            //MusterCustomCallout.creatBatchLog('Exception MusterContactBatch_Handler.getExistingPhoneLst()  :'+ex.getMessage() +' Line no : '+ex.getLineNumber());
+        }
+        return mapPhoneNumber;
+    }
+    
+    public static Map<String,List<Emails__c>> getExistingEmailLst(Muster_Settings__mdt musterRec, Set<Id>ObjIdSet){
+        List<Emails__c> lstEmail = new List<Emails__c>();
+        Map<String,List<Emails__c>> mapEmail = new Map<String,List<Emails__c>>();
+        string objectName = '';
+        string objId = '';
+        try {
+            Boolean flag = false;           
+            if(ObjIdSet!=Null&& ObjIdSet.size()>0){
+                if(musterRec.Entity__c == MusterStrings.STR_CONTACT) {
+                    objectName = MusterStrings.STR_CONTACT;
+                } 
+                else{
+                    objectName = MusterStrings.STR_ACCOUNT;
+                }
+                flag = (objectName == MusterStrings.STR_CONTACT)? (Schema.sObjectType.Emails__c.fields.Contact_Lookup__c.isAccessible()):(Schema.sObjectType.Emails__c.fields.Account_Lookup__c.isAccessible()); 
+                    if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+objectName).getDescribe().isAccessible()&&
+                       Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Emails__c').getDescribe().isAccessible()
+                       && flag) {
+                           if(objectName == MusterStrings.STR_CONTACT) { 
+                               lstEmail = [select id ,Contact_Lookup__c from Emails__c where Contact_Lookup__c IN:ObjIdSet WITH USER_MODE];
+                               if(lstEmail!=Null && lstEmail.size()>0){
+                                   for(Emails__c em : lstEmail) {
+                                       if(mapEmail.containsKey(em.Contact_Lookup__c)) {
+                                           mapEmail.get(em.Contact_Lookup__c).add(em); 
+                                       }
+                                       else {
+                                           mapEmail.put(em.Contact_Lookup__c, new List<Emails__c>{em});  
+                                       }
+                                   } 
+                               }
+                           } 
+                           else {
+                               lstEmail = [select id ,Account_Lookup__c from Emails__c where Account_Lookup__c  IN:ObjIdSet WITH USER_MODE];
+                               if(lstEmail!=Null && lstEmail.size()>0){
+                                   for (Emails__c em : lstEmail) {
+                                       if(mapEmail.containsKey(em.Account_Lookup__c)) {mapEmail.get(em.Account_Lookup__c).add(em);}
+                                       else {
+                                           mapEmail.put(em.Account_Lookup__c, new List<Emails__c>{em}); 
+                                       } 
+                                   } 
+                               }
+                           }
+                       }
+            }
+        }
+        catch(Exception ex) {            
+            //MusterCustomCallout.creatBatchLog('Exception MusterContactBatch_Handler.getExistingEmailLst()  :'+ex.getMessage() +' Line no : '+ex.getLineNumber());
+        }
+        return mapEmail;
+    }
+    
+    public static sObject updateBoundaryInContact(locations__c location, sObject conMuster, Muster_Settings__mdt musterRec) {                
+        string objectName = '';
+        try {
+            if(conMuster!=Null && location!=Null ){
+                Boolean flag = false;
+                if(musterRec.Entity__c == MusterStrings.STR_CONTACT) {
+                    objectName = MusterStrings.STR_CONTACT;
+                    flag =  Schema.sObjectType.Contact.fields.State_Boundary__c.isAccessible() && Schema.sObjectType.Contact.fields.Legislative_District_Lower_Chamber__c.isAccessible()
+                        && Schema.sObjectType.Contact.fields.Congressional_District_Boundary__c.isAccessible() && Schema.sObjectType.Contact.fields.Legislative_District_Upper_Chamber__c.isAccessible();
+                } 
+                else{
+                    objectName = MusterStrings.STR_ACCOUNT;                 
+                    flag = Schema.sObjectType.Account.fields.State_Boundary__c.isAccessible() && Schema.sObjectType.Account.fields.Legislative_District_Lower_Chamber__c.isAccessible()&& Schema.sObjectType.Account.fields.Congressional_District_Boundary__c.isAccessible() &&
+                        Schema.sObjectType.Account.fields.Legislative_District_Upper_Chamber__c.isAccessible();
+                }   
+                
+                if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+objectName).getDescribe().isAccessible() 
+                   && Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'locations__c').getDescribe().isAccessible()
+                   && Schema.sObjectType.locations__c.fields.State_boundary__c.isAccessible()
+                   && Schema.sObjectType.locations__c.fields.Legislative_Dist_LC__c.isAccessible()
+                   && Schema.sObjectType.locations__c.fields.Congressional_Dist__c.isAccessible()
+                   && Schema.sObjectType.locations__c.fields.Legislative_Dist_UC__c.isAccessible()
+                   && flag
+                  ) {
+                      conMuster.put(MusterStrings.STR_NAMESPACE+'State_Boundary__c', location.State_boundary__c);
+                      conMuster.put(MusterStrings.STR_NAMESPACE+'Legislative_District_Lower_Chamber__c', location.Legislative_Dist_LC__c);
+                      conMuster.put(MusterStrings.STR_NAMESPACE+'Congressional_District_Boundary__c', location.Congressional_Dist__c);
+                      conMuster.put(MusterStrings.STR_NAMESPACE+'Legislative_District_Upper_Chamber__c', location.Legislative_Dist_UC__c);
+                  } 
+            }
+        } catch(Exception ex) {
+            //MusterCustomCallout.creatBatchLog('Exception MusterContactBatch_Handler.updateBoundaryInContact()  :'+ex.getMessage() +' Line no : '+ex.getLineNumber());
+        }
+        return conMuster;
+    }
+    
+    public static Map<String,String> checkAddress1InUpdate( MusterWrapper.Results resW, sObject conMuster, Muster_Settings__mdt musterRec ){
+        boolean isAddressFound=false;
+        Map<String,String>addressCheckMap = new Map<String,String>();
+        List<MusterWrapper.Locations>loctionLst = new List<MusterWrapper.Locations>();
+        string objAddress;
+        string objStreet1;
+        string objectName = '';
+        
+        try {
+            if(conMuster!=Null && string.isNotEmpty(musterRec.Address_1__c) && resW!=Null && resW.locations.size()>0) {
+                objAddress = musterRec.Address_1__c;
+                loctionLst = resW.locations;
+                if(musterRec.Entity__c == MusterStrings.STR_CONTACT) {
+                    objectName = MusterStrings.STR_CONTACT;
+                } else{
+                    objectName = MusterStrings.STR_ACCOUNT;
+                }
+                if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+objectName).getDescribe().isAccessible() && checkFieldPermission(objectName, '', objAddress) ) {
+                    if(objectName == MusterStrings.STR_CONTACT){
+                        contact  con = (Contact)conMuster;
+                        objStreet1 = (String)con.get(objAddress);
+                    } 
+                    else{
+                        Account  acc = (Account)conMuster;
+                        objStreet1 = (String)acc.get(objAddress);
+                    }
+                    
+                    if(string.isNotEmpty(objStreet1)) {
+                        Integer index=-1;
+                        for(MusterWrapper.Locations loc:loctionLst){
+                            index=index+1;
+                            String MusterAddress1 =String.valueof(loc.street_address);
+                            if(objStreet1 == MusterAddress1){
+                                isAddressFound = true;
+                                addressCheckMap.put('flag',String.valueof(isAddressFound));
+                                addressCheckMap.put('Index',String.valueof(index));
+                                break;
+                            } 
+                        }
+                    }
+                }
+            }
+        }
+        catch(Exception ex) {
+            //MusterCustomCallout.creatBatchLog('Exception MusterContactBatch_Handler.checkAddress1InUpdate()  :'+ex.getMessage() +' Line no : '+ex.getLineNumber());
+        }
+        return addressCheckMap;
+    } 
+    
+}

@@ -1,0 +1,14 @@
+({
+    selectAccount : function(component, event, helper){       
+        var getSelectAccount = component.get("v.oAccount");
+        console.log('getSelectAccount.id = '+getSelectAccount.id);
+        console.log('getSelectAccount.Name = '+getSelectAccount.Name);
+        console.log('getSelectAccount.count = '+getSelectAccount.count);
+        var compEvent = component.getEvent("oSelectedAccountEvent");
+        compEvent.setParams({"accountByEvent" : getSelectAccount }); 
+        compEvent.setParams({"accId" : getSelectAccount.id });
+        compEvent.setParams({"accName" : getSelectAccount.Name });
+        compEvent.setParams({"noOfContact" : getSelectAccount.count });
+        compEvent.fire();
+    },
+})

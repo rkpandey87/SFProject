@@ -1,0 +1,442 @@
+public with Sharing class MusterContactAccountPost_Handler { 
+    
+    public static Boolean havePermission = true;
+    
+    public class PostWrapper {
+        public string match_field;
+        public string batch_id;
+        public List<PostFields> contacts;
+    }
+    
+    public class PostFields {
+        public string salesforce_id;
+        public Datetime updated_at; 
+        public string uuid;
+        public string first_name = '';
+        public string last_name ='';
+        public string prefix = '';
+        public string primary_email = '';
+        public List<Emails> emails;
+        public List<Phone_numbers> phone_numbers;
+        public List<Locations> locations;
+        public List<Custom_fields> custom_fields;
+       // public boolean is_opt_in_email = false;
+       // public boolean is_opt_in_text = false;
+    }
+    
+    public class Emails {
+        public String email;
+    }
+    
+    public class Phone_numbers {
+        public String phone_number;
+    }
+    
+    public class Locations {
+        public String street_address;
+        public String street_address_2;
+        public String city;
+        public String state;
+        public String zip_code;
+        public List<Boundaries> boundaries;
+    }
+    
+    public class Boundaries {
+        public String name;
+        public String boundary_type;
+    }
+    
+    public class Custom_fields {
+        public String custom_field;
+        public String value;
+        public List<String> values;
+    }
+    
+    public static string getMusterSettingsFields(Muster_Settings__mdt ms) {
+        string fields = '';
+        try {
+            set<string> fieldPermission = Check_Permissions.checkMetadataFieldPermission();
+            Map<string,string> mapKey = new Map<string,string>();
+            if(string.isNotEmpty(ms.Prefix__c) && fieldPermission.contains(ms.Entity__c+'.'+ms.Prefix__c)) { fields += ms.Prefix__c; mapKey.put(ms.Prefix__c, ms.Prefix__c); }
+            if(string.isNotEmpty(ms.First_Name__c) && fieldPermission.contains(ms.Entity__c+'.'+ms.First_Name__c) && !fields.contains(ms.First_Name__c)) { fields += (fields == '')? ms.First_Name__c : ', '+ms.First_Name__c; mapKey.put(ms.First_Name__c, ms.First_Name__c); }
+            if(string.isNotEmpty(ms.Last_Name__c) && fieldPermission.contains(ms.Entity__c+'.'+ms.Last_Name__c) && !fields.contains(ms.Last_Name__c)) { fields += (fields == '')? ms.Last_Name__c : ', '+ms.Last_Name__c; mapKey.put(ms.Last_Name__c, ms.Last_Name__c);}
+            if(string.isNotEmpty(ms.Primary_Email__c) && fieldPermission.contains(ms.Entity__c+'.'+ms.Primary_Email__c) && !fields.contains(ms.Primary_Email__c)) { fields += (fields == '')? ms.Primary_Email__c : ', '+ms.Primary_Email__c; mapKey.put(ms.Primary_Email__c, ms.Primary_Email__c);}
+            if(string.isNotEmpty(ms.Phone_Number__c) && fieldPermission.contains(ms.Entity__c+'.'+ms.Phone_Number__c) && !fields.contains(ms.Phone_Number__c)) { fields += (fields == '')? ms.Phone_Number__c : ', '+ms.Phone_Number__c; mapKey.put(ms.Phone_Number__c, ms.Phone_Number__c);}
+            if(string.isNotEmpty(ms.Address_1__c) && fieldPermission.contains(ms.Entity__c+'.'+ms.Address_1__c) && !fields.contains(ms.Address_1__c)) { fields += (fields == '')? ms.Address_1__c : ', '+ms.Address_1__c; mapKey.put(ms.Address_1__c, ms.Address_1__c);}
+            if(string.isNotEmpty(ms.Address_2__c) && fieldPermission.contains(ms.Entity__c+'.'+ms.Address_2__c) && !fields.contains(ms.Address_2__c)) { fields += (fields == '')? ms.Address_2__c : ', '+ms.Address_2__c; mapKey.put(ms.Address_2__c, ms.Address_2__c);}
+            if(string.isNotEmpty(ms.City__c) && fieldPermission.contains(ms.Entity__c+'.'+ms.City__c) && !fields.contains(ms.City__c)) { fields += (fields == '')? ms.City__c : ', '+ms.City__c; mapKey.put(ms.City__c, ms.City__c);}
+            if(string.isNotEmpty(ms.State__c) && fieldPermission.contains(ms.Entity__c+'.'+ms.State__c) && !fields.contains(ms.State__c)) { fields += (fields == '')? ms.State__c : ', '+ms.State__c; mapKey.put(ms.State__c, ms.State__c);}
+            if(string.isNotEmpty(ms.ZIP__c) && fieldPermission.contains(ms.Entity__c+'.'+ms.ZIP__c) && !fields.contains(ms.ZIP__c)) { fields += (fields == '')? ms.ZIP__c : ', '+ms.ZIP__c; mapKey.put(ms.ZIP__c, ms.ZIP__c);}
+            if(string.isNotEmpty(ms.Email_Opt_in__c) && fieldPermission.contains(ms.Entity__c+'.'+ms.Email_Opt_in__c) && !fields.contains(ms.Email_Opt_in__c)) { fields += (fields == '')? ms.Email_Opt_in__c : ', '+ms.Email_Opt_in__c; mapKey.put(ms.Email_Opt_in__c, ms.Email_Opt_in__c);}
+            if(string.isNotEmpty(ms.Text_Opt_in__c) && fieldPermission.contains(ms.Entity__c+'.'+ms.Text_Opt_in__c) && !fields.contains(ms.Text_Opt_in__c)) { fields += (fields == '')? ms.Text_Opt_in__c : ', '+ms.Text_Opt_in__c; mapKey.put(ms.Text_Opt_in__c, ms.Text_Opt_in__c);}
+            if(string.isNotEmpty(ms.Advocate__c) && fieldPermission.contains(ms.Entity__c+'.'+ms.Advocate__c) && !fields.contains(ms.Advocate__c)) { fields += (fields == '')? ms.Advocate__c : ', '+ms.Advocate__c; mapKey.put(ms.Advocate__c, ms.Advocate__c);}
+           
+            if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c').getDescribe().isAccessible() ){
+                List<Muster_Custom_Fields__c> lstMcf = getCustomFields();
+                if(lstMcf.size() > 0) {
+                    for(Muster_Custom_Fields__c mcf : lstMcf) {
+                        if(!mapKey.ContainsKey(mcf.SF_API_Name__c.Trim()) ) { 
+                            fields += (fields == '')? mcf.SF_API_Name__c : ', '+mcf.SF_API_Name__c; 
+                            mapKey.put(mcf.SF_API_Name__c, mcf.SF_API_Name__c);
+                        }
+                    }
+                } 
+            } 
+        }
+        catch (Exception ex) {
+            MusterCustomCallout.creatBatchLog('Exception MusterContactAccountPost_Handler.getMusterSettingsFields() : '+ex.getMessage()+ ', Line no :'+ex.getLineNumber());
+        }
+        return fields;
+    }
+    
+    public static string getMatchFields(Muster_Settings__mdt ms) {
+        string fields = '';
+        if(string.isNotEmpty(ms.Muster_Field__c)) { 
+            fields = ms.Muster_Field__c; 
+        }                        
+        return fields;
+    }
+    
+    public static List<Muster_Custom_Fields__c> getCustomFields() {
+        List<Muster_Custom_Fields__c> lst = new List<Muster_Custom_Fields__c>();
+        try {
+        if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c').getDescribe().isAccessible() 
+           && Schema.sObjectType.Muster_Custom_Fields__c.fields.Field_Type__c.isAccessible()
+           && Schema.sObjectType.Muster_Custom_Fields__c.fields.SF_API_Name__c.isAccessible()
+           && Schema.sObjectType.Muster_Custom_Fields__c.fields.uuid_muster__c.isAccessible()
+          ) {
+              lst = [SELECT id
+                     , Field_Type__c
+                     , SF_API_Name__c
+                     , uuid_muster__c
+                     FROM Muster_Custom_Fields__c
+                     WHERE uuid_muster__c != ''
+                     AND Field_Type__c != ''
+                     AND SF_API_Name__c != '' WITH USER_MODE];
+          } 
+        } catch(Exception ex) {MusterCustomCallout.creatBatchLog('Exception MusterContactAccountPost_Handler.getCustomFields() : '+ex.getMessage()+ ', Line no :'+ex.getLineNumber());}
+            return lst;
+    }
+    
+    public static List<PostFields> getContactFormat(List<contact> conLst, Muster_Settings__mdt ms) {
+        Map<Id, sObject> conMap = new Map<Id, sObject>(conLst);
+        List<PostFields> contactsLst = new List<PostFields>(); 
+        try {
+            Map<Id,List<Custom_fields>> mapConIdToCf = getAllCustomFieldsCon(conLst);
+            for(contact con : conLst) { 
+                String MapEmailValue =  getValue(con, ms.Primary_Email__c);
+                String MapPhoneValue = getValue(con, ms.Phone_Number__c);
+                
+                List<Custom_fields> lstCf = new List<Custom_fields>();
+                if(mapConIdToCf.containsKey(con.Id)) { lstCf = mapConIdToCf.get(con.Id); }
+                
+                PostFields fields = new PostFields();
+                fields.salesforce_id = con.Id;
+                fields.updated_at = con.LastModifiedDate;
+                fields.uuid = getValue(con, MusterStrings.STR_NAMESPACE+'Muster_UUID__c');
+                fields.prefix = getValue(con, ms.Prefix__c);
+                fields.first_name = getValue(con, ms.First_Name__c);
+                fields.last_name = getValue(con, ms.Last_Name__c);
+                fields.primary_email = MapEmailValue;
+                fields.emails =  getEmailList(MapEmailValue);
+                fields.phone_numbers = getPhoneList(MapPhoneValue);
+                fields.locations = getLocationList( con, ms);
+                fields.custom_fields = lstCf;
+                contactsLst.add(fields);
+            }
+        }
+        catch (Exception ex) {
+            MusterCustomCallout.creatBatchLog('Insufficient permission/Exception in MusterContactAccountPost_Handler.getContactFormat(List<contact> conLst, Muster_Settings__mdt ms) : '+ex.getMessage()+ 'Line no :'+ex.getLineNumber());
+        }
+        return contactsLst;
+    }
+    
+    public static List<PostFields> getAccountFormat(List<account> accLst, Muster_Settings__mdt ms) {
+        List<PostFields> lst = new List<PostFields>();
+        try { 
+            Map<Id, sObject> objMap = new Map<Id, sObject>(accLst);
+            Map<Id,List<Custom_fields>> mapAccIdToCf = getAllCustomFieldsAcc(accLst);
+            for(account acc : accLst) {
+                
+                String MapEmailValue =  getValue(acc, ms.Primary_Email__c);
+                String MapPhoneValue = getValue(acc, ms.Phone_Number__c);
+                
+                List<Custom_fields> lstCf = new List<Custom_fields>();
+                if(mapAccIdToCf.containsKey(acc.Id)) { lstCf = mapAccIdToCf.get(acc.Id); }
+                
+                PostFields fields = new PostFields();
+                fields.salesforce_id = acc.Id;
+                fields.updated_at = acc.LastModifiedDate;
+                fields.uuid = getValue(acc, MusterStrings.STR_NAMESPACE+'Muster_UUID__c');
+                fields.prefix = getValue(acc, ms.Prefix__c);
+                fields.first_name = getValue(acc, ms.First_Name__c);
+                fields.last_name = getValue(acc, ms.First_Name__c);
+                fields.primary_email = MapEmailValue;
+                fields.emails = getEmailList(MapEmailValue);
+                fields.phone_numbers = getPhoneList(MapPhoneValue);
+                fields.locations = getLocationList(acc, ms);
+                fields.custom_fields = lstCf;
+                lst.add(fields);
+            }
+        } catch (Exception ex) {
+            MusterCustomCallout.creatBatchLog('Exception in MusterContactAccountPost_Handler.getAccountFormat() : '+ex.getMessage()+ ', Line no :'+ex.getLineNumber());
+        }
+        return lst;
+    }
+    
+    public static string getValue(sObject obj, string fieldApi) {       
+        string fieldValue =  (fieldApi == '' || fieldApi == null)? '' : (string)obj.get(fieldApi);
+        fieldValue = (fieldValue == null)? '' : fieldValue;
+        return fieldValue;
+    }
+    
+    public static List<Emails> getEmailList(string emailVal){
+        List<Emails> LstEmail = new List<Emails>();
+        if(string.isNotEmpty(emailVal)){
+            Emails em = new Emails();
+            em.email = emailVal;
+            LstEmail.add(em);
+        }
+       return LstEmail;  
+    }
+
+    public static List<Phone_numbers> getPhoneList(string phoneVal) {
+        List<Phone_numbers> LstPhones = new List<Phone_numbers>();
+        if(string.isNotEmpty(phoneVal)){
+            Phone_numbers ph = new Phone_numbers();
+            ph.phone_number = phoneVal;
+            LstPhones.add(ph); 
+        }
+        return LstPhones;
+    }
+
+    public static List<Locations> getLocationList( sObject obj, Muster_Settings__mdt ms) {
+        List<Locations> LstLocation = new List<Locations>();
+        List<Boundaries> lstBoundaries = new List<Boundaries>(); 
+        if(ms!=Null){
+            Locations loc = new Locations();
+            loc.street_address =getValue(obj, ms.Address_1__c);
+            loc.street_address_2 = getValue(obj, ms.Address_2__c);
+            loc.city = getValue(obj, ms.City__c);
+            loc.state = getValue(obj, ms.State__c);
+            loc.zip_code = getValue(obj, ms.ZIP__c);
+            
+          //  if(string.isNotEmpty(loc.street_address) && string.isNotEmpty(loc.city) && string.isNotEmpty(loc.state) && string.isNotEmpty(loc.zip_code)){
+                loc.boundaries = lstBoundaries;
+                LstLocation.add(loc); 
+           // } 
+        }
+        return LstLocation;
+    }
+    
+    public static Map<Id,List<Custom_fields>> getAllCustomFieldsCon(List<contact> conLst) { 
+        Map<Id,List<Custom_fields>> mapConIdToCf = new Map<Id,List<Custom_fields>>();
+        try {
+            if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c').getDescribe().isAccessible() 
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.Field_Type__c.isAccessible() 
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.SF_API_Name__c.isAccessible() 
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.uuid_muster__c.isAccessible() 
+              ) {
+                  List<Muster_Custom_Fields__c> lstMcf = [SELECT id
+                                                          , uuid_muster__c 
+                                                          , Field_Type__c
+                                                          , SF_API_Name__c
+                                                          FROM Muster_Custom_Fields__c
+                                                          WHERE uuid_muster__c != ''
+                                                          AND Field_Type__c != ''
+                                                          AND SF_API_Name__c != '' WITH USER_MODE];   
+                  for(Contact con : conLst) {             
+                      List<Custom_fields> lstCf = new List<Custom_fields>();
+                      for(Muster_Custom_Fields__c mcf : lstMcf) {                 
+                          string strValue = (string)con.get(mcf.SF_API_Name__c);
+                          strValue = (strValue == null)? '' : strValue;
+                          lstCf.add(addCustomField(mcf, strValue));
+                      }
+                      mapConIdToCf.put(con.Id,lstCf);
+                  }
+              } 
+        } catch(Exception ex) {MusterCustomCallout.creatBatchLog('Exception in MusterContactAccountPost_Handler.getAllCustomFieldsCon() : '+ex.getMessage()+' Line no :'+ex.getLineNumber());}
+        
+        return mapConIdToCf;
+    }
+    
+    public static Map<Id,List<Custom_fields>> getAllCustomFieldsAcc(List<account> accLst) { 
+        Map<Id,List<Custom_fields>> mapAccIdToCf = new Map<Id,List<Custom_fields>>();
+        try {
+            if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c').getDescribe().isAccessible() 
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.Field_Type__c.isAccessible() 
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.SF_API_Name__c.isAccessible() 
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.uuid_muster__c.isAccessible() 
+              ) {
+                  
+                  List<Muster_Custom_Fields__c> lstMcf = [SELECT id
+                                                          , uuid_muster__c 
+                                                          , Field_Type__c
+                                                          , SF_API_Name__c
+                                                          FROM Muster_Custom_Fields__c
+                                                          WHERE uuid_muster__c != ''
+                                                          AND Field_Type__c != ''
+                                                          AND SF_API_Name__c != '' WITH USER_MODE];   
+                  for(Account acc : accLst) {             
+                      List<Custom_fields> lstCf = new List<Custom_fields>();
+                      for(Muster_Custom_Fields__c mcf : lstMcf) {                                   
+                          string strValue = (string)acc.get(mcf.SF_API_Name__c);
+                          strValue = (strValue == null)? '' : strValue;
+                          lstCf.add(addCustomField(mcf, strValue));
+                      }
+                      mapAccIdToCf.put(acc.Id,lstCf);
+                  }
+              } 
+        } catch(Exception ex) {MusterCustomCallout.creatBatchLog('Exception MusterContactAccountPost_Handler.getAllCustomFieldsAcc() : '+ex.getMessage()+' Line no :'+ex.getLineNumber());}
+        return mapAccIdToCf;
+    }
+    
+    public static Custom_fields addCustomField(Muster_Custom_Fields__c mcf, string strValue) {
+        List<string> lst = new List<string>();
+        Custom_fields cf = new Custom_fields();
+        if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c').getDescribe().isAccessible() 
+           && Schema.sObjectType.Muster_Custom_Fields__c.fields.Field_Type__c.isAccessible() 
+           && Schema.sObjectType.Muster_Custom_Fields__c.fields.uuid_muster__c.isAccessible() 
+          ) {
+              
+              if(mcf.Field_Type__c == MusterStrings.strText) {                                 
+                  cf.custom_field = mcf.uuid_muster__c;
+                  cf.value = strValue; 
+                  cf.values = lst;
+              }
+              else if(mcf.Field_Type__c == MusterStrings.strSingleChoice) {   
+                  /* if(string.isNotEmpty(strValue)) { 
+string[] arr = strValue.split(';');                
+for(string str : arr) {
+lst.add(str);
+}
+}*/
+                  cf.custom_field = mcf.uuid_muster__c;
+                  cf.value = strValue; //'Y';
+                  cf.values = lst;                      
+              }
+              else if(mcf.Field_Type__c == MusterStrings.strMulti) {  
+                  if(string.isNotEmpty(strValue)) { 
+                      string[] arr = strValue.split(';');                
+                      for(string str : arr) {
+                          lst.add(str);
+                      }
+                  }
+                  cf.custom_field = mcf.uuid_muster__c;
+                  cf.value = ''; // 'Y';
+                  cf.values = lst;
+              }  
+          }
+        return cf;
+    }
+    
+    public static void updateCon(List<Contact> conLst) {
+        try {
+            if(Schema.getGlobalDescribe().get('Contact').getDescribe().isAccessible() 
+               && Schema.getGlobalDescribe().get('Contact').getDescribe().isUpdateable() 
+               && Schema.sObjectType.Contact.fields.Last_Synced_to_Muster__c.isUpdateable() ) {
+                   for(Contact con : conLst) {
+                       con.Last_Synced_to_Muster__c = system.now();
+                   }
+                   
+                   List<Contact> strippedObjs = Security.stripInaccessible(AccessType.UPDATABLE, conLst).getRecords();
+                   Database.update(strippedObjs, AccessLevel.USER_MODE);
+                   /*
+                   SObjectAccessDecision securityDecision = Security.stripInaccessible(AccessType.UPDATABLE, conLst);
+                   update securityDecision.getRecords();
+                   */
+                   //Database.Update(conLst, false, system.AccessLevel.USER_MODE);
+               } 
+        } catch(Exception ex) {MusterCustomCallout.creatBatchLog('Exception in MusterContactAccountPost_Handler.updateCon(): '+ex.getMessage()+ ' Line no :'+ex.getLineNumber());}
+    }
+    
+    public static void updateAcc(List<Account> accLst) {
+        try {
+            if(Schema.getGlobalDescribe().get('Account').getDescribe().isAccessible() 
+               && Schema.getGlobalDescribe().get('Account').getDescribe().isUpdateable() 
+               && Schema.sObjectType.Account.fields.Last_Synced_to_Muster__c.isUpdateable() ) {
+                   for(Account acc : accLst) {
+                       acc.Last_Synced_to_Muster__c = system.now();
+                   }
+                   
+                   List<Account> strippedObjs = Security.stripInaccessible(AccessType.UPDATABLE, accLst).getRecords();
+                   Database.update(strippedObjs, AccessLevel.USER_MODE);
+                   //Database.Update(accLst, false, system.AccessLevel.USER_MODE);
+               } 
+        } catch(Exception ex) {MusterCustomCallout.creatBatchLog('Exception in MusterContactAccountPost_Handler.updateAcc(): '+ex.getMessage()+ ' Line no :'+ex.getLineNumber());}
+    }
+    
+    public static Boolean checkForMoreContact(Muster_Settings__mdt ms) {
+        Boolean result = false;       
+        try {
+            if(Schema.getGlobalDescribe().get('Contact').getDescribe().isAccessible()                
+               && Schema.sObjectType.Contact.fields.Last_Synced_to_Muster__c.isAccessible()
+              && Schema.sObjectType.Contact.fields.RecordTypeId.isAccessible()) {
+                   List<Contact> lstCon = new List<Contact>();
+                   set<string> setRT = new set<string>();
+                   if(ms != null  && string.isNotEmpty(ms.Entity__c) && ( ms.Data_Sync_Mode__c == MusterStrings.STR_SYNC_MODE_BOTH || ms.Data_Sync_Mode__c == MusterStrings.STR_SYNC_MODE_SF2M)) {                         
+                       string sfToMusterRT = ms.Record_Type_SF_to_Muster__c;
+                       if(String.isNotBlank(sfToMusterRT)) {                
+                           sfToMusterRT = sfToMusterRT.removeEnd(';');
+                           string[] arr = sfToMusterRT.split(';');                
+                           for(string str : arr) {
+                               setRT.add(str); 
+                           }  
+                       }
+                      if(setRT.size() >0) {
+                           lstCon = [SELECT Id FROM Contact WHERE Last_Synced_to_Muster__c  = null and RecordTypeId =: setRT WITH USER_MODE limit 50000 ];
+                      }
+                       else {
+                           lstCon = [SELECT Id FROM Contact WHERE Last_Synced_to_Muster__c  = null WITH USER_MODE limit 50000 ];
+                       
+                       }
+                   }
+                   if(lstCon.size() > 0) {result = true;}
+               } 
+        } catch(Exception ex) {MusterCustomCallout.creatBatchLog('Exception in MusterContactAccountPost_Handler.checkForMoreContact(): '+ex.getMessage()+ ' Line no :'+ex.getLineNumber());}
+        
+        return result;
+        
+    }
+    
+    public static Boolean checkForMoreAccount(Muster_Settings__mdt ms) {
+        Boolean result = false;
+        try {
+            if(Schema.getGlobalDescribe().get('Account').getDescribe().isAccessible()                
+               && Schema.sObjectType.Account.fields.Last_Synced_to_Muster__c.isAccessible() 
+               && Schema.sObjectType.Account.fields.RecordTypeId.isAccessible()) {
+                   
+                   List<Account> lstAcc = new List<Account>();
+                   set<string> setRT = new set<string>();
+                   if(ms != null && string.isNotEmpty(ms.Entity__c) && ( ms.Data_Sync_Mode__c == MusterStrings.STR_SYNC_MODE_BOTH || ms.Data_Sync_Mode__c == MusterStrings.STR_SYNC_MODE_SF2M)) {                         
+                       string sfToMusterRT = ms.Record_Type_SF_to_Muster__c;
+                       if(String.isNotBlank(sfToMusterRT)) {                
+                           sfToMusterRT = sfToMusterRT.removeEnd(';');
+                           string[] arr = sfToMusterRT.split(';');                
+                           for(string str : arr) {
+                               setRT.add(str);
+                           }  
+                       }
+                       
+                       if(setRT.size() >0) {
+                           lstAcc = [SELECT Id FROM Account WHERE Last_Synced_to_Muster__c = null and RecordTypeId =: setRT WITH USER_MODE limit 50000 ];
+                       }
+                       else {
+                           lstAcc = [SELECT Id FROM Account WHERE Last_Synced_to_Muster__c = null WITH USER_MODE limit 50000 ];
+                       }
+                   }
+                   if(lstAcc.size() > 0) {result = true;}
+               } 
+        } catch(Exception ex) { MusterCustomCallout.creatBatchLog('Exception in MusterContactAccountPost_Handler.checkForMoreAccount(): '+ex.getMessage()+ ' Line no :'+ex.getLineNumber());}
+        return result;        
+    }
+    
+    public static string getBatchId() {
+        string batchId = 'B-'+string.valueOf(system.now());
+        batchId = batchId.replace('-', '_');
+        batchId = batchId.replace(':', '_');
+        batchId = batchId.replace(' ', '_');
+        return batchId;
+    }
+    
+}

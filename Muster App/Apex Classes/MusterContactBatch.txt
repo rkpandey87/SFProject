@@ -1,0 +1,674 @@
+Global with sharing class MusterContactBatch implements Database.Batchable<MusterWrapper.Results>,Database.stateful, Database.AllowsCallouts {
+    Global List<MusterWrapper.Results> objList = new List<MusterWrapper.Results>();
+    Global List<MusterCustomCallout.MainWrapper> MainList = new List<MusterCustomCallout.MainWrapper>();
+    Global Map<String,Muster_Custom_Fields__c>musterCustomRecordsMap = new Map<String,Muster_Custom_Fields__c>();
+    Global List<Account>bucketAccList = new List<Account>();
+    Global Boolean runSeqBatch = true;
+    Global Boolean sendCallout = true;
+    Global string nextUrl;
+    Global string strLog = 'MusterContactBatch : ';    
+    Global Muster_Settings__mdt musterRec = new Muster_Settings__mdt();
+    Global String bucketAccId;
+    Global DateTime currentDateTime;
+    Global string msg = 'Insufficient permission in MusterContactBatch : ';
+    
+    
+    Global MusterContactBatch(Boolean runSeq, String endUrl,string entityName) { 
+        
+        /***************************************
+         First check if User has all the required CRUD/FLS permissions. 
+         If any permission is missing then throw error and exit else continue execution.
+		*************************************************/
+        if(!Check_Permissions.checkGetContactAccountBatchPermission()) { return;}
+        
+        runSeqBatch = runSeq;
+        nextUrl = endUrl;
+        musterRec = MusterUtility.getMusterSettingsMetadata(entityName);
+        if(musterRec!=Null ) {
+            if(musterRec.Bucket_Account_Id__c!=Null){
+                bucketAccId = musterRec.Bucket_Account_Id__c;
+                if(Schema.getGlobalDescribe().get('Account').getDescribe().isAccessible() ) {
+                    bucketAccList = [Select Id from Account where Id =:bucketAccId WITH USER_MODE];
+                } 
+            }
+            if(musterRec.Data_Sync_Mode__c == MusterStrings.STR_SYNC_MODE_BOTH || musterRec.Data_Sync_Mode__c == MusterStrings.STR_SYNC_MODE_M2SF) {
+                strLog += 'Sync mode :-\''+ musterRec.Data_Sync_Mode__c+'\', Syncing '+' '+' \''+musterRec.Entity__c+'\'';
+                if(nextUrl !=Null ) {
+                    MainList = MusterCustomCallout.MusterAPIHandler('Muster Contact','',nextUrl);
+                }
+                if(MainList != Null && MainList.size() > 0) {
+                    if(MainList[0].resCount!=Null) {
+                        nextUrl =MainList[0].nextURL;
+                        objList =MainList[0].contactWpr;
+                    }
+                }  
+                else {  sendCallout = False;   }
+                musterCustomRecordsMap = MusterContactBatch_Handler.getCustomFields();
+            } else {  sendCallout = False; }
+        } 
+        else { sendCallout = False; strLog += ' Custom setting is NULL';   }        
+        MusterCustomCallout.creatBatchLog(strLog);  
+    } 
+    
+    Global MusterContactBatch(Boolean runSeq, String endUrl,string entityName,DateTime dt) { 
+       
+        if(!Check_Permissions.checkGetContactAccountBatchPermission()) { return;}
+        runSeqBatch = runSeq;
+        nextUrl = endUrl;
+        if(dt!=Null){currentDateTime = dt;}
+        musterRec = MusterUtility.getMusterSettingsMetadata(entityName);
+        if(musterRec!=Null ) { 
+            if(musterRec.Bucket_Account_Id__c!=Null){
+                bucketAccId = musterRec.Bucket_Account_Id__c;
+                if(Schema.getGlobalDescribe().get('Account').getDescribe().isAccessible() ) {
+                    bucketAccList = [Select Id from Account where Id =:bucketAccId WITH USER_MODE];
+                } 
+            }
+            if(musterRec.Data_Sync_Mode__c == MusterStrings.STR_SYNC_MODE_BOTH || musterRec.Data_Sync_Mode__c == MusterStrings.STR_SYNC_MODE_M2SF) {
+                
+                strLog += 'Sync mode :-\''+ musterRec.Data_Sync_Mode__c+'\', Syncing '+' '+' \''+musterRec.Entity__c+'\'';
+                if(nextUrl !=Null ) {
+                    MainList = MusterCustomCallout.MusterAPIHandler('Muster Contact','',nextUrl);
+                }
+                if(MainList != Null && MainList.size() > 0) { 
+                    if(MainList[0].resCount!=Null) {
+                        nextUrl =MainList[0].nextURL;
+                        objList =MainList[0].contactWpr;
+                    }
+                }  
+                else {
+                    sendCallout = False; 
+                }
+                musterCustomRecordsMap = MusterContactBatch_Handler.getCustomFields();
+               }
+            else { 
+                sendCallout = False;
+            }
+        }  else {   sendCallout = False; strLog += ' Custom setting is NULL';   }
+        
+        MusterCustomCallout.creatBatchLog(strLog);  
+    } 
+    
+    Global Iterable<MusterWrapper.Results> start(Database.BatchableContext bc) {                
+        return objList;
+    }
+    
+    Global void execute(Database.BatchableContext bc, List<MusterWrapper.Results> scope) { 
+       
+        Map<Integer, List<emails__c>> mapEmail = new  Map<Integer,  List<emails__c>>();
+        List<emails__c> lstEmail = new List<emails__c>();
+        Map<Integer, List<Phone_numbers__c>> mapPhoneNumber = new  Map<Integer, List<Phone_numbers__c>>();
+        List<Phone_numbers__c> lstPhone = New List<Phone_numbers__c>();
+        Map<Integer, List<locations__c>> maplocation = new  Map<Integer, List<locations__c>>();
+        List<locations__c> locForInsert =new List<locations__c>();        
+        List<locations__c> lstLoc = new List<locations__c>();
+       
+        Map<String, List<locations__c>> mapForExistingLocs = new  Map<String, List<locations__c>>();
+        Map<String, List<Phone_numbers__c>> mapForExistingPhoneNumbers = new  Map<String, List<Phone_numbers__c>>();
+        Map<String, List<emails__c>> mapForExistingEmails = new  Map<String, List<emails__c>>();
+        
+        Map<String, List<locations__c>>locForInsertinUpdateObj =new Map<String, List<locations__c>>();
+        Map<String, List<Phone_numbers__c>>phoneNumbersForInsertinUpdateObj =new Map<String, List<Phone_numbers__c>>();
+        Map<String, List<emails__c>>emailsForInsertinUpdateObj =new Map<String, List<emails__c>>();
+         
+        Map<Id,MusterWrapper.Results> mapSFID = new map<Id,MusterWrapper.Results>();
+        Map<String,MusterWrapper.Results> mapUUID = new map<String,MusterWrapper.Results>();        
+        Map<string,string> mapEmailORNameForDuplicate = new Map<string, string>();
+        Map<string,List<string>> mapOtherFieldForDuplicate = new Map<string, List<string>>();
+        
+        Map<string,sObject> mapsObjectForUpdateByID = new Map<string, sObject>();
+        Map<string,sObject> mapsObjectForUpdateByUUID = new Map<string, sObject>(); 
+        Map<string,List<sObject>> mapEmailORNameTosObjectLst = new Map<string, List<sObject>>();
+        Map<string,List<sObject>> mapOtherFieldValueTosObjectLst = new Map<string, List<sObject>>();
+        
+        Map<string,sObject> mapsObjectForUpdateByEmail = new Map<string, sObject>();
+        Map<Id,sObject> mapsObjectForUpdateByOther = new Map<Id, sObject>();
+        Map<Integer,sObject> mapsObjectForInsert = new Map<Integer, sObject>();
+        Map<string,MusterWrapper.Results> mapOther = new Map<string, MusterWrapper.Results>();  
+        
+        string sfDuplicateField = '';
+        string musterDuplicateField = '';
+        
+        integer temp = 1;
+        string objectName = musterRec.Entity__c;
+        string msg = 'MusterContactBatch : Executed for : '+scope.size()+' records' ;               
+        Savepoint sp = Database.setSavepoint();
+        try {
+            if(musterRec.Salesforce_Field__c != Null) {
+                sfDuplicateField = musterRec.Salesforce_Field__c;
+            }
+            if(musterRec.Muster_Field__c != Null) {
+                musterDuplicateField= musterRec.Muster_Field__c;
+            }
+            for(MusterWrapper.Results res: scope) {  
+                if(string.isNotEmpty(res.salesforce_id)) {
+                    mapSFID.put(res.salesforce_id, res);
+                }
+                if(string.isNotEmpty(res.uuid)) {
+                    mapUUID.put(res.uuid, res);
+                }
+                if(string.isNotBlank(musterDuplicateField) && string.isNotBlank(sfDuplicateField)) {
+                    if(musterDuplicateField.equalsIgnoreCase('Email') && string.isNotEmpty(res.primary_email)) {                 
+                        mapEmailORNameForDuplicate.put(res.primary_email,res.salesforce_id);
+                    } 
+                    /* else if(objectName == MusterStrings.STR_ACCOUNT && musterDuplicateField.equalsIgnoreCase('Name') && string.isNotEmpty(res.first_name)) {                 
+                      mapEmailORNameForDuplicate.put(res.first_name,res.salesforce_id);
+                      } */
+                    else {
+                        if(res.custom_fields!=Null){
+                            for(MusterWrapper.Custom_fields resCustom: res.custom_fields){
+                                if(resCustom.custom_field == musterDuplicateField && string.isNotEmpty(resCustom.value)) {
+                                    string val = resCustom.value;
+                                    if(mapOtherFieldForDuplicate.containsKey(val)) {
+                                        mapOtherFieldForDuplicate.get(val).add(res.salesforce_id);
+                                    }
+                                    else {
+                                        mapOtherFieldForDuplicate.put(val, new List<string>{res.salesforce_id}); 
+                                    }                        
+                                }
+                            }  
+                        }
+                        
+                    }
+                }            
+            }
+
+            if(currentDateTime==Null){currentDateTime = System.now();}
+            List<sObject> lstObj = MusterContactBatch_Handler.CheckContactForDuplicate(musterDuplicateField,sfDuplicateField, mapSFID, mapUUID,mapEmailORNameForDuplicate,mapOtherFieldForDuplicate, musterRec,currentDateTime);
+            
+            set<Id> setConId = new set<Id>();
+            if(lstObj.size() > 0) {
+                for(sObject obj : lstObj) {                
+                    string objId = obj.Id;
+                    string uuId = '';
+                    string email = '';
+                    //string name = '';
+                    if(objectName == MusterStrings.STR_CONTACT) {
+                        contact con = (Contact)obj;
+                        uuId = con.Muster_UUID__c;
+                        if(sfDuplicateField == 'Email') { email = con.Email; }                    
+                    }
+                    if(objectName == MusterStrings.STR_ACCOUNT) {
+                        Account acc = (Account)obj;
+                        uuId = acc.Muster_UUID__c;
+                        /*if(sfDuplicateField == 'name') { name = acc.Name; }*/
+                        if(sfDuplicateField != '') { email = MusterContactBatch_Handler.getValue(acc, sfDuplicateField); }
+                      
+                    }
+                    setConId.add(objId);
+                    if(mapSFID.containsKey(objId)) {  mapsObjectForUpdateByID.put(objId,obj);
+                    }
+                    else if(mapUUID.containsKey(uuId) && !mapsObjectForUpdateByID.containsKey(objId)) {
+                        mapsObjectForUpdateByUUID.put(uuId,obj);   
+                    } 
+                    else if(String.isBlank(uuId) && objectName == MusterStrings.STR_CONTACT && sfDuplicateField == 'Email' && mapEmailORNameForDuplicate.containsKey(email) && !mapsObjectForUpdateByID.containsKey(objId) && !mapsObjectForUpdateByUUID.containsKey(uuId)  ) {
+                        if(mapEmailORNameTosObjectLst.containsKey(email)) { mapEmailORNameTosObjectLst.get(email).add(obj);
+                        } else {  mapEmailORNameTosObjectLst.put(email, new List<sObject>{obj});}
+                    } 
+                    else if(String.isBlank(uuId) && objectName == MusterStrings.STR_ACCOUNT && sfDuplicateField != '' && mapEmailORNameForDuplicate.containsKey(email) && !mapsObjectForUpdateByID.containsKey(objId) && !mapsObjectForUpdateByUUID.containsKey(uuId)  ) {
+                        if(mapEmailORNameTosObjectLst.containsKey(email)) { mapEmailORNameTosObjectLst.get(email).add(obj);
+                        } else {  mapEmailORNameTosObjectLst.put(email, new List<sObject>{obj});}
+                    } 
+                    else if(String.isBlank(uuId) && sfDuplicateField!=Null && mapOtherFieldForDuplicate.size()>0 && mapOtherFieldForDuplicate.containsKey((string)obj.get(sfDuplicateField)) && !mapsObjectForUpdateByID.containsKey(objId)&& !mapsObjectForUpdateByUUID.containsKey(uuId)  ) {
+                        string val = (string)obj.get(sfDuplicateField);
+                        if(mapOtherFieldValueTosObjectLst.containsKey(val)) { mapOtherFieldValueTosObjectLst.get(val).add(obj);
+                        }
+                        else {
+                            mapOtherFieldValueTosObjectLst.put(val, new List<sObject>{obj}); 
+                        }                    
+                    }               
+                }
+                //get all location existing object record in map
+                if(setConId.size()>0){
+                    mapForExistingLocs = MusterContactBatch_Handler.getExistingLocationLst(musterRec, setConId);
+                    mapForExistingPhoneNumbers = MusterContactBatch_Handler.getExistingPhoneLst(musterRec, setConId);
+                    mapForExistingEmails = MusterContactBatch_Handler.getExistingEmailLst(musterRec, setConId);
+                }
+            }
+            
+            for(MusterWrapper.Results resW: scope) { 
+               
+                sObject conMuster;
+                boolean isSfIdFound = false;
+                boolean isUuidFound = false;
+                boolean isEmailFound = false;
+                boolean isOtherFound = false;
+                Boolean isInsert = false;
+                
+                if(String.isNotEmpty(resW.salesforce_id) && mapsObjectForUpdateByID.containsKey(resW.salesforce_id)) {                     
+                    boolean isAddressMatch = false;
+                    Integer index;
+                    Map<String,String>addressCheckMap = new Map<String,String>();
+                    List<locations__c>locationLst = new List<locations__c>();
+                    sObject SFIdRecord = mapsObjectForUpdateByID.get(resW.salesforce_id);
+                    
+                    if(objectName == MusterStrings.STR_CONTACT){ conMuster = new Contact();} else{conMuster = new Account();}
+                    
+                    conMuster.Id = resW.salesforce_id;                     
+                    conMuster.put(MusterStrings.STR_NAMESPACE+'Muster_UUID__c',string.valueOf(resW.uuid));
+                    
+                    if(string.isNotEmpty(musterRec.Advocate__c)){conMuster.put(musterRec.Advocate__c, boolean.valueOf(resW.is_advocate));}
+                    if(string.isNotEmpty(musterRec.Text_Opt_in__c)){conMuster.put(musterRec.Text_Opt_in__c, boolean.valueOf(resW.is_opt_in_text));}
+                    if(string.isNotEmpty(musterRec.Email_Opt_in__c)){conMuster.put(musterRec.Email_Opt_in__c, boolean.valueOf(resW.is_opt_in_email));}
+                    
+                    //Get New Locations, PhoneNumbers and Emails for Insert In case of obj record update
+                    locForInsertinUpdateObj.PutAll(MusterContactBatch_Handler.getLocationLstForUpdateObj(resW,conMuster,musterRec)); 
+                    phoneNumbersForInsertinUpdateObj.PutAll(MusterContactBatch_Handler.getPhoneNumbersForUpdateObj(resW,conMuster,musterRec));
+                    emailsForInsertinUpdateObj.PutAll(MusterContactBatch_Handler.getEmailsForUpdateObj(resW,conMuster,musterRec));
+                    
+                    //locations, PhoneNumber and Emails insert when Obj record Update
+                    
+                    if(locForInsertinUpdateObj!=Null && locForInsertinUpdateObj.containskey(resW.salesforce_id)){
+                        locationLst = locForInsertinUpdateObj.get(resW.salesforce_id); 
+                    }
+                    
+                    // Get location address1 matching 
+                    
+                    addressCheckMap = MusterContactBatch_Handler.checkAddress1InUpdate(resW,SFIdRecord,musterRec);
+                    If(addressCheckMap!=Null && addressCheckMap.size()>0){
+                        isAddressMatch =Boolean.valueof(addressCheckMap.get('flag'));
+                        index = Integer.valueof(addressCheckMap.get('Index'));  
+                    }
+                    if(isAddressMatch==true && (index!=Null && index>=0) && locationLst.size()>index){
+                        conMuster = MusterContactBatch_Handler.updateBoundaryInContact(locationLst[index], conMuster,musterRec);
+                    }
+                     mapsObjectForUpdateByID.put(resW.salesforce_id,conMuster);
+                    isSfIdFound = true;
+                }
+                
+                if(!isSfIdFound && string.isNotBlank(resW.uuid) && mapsObjectForUpdateByUUID.containsKey(resW.uuid) ) { //&& String.isNotEmpty(resW.salesforce_id) && !mapsObjectForUpdateByID.containsKey(resW.salesforce_id)
+                    boolean isAddressMatch = false;
+                    Integer index;
+                    Map<String,String>addressCheckMap = new Map<String,String>();
+                    List<locations__c>locationLst = new List<locations__c>();
+                    
+                    sObject SFUUIDRecord = mapsObjectForUpdateByUUID.get(resW.uuid);
+                    String sfId ;
+                    
+                    if(objectName == MusterStrings.STR_CONTACT){ conMuster = new Contact();} else{conMuster = new Account();}
+                    sfId =mapsObjectForUpdateByUUID.get(resW.uuid).Id;
+                    conMuster.Id = sfId;
+                    if(string.isNotEmpty(musterRec.Advocate__c)){conMuster.put(musterRec.Advocate__c, boolean.valueOf(resW.is_advocate));}
+                    if(string.isNotEmpty(musterRec.Text_Opt_in__c)){conMuster.put(musterRec.Text_Opt_in__c, boolean.valueOf(resW.is_opt_in_text));}
+                    if(string.isNotEmpty(musterRec.Email_Opt_in__c)){conMuster.put(musterRec.Email_Opt_in__c, boolean.valueOf(resW.is_opt_in_email));}
+                  
+                     
+                    //Get New Locations, PhoneNumbers and Emails for Insert In case of obj record update
+                    
+                    locForInsertinUpdateObj.PutAll(MusterContactBatch_Handler.getLocationLstForUpdateObj(resW,conMuster,musterRec)); 
+                     phoneNumbersForInsertinUpdateObj.PutAll(MusterContactBatch_Handler.getPhoneNumbersForUpdateObj(resW,conMuster,musterRec));
+                     emailsForInsertinUpdateObj.PutAll(MusterContactBatch_Handler.getEmailsForUpdateObj(resW,conMuster,musterRec));
+                   
+                    if(locForInsertinUpdateObj!=Null && locForInsertinUpdateObj.containskey(sfId)){
+                        locationLst = locForInsertinUpdateObj.get(sfId); 
+                    }
+                   
+                    // Get location address1 matching 
+                   addressCheckMap = MusterContactBatch_Handler.checkAddress1InUpdate(resW,SFUUIDRecord,musterRec);
+                    If(addressCheckMap!=Null && addressCheckMap.size()>0){
+                        isAddressMatch =Boolean.valueof(addressCheckMap.get('flag'));
+                        index = Integer.valueof(addressCheckMap.get('Index'));  
+                    }
+                   if(isAddressMatch==true && (index!=Null && index>=0) && locationLst.size()>index){
+                        conMuster = MusterContactBatch_Handler.updateBoundaryInContact(locationLst[index], conMuster,musterRec);
+                    }
+                   mapsObjectForUpdateByUUID.put(resW.uuid, conMuster);
+                    isUuidFound = true;
+                } 
+                
+                if(!isSfIdFound && !isUuidFound && ((musterDuplicateField.equalsIgnoreCase('Email') && mapEmailORNameTosObjectLst.containskey(resW.primary_email)) ||  (musterDuplicateField.equalsIgnoreCase('Name') && mapEmailORNameTosObjectLst.containskey(resW.first_name) ) ) ) {
+                    Boolean isEmail = false;
+                    List<sObject> lst = new List<sObject>();
+                    if(musterDuplicateField.equalsIgnoreCase('Email') && mapEmailORNameTosObjectLst.containskey(resW.primary_email)) {
+                        lst = mapEmailORNameTosObjectLst.get(resW.primary_email);
+                        isEmail = true;
+                    }
+                    if(lst.size()>0) {
+                        boolean isAddressMatch = false;
+                        Integer index;
+                        Map<String,String>addressCheckMap = new Map<String,String>();
+                        List<locations__c>locationLst = new List<locations__c>();
+                        sObject EmailSFRecord = lst[0];
+                        String sfId ;
+                        
+                        if(objectName == MusterStrings.STR_CONTACT){ conMuster = new Contact();} else {conMuster = new Account();}
+                        sfId =lst[0].Id; 
+                        conMuster.Id = sfId;                        
+                        conMuster.put(MusterStrings.STR_NAMESPACE+'Muster_UUID__c',string.valueOf(resW.uuid));
+                        if(string.isNotEmpty(musterRec.Advocate__c)){conMuster.put(musterRec.Advocate__c, boolean.valueOf(resW.is_advocate));}
+                        if(string.isNotEmpty(musterRec.Text_Opt_in__c)){conMuster.put(musterRec.Text_Opt_in__c, boolean.valueOf(resW.is_opt_in_text));}
+                        if(string.isNotEmpty(musterRec.Email_Opt_in__c)){conMuster.put(musterRec.Email_Opt_in__c, boolean.valueOf(resW.is_opt_in_email));}
+                        lst.remove(0);
+                        mapEmailORNameTosObjectLst.put((isEmail)?resW.primary_email:resW.first_name, lst);
+                        
+                        //Get New Locations, PhoneNumbers and Emails for Insert In case of obj record update
+                    
+                        locForInsertinUpdateObj.PutAll(MusterContactBatch_Handler.getLocationLstForUpdateObj(resW,conMuster,musterRec)); 
+                        phoneNumbersForInsertinUpdateObj.PutAll(MusterContactBatch_Handler.getPhoneNumbersForUpdateObj(resW,conMuster,musterRec));
+                        emailsForInsertinUpdateObj.PutAll(MusterContactBatch_Handler.getEmailsForUpdateObj(resW,conMuster,musterRec));
+                    
+                        if(locForInsertinUpdateObj!=Null && locForInsertinUpdateObj.containskey(sfId)){
+                        locationLst = locForInsertinUpdateObj.get(sfId); 
+                    }
+                  addressCheckMap = MusterContactBatch_Handler.checkAddress1InUpdate(resW,EmailSFRecord,musterRec);
+                    If(addressCheckMap!=Null && addressCheckMap.size()>0){
+                        isAddressMatch =Boolean.valueof(addressCheckMap.get('flag'));
+                        index = Integer.valueof(addressCheckMap.get('Index'));  
+                    }
+                    if(isAddressMatch==true && (index!=Null && index>=0) && locationLst.size()>index){
+                        conMuster = MusterContactBatch_Handler.updateBoundaryInContact(locationLst[index], conMuster,musterRec);
+                    }
+                     mapsObjectForUpdateByEmail.put(conMuster.Id, conMuster);
+                        isEmailFound = true;
+                    }
+                }
+                
+                if(!isSfIdFound && !isUuidFound && !isEmailFound && resW.custom_fields != Null && resW.custom_fields.Size() > 0 ) {
+                    for(MusterWrapper.Custom_fields resCustom: resW.custom_fields){
+                        if(resCustom.custom_field == musterDuplicateField) {
+                            string val = resCustom.value;
+                            if(mapOtherFieldValueTosObjectLst.containsKey(val)) {
+                                List<sObject> lstObj4Update = mapOtherFieldValueTosObjectLst.get(val);
+                                if(lstObj4Update.size() > 0) { 
+                                    boolean isAddressMatch = false;
+                                    Integer index;
+                                    Map<String,String>addressCheckMap = new Map<String,String>();
+                                    List<locations__c>locationLst = new List<locations__c>();
+                                    sObject OtherSFRecord = lstObj4Update[0];
+                                    String sfId ;
+                                    if(objectName == MusterStrings.STR_CONTACT){ conMuster = new Contact();} else {conMuster = new Account();}
+                                    sfId =lstObj4Update[0].Id;
+                                    
+                                    conMuster.Id = sfId;                     
+                                    conMuster.put(MusterStrings.STR_NAMESPACE+'Muster_UUID__c',string.valueOf(resW.uuid));
+                                    if(string.isNotEmpty(musterRec.Advocate__c)){conMuster.put(musterRec.Advocate__c, boolean.valueOf(resW.is_advocate));}
+                                    if(string.isNotEmpty(musterRec.Text_Opt_in__c)){conMuster.put(musterRec.Text_Opt_in__c, boolean.valueOf(resW.is_opt_in_text));}
+                                    if(string.isNotEmpty(musterRec.Email_Opt_in__c)){conMuster.put(musterRec.Email_Opt_in__c, boolean.valueOf(resW.is_opt_in_email));}
+                                    lstObj4Update.Remove(0);
+                                    mapOtherFieldValueTosObjectLst.put(val,lstObj4Update);
+                                    
+                                    //Get New Locations, PhoneNumbers and Emails for Insert In case of obj record update
+                                    
+                                    locForInsertinUpdateObj.PutAll(MusterContactBatch_Handler.getLocationLstForUpdateObj(resW,conMuster,musterRec)); 
+                                    phoneNumbersForInsertinUpdateObj.PutAll(MusterContactBatch_Handler.getPhoneNumbersForUpdateObj(resW,conMuster,musterRec));
+                                    emailsForInsertinUpdateObj.PutAll(MusterContactBatch_Handler.getEmailsForUpdateObj(resW,conMuster,musterRec));
+                                    
+                                    if(locForInsertinUpdateObj!=Null && locForInsertinUpdateObj.containskey(sfId)){
+                                        locationLst = locForInsertinUpdateObj.get(sfId); 
+                                    }
+                                    
+                                    // Get location address1 matching 
+                                    
+                                    addressCheckMap = MusterContactBatch_Handler.checkAddress1InUpdate(resW,OtherSFRecord,musterRec);
+                                    If(addressCheckMap!=Null && addressCheckMap.size()>0){
+                                        isAddressMatch =Boolean.valueof(addressCheckMap.get('flag'));
+                                        index = Integer.valueof(addressCheckMap.get('Index'));  
+                                    }
+                                    if(isAddressMatch==true && (index!=Null && index>=0) && locationLst.size()>index){
+                                        conMuster = MusterContactBatch_Handler.updateBoundaryInContact(locationLst[index], conMuster,musterRec);
+                                    }
+                                    mapsObjectForUpdateByOther.put(conMuster.Id, conMuster);
+                                    isOtherFound = true;
+                                   }
+                            }
+                        }
+                    }
+                }
+             
+                if(!isSfIdFound && !isUuidFound && !isEmailFound && !isOtherFound) {
+                    if(objectName == MusterStrings.STR_CONTACT){
+                        conMuster = (Contact)MusterContactBatch_Handler.getContactFromCustomSetting(resW, musterRec);                 
+                        
+                        if(bucketAccList!=Null && bucketAccList.size()>0 && String.isNotEmpty(bucketAccId) && bucketAccId!='NPSP'){
+                            conMuster.put('AccountId', bucketAccId); 
+                        }
+                    }
+                    else {
+                        conMuster = (Account)MusterContactBatch_Handler.getContactFromCustomSetting(resW, musterRec);                       
+                    }
+                    if(resW.custom_fields!= Null && resW.custom_fields.size()>0){
+                        if(objectName == MusterStrings.STR_CONTACT) {
+                            conMuster =  (Contact)MusterContactBatch_Handler.setCustomFieldValueInContact(conMuster,resW, musterCustomRecordsMap,musterRec);  
+                        }
+                        else {
+                            conMuster =  (Account)MusterContactBatch_Handler.setCustomFieldValueInContact(conMuster,resW, musterCustomRecordsMap,musterRec);                             
+                        }
+                    } 
+                    if(objectName == MusterStrings.STR_CONTACT) {
+                        if (Schema.sObjectType.Contact.fields.Muster_UUID__c.isCreateable()) {
+                            conMuster.put(MusterStrings.STR_NAMESPACE+'Temp_Id__c', temp);
+                        }
+                    }
+                    else {
+                        if (Schema.sObjectType.Account.fields.Muster_UUID__c.isCreateable()) {
+                            conMuster.put(MusterStrings.STR_NAMESPACE+'Temp_Id__c', temp);
+                        }
+                    }
+                    mapsObjectForInsert.put(temp, conMuster);
+                    isInsert = true;
+                }                
+               
+                if(isInsert) {
+                    mapLocation.putAll(MusterContactBatch_Handler.getLocationLst(resW, temp));                   
+                    mapEmail.putAll(MusterContactBatch_Handler.getEmailLst(resW, temp));                    
+                    mapPhoneNumber.putAll(MusterContactBatch_Handler.getPhoneNumberLst(resW, temp));                   
+                    
+                    locForInsert = New List<locations__c>();
+                    locForInsert = mapLocation.get(temp); 
+                    if(locForInsert.size() > 0) {
+                        if(objectName == MusterStrings.STR_CONTACT) {
+                            conMuster = (Contact)MusterContactBatch_Handler.setLocationInContact(locForInsert[0], musterRec, conMuster); 
+                        } else {
+                            conMuster = (Account)MusterContactBatch_Handler.setLocationInContact(locForInsert[0], musterRec, conMuster); 
+                        }
+                        mapsObjectForInsert.put(temp, conMuster);
+                    } 
+                }            
+                temp++;                 
+            }         
+            
+            if(Schema.getGlobalDescribe().get(musterRec.Entity__c).getDescribe().isAccessible() && Schema.getGlobalDescribe().get(musterRec.Entity__c).getDescribe().isUpdateable() ) {
+                if(mapsObjectForUpdateByID!=Null && mapsObjectForUpdateByID.size()>0){  Database.update(mapsObjectForUpdateByID.values(), false, system.AccessLevel.USER_MODE);             
+                }
+                if(mapsObjectForUpdateByUUID!=Null && mapsObjectForUpdateByUUID.size()>0){
+                    Database.update(mapsObjectForUpdateByUUID.values(), false, system.AccessLevel.USER_MODE);
+                }
+                if(mapsObjectForUpdateByEmail!=Null && mapsObjectForUpdateByEmail.size()>0){ Database.update(mapsObjectForUpdateByEmail.values(), false, system.AccessLevel.USER_MODE);      
+                }
+                if(mapsObjectForUpdateByOther!=Null && mapsObjectForUpdateByOther.size()>0){
+                    Database.update(mapsObjectForUpdateByOther.values(), false, system.AccessLevel.USER_MODE);  
+                }
+            }  
+            
+            if(mapsObjectForInsert !=Null && mapsObjectForInsert.size()>0){
+                List<Muster_API_Log__c>  apiLogList=new  List<Muster_API_Log__c>(); 
+                if(Schema.getGlobalDescribe().get(musterRec.Entity__c).getDescribe().isAccessible() && Schema.getGlobalDescribe().get(musterRec.Entity__c).getDescribe().isCreateable() ) {
+                    Database.SaveResult[] results = Database.insert(mapsObjectForInsert.values(), false);
+                    for (Database.SaveResult result : results) {
+                        if (result.isSuccess()) { }
+                        else {
+                            for(Database.Error error : result.getErrors()) {
+                                string errmsg = 'MusterContactBatch :'+' '+ 'Error :'+ 'Failed, '+ error.getStatusCode() + ': ' + error.getMessage();
+                                apiLogList.add(MusterCustomCallout.creatBatchLogLst(errmsg));
+                            }
+                        }
+                    }
+                }
+                
+                if(apiLogList!=Null && apiLogList.size()>0){
+                    if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_API_Log__c').getDescribe().isAccessible() && Schema.sObjectType.Muster_API_Log__c.isCreateable()) {
+                        Database.Insert(apiLogList, false, system.AccessLevel.USER_MODE);
+                    } 
+                    MusterCustomCallout.createTask(apiLogList);
+                }
+            }
+            
+            List<locations__c> lstLocForInsert = new List<locations__c>();
+            List<emails__c> lstEmailForInsert = new List<emails__c>();
+            List<Phone_numbers__c> lstPhoneNumberForInsert = new List<Phone_numbers__c>();
+            
+            for(sObject obj : mapsObjectForInsert.values()) {
+                string objId = '';
+                decimal temp_Id;
+                if(objectName == MusterStrings.STR_CONTACT) {
+                    contact con = (Contact)obj;
+                    temp_Id = con.Temp_Id__c;
+                    objId = con.Id;
+                } else {
+                    account acc = (account)obj;
+                    temp_Id = acc.Temp_Id__c;
+                    objId = acc.Id;
+                }
+                
+                if(mapLocation.size() > 0) {
+                    lstLoc = new List<locations__c>();
+                    lstLoc = mapLocation.get(Integer.valueOf(temp_Id));
+                    if(lstLoc!=Null && lstLoc.size()>0){
+                        for(locations__c loc1 : lstLoc) {
+                            if(objectName == MusterStrings.STR_CONTACT ) { 
+                                if(Schema.sObjectType.locations__c.fields.Contact_Lookup__c.isCreateable()) { loc1.Contact_Lookup__c = objId;}                                                            
+                            }  
+                            else {
+                                if(Schema.sObjectType.locations__c.fields.Account_Lookup__c.isCreateable()) { loc1.Account_Lookup__c = objId;}                                  
+                            } 
+                            lstLocForInsert.add(loc1); 
+                        }  
+                    } 
+                }  
+              
+                if(mapEmail.size() > 0) {               
+                    lstEmail = new List<emails__c>();
+                    lstEmail = mapEmail.get(Integer.valueOf(temp_Id));
+                    if(lstEmail!=Null && lstEmail.size()>0){
+                        for(emails__c em : lstEmail) {
+                            if(objectName == MusterStrings.STR_CONTACT ) {
+                                if(Schema.sObjectType.emails__c.fields.Contact_Lookup__c.isCreateable()) {em.Contact_Lookup__c = objId;}                                    
+                            } 
+                            else {
+                                if(Schema.sObjectType.emails__c.fields.Account_Lookup__c.isCreateable()){em.Account_Lookup__c = objId;}                                  
+                            } 
+                            lstEmailForInsert.add(em);
+                        }  
+                    }
+                }
+                
+                if(mapPhoneNumber.size() > 0) {
+                    lstPhone = New List<Phone_numbers__c>();
+                    lstPhone = mapPhoneNumber.get(Integer.valueOf(temp_Id));
+                    if(lstPhone!=Null && lstPhone.size()>0){
+                        for(Phone_numbers__c ph : lstPhone) {
+                            if(objectName == MusterStrings.STR_CONTACT ) {
+                                if(Schema.sObjectType.Phone_numbers__c.fields.Contact_Lookup__c.isCreateable()){ ph.Contact_Lookup__c = objId; }                                 
+                            } 
+                            else {
+                                if( Schema.sObjectType.Phone_numbers__c.fields.Account_Lookup__c.isCreateable()) { ph.Account_Lookup__c = objId;}                                 
+                            } 
+                            lstPhoneNumberForInsert.add(ph);
+                        }  
+                    }
+                }            
+            }
+            //delete existing location, PhoneNumbers and Email list 
+            
+                if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'locations__c').getDescribe().isAccessible() && Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'locations__c').getDescribe().isDeletable() ) {
+                    if(mapForExistingLocs!=Null && mapForExistingLocs.size()>0){
+                        List<locations__c> deleteLocs = new List<locations__c>();
+                        for(List<locations__c> delloclst:mapForExistingLocs.values()){
+                            deleteLocs.addAll(delloclst);
+                        }
+                        Database.delete(deleteLocs, false, system.AccessLevel.USER_MODE); 
+                        
+                    } 
+             }
+            if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Phone_numbers__c').getDescribe().isAccessible() && Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Phone_numbers__c').getDescribe().isDeletable() ) {
+                if(mapForExistingPhoneNumbers!=Null && mapForExistingPhoneNumbers.size()>0){
+                    List<Phone_numbers__c> deletePhoneNumbers = new List<Phone_numbers__c>();  
+                     for(List<Phone_numbers__c> delPhonelst:mapForExistingPhoneNumbers.values()){
+                            deletePhoneNumbers.addAll(delPhonelst);
+                        }
+                    Database.delete(deletePhoneNumbers, false, system.AccessLevel.USER_MODE); 
+                }  
+            }
+            if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'emails__c').getDescribe().isAccessible() && Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'emails__c').getDescribe().isDeletable() ) {
+                if(mapForExistingEmails!=Null && mapForExistingEmails.size()>0){
+                    List<emails__c> deleteEmails = new List<emails__c>();
+                    for(List<emails__c> delEmaillst:mapForExistingEmails.values()){
+                        deleteEmails.addAll(delEmaillst);
+                    }
+                    Database.delete(deleteEmails, false, system.AccessLevel.USER_MODE); } 
+            }
+            
+            // Insert locations,phonenumbers, emails in case of update obj records
+           if(locForInsertinUpdateObj!=Null && locForInsertinUpdateObj.Size()>0){
+                if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'locations__c').getDescribe().isAccessible() && Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'locations__c').getDescribe().isCreateable() ) {
+                    List<locations__c> lstforNewLocationInsert = new List<locations__c>();                    
+                    for(List<locations__c> Insertloclst:locForInsertinUpdateObj.values()){
+                        lstforNewLocationInsert.addAll(Insertloclst);}
+                    if(lstforNewLocationInsert.size()>0){
+                      Database.Insert(lstforNewLocationInsert, false, system.AccessLevel.USER_MODE); } } 
+           }
+            
+             if(phoneNumbersForInsertinUpdateObj!=Null && phoneNumbersForInsertinUpdateObj.Size()>0){
+                if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Phone_numbers__c').getDescribe().isAccessible() && Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'locations__c').getDescribe().isCreateable() ) {
+                    List<Phone_numbers__c> lstforNewPhoneNumberInsert = new List<Phone_numbers__c>();                    
+                    for(List<Phone_numbers__c> InsertPhonelst:phoneNumbersForInsertinUpdateObj.values()){
+                        lstforNewPhoneNumberInsert.addAll(InsertPhonelst);
+                    }
+                    if(lstforNewPhoneNumberInsert.size()>0){
+                      Database.Insert(lstforNewPhoneNumberInsert, false, system.AccessLevel.USER_MODE);}} 
+            }
+            
+             if(emailsForInsertinUpdateObj!=Null && emailsForInsertinUpdateObj.Size()>0){
+                if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'emails__c').getDescribe().isAccessible() && Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'locations__c').getDescribe().isCreateable() ) {
+                    List<emails__c> lstforNewEmailInsert = new List<emails__c>();                    
+                    for(List<emails__c> InsertEmaillst:emailsForInsertinUpdateObj.values()){
+                        lstforNewEmailInsert.addAll(InsertEmaillst);
+                    }
+                    if(lstforNewEmailInsert.size()>0){
+                      Database.Insert(lstforNewEmailInsert, false, system.AccessLevel.USER_MODE);}} 
+            }
+            if(lstLocForInsert!=Null && lstLocForInsert.size()>0){
+                if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'locations__c').getDescribe().isAccessible() && Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'locations__c').getDescribe().isCreateable() ) {
+                    Database.Insert(lstLocForInsert, false, system.AccessLevel.USER_MODE);   
+                }   
+            }
+            
+            if(lstEmailForInsert!=Null && lstEmailForInsert.size()>0){
+                if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'emails__c').getDescribe().isAccessible() && Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'emails__c').getDescribe().isCreateable()) {
+                    Database.Insert(lstEmailForInsert, false, system.AccessLevel.USER_MODE);    
+                }   
+            }
+            
+            if(lstPhoneNumberForInsert!=Null && lstPhoneNumberForInsert.size()>0){
+                if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Phone_numbers__c').getDescribe().isAccessible() && Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Phone_numbers__c').getDescribe().isCreateable()) {
+                    Database.Insert(lstPhoneNumberForInsert, false, system.AccessLevel.USER_MODE);    
+                }   
+            }
+            
+            MusterCustomCallout.creatBatchLog(msg);
+        }
+        catch(Exception ex) {
+            Database.rollback(sp); 
+            MusterCustomCallout.creatBatchLog('Exception in MusterContactBatch while insert the object :'+ex.getMessage()+', Line no :'+ex.getLineNumber());            
+        }
+    }
+    
+    Global void finish(Database.BatchableContext bc){
+        if(nextUrl!=Null && String.isNotBlank(nextUrl) ){
+            if(sendCallout == True){
+                Database.executeBatch(new MusterContactBatch(runSeqBatch,nextUrl,'',currentDateTime),MusterStrings.INT_BATCHSIZE);
+            } 
+        }
+        else {          
+            strLog += ' completed';        
+            executeMusterActionBatch(runSeqBatch); 
+            MusterCustomCallout.creatBatchLog(strLog);  
+        }
+    }       
+    
+    Global static void executeMusterActionBatch(Boolean isTrue) {
+        if(isTrue) {
+            Database.executeBatch(new MusterActionBatch('',''),MusterStrings.INT_BATCHSIZE);
+        }
+    }
+}

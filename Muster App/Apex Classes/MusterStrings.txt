@@ -1,0 +1,24 @@
+public with sharing class MusterStrings {
+    
+    public static string STR_NAMESPACE = 'mustertest__';   
+    public static Integer INT_BATCHSIZE = 100; 
+    public static Integer INT_BATCHSIZEGET = 100;
+    Public static String STR_REQUESTMETHOD ='GET' ;
+    public static string MUSTER_SETTING_METADATA_APINAME = 'Muster_Settings__mdt';
+    public static string MUSTER_API_SETTING_METADATA_APINAME = 'Muster_API_Settings__mdt';
+    public static string STR_SETTING_NAME_Label = 'MusterData';
+    public static string STR_CONTACT = 'Contact';
+    public static string STR_ACCOUNT = 'Account';
+    public static string STR_SYNC_MODE_SF2M = 'Salesforce → Muster';
+    public static string STR_SYNC_MODE_BOTH = 'Sync both (bidirectional)';
+    public static string STR_SYNC_MODE_M2SF = 'Muster → Salesforce';
+   
+    public static string strText = 'text_field';
+    public static string strSingleChoice = 'single_choice_field';
+    public static string strMulti = 'multiple_choice_field';
+    
+    public static string STR_CUSTOM_SETTING_LABEL = '';
+    public static string STR_APIKEY_PREFIX = 'Api-Key ';
+    public static string STR_SCHEDULED_JOBNAME = 'Muster Contact/Account Get/Post Batch Scheduled';
+   
+}

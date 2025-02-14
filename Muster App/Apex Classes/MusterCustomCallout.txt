@@ -1,0 +1,312 @@
+public with sharing class MusterCustomCallout {
+    
+    public static List<MainWrapper> MusterAPIHandler(String LabelType, string apiKey, String nextURL) {
+        HttpResponse res = new HttpResponse();
+        List<MainWrapper> mainWprList = new List<MainWrapper>();        
+        List<MusterWrapper.CustomMusterWrapper> customWprList = new List<MusterWrapper.CustomMusterWrapper>();
+        List<MusterWrapper.ContactMusterWrapper> contactWprList = new List<MusterWrapper.ContactMusterWrapper>();
+        List<MusterWrapper.ActionMusterWrapper> actionWprList = new List<MusterWrapper.ActionMusterWrapper>();
+        List<MusterWrapper.Results> conResWprList = new List<MusterWrapper.Results>();
+        List<MusterWrapper.actResults> actResWprList = new List<MusterWrapper.actResults>();
+        List<MusterWrapper.CheckStatusWrapper>checkWprList = new List<MusterWrapper.CheckStatusWrapper>();
+        List<MusterWrapper.checkResults>checkStatusWprList = new List<MusterWrapper.checkResults>();
+        List<Muster_API_Log__c> apiLogList = New List<Muster_API_Log__c>();
+        Muster_API_Settings__mdt musterRec;
+        Muster_Settings__mdt mustAPIRec;
+        String endPoint ;
+        String baseURL;
+        String contactURL;
+        String customURL;
+        String actionsURL;
+        String checkURL;        
+        String JsonString;
+        String JsonMessage;         
+        String API_Key;
+        String getNextUrl ;
+        Integer getCount =0;
+        Integer resCount;
+        DateTime startDate=System.now().addDays(-2);
+        String fiterDate = String.valueof(startDate);
+        fiterDate = fiterDate.replace(' ','T');
+        fiterDate = fiterDate+'Z';
+        musterRec = MusterUtility.getMusterAPISettingsMetadata();
+        mustAPIRec = MusterUtility.getMusterSettingsMetadata('Contact');
+        if(apiKey !=''){
+            API_Key = apiKey;
+        }
+        else{          
+            if (mustAPIRec != null && string.isNotEmpty(mustAPIRec.API_Key__c) && string.isNotEmpty(mustAPIRec.Decryption_Key__c) ) { 
+                API_Key = MusterUtility.getAPIKey(mustAPIRec.Decryption_Key__c,mustAPIRec.API_Key__c ); 
+            } 
+        }
+        if(musterRec != Null) {             
+            baseURL = musterRec.API_Base_URL__c;
+            contactURL = musterRec.GET_Contacts_URL__c;
+            customURL = musterRec.GET_Custom_Fields_URL__c;
+            actionsURL = musterRec.GET_Actions_URL__c;
+            checkURL = musterRec.Get_Status_URL__c;
+            try {                   
+                if(LabelType == 'Muster Custom'){
+                    endPoint = baseURL+customURL;
+                    res = getRequest(API_Key,MusterStrings.STR_REQUESTMETHOD,endPoint);
+                    JsonMessage = res.getStatus();
+                    if(res.getStatusCode() == 200){                          
+                        JsonString = res.getBody();                       
+                        customWprList= (List<MusterWrapper.CustomMusterWrapper>)JSON.deserialize(JsonString, List<MusterWrapper.CustomMusterWrapper>.class);   
+                        mainWprList.Add(new MainWrapper(res.getStatusCode(),JsonMessage,resCount,getNextUrl,customWprList, conResWprList,actResWprList,checkStatusWprList));                        
+                    } 
+                    else{
+                        mainWprList.Add(new MainWrapper(res.getStatusCode(),JsonMessage,resCount,getNextUrl,customWprList, conResWprList,actResWprList,checkStatusWprList));  
+                    }
+                }
+                else if(LabelType =='Muster Contact'){ 
+                    if(nextURL==''){
+                        endPoint =baseURL+contactURL+'?page_size='+MusterStrings.INT_BATCHSIZEGET;
+                    }
+                    else if(nextURL !=Null){
+                        endPoint =nextURL; 
+                    }
+                    
+                    res = getRequest(API_Key,MusterStrings.STR_REQUESTMETHOD,endPoint);
+                    
+                    JsonMessage = res.getStatus();
+                    if(res.getStatusCode() == 200) {                         
+                        JsonString ='[' + res.getBody() + ']';                        
+                        contactWprList = (List<MusterWrapper.ContactMusterWrapper>)JSON.deserialize(JsonString, List<MusterWrapper.ContactMusterWrapper>.class);                   
+                        conResWprList = contactWprList[0].results;
+                        resCount =Integer.valueof(contactWprList[0].count);
+                        getNextUrl = String.valueof(contactWprList[0].next);
+                        mainWprList.Add(new MainWrapper(res.getStatusCode(),JsonMessage,resCount,getNextUrl,customWprList, conResWprList,actResWprList,checkStatusWprList));  
+                    }
+                } 
+                else if(LabelType =='Muster Action'){
+                    if(nextURL ==''){
+                        endPoint =baseURL+actionsURL+'?page_size='+MusterStrings.INT_BATCHSIZEGET; 
+                    }
+                    else if(nextURL !=Null){
+                        endPoint =nextURL;    
+                    }
+                    res = getRequest(API_Key,MusterStrings.STR_REQUESTMETHOD,endPoint);
+                    JsonMessage = res.getStatus();                                
+                    if(res.getStatusCode() == 200){                          
+                        JsonString = '[' + res.getBody() + ']'; 
+                        actionWprList= (List<MusterWrapper.ActionMusterWrapper>)JSON.deserialize(JsonString, List<MusterWrapper.ActionMusterWrapper>.class);   
+                        resCount =Integer.valueof(actionWprList[0].count);
+                        actResWprList =actionWprList[0].Results;
+                        getNextUrl = String.valueof(actionWprList[0].next);
+                        mainWprList.Add(new MainWrapper(res.getStatusCode(),JsonMessage,resCount,getNextUrl,customWprList, conResWprList,actResWprList,checkStatusWprList)); 
+                        
+                    } 
+                }
+                else if(LabelType =='Check Status'){
+                    if(nextURL ==''){
+                        endPoint =baseURL+checkURL+'?created_after='+fiterDate+'&status=pending';
+                    }
+                    else{
+                        endPoint = nextURL;
+                    }
+                    res = MusterCustomCallout.getRequest(API_Key,MusterStrings.STR_REQUESTMETHOD,endPoint);
+                    JsonMessage = res.getStatus();
+                    if(res.getStatusCode() == 200){                          
+                        JsonString ='[' + res.getBody() + ']';                     
+                        checkWprList= (List<MusterWrapper.CheckStatusWrapper>)JSON.deserialize(JsonString, List<MusterWrapper.CheckStatusWrapper>.class);   
+                        resCount =Integer.valueof(checkWprList[0].count);
+                        checkStatusWprList =checkWprList[0].Results;
+                        getNextUrl = String.valueof(checkWprList[0].next);
+                        mainWprList.Add(new MainWrapper(res.getStatusCode(),JsonMessage,resCount,getNextUrl,customWprList, conResWprList,actResWprList,checkStatusWprList)); 
+                    }   
+                }
+                If(res != Null && endPoint != Null && MusterStrings.STR_REQUESTMETHOD != Null) {                
+                    creatAPILog(res,endPoint, MusterStrings.STR_REQUESTMETHOD);                    
+                } 
+            }
+            catch(Exception e) { 
+                string msg = 'MusterCustomCallout.MusterAPIHandler LabelType:'+ LabelType+' '+ ',Error : ' + e.getMessage() + ', LN: ' + e.getLineNumber();  
+                creatBatchLog(msg);
+            }                         
+        }
+        return mainWprList; 
+    }     
+    
+    public class MainWrapper {
+        public Integer resStatusCode{get;set;}
+        Public String resMessage{get;set;}
+        public Integer resCount{get;set;}
+        Public String nextURL{get;set;}
+        public list<MusterWrapper.CustomMusterWrapper> customWpr{get;set;}
+        public list<MusterWrapper.Results> contactWpr{get;set;}
+        public list<MusterWrapper.actResults> actionWpr{get;set;}
+        public List<MusterWrapper.checkResults>checkWpr{get;set;}
+        public MainWrapper( Integer statusCode,String resMessage,Integer count,String nextUrl,list<MusterWrapper.CustomMusterWrapper>customList,list<MusterWrapper.Results> contactList, list<MusterWrapper.actResults>actionList,List<MusterWrapper.checkResults>checkStatusList ){            
+            this.resStatusCode = statusCode;
+            this.resMessage = resMessage;
+            this.resCount = count;
+            this.nextURL = nextUrl;
+            this.customWpr =customList;
+            this.contactWpr = contactList;
+            this.actionWpr = actionList;
+            this.checkWpr =checkStatusList;
+        }
+    }
+    
+    public static void creatAPILog(HttpResponse res, String endPoint, String reqMethod) { 
+        try {
+            if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_API_Log__c').getDescribe().isAccessible()
+               && Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_API_Log__c').getDescribe().isCreateable()
+               && Schema.sObjectType.Muster_API_Log__c.fields.Muster_API_EndPoint__c.isCreateable()
+               && Schema.sObjectType.Muster_API_Log__c.fields.Muster_Response__c.isCreateable()
+               && Schema.sObjectType.Muster_API_Log__c.fields.Muster_Date_Time__c.isCreateable()
+               && Schema.sObjectType.Muster_API_Log__c.fields.Requested_Method__c.isCreateable()
+               && Schema.sObjectType.Muster_API_Log__c.fields.Type__c.isCreateable() ){
+                   Muster_API_Log__c  APILog=new  Muster_API_Log__c();                   
+                   APILog.Muster_API_EndPoint__c = endPoint;                   
+                   APILog.Muster_Response__c = 'Status='+res.getStatus()+' '+','+' '+'Status Code='+res.getStatusCode();                    
+                   APILog.Muster_Date_Time__c = system.now();                   
+                   APILog.Requested_Method__c =reqMethod;                   
+                   APILog.Type__c = (res.getStatusCode() !=200 && res.getStatusCode()!=202 ) ? 'Exception Log' :'API Log';
+                   Database.Insert(APILog, false, system.AccessLevel.USER_MODE);
+                   
+                   if(res.getStatusCode() !=200 && res.getStatusCode()!=202 && APILog.Id!=Null) {createTask(New List< Muster_API_Log__c>{APILog});}
+               }
+        }
+        catch(Exception ex) {
+            //system.debug('Excption in creating batch log class:MusterCustomCallout.creatAPILog(). Exception ='+ex.getMessage());
+        }
+    } 
+    
+    public static void creatBatchLog(String batchLog) {
+        try {
+            if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_API_Log__c').getDescribe().isAccessible()
+               && Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_API_Log__c').getDescribe().isCreateable()
+               && Schema.sObjectType.Muster_API_Log__c.fields.Muster_Date_Time__c.isCreateable()
+               && Schema.sObjectType.Muster_API_Log__c.fields.Batch_Log__c.isCreateable()
+               && Schema.sObjectType.Muster_API_Log__c.fields.Type__c.isCreateable()){
+                   Muster_API_Log__c  APILog = new  Muster_API_Log__c();                    
+                   APILog.Muster_Date_Time__c = system.now();                                      
+                   APILog.Batch_Log__c =batchLog;                   
+                   APILog.Type__c = batchLog.contains('Error') ? 'Exception Log' :'Batch Log';                                      
+                   Database.Insert(APILog, false, system.AccessLevel.USER_MODE);                                       
+                   if(batchLog.contains('Error') && APILog.id!=Null){List<Muster_API_Log__c> lst = new List<Muster_API_Log__c>(); lst.add(APILog); createTask(lst); }
+               }
+        }
+        catch(Exception ex) {
+            //system.debug('Excption MusterCustomCallout.creatBatchLog(). ='+ex.getMessage());
+        }
+    }
+    
+    public static Muster_API_Log__c creatBatchLogLst(String batchLog) {  
+       
+        Muster_API_Log__c  APILog;        
+        try {
+            if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_API_Log__c').getDescribe().isAccessible()
+               && Schema.sObjectType.Muster_API_Log__c.fields.Muster_Date_Time__c.isCreateable()
+               && Schema.sObjectType.Muster_API_Log__c.fields.Batch_Log__c.isCreateable()
+               && Schema.sObjectType.Muster_API_Log__c.fields.Type__c.isCreateable()){
+                   APILog = new  Muster_API_Log__c();                
+                   APILog.Muster_Date_Time__c = system.now();                                
+                   APILog.Batch_Log__c = batchLog;                               
+                   APILog.Type__c = batchLog.contains('Error') ? 'Exception Log' :'Batch Log';                
+               }
+        }
+        catch(Exception ex) {
+            //system.debug('Excption MusterCustomCallout.creatBatchLogLst(). '+ex.getMessage());
+        }
+        return APILog;
+    } 
+    
+    public static void createTask(List<Muster_API_Log__c> lst){ 
+        try {
+            if(Schema.sObjectType.Task.isAccessible() && Schema.sObjectType.Task.isAccessible()
+               && Schema.sObjectType.Task.isAccessible() && Schema.sObjectType.Task.isCreateable()
+               && Schema.sObjectType.Task.fields.subject.isCreateable()
+               && Schema.sObjectType.Task.fields.Status.isCreateable()
+               && Schema.sObjectType.Task.fields.Priority.isCreateable()
+               && Schema.sObjectType.Task.fields.Muster_Sync_Logs__c.isCreateable()){
+                   List<Task> lstTask = new List<Task>();
+                   Date todayDate = System.today();
+                   for(Muster_API_Log__c ApiLog :lst){
+                       Task taskRecord = new Task();
+                       Boolean permissionFound = true;               
+                       taskRecord.subject = 'Muster Exception';               
+                       taskRecord.Status = 'Pending';                              
+                       taskRecord.Priority = 'High';                                
+                       taskRecord.Muster_Sync_Logs__c = ApiLog.id;                
+                       lstTask.add(taskRecord); 
+                   }
+                   
+                   If(lstTask!= Null && lstTask.size()>0) {
+                       Database.Insert(lstTask, false, system.AccessLevel.USER_MODE);
+                   }                    
+               }
+        }
+        catch(Exception ex) {
+            //system.debug('Excption MusterCustomCallout.createTask(). '+ex.getMessage());
+        }
+    }
+    
+    public static HttpResponse getRequest(string API_Key, string reqMethod, string endPoint) {
+        Http http = new Http();        
+        HttpResponse res = new HttpResponse();
+        HttpRequest req = new HttpRequest(); 
+        req.setHeader('Authorization', API_Key);
+        req.setMethod(reqMethod);
+        req.setEndpoint(endPoint);
+        req.setTimeout(120000);
+        res = http.send(req);
+        return res;
+    }
+    
+    public static Boolean callPostApiForUpdateConAcc(MusterContactAccountPost_Handler.PostWrapper pw) {    
+        Boolean flag = false;
+        HttpResponse res = new HttpResponse();                                
+        String endPoint ; 
+        String API_Key;
+        Muster_Settings__mdt ms = MusterUtility.getMusterSettingsMetadata('Contact');                 
+        if (ms != null && string.isNotEmpty(ms.API_Key__c) && string.isNotEmpty(ms.Decryption_Key__c) ) { 
+            API_Key = MusterUtility.getAPIKey(ms.Decryption_Key__c,ms.API_Key__c ); 
+        }  
+        Muster_API_Settings__mdt musterRec = MusterUtility.getMusterAPISettingsMetadata();   
+        if(musterRec != Null) {
+            try {
+                endPoint = musterRec.API_Base_URL__c + musterRec.POST_Contacts_URL__c;
+                res = postRequest(API_Key,endPoint, pw);
+                if(res.getStatusCode() == 202) {
+                    String JsonString = res.getBody();
+                    flag = true;
+                }
+                If(res != Null && endPoint != Null ) {                
+                    creatAPILog(res, endPoint, 'POST');      
+                } 
+            }
+            catch(Exception e) {                              
+                string msg = 'Exception MusterCustomCallout.callPostApiForUpdateConAcc :' + e.getMessage() + ', LN: ' + e.getLineNumber();  
+                creatBatchLog(msg);
+                flag = false;
+            }
+        }        
+        return flag;
+    }
+    
+    public static HttpResponse postRequest(string API_Key, string endPoint, MusterContactAccountPost_Handler.PostWrapper pw) {
+        String jsonText = JSON.serialize(pw);
+        jsonText = jsonText.replace('"match_field":null,','');
+        Http http = new Http();        
+        HttpResponse res = new HttpResponse();
+        HttpRequest req = new HttpRequest(); 
+        req.setHeader('Authorization', API_Key);
+        req.setHeader('Content-Type','application/json');
+        req.setMethod('POST');
+        req.setEndpoint(endPoint);
+        req.setBody(jsonText);
+        res = http.send(req);
+        return res;
+    }
+    
+    public static void insertLog(string msg) {
+        if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_API_Log__c').getDescribe().isAccessible() && Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_API_Log__c').getDescribe().isCreateable()) {
+            Muster_API_Log__c log = creatBatchLogLst(msg);
+            if(log != null) { Database.Insert(log, false, system.AccessLevel.USER_MODE);}
+        }
+    }
+    
+}

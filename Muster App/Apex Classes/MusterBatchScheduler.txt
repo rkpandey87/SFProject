@@ -1,0 +1,10 @@
+Global with sharing class MusterBatchScheduler implements Schedulable,Database.AllowsCallouts {
+
+    /* For each 30th minute 
+        System.schedule('Muster Contact/Account Get/Post Batch Scheduled', '0 30 * * * ?', new MusterBatchScheduler());
+    */
+    global void execute(SchedulableContext ctx) {
+        if(!Test.isRunningTest()) {  Database.executebatch(new MusterContactAccountPost_Batch(true,''), MusterStrings.INT_BATCHSIZE); }
+    }
+    
+}

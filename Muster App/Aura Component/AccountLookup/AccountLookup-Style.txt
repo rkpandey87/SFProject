@@ -1,0 +1,8 @@
+.THIS .slds-pill{width: 100%;
+    padding: 8px 10px;
+}
+.THIS .CloseIcn{
+    position: absolute;
+    top: 7px;
+    right: 0px;
+}

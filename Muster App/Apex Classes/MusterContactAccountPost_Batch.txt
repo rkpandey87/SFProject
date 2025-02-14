@@ -1,0 +1,120 @@
+Global with sharing class MusterContactAccountPost_Batch implements Database.Batchable<sObject>, Database.AllowsCallouts, Database.Stateful {
+    // Database.executeBatch(new MusterContactAccountPost_Batch(false));
+    Global string query ='';
+    Global string objectName = '';
+    Global string matchField = '';    
+    Global Muster_Settings__mdt ms = new Muster_Settings__mdt();
+    Global Boolean runSequentialBatch = true;
+    Global string strLog = 'MusterContactAccountPost_Batch : ';
+    Global set<string> setRT = new set<string>();
+    Global Boolean isFailed = false;
+    
+    Global MusterContactAccountPost_Batch(Boolean runSequential, string entityName) {
+        
+        /***************************************
+First check if User has all the required CRUD/FLS permissions. 
+If any permission is missing then throw error and exit else continue execution.
+*************************************************/
+        if(!Check_Permissions.checkPostBatchPermission()) {  return; }
+        runSequentialBatch = runSequential;
+        ms = MusterUtility.getMusterSettingsMetadata(entityName);  
+        if(ms != null ) {
+            strLog += 'Sync mode :-\''+ ms.Data_Sync_Mode__c+'\', Syncing ';
+            if( string.isNotEmpty(ms.Entity__c) && ( ms.Data_Sync_Mode__c == MusterStrings.STR_SYNC_MODE_BOTH || ms.Data_Sync_Mode__c == MusterStrings.STR_SYNC_MODE_SF2M)) {
+                objectName = ms.Entity__c;
+                string fields = MusterContactAccountPost_Handler.getMusterSettingsFields(ms);
+                
+                if(Schema.getGlobalDescribe().get(objectName).getDescribe().isAccessible()) {
+                    query = 'SELECT Id, LastModifiedDate ,'+MusterStrings.STR_NAMESPACE+'Muster_UUID__c';
+                    if(string.isNotEmpty(fields)) {
+                        query += ', '+fields;
+                    }    
+                    query += ' FROM '+objectName;           
+                    query += ' WHERE '+MusterStrings.STR_NAMESPACE+'Last_Synced_to_Muster__c  = null';
+                    string sfToMusterRT = ms.Record_Type_SF_to_Muster__c;
+                    if(String.isNotBlank(sfToMusterRT)) {                
+                        sfToMusterRT = sfToMusterRT.removeEnd(';');
+                        string[] arr = sfToMusterRT.split(';'); 
+                        setRT = new set<string>();
+                        for(string str : arr) {
+                            setRT.add(str);
+                        }
+                        query += ' and RecordTypeId =: setRT';
+                        query+= ' WITH USER_MODE';
+                        if(ms.Data_Sync_Mode__c == MusterStrings.STR_SYNC_MODE_BOTH) { runSequentialBatch = true; } else { runSequentialBatch = false; }
+                    } 
+                }
+                matchField = MusterContactAccountPost_Handler.getMatchFields(ms);
+                strLog += ' \''+objectName+'\'';
+            } else {                
+                MusterUtility.executeMusterCheckBatchStatus(runSequentialBatch); 
+            }
+        } else {
+            strLog += ' Custom setting is NULL';
+        }
+        MusterCustomCallout.creatBatchLog(strLog); 
+    }
+    
+    Global Database.QueryLocator start(Database.BatchableContext BC) {
+        if(string.isBlank(query)) {
+            if(Schema.getGlobalDescribe().get('contact').getDescribe().isAccessible() ){
+                query = 'Select id from contact where id=null WITH USER_MODE';
+            }
+        }
+        return Database.getQueryLocator(query);
+    }
+    
+    Global void execute(Database.BatchableContext BC, List<sObject> scope) {
+        
+        string msg = 'MusterContactAccountPost_Batch : Executed for : '+scope.size()+' records' ;
+        
+        if(string.isNotEmpty(objectName) ) {
+            if(objectName.equalsIgnoreCase(MusterStrings.STR_CONTACT)) {
+                List<contact> conLst = (List<contact>)scope;
+                if(conLst.size() > 0) {
+                    MusterContactAccountPost_Handler.PostWrapper pw = new MusterContactAccountPost_Handler.PostWrapper();
+                    if(matchField != null && matchField != '') {
+                        pw.match_field = matchField ;
+                    } 
+                    pw.batch_Id = MusterContactAccountPost_Handler.getBatchId();
+                    pw.contacts = MusterContactAccountPost_Handler.getContactFormat(conLst, ms);
+                   
+                    if(MusterCustomCallout.callPostApiForUpdateConAcc(pw)) {
+                        MusterContactAccountPost_Handler.updateCon(conLst);
+                    } else { isFailed = true; }
+                }
+            } else if(objectName.equalsIgnoreCase(MusterStrings.STR_ACCOUNT)) {
+                List<account> accLst = (List<account>)scope;       
+                if(accLst.size() > 0) {
+                    MusterContactAccountPost_Handler.PostWrapper pw = new MusterContactAccountPost_Handler.PostWrapper();
+                    if(matchField != null && matchField != '') {
+                        pw.match_field = matchField ;
+                    }                     
+                    pw.batch_Id = MusterContactAccountPost_Handler.getBatchId();
+                    pw.contacts = MusterContactAccountPost_Handler.getAccountFormat(accLst, ms);
+                    
+                    if(MusterCustomCallout.callPostApiForUpdateConAcc(pw)) {                        
+                        MusterContactAccountPost_Handler.updateAcc(accLst);
+                    } else { isFailed = true; }
+                }
+            }
+        }
+        
+        MusterCustomCallout.creatBatchLog(msg);
+    }
+    
+    Global void finish(Database.BatchableContext BC) {        
+        strLog += ' completed';        
+        if(string.isNotEmpty(objectName) ) {
+            if(!isFailed && objectName.equalsIgnoreCase(MusterStrings.STR_CONTACT) && MusterContactAccountPost_Handler.checkForMoreContact(ms)) {                
+                MusterUtility.executeMusterPostBatch(runSequentialBatch);                     
+            } else if(!isFailed && objectName.equalsIgnoreCase(MusterStrings.STR_ACCOUNT) && MusterContactAccountPost_Handler.checkForMoreAccount(ms)) {
+                MusterUtility.executeMusterPostBatch(runSequentialBatch);   
+            } else {
+                MusterUtility.executeMusterCheckBatchStatus(runSequentialBatch);   
+                MusterCustomCallout.creatBatchLog(strLog); 
+            }
+        }        
+    }   
+    
+}

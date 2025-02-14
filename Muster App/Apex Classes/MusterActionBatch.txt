@@ -1,0 +1,101 @@
+Global with sharing class MusterActionBatch implements Database.Batchable<MusterWrapper.actResults>,Database.stateful, Database.AllowsCallouts {
+    
+    Global List<MusterWrapper.actResults> objList = new List<MusterWrapper.actResults>();
+    Global List<MusterCustomCallout.MainWrapper> MainList = new List<MusterCustomCallout.MainWrapper>();
+    Global Map<String,actions__c> mapExistingMuster = new Map<String,actions__c>();
+    Global Map<string, sObject> sObjectRecordsMap = new Map<string, sObject>();
+    Global Map<string, Contact> conRecordsMap = new Map<string, Contact>();
+    Global Map<string, Account> accRecordsMap = new Map<string, Account>();
+    Global Set<string> actionUUIDSet = New Set<string>();
+    Global Set<string> objUUIDSet = New Set<string>();
+    Global List<Task> taskList = new List<Task>();
+    Global Muster_Settings__mdt musterRec = new Muster_Settings__mdt();
+    Global string objectName = '';
+    Global string nextUrl;
+    Global Boolean sendCallout = true;
+    Global string strLog = 'MusterActionBatch : ';
+    Global Integer recCount = 0;
+    public Boolean permissionFound = true;
+    
+    Global MusterActionBatch(String endURL, string entityName) { 
+         /***************************************
+         First check if User has all the required CRUD/FLS permissions. 
+         If any permission is missing then throw error and exit else continue execution.
+		*************************************************/       
+        if(!Check_Permissions.checkMusterActionBatchPermission()) {permissionFound = false; return; }
+        nextUrl = endURL;
+        musterRec = MusterUtility.getMusterSettingsMetadata(entityName);
+        
+        if(musterRec!=NUll) {
+            if(musterRec.Data_Sync_Mode__c ==MusterStrings.STR_SYNC_MODE_BOTH || musterRec.Data_Sync_Mode__c ==MusterStrings.STR_SYNC_MODE_M2SF){
+                if(nextUrl!=Null ) {
+                    MainList = MusterCustomCallout.MusterAPIHandler('Muster Action','',nextUrl);
+                }
+                if(MainList != Null && MainList.size()>0) {
+                    if(MainList[0].resCount!=Null ) {
+                        recCount = MainList[0].resCount;
+                        nextUrl = MainList[0].nextURL;
+                        objList = MainList[0].actionWpr;
+                    }
+                    strLog += 'Sync mode :-\''+ musterRec.Data_Sync_Mode__c+'\', Syncing '+' '+' \''+musterRec.Entity__c+'\'';
+                }
+                else { 
+                    sendCallout = False;
+                    strLog += 'Sync mode :-'+musterRec.Data_Sync_Mode__c;
+                }
+            }
+            else {
+                sendCallout = False;
+                strLog += 'Sync mode :-\''+ musterRec.Data_Sync_Mode__c+'\' ';
+            }
+        }
+        else {
+            sendCallout = False;
+            strLog += ' Custom setting is NULL';
+        }
+        MusterCustomCallout.creatBatchLog(strLog);  
+    }
+    
+    Global Iterable<MusterWrapper.actResults> start(Database.BatchableContext bc) {        
+        return objList;        
+    }
+    
+    Global void execute(Database.BatchableContext bc, List<MusterWrapper.actResults> scope) {
+       
+        string msg = 'MusterActionBatch : Executed for : '+scope.size()+' records' ;
+        List<actions__c> musterActionList = new List<actions__c>();
+        mapExistingMuster  = MusterActionBatch_Handler.getMusterActionData( scope, musterRec);
+                
+        sObjectRecordsMap  = MusterActionBatch_Handler.getMustersObjectData(scope, musterRec);
+                
+        for(MusterWrapper.actResults actW: scope) {                
+            if(!mapExistingMuster.containsKey(actW.uuid)) {                                
+                if(sObjectRecordsMap!=NUll && sObjectRecordsMap.containsKey(actW.contact)){                     
+                    taskList.add(MusterActionBatch_Handler.createTask( actW,sObjectRecordsMap, musterRec ));                   
+                }                
+                musterActionList.add(MusterActionBatch_Handler.createAction( actW,sObjectRecordsMap, musterRec ));                                                 
+            }
+        }
+        
+        if(musterActionList != Null && musterActionList.size() > 0 && Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'actions__c').getDescribe().isCreateable() ){
+            Database.Insert(musterActionList, false, system.AccessLevel.USER_MODE);
+        } 
+        if(taskList != null && taskList.size() > 0 && Schema.getGlobalDescribe().get('Task').getDescribe().isCreateable() ) {
+            Database.Insert(taskList, false, system.AccessLevel.USER_MODE);
+        }
+        MusterCustomCallout.creatBatchLog(msg);
+    }
+    
+    Global void finish(Database.BatchableContext bc) {
+       if(nextUrl !=Null && permissionFound) { 
+            if(sendCallout == True) {
+                Database.executeBatch(new MusterActionBatch(nextUrl,''),MusterStrings.INT_BATCHSIZE);
+            }  
+        }
+        else {
+            strLog += ' completed'; 
+            MusterCustomCallout.creatBatchLog(strLog);  
+        }
+    }
+    
+}

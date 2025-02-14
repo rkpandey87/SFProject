@@ -1,0 +1,185 @@
+public with sharing class MusterUtility { 
+    
+    public static string API_ENCRYPTED_KEY = 'KEY';
+    public static string API_ENCRYPTED_Value = 'API';
+    
+    public static Boolean havePermission = true;
+    
+    public static Map<string,string> encryptApiKey(string apiKey) {
+        Map<string,string> returnMap = new Map<string,string>();
+        Blob key = Crypto.generateAesKey(256);
+        Blob data = Blob.valueOf(apiKey);
+        Blob encrypted = Crypto.encryptWithManagedIV('AES256', key, data);            
+        String encryptedApi = String.valueOf(EncodingUtil.base64Encode(encrypted));
+        String keys = String.valueOf(EncodingUtil.base64Encode(key));
+        returnMap.put(API_ENCRYPTED_Value,encryptedApi);
+        returnMap.put(API_ENCRYPTED_KEY,keys);        
+        return returnMap;
+    }
+    
+    public static string getDecryptedAPIKey(string key, string encryptApi) {
+        Blob decrypted = Crypto.decryptWithManagedIV('AES256', EncodingUtil.base64Decode(key), EncodingUtil.base64Decode(encryptApi));
+        String decryptedString = decrypted.toString();
+        return decryptedString;
+    }
+    
+    public static string getAPIKey(string key, string encryptApi) {
+        Blob decrypted = Crypto.decryptWithManagedIV('AES256', EncodingUtil.base64Decode(key), EncodingUtil.base64Decode(encryptApi));
+        String decryptedString = MusterStrings.STR_APIKEY_PREFIX+decrypted.toString();
+        return decryptedString;
+    }
+    
+    public static Muster_Settings__mdt getMusterSettingsMetadata(string obj) {
+        Muster_Settings__mdt msetting = new Muster_Settings__mdt();  
+        if(!Test.isRunningTest()){
+            if(!Check_Permissions.isMetadatAccesible()) {havePermission = false; return msetting;}
+            return Muster_Settings__mdt.getInstance(MusterStrings.STR_SETTING_NAME_Label);
+        }
+        else {
+            string ApiKey = '1W07358dqZXHBrZQQFPPGFRUhS-2FoaOqlpBlkUhudY';
+            Map<string,string> returnMap = MusterUtility.encryptApiKey(ApiKey);  
+            string api = returnMap.get(MusterUtility.API_ENCRYPTED_Value);
+            string dKey = returnMap.get(MusterUtility.API_ENCRYPTED_KEY);
+            string metadataName = MusterStrings.STR_NAMESPACE+'Muster_Settings__mdt';            
+            
+            List<Muster_Settings__mdt> lstMs = new List<Muster_Settings__mdt>();
+            if(obj == MusterStrings.STR_CONTACT)  { lstMs = (List<Muster_Settings__mdt>)Json.deserialize('[{"SObject_Name__c": "'+metadataName+'","MasterLabel": "MusterData","'+MusterStrings.STR_NAMESPACE+'Entity__c" : "Contact","'+MusterStrings.STR_NAMESPACE+'Muster_Field__c" : "Email","'+MusterStrings.STR_NAMESPACE+'Salesforce_Field__c" : "Email","'+MusterStrings.STR_NAMESPACE+'Prefix__c" : "Salutation","'+MusterStrings.STR_NAMESPACE+'First_Name__c" : "FirstName","'+MusterStrings.STR_NAMESPACE+'Last_Name__c" : "LastName","'+MusterStrings.STR_NAMESPACE+'Phone_Number__c" : "Phone","'+MusterStrings.STR_NAMESPACE+'Primary_Email__c" : "Email","'+MusterStrings.STR_NAMESPACE+'Address_1__c" : "MailingStreet","'+MusterStrings.STR_NAMESPACE+'Address_2__c" : "","'+MusterStrings.STR_NAMESPACE+'City__c" : "MailingCity","'+MusterStrings.STR_NAMESPACE+'State__c" : "MailingState","'+MusterStrings.STR_NAMESPACE+'ZIP__c" : "MailingPostalCode","'+MusterStrings.STR_NAMESPACE+'Text_Opt_in__c" : "Text_Opt_in__c","'+MusterStrings.STR_NAMESPACE+'Advocate__c" : "Is_Advocate__c","'+MusterStrings.STR_NAMESPACE+'Email_Opt_in__c" : "Email_Opt_in__c","'+MusterStrings.STR_NAMESPACE+'Data_Sync_Mode__c" : "Sync both (bidirectional)","'+MusterStrings.STR_NAMESPACE+'Record_Type_Muster_to_SF__c" : "", "'+MusterStrings.STR_NAMESPACE+'Record_Type_SF_to_Muster__c" :"","'+MusterStrings.STR_NAMESPACE+'API_Key__c":"'+api+'","'+MusterStrings.STR_NAMESPACE+'Decryption_Key__c":"'+dkey+'"  }]', List<Muster_Settings__mdt>.class); msetting = lstMs[0];}
+            if(obj == MusterStrings.STR_ACCOUNT) { lstMs = (List<Muster_Settings__mdt>)Json.deserialize('[{"SObject_Name__c": "'+metadataName+'","MasterLabel": "MusterData","'+MusterStrings.STR_NAMESPACE+'Entity__c" : "Account","'+MusterStrings.STR_NAMESPACE+'Muster_Field__c" : "Name","'+MusterStrings.STR_NAMESPACE+'Salesforce_Field__c" : "Name","'+MusterStrings.STR_NAMESPACE+'Prefix__c" : "","'+MusterStrings.STR_NAMESPACE+'First_Name__c" : "Name","'+MusterStrings.STR_NAMESPACE+'Last_Name__c" : "","'+MusterStrings.STR_NAMESPACE+'Phone_Number__c" : "Phone","'+MusterStrings.STR_NAMESPACE+'Primary_Email__c" : "","'+MusterStrings.STR_NAMESPACE+'Address_1__c" : "BillingStreet","'+MusterStrings.STR_NAMESPACE+'Address_2__c" : "","'+MusterStrings.STR_NAMESPACE+'City__c" : "BillingCity","'+MusterStrings.STR_NAMESPACE+'State__c" : "BillingState","'+MusterStrings.STR_NAMESPACE+'ZIP__c" : "BillingPostalCode","'+MusterStrings.STR_NAMESPACE+'Text_Opt_in__c" : "Text_Opt_in__c","'+MusterStrings.STR_NAMESPACE+'Advocate__c" : "Is_Advocate__c","'+MusterStrings.STR_NAMESPACE+'Email_Opt_in__c" : "Email_Opt_in__c","'+MusterStrings.STR_NAMESPACE+'Data_Sync_Mode__c" : "Sync both (bidirectional)","'+MusterStrings.STR_NAMESPACE+'Record_Type_Muster_to_SF__c" : "", "'+MusterStrings.STR_NAMESPACE+'Record_Type_SF_to_Muster__c" :"" ,"'+MusterStrings.STR_NAMESPACE+'API_Key__c":"'+api+'","'+MusterStrings.STR_NAMESPACE+'Decryption_Key__c":"'+dkey+'"   }]', List<Muster_Settings__mdt>.class); msetting = lstMs[0]; }
+            if(obj == 'other') { lstMs = (List<Muster_Settings__mdt>)Json.deserialize('[{"SObject_Name__c": "'+metadataName+'","MasterLabel": "MusterData","'+MusterStrings.STR_NAMESPACE+'Entity__c" : "Account","'+MusterStrings.STR_NAMESPACE+'Muster_Field__c" : "0a2969c0-b644-4136-84be-a02712c79340","'+MusterStrings.STR_NAMESPACE+'Salesforce_Field__c" : "AccountNumber","'+MusterStrings.STR_NAMESPACE+'Prefix__c" : "","'+MusterStrings.STR_NAMESPACE+'First_Name__c" : "Name","'+MusterStrings.STR_NAMESPACE+'Last_Name__c" : "","'+MusterStrings.STR_NAMESPACE+'Phone_Number__c" : "Phone","'+MusterStrings.STR_NAMESPACE+'Primary_Email__c" : "","'+MusterStrings.STR_NAMESPACE+'Address_1__c" : "BillingStreet","'+MusterStrings.STR_NAMESPACE+'Address_2__c" : "","'+MusterStrings.STR_NAMESPACE+'City__c" : "BillingCity","'+MusterStrings.STR_NAMESPACE+'State__c" : "BillingState","'+MusterStrings.STR_NAMESPACE+'ZIP__c" : "BillingPostalCode","'+MusterStrings.STR_NAMESPACE+'Text_Opt_in__c" : "Text_Opt_in__c","'+MusterStrings.STR_NAMESPACE+'Advocate__c" : "Is_Advocate__c","'+MusterStrings.STR_NAMESPACE+'Email_Opt_in__c" : "Email_Opt_in__c","'+MusterStrings.STR_NAMESPACE+'Data_Sync_Mode__c" : "Sync both (bidirectional)","'+MusterStrings.STR_NAMESPACE+'Record_Type_Muster_to_SF__c" : "", "'+MusterStrings.STR_NAMESPACE+'Record_Type_SF_to_Muster__c" :"" ,"'+MusterStrings.STR_NAMESPACE+'API_Key__c" : "'+api+'","'+MusterStrings.STR_NAMESPACE+'Decryption_Key__c":"'+dkey+'"   }]', List<Muster_Settings__mdt>.class); msetting = lstMs[0]; }
+            
+            return msetting;
+        }
+    }
+    
+    public static Muster_API_Settings__mdt getMusterAPISettingsMetadata() { 
+        if(!Test.isRunningTest()) { if(!Check_Permissions.isMetadatAccesible()) {havePermission = false; return null;}}
+        return Muster_API_Settings__mdt.getInstance(MusterStrings.STR_SETTING_NAME_Label);
+    }
+    
+    public class wrapperApi {
+        @AuraEnabled
+        public string label{get;set;}
+        @AuraEnabled
+        public string value{get;set;}               
+    }
+    
+    public static wrapperApi getAPIWrapper(string label, string val) {
+        wrapperApi api = new wrapperApi();
+        api.label = label;
+        api.value = val;
+        return api;
+    }
+    
+    public static List<wrapperApi> getAccZip() {
+        List<wrapperApi> lst = new List<wrapperApi>();
+        lst.add(getAPIWrapper('Billing Zip/Postal Code','BillingPostalCode'));
+        lst.add(getAPIWrapper('Shipping Zip/Postal Code','ShippingPostalCode'));        
+        return lst;
+    }
+    
+    public static List<wrapperApi> getAccCity() {
+        List<wrapperApi> lst = new List<wrapperApi>();
+        lst.add(getAPIWrapper('Billing City', 'BillingCity'));
+        lst.add(getAPIWrapper('Shipping City', 'ShippingCity'));
+        return lst;
+    }
+    
+    public static List<wrapperApi> getAccState() {
+        List<wrapperApi> lst = new List<wrapperApi>();
+        lst.add(getAPIWrapper('Billing State/Province', 'BillingState'));
+        lst.add(getAPIWrapper('Shipping State/Province', 'ShippingState'));
+        return lst;
+    }
+    
+    public static List<wrapperApi> getAccStreet() {
+        List<wrapperApi> lst = new List<wrapperApi>();
+        lst.add(getAPIWrapper('Billing Street', 'BillingStreet'));
+        lst.add(getAPIWrapper('Shipping Street', 'ShippingStreet'));
+        return lst;
+    }
+    
+    public static List<wrapperApi> getConStreet() {
+        List<wrapperApi> lst = new List<wrapperApi>();
+        lst.add(getAPIWrapper('Mailing Street', 'MailingStreet'));
+        lst.add(getAPIWrapper('Other Street', 'OtherStreet'));
+        return lst;
+    }
+    
+    public static List<wrapperApi> getConState() {
+        List<wrapperApi> lst = new List<wrapperApi>();
+        lst.add(getAPIWrapper('Mailing State', 'MailingState'));
+        lst.add(getAPIWrapper('Other State', 'OtherState'));
+        return lst;
+    }
+    
+    public static List<wrapperApi> getConCity() {
+        List<wrapperApi> lst = new List<wrapperApi>();
+        lst.add(getAPIWrapper('Mailing City', 'MailingCity'));
+        lst.add(getAPIWrapper('Other City', 'OtherCity'));
+        return lst;
+    }
+    
+    public static List<wrapperApi> getConZip() {
+        List<wrapperApi> lst = new List<wrapperApi>();
+        lst.add(getAPIWrapper('Mailing Zip/Postal Code', 'MailingPostalCode'));
+        lst.add(getAPIWrapper('Other Zip/Postal Code', 'OtherPostalCode'));
+        return lst;
+    }
+    
+    public static string saveMetadataRecord(string metadataAPIName,string RecordName,Map<String,String> MapSetting) {
+        if(!Check_Permissions.isMetadatAccesible()) {havePermission = false; return 'Insufficient permission on Custom Metadata object';}
+        string retStr='';
+        try {            
+            Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
+            Metadata.CustomMetadata firstMetadataRec =  new Metadata.CustomMetadata();
+            firstMetadataRec.fullName = MusterStrings.STR_NAMESPACE+metadataAPIName+'.'+RecordName;
+            firstMetadataRec.label = RecordName;
+            for(string key : MapSetting.keyset()) {
+                Metadata.CustomMetadataValue customField = new Metadata.CustomMetadataValue();
+                customField.field = MusterStrings.STR_NAMESPACE+key;
+                customField.value = MapSetting.get(key);
+                firstMetadataRec.values.add(customField); 
+            }                                   
+            mdContainer.addMetadata(firstMetadataRec); 
+            Id jobId = null;
+            if(!Test.isRunningTest()){
+                jobId = Metadata.Operations.enqueueDeployment(mdContainer, null);
+            }
+            retStr = jobId;
+        }
+        catch(Exception ex){  
+            retStr= 'Error while creating modifying custom metadata.';
+            MusterCustomCallout.creatBatchLog('Error while creating modifying custom metadata in MusterUtility.saveMetadataRecord(string metadataAPIName,string RecordName,Map<String,String> MapSetting) :'+ex.getMessage()+ 'Line no :'+ex.getLineNumber());
+        }
+        return retStr;
+    }
+    
+    public static Boolean checkForContains(List<wrapperApi> lst, string val) {       
+        for(wrapperApi str : lst) {
+            if(str.value == val) {
+                return true; 
+            }
+        }
+        return false;
+    }
+    
+    public static void executeMusterCheckBatchStatus(Boolean runSequentialBatch) {
+        if(runSequentialBatch) {
+            executeCheckBatchStatusBatch(runSequentialBatch);
+        }
+    } 
+    
+    public static void executeMusterPostBatch(Boolean runSequentialBatch) {
+        if(runSequentialBatch) {
+            executePostBatch(runSequentialBatch);
+        }
+    }
+    
+    public static void executePostBatch(Boolean runSequentialBatch) {
+        if(!Test.isRunningTest()) { Database.executeBatch(new MusterContactAccountPost_Batch(runSequentialBatch,''), MusterStrings.INT_BATCHSIZE); }
+    }
+    
+    public static void executeCheckBatchStatusBatch(Boolean runSequentialBatch) {
+        if(!Test.isRunningTest()) { Database.executeBatch(new MusterCheckBatchStatus_Batch(runSequentialBatch,''), MusterStrings.INT_BATCHSIZE);} 
+    }
+}

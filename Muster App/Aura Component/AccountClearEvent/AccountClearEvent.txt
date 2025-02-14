@@ -1,0 +1,3 @@
+<aura:event type="COMPONENT" description="by this event we clear the select account details on parent">
+    <aura:attribute name="accountClear" type="Boolean"/>
+</aura:event>

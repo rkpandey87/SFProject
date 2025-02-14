@@ -1,0 +1,46 @@
+@isTest
+public class AccountLookupController_Test {
+   
+    @testSetup static void setup() {
+        List<Account> lst = new List<Account>();
+        
+        Account acc = new Account();
+        acc.Name = 'Test Account';
+        acc.Last_Synced_to_Muster__c = null;
+        lst.add(acc);    
+        
+        Account acc1 = new Account();
+        acc1.Name = 'Test Account 1';
+        acc1.Last_Synced_to_Muster__c = null;
+        lst.add(acc1); 
+        
+        Account acc2 = new Account();
+        acc2.Name = 'Test Account 2';
+        acc2.Last_Synced_to_Muster__c = null;
+        lst.add(acc2); 
+        insert lst;
+        
+        contact con  = new contact();
+        con.firstName = 'Test1';
+        con.LastName = 'last1';
+        con.AccountId = acc.id;
+        con.Last_Synced_to_Muster__c = null;
+        con.Department = 'IT';
+        insert con;
+    }
+    
+    testMethod static void searchAccountByText(){
+        Test.startTest();  
+        List<AccountLookupController.wrapperResult>  lst = AccountLookupController.fetchAccount('Test');  
+        Test.stopTest();
+        system.assertEquals(3, lst.size(), 'Search result should be return three account');
+    }
+    
+    testMethod static void searchAccountById(){
+        Account acc = [select id from Account Where Name = 'Test Account' limit 1];
+        Test.startTest();  
+        AccountLookupController.wrapperResult  lst = AccountLookupController.fetchAccountById(acc.Id);  
+        Test.stopTest();
+        system.assertEquals('Test Account', lst.Name, 'Search result should be return One account');
+    }
+}

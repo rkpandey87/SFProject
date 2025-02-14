@@ -1,0 +1,122 @@
+@isTest
+public class MusterSettingsController_Test { 
+    
+    @testSetup static void setup() {
+        System.runAs(new User(Id = UserInfo.getUserId())) {
+            PermissionSet ps = [SELECT Id FROM PermissionSet WHERE Name = 'Muster_App_Admin'];            
+            PermissionSetAssignment psa = new PermissionSetAssignment(
+                AssigneeId = UserInfo.getUserId(),
+                PermissionSetId = ps.Id
+            );
+            insert psa;
+        }
+        
+        List<Muster_Custom_Fields__c> lstMcf = new List<Muster_Custom_Fields__c>();
+        Muster_Custom_Fields__c mcf = new Muster_Custom_Fields__c();
+        mcf.Updated_At__c = system.now();
+        mcf.uuid_muster__c = 'jsdhds77236wd6sydccx7cxxcz';
+        mcf.Label__c = 'SSN';
+        mcf.Field_Type__c = 'text_field';
+        mcf.SF_API_Name__c = 'Name';
+        lstMcf.add(mcf);
+        
+        Muster_Custom_Fields__c mcfSingle = new Muster_Custom_Fields__c();
+        mcfSingle.Updated_At__c = system.now();
+        mcfSingle.uuid_muster__c = 'jsdhds77236wd6sydccx7cxxcz';
+        mcfSingle.Label__c = 'Your Favorite Color';
+        mcfSingle.Field_Type__c = 'single_choice_field';
+        mcfSingle.SF_API_Name__c = 'Department';
+        lstMcf.add(mcfSingle);
+        
+        Muster_Custom_Fields__c mcfMulti = new Muster_Custom_Fields__c();
+        mcfMulti.Updated_At__c = system.now();
+        mcfMulti.uuid_muster__c = 'jsdhds77236wd6sydccx7cxxcz';
+        mcfMulti.Label__c = 'Favorite Color';
+        mcfMulti.Field_Type__c = 'multiple_choice_field';
+        mcfMulti.SF_API_Name__c = 'LeadSource';
+        lstMcf.add(mcfMulti);
+        Insert lstMcf;
+    }
+    
+    testMethod static void loadDataFirstTime() {        
+        System.runAs(new User(Id = UserInfo.getUserId()) ) {  
+            Test.startTest();
+            MusterSettingsController.WrapperMain wm = MusterSettingsController.getMusterData('');
+            system.assert(wm != null, 'Wrapper class should not be null');
+            Test.stopTest();
+        }
+    }
+    
+    testMethod static void loadDataForAccountOnEntityChange() {    
+        List<Muster_Settings__mdt> ms = (List<Muster_Settings__mdt>)Json.deserialize('[{"SObject_Name__c": "Muster_Settings__mdt","MasterLabel": "MusterData","Entity__c" : "Contact","Muster_Field__c" : "Email","Salesforce_Field__c" : "Email","First_Name__c" : "TestFN","Last_Name__c" : "TestLN","Phone_Number__c" : "9966332255","Primary_Email__c" : "test@test.com","Address_1__c" : "st add","Address_2__c" : "line 2","City__c" : "city","State__c" : "NY","ZIP__c" : "99999","Text_Opt_in__c" : "true","Advocate__c" : "true","Email_Opt_in__c" : "true","Data_Sync_Mode__c" : "Sync both (bidirectional)","Record_Type_Muster_to_SF__c" : "Muster", "Record_Type_SF_to_Muster__c" :"Master; Muster" }]', List<Muster_Settings__mdt>.class);         
+        System.runAs(new User(Id = UserInfo.getUserId()) ) {  
+            Test.startTest();
+            MusterSettingsController.WrapperMain wm = MusterSettingsController.getMusterData('Account');
+            system.assert(wm != null, 'Wrapper class should not be null');
+            system.assertEquals(wm.Entity, 'Account', 'Entity should be account');
+            Test.stopTest();
+        }
+    }
+   
+    testMethod static void loadDataForContactOnEntityChange() {    
+        List<Muster_Settings__mdt> ms = (List<Muster_Settings__mdt>)Json.deserialize('[{"SObject_Name__c": "Muster_Settings__mdt","MasterLabel": "MusterData","Entity__c" : "Contact","Muster_Field__c" : "email","Salesforce_Field__c" : "Email","First_Name__c" : "TestFN","Last_Name__c" : "TestLN","Phone_Number__c" : "9966332255","Primary_Email__c" : "test@test.com","Address_1__c" : "st add","Address_2__c" : "line 2","City__c" : "city","State__c" : "NY","ZIP__c" : "99999","Text_Opt_in__c" : "true","Advocate__c" : "true","Email_Opt_in__c" : "true","Data_Sync_Mode__c" : "Sync both (bidirectional)","Record_Type_Muster_to_SF__c" : "Muster", "Record_Type_SF_to_Muster__c" :"Master; Muster" }]', List<Muster_Settings__mdt>.class);         
+        System.runAs(new User(Id = UserInfo.getUserId()) ) {  
+            Test.startTest();
+            MusterSettingsController.WrapperMain wm = MusterSettingsController.getMusterData('Contact');
+            system.assert(wm != null, 'Wrapper class should not be null');
+            system.assertEquals(wm.Entity, 'Contact', 'Entity should be contact');
+            Test.stopTest();
+        }
+    }
+    
+    testMethod static void saveMusterSettings() { 
+        List<Muster_Settings__mdt> ms = (List<Muster_Settings__mdt>)Json.deserialize('[{"SObject_Name__c": "Muster_Settings__mdt","MasterLabel": "MusterData","Entity__c" : "Contact","Muster_Field__c" : "Email","Salesforce_Field__c" : "Email","First_Name__c" : "TestFN","Last_Name__c" : "TestLN","Phone_Number__c" : "9966332255","Primary_Email__c" : "test@test.com","Address_1__c" : "st add","Address_2__c" : "line 2","City__c" : "city","State__c" : "NY","ZIP__c" : "99999","Text_Opt_in__c" : "true","Advocate__c" : "true","Email_Opt_in__c" : "true","Data_Sync_Mode__c" : "Sync both (bidirectional)","Record_Type_Muster_to_SF__c" : "Muster", "Record_Type_SF_to_Muster__c" :"Master; Muster" }]', List<Muster_Settings__mdt>.class);         
+        List<Muster_Custom_Fields__c> lstCf = [Select id,SF_API_Name__c from Muster_Custom_Fields__c];
+        String jsonText = JSON.serialize(lstCf); 
+        List<string> lst = new List<string>();
+        System.runAs(new User(Id = UserInfo.getUserId()) ) {  
+            Test.startTest();
+            string wm = MusterSettingsController.SaveMusterSetting( 'API-key001', 'Contact', 'Email', 'Email', '', 'Sync both (bidirectional)', 'Salutation', 'FirstName', 'LastName', 'Email', 'Phone', 'MailingStreet', '', 'MailingCity' , 'MailingState', 'MailingPostalCode', 'Email_Opt_in__c', 'Text_Opt_in__c', 'Advocate__c', lst,'','00','08');     
+            system.assertEquals(wm ,'SUCCESS', 'Entity should be contact');
+            MusterSettingsController.SaveCustomFields(jsonText);
+            Test.stopTest();
+        }
+    }
+    
+    testMethod static void testValidateAPIKey() {         
+        System.runAs(new User(Id = UserInfo.getUserId()) ) {  
+            Test.startTest();      
+            string result = MusterSettingsController.validateAndProcessAPIKey('API-key001');
+            system.assert(result != 'SUCCESS', 'validation should not be success');
+            Test.stopTest();
+        }
+    }
+    
+    testMethod static void testSaveAPIKey() {         
+        System.runAs(new User(Id = UserInfo.getUserId()) ) {  
+            Test.startTest();    
+            string result = MusterSettingsController.saveAPIKeyInMetadata('API-key001');
+            system.assertEquals(result, 'SUCCESS', 'should be success');
+            Test.stopTest();
+        }
+    }
+    
+    testMethod static void testGetBatchStatus() {         
+        System.runAs(new User(Id = UserInfo.getUserId()) ) {  
+            Test.startTest();       
+            string result = MusterSettingsController.syncBatchBasedOnDirection('SF2M');
+            system.assert(result == '', 'Batch not running thats why result should be empty');
+            Test.stopTest();
+        }
+    } 
+    
+    testMethod static void testRunBatchAndSaveSyncDate() {         
+        System.runAs(new User(Id = UserInfo.getUserId()) ) {  
+            Test.startTest();     
+            string result = MusterSettingsController.runCustomFieldBatch();
+            MusterSettingsController.setLastSyncDate();
+            system.assert(result == '', 'Batch not running thats why result should be empty');
+            Test.stopTest();
+        }
+    }
+}

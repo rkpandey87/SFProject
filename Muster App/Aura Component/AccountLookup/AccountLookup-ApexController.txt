@@ -1,0 +1,69 @@
+public with sharing class AccountLookupController {
+    
+    @AuraEnabled
+    public static List <wrapperResult> fetchAccount(String searchKeyWord) {
+        List<wrapperResult> lstResult = new List<wrapperResult>();
+        searchKeyWord = String.escapeSingleQuotes(searchKeyWord);
+        String searchKey = '%'+searchKeyWord + '%';
+        try {
+            if(Schema.getGlobalDescribe().get('Account').getDescribe().isAccessible() 
+               && Schema.getGlobalDescribe().get('Contact').getDescribe().isAccessible()  
+               && Schema.sObjectType.Account.fields.Name.isAccessible()) {
+                   List <Account> lstOfAccount = [select id, Name,(select id from contacts) from account where Name LIKE: searchKey OR Id=: searchKeyWord WITH USER_MODE limit 500];                
+                   for (Account acc: lstOfAccount) {
+                       wrapperResult result = new wrapperResult();
+                       Decimal count = 0;
+                       if(!acc.Contacts.isEmpty()) {
+                           count = acc.Contacts.size();
+                       }
+                       result.id = acc.Id;
+                       result.Name = acc.Name;
+                       result.count = string.valueOf(count);
+                       lstResult.add(result);
+                   }
+               }            
+        } catch(Exception ex) {
+            MusterCustomCallout.creatBatchLog('Exception in AccountLookupController.fetchAccount(string searchKeyWord) '+ex.getMessage()+' Line no : '+ex.getLineNumber());
+        }
+        return lstResult;
+    }
+    
+    @AuraEnabled
+    public static wrapperResult fetchAccountById(String accId) {
+        wrapperResult result = new wrapperResult();
+        try {
+            accId = String.escapeSingleQuotes(accId);
+            if(Schema.getGlobalDescribe().get('Account').getDescribe().isAccessible() 
+               && Schema.getGlobalDescribe().get('Contact').getDescribe().isAccessible() 
+               && Schema.sObjectType.Account.fields.Name.isAccessible()) {
+                   List <Account> lstOfAccount = [select id, Name,(select id from contacts) from account where Id=: accId WITH USER_MODE limit 1];        
+                   for (Account acc: lstOfAccount) {
+                       Decimal count = 0;
+                       if(!acc.Contacts.isEmpty()) {
+                           count = acc.Contacts.size();
+                       }
+                       result.id = acc.Id;
+                       result.Name = acc.Name;
+                       result.count = string.valueOf(count);
+                   }
+               }
+            
+        } catch(Exception ex) {
+            MusterCustomCallout.creatBatchLog('Exception in AccountLookupController.fetchAccount(string accId) '+ex.getMessage()+' Line no : '+ex.getLineNumber());
+        }
+        return result;
+    }
+    
+    public class wrapperResult {
+        @AuraEnabled
+        public string id{get;set;}
+        @AuraEnabled
+        public string Name{get;set;}
+        @AuraEnabled
+        public string count{get;set;}
+    }
+    
+    
+    
+    
+}

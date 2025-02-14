@@ -1,0 +1,87 @@
+/*
+Muster supplied flag Last_Synced_to_Muster__c is set when the Contact is synced from Salesforce to Muster. 
+If Contact is modified, then we want to re-sync it in the next scheduled Sync.
+
+If any of the Contact fields which are mapped in Muster are modified, this trigger clears this flag. 
+We don't care about the fields which are not mapped.
+
+We have to run this logic in system mode, because any User in the Org can modify the Contact.
+*/
+trigger MusterContactTrigger on Contact (before update) {
+    
+    Muster_Disable_Triggers__mdt mdt = Muster_Disable_Triggers__mdt.getInstance('MusterTrigger');
+    if(mdt == null || mdt.Disable_Contact_Trigger__c) {return;}
+    
+    List<Muster_Custom_Fields__c> lstMcf = new List<Muster_Custom_Fields__c>();        
+    
+    Map<Id,Contact> oldMap = Trigger.oldMap;
+    Muster_Settings__mdt ms = getMetadataRecord();
+    if(ms != null && string.isNotEmpty(ms.Entity__c) && ms.Entity__c == 'Contact') {            
+        lstMcf = getCustomFields();              
+        
+        for(Contact con : Trigger.new) {
+            if (oldMap.get(con.Id).Last_Synced_to_Muster__c != null && hasChanged(con, oldMap.get(con.Id), ms, lstMcf)) { 
+                con.Last_Synced_to_Muster__c = null; 
+            } 
+        }            
+    }
+    
+    private static Muster_Settings__mdt getMetadataRecord() {
+        Muster_Settings__mdt ms = new Muster_Settings__mdt();
+        if(Test.isRunningTest()) {
+            string ApiKey = '1W07358dqZXHBrZQQFPPGFRUhS-2FoaOqlpBlkUhudY';
+            Map<string,string> returnMap = MusterUtility.encryptApiKey(ApiKey);  
+            string api = returnMap.get(MusterUtility.API_ENCRYPTED_Value);
+            string dKey = returnMap.get(MusterUtility.API_ENCRYPTED_KEY);
+            string metadataName = MusterStrings.STR_NAMESPACE+'Muster_Settings__mdt';
+            List<Muster_Settings__mdt> lstMs =  (List<Muster_Settings__mdt>)Json.deserialize('[{"SObject_Name__c": "'+metadataName+'","MasterLabel": "MusterData","'+MusterStrings.STR_NAMESPACE+'Entity__c" : "Contact","'+MusterStrings.STR_NAMESPACE+'Muster_Field__c" : "Email","'+MusterStrings.STR_NAMESPACE+'Salesforce_Field__c" : "Email","'+MusterStrings.STR_NAMESPACE+'Prefix__c" : "Salutation","'+MusterStrings.STR_NAMESPACE+'First_Name__c" : "FirstName","'+MusterStrings.STR_NAMESPACE+'Last_Name__c" : "LastName","'+MusterStrings.STR_NAMESPACE+'Phone_Number__c" : "Phone","'+MusterStrings.STR_NAMESPACE+'Primary_Email__c" : "Email","'+MusterStrings.STR_NAMESPACE+'Address_1__c" : "MailingStreet","'+MusterStrings.STR_NAMESPACE+'Address_2__c" : "","'+MusterStrings.STR_NAMESPACE+'City__c" : "MailingCity","'+MusterStrings.STR_NAMESPACE+'State__c" : "MailingState","'+MusterStrings.STR_NAMESPACE+'ZIP__c" : "MailingPostalCode","'+MusterStrings.STR_NAMESPACE+'Text_Opt_in__c" : "Text_Opt_in__c","'+MusterStrings.STR_NAMESPACE+'Advocate__c" : "Is_Advocate__c","'+MusterStrings.STR_NAMESPACE+'Email_Opt_in__c" : "Email_Opt_in__c","'+MusterStrings.STR_NAMESPACE+'Data_Sync_Mode__c" : "Sync both (bidirectional)","'+MusterStrings.STR_NAMESPACE+'Record_Type_Muster_to_SF__c" : "", "'+MusterStrings.STR_NAMESPACE+'Record_Type_SF_to_Muster__c" :"","'+MusterStrings.STR_NAMESPACE+'API_Key__c":"'+api+'","'+MusterStrings.STR_NAMESPACE+'Decryption_Key__c":"'+dkey+'"  }]', List<Muster_Settings__mdt>.class);
+            ms = lstMs[0];
+        } else {
+            ms = Muster_Settings__mdt.getInstance('MusterData');
+        }
+        return ms;
+    }
+    
+    private static List<Muster_Custom_Fields__c> getCustomFields() {
+        return [SELECT SF_API_Name__c FROM Muster_Custom_Fields__c WHERE uuid_muster__c != '' AND Field_Type__c != '' AND SF_API_Name__c != ''];
+    }
+    
+    // Check if any of the fields which are mapped have changed return true else false. 
+    private static Boolean hasChanged(Contact newCon, Contact oldCon, Muster_Settings__mdt ms, List<Muster_Custom_Fields__c> lstMcf ) {
+        
+        if(string.isNotEmpty(ms.Prefix__c) &&  (string)newCon.get(ms.Prefix__c) != (string)oldCon.get (ms.Prefix__c) ) { return true; }
+        
+        if(string.isNotEmpty(ms.First_Name__c) &&  (string)newCon.get(ms.First_Name__c) != (string)oldCon.get(ms.First_Name__c) ) { return true; } 
+        
+        if(string.isNotEmpty(ms.Last_Name__c) && (string)newCon.get(ms.Last_Name__c) != (string)oldCon.get(ms.Last_Name__c) ) { return true; } 
+        
+        if(string.isNotEmpty(ms.Primary_Email__c) && (string)newCon.get(ms.Primary_Email__c) != (string)oldCon.get(ms.Primary_Email__c) ) { return true; } 
+        
+        if(string.isNotEmpty(ms.Phone_Number__c) && (string)newCon.get(ms.Phone_Number__c) != (string)oldCon.get(ms.Phone_Number__c) ) { return true; }         
+        
+        if(string.isNotEmpty(ms.Address_1__c) && (string)newCon.get(ms.Address_1__c) != (string)oldCon.get(ms.Address_1__c) ) { return true; } 
+        
+        if(string.isNotEmpty(ms.Address_2__c) && (string)newCon.get(ms.Address_2__c) != (string)oldCon.get(ms.Address_2__c) ) { return true; } 
+        
+        if(string.isNotEmpty(ms.City__c) && (string)newCon.get(ms.City__c) != (string)oldCon.get(ms.City__c) ) { return true; } 
+        
+        if(string.isNotEmpty(ms.State__c) && (string)newCon.get(ms.State__c) != (string)oldCon.get(ms.State__c) ) { return true; } 
+        
+        if(string.isNotEmpty(ms.ZIP__c) && (string)newCon.get(ms.ZIP__c) != (string)oldCon.get(ms.ZIP__c) ) { return true; } 
+        
+        if(string.isNotEmpty(ms.Email_Opt_in__c) && (Boolean)newCon.get(ms.Email_Opt_in__c) != (Boolean)oldCon.get(ms.Email_Opt_in__c) ) { return true; } 
+        
+        if(string.isNotEmpty(ms.Text_Opt_in__c) && (Boolean)newCon.get(ms.Text_Opt_in__c) != (Boolean)oldCon.get(ms.Text_Opt_in__c) ) { return true; } 
+        
+        if(string.isNotEmpty(ms.Advocate__c) && (Boolean)newCon.get(ms.Advocate__c) != (Boolean)oldCon.get(ms.Advocate__c) ) { return true; } 
+        
+        
+        if(lstMcf.size() > 0) {
+            for(Muster_Custom_Fields__c mcf : lstMcf) {
+                if( (string)newCon.get(mcf.SF_API_Name__c) != (string)oldCon.get(mcf.SF_API_Name__c) ) { return true; } 
+            }
+        }
+        
+        return false;
+    }
+}

@@ -1,0 +1,40 @@
+@isTest
+public class MusterCheckBatchStatus_Test {
+    @testSetup static void testData(){
+        
+        System.runAs(new User(Id = UserInfo.getUserId())) {
+            PermissionSet ps = [SELECT Id FROM PermissionSet WHERE Name = 'Muster_App_Admin'];            
+            PermissionSetAssignment psa = new PermissionSetAssignment(
+                AssigneeId = UserInfo.getUserId(),
+                PermissionSetId = ps.Id
+            );
+            insert psa;
+        }
+        
+        List<Contact> conList= new List<Contact>();
+        // create contact records 
+        Contact con1 = new Contact();
+        con1.LastName= 'test1';
+        con1.Email= 'test1@gmail.com';
+        con1.FirstName= 'UUID';
+        con1.Is_Advocate__c= false ;
+        con1.Email_Opt_in__c=false;
+        con1.Text_Opt_in__c= false;
+        con1.Muster_UUID__c= '0075d9a6-e55d-43e3-9f95-3b95eda9e4f9';
+        conList.add(con1);
+        insert conList;
+    }
+    
+    testMethod static void CheckMusterBatchStatus(){
+        System.runAs(new User(Id = UserInfo.getUserId()) ) {  
+            Test.startTest(); 
+            Test.setMock(HttpCalloutMock.class, new MockHttpResponseGenerator());
+            MusterCheckBatchStatus_Batch mab= new MusterCheckBatchStatus_Batch(True,'');
+            database.executebatch(mab);
+            Test.stopTest();
+        }
+        List<contact> lst = [SELECT Id FROM Contact];
+        system.assertEquals(1, lst.size(), 'Contact in org should be 1'); 
+    }
+   
+}

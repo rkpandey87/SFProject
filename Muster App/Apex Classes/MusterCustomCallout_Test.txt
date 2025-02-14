@@ -1,0 +1,145 @@
+@istest
+public class MusterCustomCallout_Test {
+    @testSetup static void testData() {
+        
+        System.runAs(new User(Id = UserInfo.getUserId())) {
+            PermissionSet ps = [SELECT Id FROM PermissionSet WHERE Name = 'Muster_App_Admin'];            
+            PermissionSetAssignment psa = new PermissionSetAssignment(
+                AssigneeId = UserInfo.getUserId(),
+                PermissionSetId = ps.Id
+            );
+            insert psa;
+        }
+        
+        List<Muster_Custom_Fields__c> lstMcf = new List<Muster_Custom_Fields__c>();
+        Muster_Custom_Fields__c mcf = new Muster_Custom_Fields__c();
+        mcf.Updated_At__c = system.now();
+        mcf.uuid_muster__c = '0a2969c0-b644-4136-84be-a02712c7934';
+        mcf.Label__c = 'SSN';
+        mcf.Field_Type__c = 'text_field';
+        mcf.SF_API_Name__c = 'AccountNumber';
+        lstMcf.add(mcf);
+        Insert lstMcf;
+        
+        // Create Contact Records 
+        List<Contact> conList= new List<Contact>();
+        Contact con1 = new Contact();
+        con1.LastName= 'test_11';
+        con1.Email= 'test_11@gmail.com';
+        con1.FirstName= 'UUID';
+        con1.Is_Advocate__c= false ;
+        con1.Email_Opt_in__c=false;
+        con1.Text_Opt_in__c= false;
+        con1.Muster_UUID__c= 'uuid657654876';
+        conList.add(con1);
+        
+        Contact con = new Contact();
+        con.LastName= 'Test_2';
+        con.Email= 'Test_2@gmail.com';
+        con.FirstName= 'SF';
+        con.Is_Advocate__c= false ;
+        con.Email_Opt_in__c=false;
+        con.Text_Opt_in__c= false;
+        con.Muster_UUID__c= '27e85838-45a0-4f2c-ba83-1e4481fef36';
+        conList.add(con);
+        
+        Contact con2 = new Contact();
+        con2 .LastName= 'Test_3';
+        con2 .Email= 'Test_3@gmail.com';
+        con2 .FirstName= 'SF';
+        con2 .Is_Advocate__c= false ;
+        con2 .Email_Opt_in__c=false;
+        con2 .Text_Opt_in__c= false;
+        con2 .Muster_UUID__c= '';
+        conList.add(con2 );
+        
+        Contact con3 = new Contact();
+        con3 .LastName= 'Test_4';
+        con3 .Email= 'Test_4@gmail.com';
+        con3 .FirstName= 'Muster';
+        con3 .Is_Advocate__c= false ;
+        con3 .Email_Opt_in__c=true;
+        con3 .Text_Opt_in__c= true;
+        con3 .Muster_UUID__c= '4d239b21-ca94-4d32-b625-e5f5529511ed';
+        conList.add(con3);
+        Insert conList;
+        
+        // Create Account Records 
+        List<Account> accList= new List<Account>();
+        Account acc= new Account();
+        acc.Name= 'Andrea';
+        acc.Is_Advocate__c= false;
+        acc.Email_Opt_in__c= true;
+        acc.Text_Opt_in__c= true;
+        acc.Muster_UUID__c= 'uuid657654876';
+        acc.AccountNumber = 'green';
+        accList.add(acc);
+        
+        Account acc1 = new Account();
+        acc1.Name= 'Jackson';
+        acc1.Is_Advocate__c= false;
+        acc1.Email_Opt_in__c= true;
+        acc1.Text_Opt_in__c= true;
+        acc1.AccountNumber = 'green';
+        acc1.Muster_UUID__c= '27e85838-45a0-4f2c-ba83-1e4481fef36';
+        accList.add(acc1);
+        
+        Account acc2 = new Account(); 
+        acc2.Name= 'Jackson_1';
+        acc2.Is_Advocate__c= false;
+        acc2.Email_Opt_in__c= true;
+        acc2.Text_Opt_in__c= true;
+        acc2.AccountNumber = 'green';
+        acc2.Muster_UUID__c= '0a2969c0-b644-4136-84be-a02712c7934';
+        accList.add(acc2);
+        
+        Account acc3 = new Account();
+        acc3.Name= 'Jackson2';
+        acc3.Is_Advocate__c= false;
+        acc3.Email_Opt_in__c= true;
+        acc3.Text_Opt_in__c= true;
+        acc3.AccountNumber = 'green';
+        acc3.Muster_UUID__c= '';
+        accList.add(acc3);
+        insert accList;
+    } 
+    
+    /* Test coverage for MusterCustomBatch  */
+    testMethod static void testMusterCustomData(){
+        System.runAs(new User(Id = UserInfo.getUserId()) ) {  
+            Test.startTest();
+            Test.setMock(HttpCalloutMock.class, new MockHttpResponseGenerator());
+            MusterCustomCallout.creatBatchLogLst('Muster Contact Error');
+            String ApiKey='Api-Key Lz4TYvJeok8ityh5-1NDfN-lTzvc1O9G52ZiZrFYi1c';
+            MusterCustomHandler.settingCall(ApiKey);        
+            Test.stopTest();
+        }
+        List<Muster_Custom_Fields__c> mcfList= [Select Id,Updated_At__c,uuid_muster__c,Label__c,Field_Type__c,SF_API_Name__c from Muster_Custom_Fields__c];
+        system.assert(mcfList.size() > 0, 'Muster Custom Fields in org should be 2'); 
+    }
+    testMethod static void testLablelTypeForAllBatch(){
+        System.runAs(new User(Id = UserInfo.getUserId()) ) {  
+            Test.startTest();
+            Test.setMock(HttpCalloutMock.class, new MockHttpResponseGenerator());
+            MusterActionBatch mab= new MusterActionBatch('','Account');
+            database.executebatch(mab);
+            musterContactBatch mcon= new musterContactBatch(false,'','Contact',Null);
+            Database.executeBatch(mcon,10);
+            Test.stopTest();
+        }
+        List<contact> conlst = [SELECT Id FROM Contact ];
+        system.assert(conlst.size() > 0, 'Contact in org should be 4'); 
+        List<Account> acclst = [SELECT Id FROM Account ];
+        system.assert(acclst.size() > 0, 'Contact in org should be 7'); 
+    }
+    testMethod static void testcallPostApi(){
+        MusterContactAccountPost_Handler.PostWrapper pw;
+        System.runAs(new User(Id = UserInfo.getUserId()) ) {  
+            Test.startTest();
+            MusterCustomCallout.callPostApiForUpdateConAcc(pw);
+            Test.stopTest();
+        }
+        List<contact> conlst = [SELECT Id FROM Contact ];
+        system.assert(conlst.size() > 0, 'Contact in org should be 4'); 
+    }
+}

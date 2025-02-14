@@ -1,0 +1,151 @@
+public with sharing class MusterActionBatch_Handler { 
+    
+    public static Boolean havePermission = true;
+    
+    public Static Map<String,actions__c> getMusterActionData( List<MusterWrapper.actResults> scope, Muster_Settings__mdt musterRec 	){
+        Map<String,actions__c> ActionRecordMap = new Map<String,actions__c>();
+        List<actions__c> musterActionList = new List<actions__c>(); 
+        Set<string>actionUUIDSet = New Set<string>();
+        try {
+            for(MusterWrapper.actResults actW: scope){
+                if(actW.uuid!=Null){
+                    actionUUIDSet.add(actW.uuid);
+                }
+            } 
+            if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'actions__c').getDescribe().isAccessible() 
+               && Schema.sObjectType.actions__c.fields.uuid__c.isAccessible()
+              ) {
+                  musterActionList= [Select Id
+                                     , uuid__c                          
+                                     from actions__c Where uuid__c=: actionUUIDSet WITH USER_MODE];       
+                  if(musterActionList!=Null && musterActionList.size()>0) {
+                      for(actions__c objMuster: musterActionList) {
+                          ActionRecordMap.put(objMuster.uuid__c,objMuster);
+                      }
+                  } 
+              } 
+        } catch(Exception ex) {MusterCustomCallout.creatBatchLog('Exception MusterActionBatch_Handler.getMusterActionData() : '+ex.getMessage() + ' Line no:'+ex.getLineNumber());}
+        
+        return ActionRecordMap;
+    }
+    
+    public Static Map<string, sObject> getMustersObjectData( List<MusterWrapper.actResults> scope, Muster_Settings__mdt musterRec ){
+        Map<string, sObject>objRecordsMap = new Map<string, sObject>();
+        try {
+            Set<string>objUUIDSet = New Set<string>(); 
+            for(MusterWrapper.actResults actW: scope){
+                if(actW.contact!=Null){
+                    objUUIDSet.add(actW.contact);
+                }
+            }
+            if(musterRec.Entity__c =='Contact') {  
+                if(Schema.getGlobalDescribe().get('Contact').getDescribe().isAccessible() 
+                   && Schema.sObjectType.Contact.fields.Muster_UUID__c.isAccessible()
+                  ) {                  
+                      List<Contact> conList= [Select Id,Muster_UUID__c from Contact where Muster_UUID__c=:objUUIDSet WITH USER_MODE];       
+                      if(conList!=Null && conList.size()>0){
+                          for(Contact con: conList) {
+                              objRecordsMap.put(con.Muster_UUID__c,con);
+                          }
+                      }                        
+                  } 
+            }
+            if(musterRec.Entity__c =='Account') {
+                if(Schema.getGlobalDescribe().get('Account').getDescribe().isAccessible() 
+                   && Schema.sObjectType.Account.fields.Muster_UUID__c.isAccessible()
+                  ) {  
+                      List<Account> accList= [Select Id,Muster_UUID__c from Account where Muster_UUID__c=:objUUIDSet WITH USER_MODE];       
+                      if(accList!=Null && accList.size()>0) {
+                          for(Account acc: accList) {
+                              objRecordsMap.put(acc.Muster_UUID__c,acc);
+                          }
+                      }
+                  }  
+            } 
+        } catch(Exception ex) {MusterCustomCallout.creatBatchLog('Exception in MusterActionBatch_Handler.getMustersObjectData() : '+ex.getMessage()+ ' Line no:'+ex.getLineNumber());}
+        return objRecordsMap;		
+    } 
+    
+    public static Task createTask(MusterWrapper.actResults actW,Map<string, sObject>objRecordsMap, Muster_Settings__mdt musterRec ) {
+        Task taskRecord = new Task();
+        
+        try {
+            Boolean flag = (musterRec.Entity__c == 'Contact')? Schema.sObjectType.Task.fields.WhoId.isCreateable() : Schema.sObjectType.Task.fields.WhatId.isCreateable();
+            if(Schema.getGlobalDescribe().get('Task').getDescribe().isAccessible() 
+               && Schema.getGlobalDescribe().get('Task').getDescribe().isCreateable() 
+               && flag
+               && Schema.sObjectType.Task.fields.subject.isCreateable() 
+               && Schema.sObjectType.Task.fields.Status.isCreateable() 
+               && Schema.sObjectType.Task.fields.Priority.isCreateable() 
+               && Schema.sObjectType.Task.fields.Muster_Campaign_Name__c.isCreateable() 
+               && Schema.sObjectType.Task.fields.Muster_Target__c.isCreateable() 
+               && Schema.sObjectType.Task.fields.Muster_Action_Center__c.isCreateable() 
+               && Schema.sObjectType.Task.fields.Muster_Action__c.isCreateable() 
+               && Schema.sObjectType.Task.fields.ActivityDate.isCreateable()
+              )  {       
+                  if(objRecordsMap!=NUll && objRecordsMap.containsKey(actW.contact)){
+                      if(musterRec.Entity__c == 'Contact') {
+                          contact conRec = (contact)objRecordsMap.get(actW.contact);
+                          taskRecord.WhoId = conRec.id; 
+                      }
+                      else if(musterRec.Entity__c == 'Account'){
+                          Account accRec = (Account)objRecordsMap.get(actW.contact);
+                          taskRecord.WhatId = accRec.id;
+                      }
+                      taskRecord.subject = 'Muster Action: '+ actW.action;
+                      taskRecord.Status = 'Completed';
+                      taskRecord.Priority = 'Normal'; 
+                      taskRecord.Muster_Campaign_Name__c = actW.campaign_name;
+                      taskRecord.Muster_Target__c = actW.target;
+                      taskRecord.Muster_Action_Center__c = actW.action_center_name;
+                      taskRecord.Muster_Action__c = True;
+                      taskRecord.ActivityDate = Date.valueOf(actW.updated_at);
+                  }
+              } 
+        } catch(Exception ex) {/*MusterCustomCallout.creatBatchLog('Exception MusterActionBatch_Handler.createTask() : '+ex.getMessage()+ ' Line no:'+ex.getLineNumber());*/}
+        return taskRecord;
+    }
+    
+    public static actions__c createAction(MusterWrapper.actResults actW,Map<string, sObject>objRecordsMap, Muster_Settings__mdt musterRec ) {
+        actions__c actionRecord = new actions__c();
+        try{ 
+            Boolean flag = (musterRec.Entity__c == 'Contact')? Schema.sObjectType.actions__c.fields.Contact_Lookup__c.isCreateable() : Schema.sObjectType.actions__c.fields.Account_Lookup__c.isCreateable();    
+            if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'actions__c').getDescribe().isAccessible() 
+               && Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'actions__c').getDescribe().isCreateable() 
+               && flag
+               && Schema.sObjectType.actions__c.fields.uuid__c.isCreateable() 
+               && Schema.sObjectType.actions__c.fields.updated_at__c.isCreateable() 
+               && Schema.sObjectType.actions__c.fields.action__c.isCreateable() 
+               && Schema.sObjectType.actions__c.fields.target__c.isCreateable() 
+               && Schema.sObjectType.actions__c.fields.campaign_id__c.isCreateable() 
+               && Schema.sObjectType.actions__c.fields.campaign_name__c.isCreateable() 
+               && Schema.sObjectType.actions__c.fields.action_center_id__c.isCreateable() 
+               && Schema.sObjectType.actions__c.fields.action_center_name__c.isCreateable()
+              ) { 
+                  
+                  actionRecord.uuid__c  =actW.uuid;      
+                  actionRecord.updated_at__c = actW.updated_at;
+                  if(musterRec.Entity__c =='Contact'){
+                      if(objRecordsMap!=NUll && objRecordsMap.containsKey(actW.contact)){
+                          contact conRec =(Contact)objRecordsMap.get(actW.contact);
+                          actionRecord.Contact_Lookup__c =conRec.id; 
+                      }
+                  }
+                  else if(musterRec.Entity__c =='Account'){
+                      if(objRecordsMap!=NUll && objRecordsMap.containsKey(actW.contact)){
+                          Account accRec = (Account)objRecordsMap.get(actW.contact);
+                          actionRecord.Account_Lookup__c =accRec.id; 
+                      }
+                  }
+                  actionRecord.action__c = actW.action; 
+                  actionRecord.target__c = actW.target; 
+                  actionRecord.campaign_id__c = actW.campaign_id; 
+                  actionRecord.campaign_name__c = actW.campaign_name;
+                  actionRecord.action_center_id__c = actW.action_center_id;
+                  actionRecord.action_center_name__c = actW.action_center_name;
+              } 
+        } catch(Exception ex) {/*MusterCustomCallout.creatBatchLog('Exception MusterActionBatch_Handler.createAction() : '+ex.getMessage()+ ' Line no:'+ex.getLineNumber());*/}
+        return actionRecord;
+    }
+    
+}

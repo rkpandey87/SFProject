@@ -1,0 +1,155 @@
+@isTest
+public class Check_Permissions_Test {
+    
+    
+    @testsetup static void setup() {
+        
+        System.runAs(new User(Id = UserInfo.getUserId())) {
+            PermissionSet ps = [SELECT Id FROM PermissionSet WHERE Name = 'Muster_App_Admin'];            
+            PermissionSetAssignment psa = new PermissionSetAssignment(
+                AssigneeId = UserInfo.getUserId(),
+                PermissionSetId = ps.Id
+            );
+            insert psa;
+        }
+        
+        
+        
+        contact con  = new contact();
+        con.firstName = 'Test1';
+        con.LastName = 'last1';
+        con.Last_Synced_to_Muster__c = null;
+        con.Department = 'IT';
+        insert con;
+        
+        contact con2  = new contact();
+        con2.firstName = 'Test2';
+        con2.LastName = 'last2';
+        con2.Last_Synced_to_Muster__c = null;
+        con2.Department = 'IT';
+        insert con2;
+        
+        Account acc = new Account();
+        acc.Name = 'Test Account';
+        acc.Last_Synced_to_Muster__c = null;
+        Insert acc;        
+        
+        Emails__c em = new Emails__c();
+        em.Contact_Lookup__c = con.Id;
+        em.Account_Lookup__c = acc.Id;
+        em.email__c = 'con1@email.com';
+        insert em;
+        
+        Emails__c em1 = new Emails__c();
+        em1.Contact_Lookup__c = con2.Id;
+        em1.Account_Lookup__c = acc.Id;
+        em1.email__c = 'con2@email.com';
+        insert em1;
+        
+        Emails__c em2 = new Emails__c();
+        em2.Contact_Lookup__c = con2.Id;
+        em2.Account_Lookup__c = acc.Id;
+        em2.email__c = 'con2@email.com';
+        insert em2;        
+        
+        Phone_numbers__c ph = new Phone_numbers__c();
+        ph.Contact_Lookup__c = con.Id;
+        ph.Account_Lookup__c = acc.Id;
+        ph.phone_number__c = '99665588';
+        insert ph;
+        
+        Phone_numbers__c ph1 = new Phone_numbers__c();
+        ph1.Contact_Lookup__c = con2.Id;
+        ph1.Account_Lookup__c = acc.Id;
+        ph1.phone_number__c = '12356987';
+        insert ph1;
+        
+        Phone_numbers__c ph2 = new Phone_numbers__c();
+        ph2.Contact_Lookup__c = con2.Id;
+        ph2.Account_Lookup__c = acc.Id;
+        ph2.phone_number__c = '25632478';
+        insert ph2;
+        
+        locations__c loc = new locations__c();
+        loc.Contact_Lookup__c = con.Id;
+        loc.Account_Lookup__c = acc.Id;
+        loc.street_address__c = 'street 1';
+        loc.street_address_2__c = 'Street 2';
+        loc.city__c = 'city';
+        loc.state__c = 'NY';
+        loc.zip_code__c = '99999';
+        loc.State_boundary__c = 'State';
+        loc.Congressional_Dist__c = 'Congressional District';
+        loc.Legislative_Dist_LC__c = 'Legislative District (Lower Chamber)';
+        loc.Legislative_Dist_UC__c  = 'Legislative District (Upper Chamber)';
+        insert loc;
+        
+        locations__c loc1 = new locations__c();
+        loc1.Contact_Lookup__c = con.Id;
+        loc1.Account_Lookup__c = acc.Id;
+        loc1.street_address__c = 'street 1';
+        loc1.street_address_2__c = 'Street 2';
+        loc1.city__c = 'city';
+        loc1.state__c = 'NY'; 
+        loc1.zip_code__c = '99999';
+        loc1.State_boundary__c = 'State';
+        loc1.Congressional_Dist__c = 'Congressional District';
+        loc1.Legislative_Dist_LC__c = 'Legislative District (Lower Chamber)'; 
+        loc1.Legislative_Dist_UC__c  = 'Legislative District (Upper Chamber)';
+        insert loc1;
+    }
+    
+    static testMethod void testSettingPagePermission(){                
+        System.runAs(new User(Id = UserInfo.getUserId()) ) {  
+            Test.startTest();
+            
+            Boolean flag = Check_Permissions.checkSettingPermission();
+            system.assertEquals(true, flag, 'flag value should be true. Its mean user has sufficient permission for setup Muster setting');            
+            Test.stopTest();
+        }
+        
+    }
+    
+    static testMethod void testPostBatchPermission(){                
+        System.runAs(new User(Id = UserInfo.getUserId()) ) {  
+            Test.startTest();
+            Boolean flag = Check_Permissions.checkPostBatchPermission();
+            system.assertEquals(true, flag, 'flag value should be true. Its mean user has sufficient permission');            
+            Test.stopTest(); 
+        }
+        
+    }
+    
+    static testMethod void testBatchStatusPermission(){                
+        System.runAs(new User(Id = UserInfo.getUserId()) ) {  
+            Test.startTest();
+            Boolean flag = Check_Permissions.checkBatchStatusPermission();
+            system.assertEquals(true, flag, 'flag value should be true. Its mean user has sufficient permission');            
+            Test.stopTest(); 
+        }
+        
+    }
+    
+    static testMethod void testGetContactAccountBatchPermission(){                
+        System.runAs(new User(Id = UserInfo.getUserId()) ) {  
+            Test.startTest();
+            Boolean flag = Check_Permissions.checkGetContactAccountBatchPermission();
+            system.assertEquals(true, flag, 'flag value should be true. Its mean user has sufficient permission');            
+            Test.stopTest();
+        }
+        
+    }
+    
+    static testMethod void testMusterActionBatchPermission(){                
+        System.runAs(new User(Id = UserInfo.getUserId()) ) {  
+            Test.startTest();
+            Boolean flag = Check_Permissions.checkMusterActionBatchPermission();
+            system.assertEquals(true, flag, 'flag value should be true. Its mean user has sufficient permission');             
+            Test.stopTest();
+        }
+        
+    }
+    
+    
+    
+}

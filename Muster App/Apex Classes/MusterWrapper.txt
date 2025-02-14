@@ -1,0 +1,104 @@
+Global with sharing class MusterWrapper{
+    
+    Global class ContactMusterWrapper {
+        public String contact_list;
+        public Integer count;
+        public String next;
+        public String previous;
+        public List<Results> results;
+    }
+    
+    Global class Results {
+        public String salesforce_id;
+        public String updated_at;
+        public String uuid;
+        public String prefix;
+        public String first_name;
+        public String last_name;
+        public String primary_email;
+        public String primary_phone_number;
+        public List<Emails> emails;
+        public List<Phone_numbers> phone_numbers;
+        public List<Locations> locations;
+        public List<Custom_fields> custom_fields;
+        public Boolean is_opt_in_email;
+        public Boolean is_opt_in_text;
+        public Boolean is_advocate;
+    }
+    
+    Global class ActionMusterWrapper {
+        public Integer count;
+        public String next;
+        public String previous;
+        public List<actResults> results;  
+    }
+    
+    Global class actResults {
+        public String uuid;
+        public String contact;
+        public String salesforce_id;
+        public String updated_at;
+        public String action;
+        public String target;
+        public String campaign_id;
+        public String campaign_name;
+        public String action_center_id;
+        public String action_center_name;
+    }
+    
+    Global class Custom_fields {
+        public String custom_field;
+        public String value;
+        public List<String> values;
+    }
+    
+    Global class Locations {
+        public String street_address;
+        public String street_address_2;
+        public String city;
+        public String state;
+        public String zip_code;
+        public List<Boundaries> boundaries;
+    }
+    
+    Global class Emails_Z {
+        public String email;
+    }
+    
+    Global class Emails {
+        public String email;
+    }
+    
+    Global class Boundaries {
+        public String name;
+        public String boundary_type;
+    }
+    
+    Global class Phone_numbers {
+        public String phone_number;
+    }
+    
+    Global class CustomMusterWrapper{
+        public DateTime updated_at;
+        public String uuid;
+        public String label;
+        public String description;
+        public String placeholder;
+        public String field_type;
+        Public List<String> options;
+    }
+    
+    Global class CheckStatusWrapper {
+        public Integer count;
+        public String next;
+        public String previous;
+        public List<checkResults > results;
+    }
+    
+    Global class checkResults {
+        public String created_at;
+        public String updated_at;
+        public String batch_id;
+        public String status;
+    }
+}

@@ -1,0 +1,175 @@
+public with sharing class MusterCustomHandler {
+    
+    public static Boolean havePermission = true;
+    
+    // this method is used to get MainWrapper List from APICall
+    public static List<MusterCustomCallout.MainWrapper> getMusterMainList(string apikey) {     
+        List<MusterCustomCallout.MainWrapper> MainList = new List<MusterCustomCallout.MainWrapper>();               
+        Map<String,String>retResMap = new Map<String,String>();
+        MainList = MusterCustomCallout.MusterAPIHandler('Muster Custom',apikey,'');
+        return MainList;
+    }
+    
+    // this method is used to create, update and delete muster custom field object records 
+    public static void createMusterCustomData(List<MusterWrapper.CustomMusterWrapper>scope) {  
+        try {
+            Set<string> setUUID = new Set<string>();
+            Set<string> setUpdatedAt = new Set<string>();
+            Set<string> UUIDScopeSet = new Set<string>();  
+            List<Muster_Custom_Fields__c> musterCustomList = new List<Muster_Custom_Fields__c>();        
+            Map<String,Muster_Custom_Fields__c> mapExistingMuster = new Map<String,Muster_Custom_Fields__c>();
+            if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c').getDescribe().isAccessible() 
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.Updated_At__c.isAccessible() 
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.uuid_muster__c.isAccessible() 
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.Label__c.isAccessible() 
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.Description__c.isAccessible() 
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.Placeholder__c.isAccessible() 
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.Field_Type__c.isAccessible()  
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.Options__c.isAccessible() 
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.SF_API_Name__c.isAccessible()               
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.Updated_At__c.isUpdateable() 
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.uuid_muster__c.isUpdateable()  
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.Label__c.isUpdateable() 
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.Description__c.isUpdateable() 
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.Placeholder__c.isUpdateable() 
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.Field_Type__c.isUpdateable() 
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.Options__c.isUpdateable() 
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.SF_API_Name__c.isUpdateable() 
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.Updated_At__c.isCreateable() 
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.uuid_muster__c.isCreateable() 
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.Label__c.isCreateable() 
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.Description__c.isCreateable()  
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.Placeholder__c.isCreateable()  
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.Field_Type__c.isCreateable()  
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.Options__c.isCreateable() 
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.SF_API_Name__c.isCreateable()
+              ) { 
+                  List<Muster_Custom_Fields__c> musterListContainsSet= [Select Id
+                                                                        , Updated_At__c
+                                                                        , uuid_muster__c
+                                                                        , Field_Type__c
+                                                                        , SF_API_Name__c
+                                                                        from Muster_Custom_Fields__c where Id !='' WITH USER_MODE];       
+                  if(musterListContainsSet!=Null && musterListContainsSet.size()>0){
+                      for(Muster_Custom_Fields__c objMuster: musterListContainsSet) {
+                          mapExistingMuster.put(objMuster.uuid_muster__c,objMuster);
+                      }
+                  }
+                  for(MusterWrapper.CustomMusterWrapper muster: scope) {
+                      if(muster.uuid!=Null){
+                          UUIDScopeSet.add(muster.uuid);
+                          Muster_Custom_Fields__c musterRecord = new Muster_Custom_Fields__c();            
+                          if(mapExistingMuster.containsKey(muster.uuid)) {                
+                              musterRecord = mapExistingMuster.get(muster.uuid);                                                          
+                              if(musterRecord.uuid_muster__c == muster.uuid && musterRecord.Updated_At__c != muster.updated_at) {
+                                  musterRecord.Updated_At__c = muster.updated_at;
+                                  musterRecord.uuid_muster__c = muster.uuid;
+                                  musterRecord.Label__c = muster.label;
+                                  musterRecord.Description__c = muster.description;
+                                  musterRecord.Placeholder__c = muster.placeholder;
+                                  if(musterRecord.Field_Type__c != muster.field_type) {  musterRecord.SF_API_Name__c =''; } 
+                                  musterRecord.Field_Type__c = muster.field_type;
+                                  musterRecord.Options__c = String.valueOf(muster.options);
+                                  musterCustomList.add(musterRecord);
+                              }
+                          }            
+                          else {
+                              musterRecord.Updated_At__c= muster.updated_at;
+                              musterRecord.uuid_muster__c= muster.uuid;
+                              musterRecord.Label__c= muster.label;
+                              musterRecord.Description__c= muster.description;
+                              musterRecord.Placeholder__c= muster.placeholder;
+                              musterRecord.Field_Type__c= muster.field_type;
+                              musterRecord.Options__c= String.valueOf(muster.options); 
+                              musterCustomList.add(musterRecord);
+                          }
+                      }
+                  }
+                  if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c').getDescribe().isUpdateable() 
+                     && Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c').getDescribe().isCreateable()){
+                         if(musterCustomList !=Null && musterCustomList.size()>0){ 
+                             Database.upsert(musterCustomList, false, system.AccessLevel.USER_MODE);
+                         }
+                     }
+                  if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c').getDescribe().isAccessible()  ){
+                      List<Muster_Custom_Fields__c> musterNotContainsList = [Select Id from Muster_Custom_Fields__c where uuid_muster__c NOT IN:UUIDScopeSet WITH USER_MODE];                  
+                      if(musterNotContainsList != Null && musterNotContainsList.size()>0) {  
+                          deleteRecords(musterNotContainsList);                           
+                      }
+                  }
+              } 
+        }
+        catch(Exception ex) {MusterCustomCallout.creatBatchLog('Excption in class:MusterCustomHandler.createMusterCustomData(List<MusterWrapper.CustomMusterWrapper>scope). Exception ='+ex.getMessage() +' Line no-'+ex.getLineNumber());}
+    }
+    
+    // this method is used to create muster custom fields records when APIKey Save from Setting Interface 
+    public static Map<String,String> settingCall(string apikey) {
+        List<MusterWrapper.CustomMusterWrapper> objList = new List<MusterWrapper.CustomMusterWrapper>();
+        List<MusterCustomCallout.MainWrapper> MainList = new List<MusterCustomCallout.MainWrapper>();               
+        Integer resStatus;
+        String resMessage;
+        Map<String,String>retResMap = new Map<String,String>();
+        MainList = getMusterMainList(apikey);
+        objList = getCustomFieldsList(MainList); 
+        if(MainList != Null && MainList.size() > 0) {
+            resStatus =MainList[0].resStatusCode; 
+            resMessage = MainList[0].resMessage;
+            
+            if(resStatus ==200){retResMap.put('resMessage','Success');}
+            else{  retResMap.put('resMessage',resMessage);}
+        }
+       
+        if(resStatus == 200 && objList.size()>0){
+            createMusterCustomData(objList);
+            
+            if(!Test.isRunningTest()) { MusterSettingsController.setLastSyncDate(); }
+        }            
+        return retResMap;
+    }
+    
+    // this method is used to get muster Custom field List from Main Wrapper List 
+    public static List<MusterWrapper.CustomMusterWrapper> getCustomFieldsList(List<MusterCustomCallout.MainWrapper>MainList) {
+        List<MusterWrapper.CustomMusterWrapper> objList = new List<MusterWrapper.CustomMusterWrapper>();
+        try {
+            Integer resStatus;
+            Map<String,String>retResMap = new Map<String,String>();
+            if(MainList != Null && MainList.size() > 0) {
+                resStatus =MainList[0].resStatusCode; 
+                objList = MainList[0].customWpr; 
+            }
+            if(resStatus == 200 && objList.size()==0){
+                if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c').getDescribe().isAccessible() ) {
+                    List<Muster_Custom_Fields__c> musterNotContainsList = [Select Id from Muster_Custom_Fields__c where Id != '' WITH USER_MODE];
+                    if(musterNotContainsList != Null && musterNotContainsList.size()>0) {                         
+                        deleteRecords(musterNotContainsList); 
+                    }
+                } 
+            }
+        } catch(Exception ex) {MusterCustomCallout.creatBatchLog('Excption in class:MusterCustomHandler.getCustomFieldsList(List<MusterCustomCallout.MainWrapper>MainList). Exception ='+ex.getMessage());}
+        return objList;
+    }
+    
+    public static void deleteRecords(List<Muster_Custom_Fields__c> lstToDelete) {
+        if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c').getDescribe().isAccessible() && Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c').getDescribe().isDeletable()) {
+            List<Muster_API_Log__c>  apiLogList=new  List<Muster_API_Log__c>(); 
+            Database.DeleteResult[] results = Database.Delete(lstToDelete, false, system.AccessLevel.USER_MODE);
+            for (Database.DeleteResult result : results) {
+                if (result.isSuccess()) { }
+                else {
+                    for(Database.Error error : result.getErrors()) {
+                        string errmsg = 'MusterContactBatch :'+' '+ 'Error :'+ 'Failed, '+ error.getStatusCode() + ': ' + error.getMessage();
+                        apiLogList.add(MusterCustomCallout.creatBatchLogLst(errmsg));
+                    }
+                }
+            }
+            if(apiLogList!=Null && apiLogList.size()>0){
+                if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_API_Log__c').getDescribe().isAccessible() && Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_API_Log__c').getDescribe().isCreateable()) {
+                    Database.SaveResult[] saveResults = Database.Insert(apiLogList, false, system.AccessLevel.USER_MODE);
+                } 
+                MusterCustomCallout.createTask(apiLogList);
+            }
+        }
+    }
+    
+    
+}

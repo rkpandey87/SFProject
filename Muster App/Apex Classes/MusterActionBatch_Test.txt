@@ -1,0 +1,135 @@
+@isTest
+public class MusterActionBatch_Test {
+    @testSetup static void testData(){
+        
+        System.runAs(new User(Id = UserInfo.getUserId())) {
+            PermissionSet ps = [SELECT Id FROM PermissionSet WHERE Name = 'Muster_App_Admin'];            
+            PermissionSetAssignment psa = new PermissionSetAssignment(
+                AssigneeId = UserInfo.getUserId(),
+                PermissionSetId = ps.Id
+            );
+            insert psa;
+        }
+        
+        List<Contact> conList= new List<Contact>();
+        // create contact records 
+        Contact con1 = new Contact();
+        con1.LastName= 'test1';
+        con1.Email= 'test1@gmail.com';
+        con1.FirstName= 'UUID';
+        con1.Is_Advocate__c= false ;
+        con1.Email_Opt_in__c=false;
+        con1.Text_Opt_in__c= false;
+        con1.Muster_UUID__c= '0075d9a6-e55d-43e3-9f95-3b95eda9e4f9';
+        conList.add(con1);
+        
+        Contact con = new Contact();
+        con.LastName= 'Test2';
+        con.Email= 'test2@gmail.com';
+        con.FirstName= 'SF';
+        con.Is_Advocate__c= false ;
+        con.Email_Opt_in__c=false;
+        con.Text_Opt_in__c= false;
+        con.Muster_UUID__c= '';
+        conList.add(con);
+        
+        Contact con2 = new Contact();
+        con2 .LastName= 'Test3';
+        con2 .Email= 'test3@gmail.com';
+        con2 .FirstName= 'SF';
+        con2 .Is_Advocate__c= false ;
+        con2 .Email_Opt_in__c=false;
+        con2 .Text_Opt_in__c= false;
+        con2 .Muster_UUID__c= '';
+        conList.add(con2 );
+        
+        Contact con3 = new Contact();
+        con3 .LastName= 'Test4';
+        con3 .Email= 'test4@gmail.com';
+        con3 .FirstName= 'Muster';
+        con3 .Is_Advocate__c= false ;
+        con3 .Email_Opt_in__c=true;
+        con3 .Text_Opt_in__c= true;
+        con3 .Muster_UUID__c= '';
+        conList.add(con3);
+        
+        if(conList!=NUll && conList.size()>0){
+            insert conList;
+        }
+        
+        // Create Account Records 
+        List<Account> accList= new List<Account>();
+        Account acc= new Account();
+        acc.Name= 'Andrea';
+        acc.Is_Advocate__c= false;
+        acc.Email_Opt_in__c= true;
+        acc.Text_Opt_in__c= true;
+        acc.Muster_UUID__c= '0075d9a6-e55d-43e3-9f95-3b95eda9e4f9';
+        accList.add(acc);
+        
+        Account acc1 = new Account();
+        acc1.Name= 'Jackson';
+        acc1.Is_Advocate__c= false;
+        acc1.Email_Opt_in__c= true;
+        acc1.Text_Opt_in__c= true;
+        acc1.Muster_UUID__c= '';
+        accList.add(acc1);
+        insert accList;
+        List<actions__c> actList= new  List<actions__c>();
+        actions__c act= new actions__c();
+        act.uuid__c= '0075d9a6-e55d-43e3-9f95-3b95eda9e4f9';
+        actList.add(act);
+        insert actList;
+    }
+    
+    testMethod static void testMusterActionData(){
+        List<actions__c> musterActList= [Select Id
+                                         , uuid__c
+                                         , updated_at__c
+                                         , target__c
+                                         , Contact_Lookup__c
+                                         , Account_Lookup__c
+                                         , campaign_name__c
+                                         , campaign_id__c
+                                         , Name
+                                         , action_center_name__c 
+                                         , action_center_id__c 
+                                         , action__c 
+                                         from actions__c where Id!='']; 
+        System.runAs(new User(Id = UserInfo.getUserId()) ) {  
+            
+            Test.startTest();
+            Test.setMock(HttpCalloutMock.class, new MockHttpResponseGenerator());
+            MusterActionBatch mab= new MusterActionBatch('','Contact');
+            database.executebatch(mab);
+            Test.stopTest();
+        }
+        
+        system.assertEquals(1, musterActList.size(), 'Actions in org should be 1'); 
+    }
+    
+    testMethod static void testMusterActionData2(){
+        List<actions__c> musterActList= [Select Id
+                                         , uuid__c
+                                         , updated_at__c
+                                         , target__c
+                                         , Contact_Lookup__c
+                                         , Account_Lookup__c
+                                         , campaign_name__c
+                                         , campaign_id__c
+                                         , Name
+                                         , action_center_name__c 
+                                         , action_center_id__c 
+                                         , action__c 
+                                         from actions__c where Id!='']; 
+        System.runAs(new User(Id = UserInfo.getUserId()) ) { 
+            Test.startTest();       
+            Test.setMock(HttpCalloutMock.class, new MockHttpResponseGenerator());
+            MusterActionBatch mab= new MusterActionBatch('','Account');
+            database.executebatch(mab);
+            Test.stopTest();
+        }
+       
+         system.assertEquals(1, musterActList.size(), 'Actions in org should be 1'); 
+    }
+}

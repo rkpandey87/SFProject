@@ -1,0 +1,156 @@
+@isTest
+public class MusterContactAccountPost_BatchTest {
+    
+    @testSetup static void setup() {
+        
+        System.runAs(new User(Id = UserInfo.getUserId())) {
+            PermissionSet ps = [SELECT Id FROM PermissionSet WHERE Name = 'Muster_App_Admin'];            
+            PermissionSetAssignment psa = new PermissionSetAssignment(
+                AssigneeId = UserInfo.getUserId(),
+                PermissionSetId = ps.Id
+            );
+            insert psa;
+        }
+        
+        contact con  = new contact();
+        con.firstName = 'Test1';
+        con.LastName = 'last1';
+        con.Last_Synced_to_Muster__c = null;
+        con.Department = 'IT';
+        insert con;
+        
+        contact con2  = new contact();
+        con2.firstName = 'Test2';
+        con2.LastName = 'last2';
+        con2.Last_Synced_to_Muster__c = null;
+        con2.Department = 'IT';
+        insert con2;
+        
+        Account acc = new Account();
+        acc.Name = 'Test Account';
+        acc.Last_Synced_to_Muster__c = null;
+        Insert acc;        
+        
+        Emails__c em = new Emails__c();
+        em.Contact_Lookup__c = con.Id;
+        em.Account_Lookup__c = acc.Id;
+        em.email__c = 'con1@email.com';
+        insert em;
+        
+        Emails__c em1 = new Emails__c();
+        em1.Contact_Lookup__c = con2.Id;
+        em1.Account_Lookup__c = acc.Id;
+        em1.email__c = 'con2@email.com';
+        insert em1;
+        
+        Emails__c em2 = new Emails__c();
+        em2.Contact_Lookup__c = con2.Id;
+        em2.Account_Lookup__c = acc.Id;
+        em2.email__c = 'con2@email.com';
+        insert em2;        
+        
+        Phone_numbers__c ph = new Phone_numbers__c();
+        ph.Contact_Lookup__c = con.Id;
+        ph.Account_Lookup__c = acc.Id;
+        ph.phone_number__c = '99665588';
+        insert ph;
+        
+        Phone_numbers__c ph1 = new Phone_numbers__c();
+        ph1.Contact_Lookup__c = con2.Id;
+        ph1.Account_Lookup__c = acc.Id;
+        ph1.phone_number__c = '12356987';
+        insert ph1;
+        
+        Phone_numbers__c ph2 = new Phone_numbers__c();
+        ph2.Contact_Lookup__c = con2.Id;
+        ph2.Account_Lookup__c = acc.Id;
+        ph2.phone_number__c = '25632478';
+        insert ph2;
+        
+        locations__c loc = new locations__c();
+        loc.Contact_Lookup__c = con.Id;
+        loc.Account_Lookup__c = acc.Id;
+        loc.street_address__c = 'street 1';
+        loc.street_address_2__c = 'Street 2';
+        loc.city__c = 'city';
+        loc.state__c = 'NY';
+        loc.zip_code__c = '99999';
+        loc.State_boundary__c = 'State';
+        loc.Congressional_Dist__c = 'Congressional District';
+        loc.Legislative_Dist_LC__c = 'Legislative District (Lower Chamber)';
+        loc.Legislative_Dist_UC__c  = 'Legislative District (Upper Chamber)';
+        insert loc;
+        
+        locations__c loc1 = new locations__c();
+        loc1.Contact_Lookup__c = con.Id;
+        loc1.Account_Lookup__c = acc.Id;
+        loc1.street_address__c = 'street 1';
+        loc1.street_address_2__c = 'Street 2';
+        loc1.city__c = 'city';
+        loc1.state__c = 'NY'; 
+        loc1.zip_code__c = '99999';
+        loc1.State_boundary__c = 'State';
+        loc1.Congressional_Dist__c = 'Congressional District';
+        loc1.Legislative_Dist_LC__c = 'Legislative District (Lower Chamber)'; 
+        loc1.Legislative_Dist_UC__c  = 'Legislative District (Upper Chamber)';
+        insert loc1;        
+        
+    }
+    
+    testMethod static void executeBatchForContactSetting(){
+        
+        System.runAs(new User(Id = UserInfo.getUserId()) ) {  
+            Test.startTest();
+            List<Muster_Custom_Fields__c> lstMcf = new List<Muster_Custom_Fields__c>();
+            Muster_Custom_Fields__c mcf = new Muster_Custom_Fields__c();
+            mcf.Updated_At__c = system.now();
+            mcf.uuid_muster__c = 'jsdhds77236wd6sydccx7cxxcz';
+            mcf.Label__c = 'SSN';
+            mcf.Field_Type__c = 'text_field';
+            mcf.SF_API_Name__c = 'Department';
+            lstMcf.add(mcf);
+            
+            Muster_Custom_Fields__c mcfSingle = new Muster_Custom_Fields__c();
+            mcfSingle.Updated_At__c = system.now();
+            mcfSingle.uuid_muster__c = 'jsdhds77236wd6sydccx7cxxcz';
+            mcfSingle.Label__c = 'Your Favorite Color';
+            mcfSingle.Field_Type__c = 'single_choice_field';
+            mcfSingle.SF_API_Name__c = 'Department';
+            lstMcf.add(mcfSingle);
+            
+            Muster_Custom_Fields__c mcfMulti = new Muster_Custom_Fields__c();
+            mcfMulti.Updated_At__c = system.now();
+            mcfMulti.uuid_muster__c = 'jsdhds77236wd6sydccx7cxxcz';
+            mcfMulti.Label__c = 'Favorite Color';
+            mcfMulti.Field_Type__c = 'multiple_choice_field';
+            mcfMulti.SF_API_Name__c = 'LeadSource';
+            lstMcf.add(mcfMulti);
+            
+            Insert lstMcf;               
+            
+            Test.setMock(HttpCalloutMock.class, new MockHttpResponseGenerator());
+            MusterContactAccountPost_Batch mcb= new MusterContactAccountPost_Batch(false,'Contact');
+            database.executebatch(mcb,10);
+            Test.stopTest();
+        }
+
+        List<Contact> lstCon = [Select id, Last_Synced_to_Muster__c from Contact where Last_Synced_to_Muster__c != null limit 1];
+        system.assertEquals(1, lstCon.size(), 'After batch run Sync to muster cannot null');
+    }
+    
+    testMethod static void executeBatchForAccountSetting(){       
+        System.runAs(new User(Id = UserInfo.getUserId()) ) {  
+            Test.startTest();
+            
+            Test.setMock(HttpCalloutMock.class, new MockHttpResponseGenerator());
+            MusterContactAccountPost_Batch mcb = new MusterContactAccountPost_Batch(false,'Account');
+            database.executebatch(mcb,10);                
+            Test.stopTest(); 
+        }       
+        
+        List<Account> lstAcc = [Select id, Last_Synced_to_Muster__c from Account where Last_Synced_to_Muster__c != null limit 1];
+        system.assertEquals(0, lstAcc.size(), 'After batch run Sync to muster cannot null');
+    }
+    
+    
+}

@@ -1,0 +1,802 @@
+public with sharing class MusterSettingsController {
+    
+    public static List<MusterUtility.wrapperApi> lstEmail = new List<MusterUtility.wrapperApi>();
+    public static List<MusterUtility.wrapperApi> lstText = new List<MusterUtility.wrapperApi>();
+    public static List<MusterUtility.wrapperApi> lstCustomText = new List<MusterUtility.wrapperApi>();
+    public static List<MusterUtility.wrapperApi> lstPicklist = new List<MusterUtility.wrapperApi>();
+    public static List<MusterUtility.wrapperApi> lstMultiSelect = new List<MusterUtility.wrapperApi>();
+    public static List<MusterUtility.wrapperApi> lstCheckbox = new List<MusterUtility.wrapperApi>();
+    public static List<MusterUtility.wrapperApi> lstPhone = new List<MusterUtility.wrapperApi>();
+    public static List<MusterUtility.wrapperApi> LstSalesforceField = new List<MusterUtility.wrapperApi>();
+    public static List<MusterUtility.wrapperApi> LstZipcode = new List<MusterUtility.wrapperApi>();
+    public static List<MusterUtility.wrapperApi> LstCity = new List<MusterUtility.wrapperApi>();
+    public static List<MusterUtility.wrapperApi> LstState = new List<MusterUtility.wrapperApi>();
+    public static List<MusterUtility.wrapperApi> LstAddress = new List<MusterUtility.wrapperApi>();
+    public static List<MusterUtility.wrapperApi> LstRT = new List<MusterUtility.wrapperApi>();    
+    public static List<MusterUtility.wrapperApi> LstMusterField = new List<MusterUtility.wrapperApi>();    
+    public static Set<string> setFieldsOfObj = new Set<string>();
+    
+    @AuraEnabled 
+    public static WrapperMain getMusterData(string ObjectName) { 
+        
+        Map<string,string> mapPicklist = new Map<string,string>();
+        mapPicklist.put(MusterStrings.strText,'Text');
+        mapPicklist.put(MusterStrings.strSingleChoice,'Single choice field');
+        mapPicklist.put(MusterStrings.strMulti,'Multiple choice field');
+        bindFieldsWhichNotShown();
+        WrapperMain main = new WrapperMain();
+        
+        /***************************************
+First check if User has all the required CRUD/FLS permissions. 
+If any permission is missing then throw error and exit else continue execution.
+*************************************************/       
+        Boolean permissionFlag = Check_Permissions.checkSettingPermission();
+        main.userHasPermission = permissionFlag;
+        if(!permissionFlag) {  return main;  }
+        
+        main.API_Key = '';
+        Muster_Settings__mdt ms = MusterUtility.getMusterSettingsMetadata(''); 
+        if (ms != null && string.isNotEmpty(ms.API_Key__c) && string.isNotEmpty(ms.Decryption_Key__c) ) { 
+            main.API_Key = MusterUtility.getDecryptedAPIKey(ms.Decryption_Key__c,ms.API_Key__c );
+            main.Updated_At = ms.Last_Custom_Field_Sync_Date__c;
+            main.Batch_Frequency = ms.Batch_Frequency__c;
+        }
+        if (string.isEmpty(ObjectName)) {
+            main = populateSettingsOnLoad(ObjectName, main);
+            ObjectName = main.Entity;
+        } else {
+            main = populateSettingsOnChange(ObjectName, main);
+            ObjectName = main.Entity;
+        }
+        if(string.isNotEmpty(ObjectName) ) {
+            bindApiFieldSet(ObjectName);
+            bindRecordType(ObjectName);
+            bindMusterField();
+        }
+        main.PrefixLst = lstText;
+        main.FirstNameLst = lstText;
+        main.LastNameLst = lstText;
+        main.PrimaryEmailLst = lstEmail;
+        main.PhoneNumberLst = lstPhone;        
+        main.EmailOptInLst = lstCheckbox;
+        main.TextOptInLst = lstCheckbox;
+        main.AdvocateLst = lstCheckbox;
+        main.Address1Lst = LstAddress;
+        main.Address2Lst = LstAddress;
+        main.CityLst = LstCity;
+        main.StateLst = LstState;        
+        main.ZipLst = LstZipcode;        
+        main.ListSalesforce_Field = LstSalesforceField;
+        main.LstRT = LstRT;
+        
+        List<Muster_Custom_Fields__c> lstMcf = new List<Muster_Custom_Fields__c>();
+        List<WrapperCustomField> ListCustomField = new List<WrapperCustomField>();
+        if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c').getDescribe().isAccessible()         
+           && Schema.sObjectType.Muster_Custom_Fields__c.fields.Label__c.isAccessible() 
+           && Schema.sObjectType.Muster_Custom_Fields__c.fields.Field_Type__c.isAccessible() 
+           && Schema.sObjectType.Muster_Custom_Fields__c.fields.SF_API_Name__c.isAccessible()
+           && Schema.sObjectType.Muster_Custom_Fields__c.fields.uuid_muster__c.isAccessible()  
+           && Schema.sObjectType.Muster_Custom_Fields__c.fields.Updated_At__c.isAccessible() 
+          ) {
+              lstMcf = [SELECT id
+                        , Label__c
+                        , Field_Type__c
+                        , SF_API_Name__c
+                        , uuid_muster__c
+                        , Updated_At__c
+                        FROM Muster_Custom_Fields__c
+                        WHERE Label__c != ''
+                        AND Field_Type__c != '' WITH USER_MODE order by Updated_At__c ];
+              
+              
+              if(lstMcf.size() > 0) {
+                  for (Muster_Custom_Fields__c mcf : lstMcf) {
+                      List<MusterUtility.wrapperApi> lst = new List<MusterUtility.wrapperApi>();
+                      
+                      WrapperCustomField cf = new WrapperCustomField();
+                      cf.Id = mcf.Id;
+                      cf.Label = mcf.Label__c;
+                      cf.Field_Type = mapPicklist.get(mcf.Field_Type__c);
+                      string fieldType = mcf.Field_Type__c;
+                      lst.addAll(lstCustomText);
+                      string sfApi = mcf.SF_API_Name__c;
+                      if(fieldType.equalsIgnoreCase(MusterStrings.strText)) {
+                          cf.ListPicklist = lstCustomText; 
+                          LstMusterField.add(MusterUtility.getAPIWrapper(mcf.Label__c,mcf.uuid_muster__c));
+                          if(!MusterUtility.checkForContains(lstCustomText,sfApi)) {sfApi = '';}
+                      } else if(fieldType.equalsIgnoreCase(MusterStrings.strMulti)) {
+                          lst.addAll(lstMultiSelect);
+                          cf.ListPicklist = lst; 
+                          if(!MusterUtility.checkForContains(lst,sfApi)) {sfApi = '';}
+                      } else if(fieldType.equalsIgnoreCase(MusterStrings.strSingleChoice)) {
+                          lst.addAll(lstPicklist);
+                          cf.ListPicklist = lst; 
+                          if(!MusterUtility.checkForContains(lst,sfApi)) {sfApi = '';}
+                      } 
+                      cf.Selected_SF_API_Name = sfApi;
+                      ListCustomField.add(cf);                                
+                  }
+              }
+          }
+        main.ListCustomField = ListCustomField;
+        main.LstMusterField = LstMusterField;
+        return main; 
+    }
+    
+    public static WrapperMain populateSettingsOnLoad(string ObjectName, WrapperMain main) {
+        Muster_Settings__mdt ms = MusterUtility.getMusterSettingsMetadata('');
+        if(!MusterUtility.havePermission) { main.userHasPermission = false; return main;}       
+        if (ms != null) { 
+            ObjectName = ms.Entity__c;
+            main.Entity = ms.Entity__c;
+            main.Record_Type = ms.Record_Type_Muster_to_SF__c;
+            main.Data_Sync_Mode = ms.Data_Sync_Mode__c;
+            main.Muster_Field = ms.Muster_Field__c;
+            main.Salesforce_Field = ms.Salesforce_Field__c;                
+            main.Prefix = ms.Prefix__c;                
+            main.FirstName = ms.First_Name__c;                
+            main.LastName = ms.Last_Name__c;                                
+            main.PrimaryEmail = ms.Primary_Email__c;                
+            main.PhoneNumber = ms.Phone_Number__c;                
+            main.Address1 = ms.Address_1__c;                
+            main.Address2 = ms.Address_2__c;                
+            main.City = ms.City__c;                
+            main.State = ms.State__c;                
+            main.ZIP = ms.ZIP__c;                
+            main.EmailOptIn = ms.Email_Opt_in__c;                
+            main.TextOptIn = ms.Text_Opt_in__c;                
+            main.Advocate = ms.Advocate__c; 
+            main.Updated_At = ms.Last_Custom_Field_Sync_Date__c;
+            main.Bucket_Account_Id = checkBucketId( ms.Bucket_Account_Id__c);// ms.Bucket_Account_Id__c;
+            main.Batch_Frequency = ms.Batch_Frequency__c;
+            List<string> lst = new List<string>();
+            string sfTomuster = ms.Record_Type_SF_to_Muster__c;
+            if(string.isNotEmpty(sfTomuster)) {
+                sfTomuster = sfTomuster.removeEnd(';');
+                string[] arr = sfTomuster.split(';');                
+                for(string str : arr) {
+                    lst.add(str);
+                }
+            }
+            main.RTSFToMuster = lst; 
+        } else {
+            main = populateConDefault(ObjectName, main);
+        }
+        return main;
+    }
+    
+    public static WrapperMain populateSettingsOnChange(string ObjectName, WrapperMain main) {        
+        Muster_Settings__mdt ms = MusterUtility.getMusterSettingsMetadata(''); 
+        if(!MusterUtility.havePermission) { main.userHasPermission = false; return main;}
+        if (ms != null && ms.Entity__c == ObjectName) { 
+            ObjectName = ms.Entity__c;
+            main.Entity = ms.Entity__c;
+            main.Record_Type = ms.Record_Type_Muster_to_SF__c;
+            main.Data_Sync_Mode = ms.Data_Sync_Mode__c;
+            main.Muster_Field = ms.Muster_Field__c;
+            main.Salesforce_Field = ms.Salesforce_Field__c;                
+            main.Prefix = ms.Prefix__c;                
+            main.FirstName = ms.First_Name__c;                
+            main.LastName = ms.Last_Name__c;                                
+            main.PrimaryEmail = ms.Primary_Email__c;                
+            main.PhoneNumber = ms.Phone_Number__c;                
+            main.Address1 = ms.Address_1__c;                
+            main.Address2 = ms.Address_2__c;                
+            main.City = ms.City__c;                
+            main.State = ms.State__c;                
+            main.ZIP = ms.ZIP__c;                
+            main.EmailOptIn = ms.Email_Opt_in__c;                
+            main.TextOptIn = ms.Text_Opt_in__c;                
+            main.Advocate = ms.Advocate__c; 
+            main.Updated_At = ms.Last_Custom_Field_Sync_Date__c;
+            main.Bucket_Account_Id = checkBucketId( ms.Bucket_Account_Id__c);// ms.Bucket_Account_Id__c;
+            main.Batch_Frequency = ms.Batch_Frequency__c;
+            List<string> lst = new List<string>();
+            string sfTomuster = ms.Record_Type_SF_to_Muster__c;
+            if(string.isNotEmpty(sfTomuster)) {
+                sfTomuster = sfTomuster.removeEnd(';');
+                string[] arr = sfTomuster.split(';');                
+                for(string str : arr) {
+                    lst.add(str);
+                }
+            }
+            main.RTSFToMuster = lst; 
+        } else if (ObjectName == MusterStrings.STR_CONTACT) {
+            main = populateConDefault(ObjectName, main);
+        } else if (ObjectName == MusterStrings.STR_ACCOUNT) {
+            main = populateAccDefault(ObjectName, main);
+        }
+        return main;
+    }  
+    
+    public static string checkBucketId(string Bucket_Account_Id) {
+        
+        string retValue = '';
+        if(Bucket_Account_Id == 'NPSP') {
+            retValue = Bucket_Account_Id;
+        } else if(string.isBlank(Bucket_Account_Id)) {
+            retValue = '';
+        }
+        else If(string.isNotBlank(Bucket_Account_Id) && Bucket_Account_Id.length() >= 15 && Bucket_Account_Id.length() <= 18) {
+            try {
+                Bucket_Account_Id = String.escapeSingleQuotes(Bucket_Account_Id);
+                if(Schema.getGlobalDescribe().get('Account').getDescribe().isAccessible() ) {
+                    List<Account> lst = [Select Id from Account where Id =:Bucket_Account_Id WITH USER_MODE];
+                    if(lst.size() > 0) {
+                        retValue = Bucket_Account_Id;
+                    }
+                }
+                
+            }
+            catch(Exception ex) {
+                string msg = 'MusterSettingsController.checkBucketId() Error : ' + ex.getMessage() + ', LN: ' + ex.getLineNumber();  
+                MusterCustomCallout.creatBatchLog(msg);
+                retValue = '';
+            }
+        }
+        return retValue;
+    }
+    
+    public static WrapperMain populateConDefault(string ObjectName, WrapperMain main) {
+        if(string.isNotEmpty(ObjectName)) {
+            main.Entity = ObjectName;
+            main.Record_Type = '';
+            main.Muster_Field = 'email';
+            main.Salesforce_Field = 'Email';               
+            main.Prefix = 'Salutation';               
+            main.FirstName = 'FirstName';              
+            main.LastName = 'LastName';                                
+            main.PrimaryEmail = 'Email';               
+            main.PhoneNumber = 'Phone';             
+            main.Address1 = 'MailingStreet';               
+            main.Address2 = '';               
+            main.City = 'MailingCity';                
+            main.State = 'MailingState';                
+            main.ZIP = 'MailingPostalCode';                
+            main.EmailOptIn = MusterStrings.STR_NAMESPACE+'Email_Opt_in__c';                
+            main.TextOptIn = MusterStrings.STR_NAMESPACE+'Text_Opt_in__c';                
+            main.Advocate = MusterStrings.STR_NAMESPACE+'Is_Advocate__c';
+        }
+        return main;
+    }
+    
+    public static WrapperMain populateAccDefault(string ObjectName, WrapperMain main) {
+        if(string.isNotEmpty(ObjectName)) {
+            main.Entity = ObjectName;
+            main.Record_Type = '';
+            main.Muster_Field = 'email';// 'Name';
+            main.Salesforce_Field = 'Name';               
+            main.Prefix = '';               
+            main.FirstName = 'Name';              
+            main.LastName = '';                                
+            main.PrimaryEmail = '';               
+            main.PhoneNumber = 'Phone';             
+            main.Address1 = 'BillingStreet';               
+            main.Address2 = '';               
+            main.City = 'BillingCity';                
+            main.State = 'BillingState';                
+            main.ZIP = 'BillingPostalCode';                
+            main.EmailOptIn = MusterStrings.STR_NAMESPACE+'Email_Opt_in__c';                
+            main.TextOptIn = MusterStrings.STR_NAMESPACE+'Text_Opt_in__c';                
+            main.Advocate = MusterStrings.STR_NAMESPACE+'Is_Advocate__c';
+        }
+        return main;
+    }
+    
+    public class WrapperMain {
+        @AuraEnabled
+        public Boolean userHasPermission{get;set;}
+        @AuraEnabled
+        public string API_Key{get;set;}
+        @AuraEnabled
+        public string Entity{get;set;}
+        @AuraEnabled
+        public string Record_Type{get;set;}
+        @AuraEnabled
+        public string Data_Sync_Mode{get;set;}
+        @AuraEnabled
+        public string Muster_Field{get;set;}
+        @AuraEnabled
+        public string Salesforce_Field{get;set;}
+        @AuraEnabled
+        public DateTime Updated_At{get;set;}
+        @AuraEnabled
+        public List<MusterUtility.wrapperApi> ListSalesforce_Field{get;set;}
+        @AuraEnabled
+        public List<WrapperCustomField> ListCustomField{get;set;}
+        
+        @AuraEnabled
+        public string Prefix{get;set;}
+        @AuraEnabled
+        public List<MusterUtility.wrapperApi> PrefixLst{get;set;}
+        @AuraEnabled
+        public string FirstName{get;set;} 
+        @AuraEnabled
+        public List<MusterUtility.wrapperApi> FirstNameLst{get;set;}
+        @AuraEnabled
+        public string LastName{get;set;}
+        @AuraEnabled
+        public List<MusterUtility.wrapperApi> LastNameLst{get;set;}
+        @AuraEnabled
+        public string PrimaryEmail{get;set;}
+        @AuraEnabled
+        public List<MusterUtility.wrapperApi> PrimaryEmailLst{get;set;}
+        @AuraEnabled
+        public string PhoneNumber{get;set;}
+        @AuraEnabled
+        public List<MusterUtility.wrapperApi> PhoneNumberLst{get;set;}
+        @AuraEnabled
+        public string Address1{get;set;}
+        @AuraEnabled
+        public List<MusterUtility.wrapperApi> Address1Lst{get;set;}
+        @AuraEnabled
+        public string Address2{get;set;}
+        @AuraEnabled
+        public List<MusterUtility.wrapperApi> Address2Lst{get;set;}
+        @AuraEnabled
+        public string City{get;set;}
+        @AuraEnabled
+        public List<MusterUtility.wrapperApi> CityLst{get;set;}
+        @AuraEnabled
+        public string State{get;set;}
+        @AuraEnabled
+        public List<MusterUtility.wrapperApi> StateLst{get;set;}
+        @AuraEnabled
+        public string ZIP{get;set;}
+        @AuraEnabled
+        public List<MusterUtility.wrapperApi> ZipLst{get;set;}
+        @AuraEnabled
+        public string EmailOptIn{get;set;}
+        @AuraEnabled
+        public List<MusterUtility.wrapperApi> EmailOptInLst{get;set;}
+        @AuraEnabled
+        public string TextOptIn{get;set;}
+        @AuraEnabled
+        public List<MusterUtility.wrapperApi> TextOptInLst{get;set;}
+        @AuraEnabled
+        public string Advocate{get;set;}
+        @AuraEnabled
+        public List<MusterUtility.wrapperApi> AdvocateLst{get;set;}
+        @AuraEnabled
+        public List<MusterUtility.wrapperApi> LstRT{get;set;}
+        @AuraEnabled
+        public List<MusterUtility.wrapperApi> LstMusterField{get;set;}
+        @AuraEnabled
+        public List<string> RTSFToMuster{get;set;}
+        @AuraEnabled
+        public string Bucket_Account_Id{get;set;}
+        @AuraEnabled
+        public string Batch_Frequency{get;set;}
+    }
+    
+    public class WrapperCustomField {
+        @AuraEnabled
+        public string Id{get;set;}
+        @AuraEnabled
+        public string Label{get;set;}
+        @AuraEnabled
+        public string Field_Type{get;set;}         
+        @AuraEnabled
+        public List<MusterUtility.wrapperApi> ListPicklist{get;set;}
+        @AuraEnabled
+        public string Selected_SF_API_Name{get;set;}
+    }
+    
+    //@AuraEnabled
+    Public static void bindApiFieldSet(string ObjectName) { 
+        ObjectName = String.escapeSingleQuotes(ObjectName);
+        MusterUtility.wrapperApi apiNone = MusterUtility.getAPIWrapper('--None--','');
+        LstMusterField.add(apiNone);
+        lstText.add(apiNone);
+        lstPhone.add(apiNone); 
+        lstEmail.add(apiNone);
+        lstCheckbox.add(apiNone);  
+        LstSalesforceField.add(apiNone);
+        LstZipcode.add(apiNone);
+        LstCity.add(apiNone);
+        LstState.add(apiNone);
+        LstAddress.add(apiNone);
+        lstCustomText.add(apiNone);
+        if(string.isNotEmpty(ObjectName)) {
+            MusterUtility.wrapperApi apiNm = MusterUtility.getAPIWrapper('Name','Name');
+            lstText.add(apiNm);
+            LstSalesforceField.add(apiNm);
+            if(ObjectName.equalsIgnoreCase(MusterStrings.STR_CONTACT)) {
+                LstAddress.addAll(MusterUtility.getConStreet());
+                LstState.addAll(MusterUtility.getConState());
+                LstCity.addAll(MusterUtility.getConCity()); 
+                LstZipcode.addAll(MusterUtility.getConZip());
+                MusterUtility.wrapperApi apiSal = MusterUtility.getAPIWrapper('Salutation','Salutation');
+                lstText.add(apiSal);
+                
+                MusterUtility.wrapperApi apiFN  = MusterUtility.getAPIWrapper('First Name','FirstName');
+                lstText.add(apiFN);
+                
+                MusterUtility.wrapperApi apiLN  = MusterUtility.getAPIWrapper('Last Name','LastName');
+                lstText.add(apiLN);
+                
+            } else if(ObjectName.equalsIgnoreCase(MusterStrings.STR_ACCOUNT)) {
+                LstAddress.addAll(MusterUtility.getAccStreet());
+                LstState.addAll(MusterUtility.getAccState());
+                LstCity.addAll(MusterUtility.getAccCity());
+                LstZipcode.addAll(MusterUtility.getAccZip());
+                //LstMusterField.add(apiNm); 
+            }
+            //, Description, DataType, ExtraTypeInfo,  Length, Precision, Scale,QualifiedApiName
+            List<FieldDefinition> lstApiRecords = new List<FieldDefinition>();
+            if(Schema.getGlobalDescribe().get('FieldDefinition').getDescribe().isAccessible() 
+               && Schema.getGlobalDescribe().get(ObjectName).getDescribe().isAccessible()
+              && Schema.sObjectType.FieldDefinition.fields.Label.isAccessible() 
+               && Schema.sObjectType.FieldDefinition.fields.QualifiedApiName.isAccessible() 
+               && Schema.sObjectType.FieldDefinition.fields.DataType.isAccessible()
+               && Schema.sObjectType.FieldDefinition.fields.EntityDefinitionId.isAccessible() 
+               
+              ) {
+                  lstApiRecords = [SELECT Label
+                                   , QualifiedApiName
+                                   , DataType 
+                                   FROM FieldDefinition 
+                                   WHERE EntityDefinitionId =:ObjectName
+                                   AND QualifiedApiName != :excludedField() WITH USER_MODE
+                                   order by Label, DataType ASC];
+                  
+                  if(lstApiRecords.size()>0) {
+                      for(FieldDefinition record : lstApiRecords) {
+                          if(string.isNotEmpty(record.Label)) {
+                              MusterUtility.wrapperApi api = MusterUtility.getAPIWrapper(record.Label,record.QualifiedApiName);
+                              
+                              string apiName = record.DataType;
+                              if(apiName.contains('Text(')) {
+                                  string objApi = record.QualifiedApiName;
+                                  if(!setFieldsOfObj.contains(record.QualifiedApiName)) {
+                                      lstText.add(api); 
+                                      LstSalesforceField.add(api);
+                                      LstZipcode.add(api);
+                                      LstCity.add(api);
+                                      LstState.add(api);
+                                      LstAddress.add(api);
+                                      lstCustomText.add(api);
+                                  }
+                              } else if(apiName == 'Phone') {
+                                  lstPhone.add(api); 
+                              } else if(apiName.contains('Email')) {                            
+                                  lstEmail.add(api); 
+                                  LstSalesforceField.add(api);
+                              } else if(apiName.contains('Checkbox')) {
+                                  lstCheckbox.add(api); 
+                              } else if(apiName == 'Picklist') {
+                                  lstPicklist.add(api); 
+                              } else if(apiName.contains('Picklist (Multi-Select)')) {
+                                  lstMultiSelect.add(api); 
+                              }                      
+                          }                               
+                      }
+                  } 
+              }
+        }
+    }
+    
+    public static void bindRecordType(string ObjectName) {
+        ObjectName = String.escapeSingleQuotes(ObjectName);
+        List<RecordType> rtlst = new List<RecordType>();
+        if(Schema.getGlobalDescribe().get('RecordType').getDescribe().isAccessible() && Schema.sObjectType.RecordType.fields.Name.isAccessible()) {
+            rtlst = [SELECT Id,Name FROM RecordType WHERE SobjectType =:ObjectName WITH USER_MODE order by Name];
+        }
+        if(rtlst.size()>0){
+            for(RecordType record : rtlst) {
+                LstRT.add(MusterUtility.getAPIWrapper(record.Name,record.Id));                            
+            }                      
+        }
+    }
+    
+    public static void bindMusterField() {
+        LstMusterField.add(MusterUtility.getAPIWrapper('Email','email'));
+    }
+    
+    public static void bindFieldsWhichNotShown() {
+        setFieldsOfObj.add(MusterStrings.STR_NAMESPACE+'Legislative_District_Lower_Chamber__c');
+        setFieldsOfObj.add(MusterStrings.STR_NAMESPACE+'Legislative_District_Upper_Chamber__c');
+        setFieldsOfObj.add(MusterStrings.STR_NAMESPACE+'State_Boundary__c');
+        setFieldsOfObj.add(MusterStrings.STR_NAMESPACE+'Congressional_District_Boundary__c');
+        setFieldsOfObj.add(MusterStrings.STR_NAMESPACE+'Muster_UUID__c');
+    }
+    
+    @AuraEnabled
+    public static string SaveMusterSetting(string ApiKey, string Entity, string MusterField, string SalesforceField, string RecordType, string DataSyncMode, string Prefix, string FirstName, string LastName, string PrimaryEmail, string PhoneNumber, string Address1, string Address2, string City, string State, string Zip, string EmailOptIn, string TextOptIn, string Advocate, List<string> RecordTypeMToSF, string AccountId, string batchFrequency, string batchFrequencyOld) {
+        string retStr='';
+        try {
+            string RecordName = MusterStrings.STR_SETTING_NAME_Label;
+            string sfToMuster = '';
+           if(RecordTypeMToSF !=Null && RecordTypeMToSF.size()>0) {
+                for(string aa : RecordTypeMToSF) {sfToMuster += aa+';';} 
+            }
+            Map<String,String> MapSetting = new Map<String,String>();            
+            MapSetting.put('Entity__c', Entity);
+            MapSetting.put('Muster_Field__c', MusterField);
+            MapSetting.put('Salesforce_Field__c', SalesforceField);
+            MapSetting.put('Record_Type_Muster_to_SF__c', RecordType);           
+            MapSetting.put('Data_Sync_Mode__c', DataSyncMode);
+            MapSetting.put('Prefix__c', Prefix);
+            MapSetting.put('First_Name__c', FirstName);
+            MapSetting.put('Last_Name__c', LastName);
+            MapSetting.put('Primary_Email__c', PrimaryEmail);
+            MapSetting.put('Phone_Number__c', PhoneNumber);
+            MapSetting.put('Address_1__c', Address1);
+            MapSetting.put('Address_2__c', Address2);
+            MapSetting.put('City__c', City);
+            MapSetting.put('State__c', State);
+            MapSetting.put('Zip__c', Zip);
+            MapSetting.put('Email_Opt_in__c', EmailOptIn);
+            MapSetting.put('Text_Opt_in__c', TextOptIn);
+            MapSetting.put('Advocate__c', Advocate);
+            MapSetting.put('Record_Type_SF_to_Muster__c', sfToMuster);
+            MapSetting.put('Bucket_Account_Id__c', AccountId);
+            MapSetting.put('Batch_Frequency__c', batchFrequency);
+            
+            if(string.isNotEmpty(ApiKey)) {
+                Map<string,string> returnMap = MusterUtility.encryptApiKey(ApiKey);                
+                MapSetting.put('API_Key__c', returnMap.get(MusterUtility.API_ENCRYPTED_Value));
+                MapSetting.put('Decryption_Key__c', returnMap.get(MusterUtility.API_ENCRYPTED_KEY));                                                
+            }
+            Id jobId = null;
+            if(!Test.isRunningTest()){
+                jobId = MusterUtility.saveMetadataRecord(MusterStrings.MUSTER_SETTING_METADATA_APINAME, MusterStrings.STR_SETTING_NAME_Label, MapSetting);                
+            }
+            if(!MusterUtility.havePermission) { return 'Insufficient'; }               
+            string msg = reScheduledJob(batchFrequency, batchFrequencyOld);
+            if(string.isNotBlank(msg) && msg == 'ScheduledJob') {return 'ScheduledJob';}
+            
+            retStr = 'SUCCESS'; //jobId;
+        }
+        catch(Exception ex) {  
+            retStr= 'Error while creating modifying custom metadata.';
+        }
+        return retStr;
+    }
+    
+    public static void SaveAPIKey(string ApiKey) {
+        try {
+            if(string.isNotEmpty(ApiKey)) {
+                Map<string,string> returnMap = MusterUtility.encryptApiKey(ApiKey);
+                
+                Map<String,String> MapSetting = new Map<String,String>();
+                MapSetting.put('API_Key__c', returnMap.get(MusterUtility.API_ENCRYPTED_Value));
+                MapSetting.put('Decryption_Key__c', returnMap.get(MusterUtility.API_ENCRYPTED_KEY));                                
+                
+                Id jobId = MusterUtility.saveMetadataRecord(MusterStrings.MUSTER_SETTING_METADATA_APINAME, MusterStrings.STR_SETTING_NAME_Label, MapSetting);
+            }
+        }
+        catch(Exception ex) {  
+
+        }
+    }
+    
+    public static DateTime convertToOtherTimeZone(DateTime dttime) {
+        string sourceTimezone = 'GMT'; 
+        string targetTimezone = UserInfo.getTimeZone().getID();
+        TimeZone tz = Timezone.getTimeZone(sourceTimezone);
+        Integer offset=tz.getOffset(dttime);
+        // target Timezone.
+        TimeZone targetTZ = Timezone.getTimeZone(targetTimezone);
+        integer offsetTotargetTZ = targetTZ.getOffset(dttime);
+        integer correction = offsetTotargetTZ- offset;
+        DateTime targetDT = dttime.addMinutes(correction / (1000 * 60));
+        return targetDT;
+    }
+    
+    public static Time convertTimeToOtherTimeZone(DateTime dttime) {
+        DateTime targetDT = convertToOtherTimeZone(dttime);
+        return Time.newInstance(targetDT.hour(), targetDT.minute(), targetDT.second(), targetDT.millisecond());
+    }
+    
+    public static string reScheduledJob(string batchFrequency, string batchFrequencyOld) {
+        try {       
+            Date myDate = Date.today();
+            String newFormat = myDate.year() + '-' + myDate.month() + '-' + myDate.day()+' '+ batchFrequency + ':00:00';  
+            datetime dtNewTime = datetime.valueOf(newFormat);
+            Time newTime = convertTimeToOtherTimeZone(dtNewTime);  
+            string hour = string.valueOf(newTime.hour());
+            string minute = string.valueOf(newTime.minute());
+            
+            List<CronTrigger> lstJob = new List<CronTrigger>();
+            if(Schema.getGlobalDescribe().get('CronTrigger').getDescribe().isAccessible() ) {
+                lstJob = [SELECT ID FROM CronTrigger 
+                          WHERE CronJobDetail.Name =: MusterStrings.STR_SCHEDULED_JOBNAME WITH USER_MODE];
+            } else {MusterCustomCallout.creatBatchLog('Insufficient permission on CronTrigger object in MusterSettingsController.reScheduledJob(string batchFrequency, string batchFrequencyOld)'); return 'ScheduledJob';}
+            if (batchFrequency != batchFrequencyOld) { 
+                if(lstJob.size() > 0) {
+                    System.abortJob(lstJob[0].Id);
+                }
+                scheduleJob(minute, hour);
+            }
+            else if (batchFrequency == batchFrequencyOld) { 
+                if(lstJob.size() == 0) {
+                    scheduleJob(minute, hour);
+                }
+            }
+            return '';
+        } catch(exception ex){
+            //System.debug('ex '+ex);
+        }
+        return '';
+    }
+    
+    public static void scheduleJob(string minute, string hour) {
+        System.schedule(MusterStrings.STR_SCHEDULED_JOBNAME, '0 '+minute+' '+hour+' * * ?', new MusterBatchScheduler());        
+    }
+    
+    @AuraEnabled
+    public static string SaveCustomFields(string ListCustomFieldForSave) { 
+        
+        if(!Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c').getDescribe().isAccessible()            
+           || !Schema.sObjectType.Muster_Custom_Fields__c.fields.SF_API_Name__c.isUpdateable()) {               
+               return 'Insufficient';
+           }
+        
+        List<Muster_Custom_Fields__c> ListForUpdate = new List<Muster_Custom_Fields__c>();
+        List<Object> lstObj = (List<Object>) JSON.deserializeUntyped(ListCustomFieldForSave); 
+        Integer count = 1;
+        for (Object itemObj : lstObj) {
+            Map<String, Object> mapItem = (Map<String, Object>) itemObj;
+            string recordId = string.valueOf(mapItem.get('Id'));
+            string api = string.valueOf(mapItem.get('SF_API_Name__c'));                                    
+            Muster_Custom_Fields__c mcf = new Muster_Custom_Fields__c(); 
+            mcf.Id = recordId;
+            mcf.SF_API_Name__c = api; 
+            ListForUpdate.add(mcf);               
+        }
+        if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c').getDescribe().isAccessible() && Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c').getDescribe().isUpdateable() ){
+            if(ListForUpdate.size() > 0) {
+                Database.update(ListForUpdate, false, system.AccessLevel.USER_MODE); 
+            }
+        }
+        return 'SUCCESS';
+    }
+    
+    @AuraEnabled
+    public static string validateAndProcessAPIKey(string  apiKey) {
+        string retStr = '';
+        try {
+            apiKey = MusterStrings.STR_APIKEY_PREFIX+apiKey;
+            Map<String,String> resultMap = MusterCustomHandler.settingCall(apiKey);
+            if(resultMap.containsKey('resMessage')) {
+                string msg = resultMap.get('resMessage');
+                retStr = msg;
+                if(msg == 'Success' ) {                    
+                    retStr  = 'SUCCESS';
+                } else if(msg == 'Insufficient' ) { retStr  = 'Insufficient';  }                   
+            }
+        }
+        catch( Exception ex) {
+            //system.debug('Exception == '+ex.getMessage());
+        }
+        return retStr;
+    }
+    
+    @AuraEnabled
+    public static string saveAPIKeyInMetadata(string  apiKey) {
+        string retStr = '';
+        try {            
+            if(string.isNotEmpty(apiKey)) {
+                SaveAPIKey(apiKey);   
+                if(!MusterUtility.havePermission) { return 'Insufficient';}   
+                retStr  = 'SUCCESS';
+            }
+        }
+        catch( Exception ex) {
+            retStr = ex.getMessage();
+        }
+        return retStr;
+    }
+    
+    @AuraEnabled
+    public static string syncBatchBasedOnDirection(string  method) {  
+        string retStr = '';
+        try {            
+            List<AsyncApexJob> lst = getBatchRunningStatus();
+            if(!MusterUtility.havePermission) { return 'Insufficient';}  
+            if(lst.size() > 0) {
+                retStr = 'Running';
+            } else {
+                if(method == 'SF2M') {
+                    MusterUtility.executePostBatch(false); 
+                } else if(method == 'M2SF') {
+                    MusterUtility.executeCheckBatchStatusBatch(true);
+                } else if(method == 'Both') {
+                    MusterUtility.executePostBatch(true); 
+                }
+            }
+        }
+        catch( Exception ex) {
+            //system.debug('Exception == '+ex.getMessage());
+        }
+        return retStr;
+    }
+    
+    public static List<AsyncApexJob> getBatchRunningStatus() {
+        List<AsyncApexJob> lst = new List<AsyncApexJob>();
+        Set<string> classNameSet = new Set<string>();
+        classNameSet.add('MusterContactAccountPost_Batch');
+        classNameSet.add('MusterContactBatch');
+        classNameSet.add('MusterActionBatch');
+        
+        Set<string> statusSet = new Set<string>();
+        statusSet.add('Holding');
+        statusSet.add('Preparing');
+        statusSet.add('Processing');
+        statusSet.add('Queued');
+        if(Schema.getGlobalDescribe().get('AsyncApexJob').getDescribe().isAccessible()) {           
+            lst = [SELECT Id FROM AsyncApexJob WHERE jobType = 'BatchApex' and ApexClass.Name =: classNameSet and Status =: statusSet WITH USER_MODE];
+        } else {MusterUtility.havePermission = false; }
+        return lst;
+    }
+    
+    @AuraEnabled
+    public static string runCustomFieldBatch() {
+        string retStr = '';
+        try {
+            List<AsyncApexJob> lst = getBatchRunningStatus();
+            if(!MusterUtility.havePermission) { return 'Insufficient';}   
+            if(lst.size() > 0) {
+                retStr = 'Running';
+            }
+            else {
+                Map<String,String> resultMap = MusterCustomHandler.settingCall('');
+                if(resultMap.containsKey('resMessage')) {
+                    string msg = resultMap.get('resMessage');
+                    retStr = msg;
+                    if(msg == 'Success' ) {                    
+                        retStr  = 'SUCCESS';
+                        setLastSyncDate();
+                    } else if(msg == 'Insufficient' ) { retStr  = 'Insufficient';  }   
+                }
+            }
+        }
+        catch( Exception ex) {
+            //system.debug('Exception == '+ex.getMessage());
+        }
+        
+        return retStr;
+    }
+    
+    @future
+    public static void setLastSyncDate() {
+        if(Check_Permissions.isMetadatAccesible()) {
+            
+            Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
+            Metadata.CustomMetadata firstMetadataRec =  new Metadata.CustomMetadata();
+            firstMetadataRec.fullName = MusterStrings.STR_NAMESPACE+MusterStrings.MUSTER_SETTING_METADATA_APINAME+'.'+MusterStrings.STR_SETTING_NAME_Label;
+            firstMetadataRec.label = MusterStrings.STR_SETTING_NAME_Label;
+            
+            Metadata.CustomMetadataValue customField = new Metadata.CustomMetadataValue();
+            customField.field = MusterStrings.STR_NAMESPACE+'Last_Custom_Field_Sync_Date__c';
+            customField.value = system.now();
+            firstMetadataRec.values.add(customField); 
+            mdContainer.addMetadata(firstMetadataRec); 
+            Id jobId = null;
+            if(!Test.isRunningTest()){
+                jobId = Metadata.Operations.enqueueDeployment(mdContainer, null);
+            }    
+        }
+        else {MusterCustomCallout.creatBatchLog('Insufficient permission on Custom Metadata object in MusterSettingsController.setLastSyncDate()'); }
+    }
+    
+    public static Set<string> excludedField() {
+        Set<string> setFields = new Set<string>();  
+        
+        setFields.add('DunsNumber');
+        setFields.add('NaicsCode');
+        setFields.add('NaicsDesc');
+        setFields.add('Tradestyle');
+        setFields.add('YearStarted');
+        setFields.add('Tier');
+        setFields.add('Jigsaw');
+        setFields.add('IsDeleted');
+        
+        setFields.add('IsDeleted');
+        setFields.add('IsEmailBounced');
+        
+        return setFields;
+        
+    }
+}

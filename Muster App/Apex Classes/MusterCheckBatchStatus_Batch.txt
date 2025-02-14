@@ -1,0 +1,90 @@
+Global with sharing class MusterCheckBatchStatus_Batch implements Database.Batchable<MusterWrapper.checkResults>,Database.stateful, Database.AllowsCallouts,Schedulable{
+    Global List<MusterCustomCallout.MainWrapper> MainList = new List<MusterCustomCallout.MainWrapper>();
+    Global List<MusterWrapper.checkResults> checkStatusList = new List<MusterWrapper.checkResults>();
+    Global List<MusterWrapper.CheckStatusWrapper>mainStatusList = new List<MusterWrapper.CheckStatusWrapper>();
+    Global Muster_Settings__mdt musterRec = new Muster_Settings__mdt();
+    Global String nextURL;
+    Global boolean isPending = false;
+    Global boolean sendCallout = False;
+    Global Integer checkTime =15;  
+    Global string strLog = 'MusterCheckBatchStatus_Batch : ';
+    Global Integer statusCode;
+    Global Integer resultSize=0;
+    Global Boolean runSeqBatch = true;
+    
+    Global MusterCheckBatchStatus_Batch(Boolean runSeq, String endPoint){
+        /***************************************
+First check if User has all the required CRUD/FLS permissions. 
+If any permission is missing then throw error and exit else continue execution.
+*************************************************/
+        if(!Check_Permissions.checkBatchStatusPermission()) {  return; }
+        runSeqBatch = runSeq;
+        nextURL = endPoint ;
+        musterRec = MusterUtility.getMusterSettingsMetadata('Contact');
+        if(musterRec!=NUll){
+            strLog += ' Started Checking Muster Batches Status' ; 
+            if(musterRec.Data_Sync_Mode__c == MusterStrings.STR_SYNC_MODE_BOTH || musterRec.Data_Sync_Mode__c == MusterStrings.STR_SYNC_MODE_M2SF){
+                sendCallout = True;            
+            }            
+        }
+        else{
+            strLog += ' Custom setting is NULL';
+        }
+        MusterCustomCallout.creatBatchLog(strLog);  
+    }
+    
+    Global void execute(SchedulableContext sc) {
+        MusterCheckBatchStatus_Batch bs= new MusterCheckBatchStatus_Batch(runSeqBatch,'');
+        Database.executeBatch(bs,checkTime);
+    }
+    
+    Global Iterable<MusterWrapper.checkResults> start(Database.BatchableContext bc) {        
+        if(sendCallout) {
+            MainList = MusterCustomCallout.MusterAPIHandler('Check Status','',nextURL);
+            if(MainList!=Null && MainList.size()>0){
+                statusCode=MainList[0].resStatusCode;
+                nextURL = MainList[0].nextURL;
+                checkStatusList = MainList[0].checkWpr;
+                if(statusCode ==200 && checkStatusList!=Null && checkStatusList.size()>0){
+                    resultSize = checkStatusList.size();
+                }  
+            } 
+            else{
+                sendCallout = False;
+            }
+        }
+        return checkStatusList;        
+    }        
+    
+    Global void execute(Database.BatchableContext bc, List<MusterWrapper.checkResults> scope) {
+        string msg = 'MusterCheckBatchStatus_Batch : Executed for : '+scope.size()+' records' ;
+        MusterCustomCallout.creatBatchLog(msg);  
+    }
+    
+    Global void finish(Database.BatchableContext bc) {
+        if(sendCallout==True){
+            if(resultSize >0){
+                strLog += ', Batch in \''+'pending'+'\' Status Found'+','+' Scheduled for '+checkTime+' Minutes';  
+                rescheduleJob();
+            }
+            else{
+                strLog += ' No, Pending Status Found, '+' MusterCheckBatchStatus_Batch completed,';
+                strLog += ' MusterContactBatch Called';      
+                musterContactBatch mcon= new musterContactBatch(runSeqBatch,'','', Null );
+                Database.executeBatch(mcon,MusterStrings.INT_BATCHSIZE);
+            }
+        }
+        else{
+            strLog +=' MusterCheckBatchStatus_Batch completed ';
+        }
+        MusterCustomCallout.creatBatchLog(strLog);  
+    }
+    
+    Global void rescheduleJob()
+    {
+        String JOBNAME ='MusterCheckBatchStatus_Batch';
+        Datetime sysTime = System.now().addMinutes(checkTime);
+        String cronExpression = '' + sysTime.second() + ' ' + sysTime.minute() + ' ' + sysTime.hour() + ' ' + sysTime.day() + ' ' + sysTime.month() + ' ? ' + sysTime.year();
+        if(!Test.isRunningTest()) { System.schedule(JOBNAME+'-'+String.valueOf(System.now()), cronExpression, new MusterCheckBatchStatus_Batch(runSeqBatch,''));}
+    }  
+}

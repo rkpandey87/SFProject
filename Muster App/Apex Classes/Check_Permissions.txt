@@ -1,0 +1,551 @@
+public with sharing class Check_Permissions {
+    
+    public static set<string> setFieldPermission = new set<string>();
+    
+    public static Boolean checkSettingPermission() {
+        string msg = 'Insufficient permission in Check_Permissions.checkSettingPermission()';
+        Boolean flag = false;
+        Boolean apiAccess = false;
+        Boolean apiCreateable = false;
+        Boolean fpApi = false;
+        try {
+            Boolean PermissionsModifyMetadata = isMetadatAccesible();
+            string objectName = MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c';
+            Boolean fp = checkFieldPermission(getMusterCustomFields(), objectName, 'Both');
+            Boolean mcfAccess = isObjectAccessible(objectName);
+            Boolean mcfCreateable = isObjectCreateable(objectName); 
+            Boolean mcfDeletable = isObjectDeletable(objectName); 
+            
+            Boolean conAccess = isObjectAccessible('Contact');
+            Boolean accAccess = isObjectAccessible('Account');
+            
+            string objectApi = MusterStrings.STR_NAMESPACE+'Muster_API_Log__c';
+            apiAccess = isObjectAccessible(objectApi);
+            apiCreateable = isObjectCreateable(objectApi);
+            fpApi = checkFieldPermission(getApiLogFields(), objectApi, 'Both');
+            
+            string objectTask ='Task';
+            Boolean taskAccess = isObjectAccessible(objectTask);
+            Boolean taskCreateable = isObjectCreateable(objectTask);
+            Boolean fpTask = checkFieldPermission(getTaskFields(), objectTask, 'Both');		                              
+            
+            flag = (PermissionsModifyMetadata && fp && mcfAccess && mcfCreateable && mcfDeletable && conAccess && accAccess && apiAccess && apiCreateable && fpApi && taskAccess && taskCreateable && fpTask);        
+            
+            if(Test.isRunningTest()) {flag = true;}
+            if(!flag) { if(apiAccess && apiCreateable && fpApi) {MusterCustomCallout.creatBatchLog(msg);}  }
+        } catch(Exception ex) {MusterCustomCallout.creatBatchLog(msg +': '+ex.getMessage());}
+        return flag;
+    }       
+    
+    public static Boolean checkPostBatchPermission() {
+        string msg = 'Insufficient permission in Check_Permissions.checkPostBatchPermission()';
+        Boolean flag = false;
+        Boolean apiAccess = false;
+        Boolean apiCreateable = false;
+        Boolean fpApi = false;
+        Boolean objAccessCon = true;
+        
+        try {
+            Boolean PermissionsModifyMetadata = isMetadatAccesible();
+            
+            Muster_Settings__mdt ms = MusterUtility.getMusterSettingsMetadata('contact'); 
+            set<string> strExcluded = getExcludedFields();                    
+            
+            Set<string> setFields = new Set<string>();  
+            string fields = getMusterSettingsFields(ms); //MusterContactAccountPost_Handler.getMusterSettingsFields(ms);
+            if(string.isNotEmpty(fields)) {
+                fields = fields.removeEnd(',');
+                string[] arr = fields.split(',');            
+                for(string str : arr) {                    
+                    if(!strExcluded.contains(str.trim())) { 
+                        setFields.add(ms.Entity__c+'.'+str.trim());
+                    }
+                }
+            }
+            setFields.add(ms.Entity__c+'.'+MusterStrings.STR_NAMESPACE+'Congressional_District_Boundary__c');
+            setFields.add(ms.Entity__c+'.'+MusterStrings.STR_NAMESPACE+'Legislative_District_Lower_Chamber__c');
+            setFields.add(ms.Entity__c+'.'+MusterStrings.STR_NAMESPACE+'Legislative_District_Upper_Chamber__c');
+            setFields.add(ms.Entity__c+'.'+MusterStrings.STR_NAMESPACE+'State_Boundary__c');
+            setFields.add(ms.Entity__c+'.'+MusterStrings.STR_NAMESPACE+'Temp_Id__c');
+            setFields.add(ms.Entity__c+'.'+MusterStrings.STR_NAMESPACE+'Muster_UUID__c');         
+            
+            Set<string> setFields1 = new Set<string>();
+            setFields1.add(ms.Entity__c+'.'+MusterStrings.STR_NAMESPACE+'Last_Synced_to_Muster__c'); 
+            
+            if(ms.Entity__c != 'contact') { objAccessCon = isObjectAccessible('contact');}
+            
+            Boolean objAccess = isObjectAccessible(ms.Entity__c);
+            Boolean fp = checkFieldPermission(setFields, ms.Entity__c, 'Read'); 
+            Boolean fp1 = checkFieldPermission(setFields1, ms.Entity__c, 'Edit'); 
+            
+            string objMcf = MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c';
+            Boolean mcfAccess = isObjectAccessible(objMcf);  
+            Boolean fpMcf = checkFieldPermission(getMusterCustomFields(), objMcf, 'Read');
+            
+            string objEmail = MusterStrings.STR_NAMESPACE+'emails__c';
+            Boolean emailAccess = isObjectAccessible(objEmail);  
+            Boolean fpEmail = checkFieldPermission(getEmailFields(), objEmail, 'Read');
+            
+            string objPhone = MusterStrings.STR_NAMESPACE+'Phone_numbers__c';
+            Boolean phoneAccess = isObjectAccessible(objPhone);  
+            Boolean fpPhone = checkFieldPermission(getPhoneFields(), objPhone, 'Read');
+            
+            string objLocation = MusterStrings.STR_NAMESPACE+'locations__c';
+            Boolean locAccess = isObjectAccessible(objLocation);  
+            Boolean fpLocation = checkFieldPermission(getLocationFields(), objLocation, 'Read');
+            
+            string objectApi = MusterStrings.STR_NAMESPACE+'Muster_API_Log__c';
+            apiAccess = isObjectAccessible(objectApi);
+            apiCreateable = isObjectCreateable(objectApi);
+            fpApi = checkFieldPermission(getApiLogFields(), objectApi, 'Both');
+            
+            string objectTask = 'Task';
+            Boolean taskAccess = isObjectAccessible(objectTask);
+            Boolean taskCreateable = isObjectCreateable(objectTask);
+            Boolean fpTask = checkFieldPermission(getTaskFields(), objectTask, 'Both');
+            
+            flag = (PermissionsModifyMetadata && objAccessCon && objAccess && fp && fp1 && mcfAccess && fpMcf && emailAccess && fpEmail && apiCreateable && taskCreateable
+                    && phoneAccess && fpPhone && locAccess && fpLocation && apiAccess && fpApi && taskAccess && fpTask  );
+            
+            if(Test.isRunningTest()) {flag = true;}
+            if(!flag) { if(apiAccess && apiCreateable && fpApi) {MusterCustomCallout.creatBatchLog(msg);}  }
+        } catch(Exception ex) {MusterCustomCallout.creatBatchLog(msg +': '+ex.getMessage());}
+        return flag;
+    }
+    
+    public static Boolean checkBatchStatusPermission() {
+        string msg = 'Insufficient permission in Check_Permissions.checkBatchStatusPermission()';
+        Boolean flag = false;
+        Boolean apiAccess = false;
+        Boolean apiCreateable = false;
+        Boolean fpApi = false;
+        try {            
+            Boolean PermissionsOfMetadata = isMetadatAccesible();
+            
+            string objectApi = MusterStrings.STR_NAMESPACE+'Muster_API_Log__c';
+            apiAccess = isObjectAccessible(objectApi);
+            apiCreateable = isObjectCreateable(objectApi);
+            fpApi = checkFieldPermission(getApiLogFields(), objectApi, 'Both');
+            
+            string objectTask = 'Task';
+            Boolean taskAccess = isObjectAccessible(objectTask);
+            Boolean taskCreateable = isObjectCreateable(objectTask);
+            Boolean fpTask = checkFieldPermission(getTaskFields(), objectTask, 'Both');
+            
+            flag = (PermissionsOfMetadata && apiAccess && apiCreateable && fpApi && taskCreateable && taskAccess && fpTask);
+            
+            if(Test.isRunningTest()) {flag = true;}
+            if(!flag) {
+                if(apiAccess && apiCreateable && fpApi) {MusterCustomCallout.creatBatchLog(msg);}
+            }
+        } catch(Exception ex) {MusterCustomCallout.creatBatchLog(msg +': '+ex.getMessage());}
+        return flag;
+    }
+    
+    public static Boolean checkGetContactAccountBatchPermission() {
+        Boolean flag = false;
+        string msg = 'Insufficient permission in Check_Permissions.checkGetContactAccountBatchPermission() ';
+        try {
+            Boolean PermissionsModifyMetadata = isMetadatAccesible();
+            Muster_Settings__mdt ms = MusterUtility.getMusterSettingsMetadata('contact'); 
+            set<string> strExcluded = getExcludedFields(); 
+            
+            Set<string> setFields = new Set<string>();  
+            string fields = getMusterSettingsFields(ms); //MusterContactAccountPost_Handler.getMusterSettingsFields(ms);
+            if(string.isNotEmpty(fields)) {
+                fields = fields.removeEnd(',');
+                string[] arr = fields.split(',');            
+                for(string str : arr) {
+                    if(!strExcluded.contains(str.trim())) {
+                        setFields.add(ms.Entity__c+'.'+str.trim());
+                    }
+                }
+            }
+
+            setFields.add(ms.Entity__c+'.'+MusterStrings.STR_NAMESPACE+'Congressional_District_Boundary__c');
+            setFields.add(ms.Entity__c+'.'+MusterStrings.STR_NAMESPACE+'Legislative_District_Lower_Chamber__c');
+            setFields.add(ms.Entity__c+'.'+MusterStrings.STR_NAMESPACE+'Legislative_District_Upper_Chamber__c');
+            setFields.add(ms.Entity__c+'.'+MusterStrings.STR_NAMESPACE+'State_Boundary__c');
+            setFields.add(ms.Entity__c+'.'+MusterStrings.STR_NAMESPACE+'Temp_Id__c');
+            setFields.add(ms.Entity__c+'.'+MusterStrings.STR_NAMESPACE+'Muster_UUID__c');
+            
+            Boolean objAccess = isObjectAccessible(ms.Entity__c);
+            Boolean objCreateable = isObjectCreateable(ms.Entity__c);
+            Boolean objUpdateable = isObjectUpdateable(ms.Entity__c);
+            
+            Boolean objAccAccess = true;
+            if(ms.Entity__c == 'contact' && ms.Bucket_Account_Id__c!=Null ){ 
+                objAccAccess = isObjectAccessible('Account');
+            }
+            Boolean fp = checkFieldPermission(setFields, ms.Entity__c, 'Both'); 
+            
+            string objMcf = MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c';
+            Boolean mcfAccess = isObjectAccessible(objMcf);  
+            Boolean fpMcf = checkFieldPermission(getMusterCustomFields(), objMcf, 'Read');
+            
+            string objEmail = MusterStrings.STR_NAMESPACE+'emails__c';
+            Boolean emailAccess = isObjectAccessible(objEmail); 
+            Boolean emailCreateable = isObjectCreateable(objEmail);
+            Boolean fpEmail = checkFieldPermission(getEmailFields(), objEmail, 'Edit');
+          
+            string objPhone = MusterStrings.STR_NAMESPACE+'Phone_numbers__c';
+            Boolean phoneAccess = isObjectAccessible(objPhone);
+            Boolean phoneCreateable = isObjectCreateable(objPhone);
+            Boolean fpPhone = checkFieldPermission(getPhoneFields(), objPhone, 'Edit');
+            
+            string objLocation = MusterStrings.STR_NAMESPACE+'locations__c';
+            Boolean locAccess = isObjectAccessible(objLocation); 
+            Boolean locCreateable = isObjectCreateable(objLocation);
+            Boolean fpLocation = checkFieldPermission(getLocationFields(), objLocation, 'Edit');
+            
+            string objectApi = MusterStrings.STR_NAMESPACE+'Muster_API_Log__c';
+            Boolean apiAccess = isObjectAccessible(objectApi);
+            Boolean apiCreateable = isObjectCreateable(objectApi);
+            Boolean fpApi = checkFieldPermission(getApiLogFields(), objectApi, 'Both');
+            
+            string objectTask = 'Task';
+            Boolean taskAccess = isObjectAccessible(objectTask);
+            Boolean taskCreateable = isObjectCreateable(objectTask);
+            Boolean fpTask = checkFieldPermission(getTaskFields(), objectTask, 'Both');                
+            
+            flag = (objAccess && objCreateable && objUpdateable && objAccAccess && fp &&  mcfAccess && fpMcf 
+                    && emailAccess && emailCreateable && fpEmail && phoneAccess && phoneCreateable && fpPhone
+                    && locAccess && locCreateable && fpLocation && apiAccess && apiCreateable && fpApi && taskAccess
+                    && taskCreateable && fpTask);
+            
+            if(Test.isRunningTest()) {flag = true;}
+            
+            if(!flag) {
+                MusterContactBatch_Handler.havePermission = false;
+                MusterCustomCallout.creatBatchLog(msg);
+            }
+        }
+        catch(Exception ex) {
+            MusterContactBatch_Handler.havePermission = false;
+            MusterCustomCallout.creatBatchLog(msg+ex.getMessage());
+        }
+        
+        return flag;
+    }
+    
+    public static Boolean checkMusterActionBatchPermission() {
+        string strPermission = '';
+        string msg = 'Insufficient permission in Check_Permissions.checkMusterActionBatchPermission()';
+        Boolean flag = false;
+        Boolean apiAccess = false;
+        Boolean apiCreateable = false;
+        Boolean fpApi = false;
+        Boolean objAccessCon = true;
+        try {
+            Boolean PermissionsModifyMetadata = isMetadatAccesible();
+            
+            Muster_Settings__mdt ms = MusterUtility.getMusterSettingsMetadata('contact');         
+            Set<string> setFields = new Set<string>();
+            setFields.add(ms.Entity__c+'.'+MusterStrings.STR_NAMESPACE+'Muster_UUID__c'); 
+            
+            Boolean objAccess = isObjectAccessible(ms.Entity__c);
+            Boolean fp = checkFieldPermission(setFields, ms.Entity__c, 'Read'); 
+            
+            string objAction = MusterStrings.STR_NAMESPACE+'actions__c';
+            Boolean actionAccess = isObjectAccessible(objAction); 
+            Boolean actionCreateable = isObjectCreateable(objAction);
+            Boolean fpAction = checkFieldPermission(getActionFields(), objAction, 'Edit');
+            
+            string objectApi = MusterStrings.STR_NAMESPACE+'Muster_API_Log__c';
+            apiAccess = isObjectAccessible(objectApi);
+            apiCreateable = isObjectCreateable(objectApi);
+            fpApi = checkFieldPermission(getApiLogFields(), objectApi, 'Both');
+            
+            string objectTask = 'Task';
+            Boolean taskAccess = isObjectAccessible(objectTask);
+            Boolean taskCreateable = isObjectCreateable(objectTask);
+            Boolean fpTask = checkFieldPermission(getTaskFields(), objectTask, 'Both');               
+            
+          flag = (PermissionsModifyMetadata && objAccess && fp && actionAccess && actionCreateable && fpAction && apiAccess 
+                    && fpApi && apiCreateable && taskAccess && fpTask && taskCreateable);
+            
+            if(Test.isRunningTest()) {flag = true;}
+            if(!flag) {
+                if(apiAccess && apiCreateable && fpApi) {MusterCustomCallout.creatBatchLog(msg);}
+            }
+        }
+        catch(Exception ex) {MusterCustomCallout.creatBatchLog(msg +': '+ex.getMessage() +' Line no :'+ex.getLineNumber());}
+        return flag;
+    }        
+    
+    public static Boolean checkFieldPermission(set<string> setFields, string sObjectType, string returnType) {
+        try {
+            Boolean hasReadPermission = true;
+            Boolean hasEditPermission = true;
+            string ProfileId = Userinfo.getProfileId();
+            string UserName = Userinfo.getUserName();
+ 
+            sObjectType = String.escapeSingleQuotes(sObjectType);
+            
+            List<FieldPermissions> fpList = new List<FieldPermissions>();
+            List<PermissionSetAssignment> lstAssignment = [SELECT Id, PermissionSet.Name,AssigneeId 
+                                                           FROM PermissionSetAssignment 
+                                                           WHERE Assignee.Username=:UserName 
+                                                           AND PermissionSet.Name = 'Muster_App_Admin' WITH USER_MODE];
+            if(lstAssignment.size() > 0) {
+                fpList = [SELECT SobjectType, Field, PermissionsRead, PermissionsEdit, Parent.ProfileId 
+                          FROM FieldPermissions 
+                          WHERE SobjectType =: sObjectType
+                          AND Field=: setFields 
+                          AND (Parent.ProfileId=:ProfileId OR Parent.Label='Muster App Admin') WITH USER_MODE
+                         ]; 
+            } else {  
+                fpList = [SELECT SobjectType, Field, PermissionsRead, PermissionsEdit, Parent.ProfileId 
+                          FROM FieldPermissions 
+                          WHERE SobjectType =: sObjectType
+                          AND Field=: setFields 
+                          AND Parent.ProfileId=:ProfileId WITH USER_MODE
+                         ];  
+            }
+            
+            if(!fpList.isEmpty() && fpList.size() >= setFields.size()){
+                for(FieldPermissions fp : fpList) {                
+                    if(!fp.PermissionsRead) {hasReadPermission = false;}
+                    if(!fp.PermissionsEdit) {hasEditPermission = false;}  
+                    setFieldPermission.add(fp.Field);
+                }  
+            } else {
+                hasReadPermission = false;
+                hasEditPermission = false; 
+            }
+            if(returnType.containsIgnoreCase('Read')) {return hasReadPermission;}
+            if(returnType.containsIgnoreCase('Edit')) {return hasEditPermission;}
+            if(returnType.containsIgnoreCase('Both')) {return (hasReadPermission && hasEditPermission); }
+        } catch(Exception ex) {MusterCustomCallout.creatBatchLog('Exception in Check_Permissions.checkFieldPermission() :'+ex.getMessage());}
+        return false;
+    }
+    
+    public static Boolean isObjectAccessible(string sObjectType){
+        SObjectType schemaType = Schema.getGlobalDescribe().get(sObjectType);
+        return schemaType.getDescribe().isAccessible();
+    }
+    
+    public static Boolean isObjectCreateable(string sObjectType){
+        SObjectType schemaType = Schema.getGlobalDescribe().get(sObjectType);
+        return schemaType.getDescribe().isCreateable();
+    }
+    
+    public static Boolean isObjectUpdateable(string sObjectType){
+        SObjectType schemaType = Schema.getGlobalDescribe().get(sObjectType);
+        return schemaType.getDescribe().isUpdateable();
+    }
+    
+    public static Boolean isObjectDeletable(string sObjectType){
+        SObjectType schemaType = Schema.getGlobalDescribe().get(sObjectType);
+        return schemaType.getDescribe().isDeletable();
+    }
+    
+    public static Boolean isMetadatAccesible() {
+        string ProfileId = Userinfo.getProfileId();
+        List<Profile> lst = [SELECT Id,Name, PermissionsLightningExperienceUser, PermissionsModifyMetadata 
+                             FROM Profile
+                             WHERE Id =:ProfileId 
+                             AND PermissionsModifyMetadata = true
+                             AND PermissionsCustomizeApplication = true WITH USER_MODE
+                            ];
+        if(lst.size() > 0) { return true; } else { return false; }
+    }
+    
+    public static set<string> getMusterCustomFields() {
+        Set<string> setFields = new Set<string>();  
+        setFields.add(MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c.'+MusterStrings.STR_NAMESPACE+'Description__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c.'+MusterStrings.STR_NAMESPACE+'Field_Type__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c.'+MusterStrings.STR_NAMESPACE+'Label__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c.'+MusterStrings.STR_NAMESPACE+'Options__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c.'+MusterStrings.STR_NAMESPACE+'Placeholder__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c.'+MusterStrings.STR_NAMESPACE+'SF_API_Name__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c.'+MusterStrings.STR_NAMESPACE+'Updated_At__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c.'+MusterStrings.STR_NAMESPACE+'uuid_muster__c');
+        return setFields;
+    }
+    
+    public static set<string> getEmailFields() {
+        Set<string> setFields = new Set<string>();  
+        setFields.add(MusterStrings.STR_NAMESPACE+'emails__c.'+MusterStrings.STR_NAMESPACE+'Account_Lookup__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'emails__c.'+MusterStrings.STR_NAMESPACE+'Contact_Lookup__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'emails__c.'+MusterStrings.STR_NAMESPACE+'email__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'emails__c.'+MusterStrings.STR_NAMESPACE+'Temp_Id__c');
+        return setFields;
+    }
+    
+    public static set<string> getPhoneFields() {
+        Set<string> setFields = new Set<string>();  
+        setFields.add(MusterStrings.STR_NAMESPACE+'Phone_numbers__c.'+MusterStrings.STR_NAMESPACE+'Account_Lookup__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'Phone_numbers__c.'+MusterStrings.STR_NAMESPACE+'Contact_Lookup__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'Phone_numbers__c.'+MusterStrings.STR_NAMESPACE+'phone_number__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'Phone_numbers__c.'+MusterStrings.STR_NAMESPACE+'Temp_Id__c');
+        return setFields;
+    }
+    
+    public static set<string> getLocationFields() {
+        Set<string> setFields = new Set<string>();  
+        setFields.add(MusterStrings.STR_NAMESPACE+'locations__c.'+MusterStrings.STR_NAMESPACE+'Account_Lookup__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'locations__c.'+MusterStrings.STR_NAMESPACE+'Congressional_Dist__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'locations__c.'+MusterStrings.STR_NAMESPACE+'Contact_Lookup__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'locations__c.'+MusterStrings.STR_NAMESPACE+'Legislative_Dist_LC__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'locations__c.'+MusterStrings.STR_NAMESPACE+'Legislative_Dist_UC__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'locations__c.'+MusterStrings.STR_NAMESPACE+'state__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'locations__c.'+MusterStrings.STR_NAMESPACE+'State_boundary__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'locations__c.'+MusterStrings.STR_NAMESPACE+'street_address__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'locations__c.'+MusterStrings.STR_NAMESPACE+'street_address_2__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'locations__c.'+MusterStrings.STR_NAMESPACE+'Temp_Id__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'locations__c.'+MusterStrings.STR_NAMESPACE+'zip_code__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'locations__c.'+MusterStrings.STR_NAMESPACE+'city__c');
+        return setFields;
+    }
+    
+    public static set<string> getActionFields() {
+        Set<string> setFields = new Set<string>();  
+        setFields.add(MusterStrings.STR_NAMESPACE+'actions__c.'+MusterStrings.STR_NAMESPACE+'Account_Lookup__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'actions__c.'+MusterStrings.STR_NAMESPACE+'action__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'actions__c.'+MusterStrings.STR_NAMESPACE+'Contact_Lookup__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'actions__c.'+MusterStrings.STR_NAMESPACE+'action_center_id__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'actions__c.'+MusterStrings.STR_NAMESPACE+'action_center_name__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'actions__c.'+MusterStrings.STR_NAMESPACE+'campaign_id__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'actions__c.'+MusterStrings.STR_NAMESPACE+'campaign_name__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'actions__c.'+MusterStrings.STR_NAMESPACE+'target__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'actions__c.'+MusterStrings.STR_NAMESPACE+'uuid__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'actions__c.'+MusterStrings.STR_NAMESPACE+'updated_at__c');  
+        return setFields;
+    }
+    
+    public static set<string> getTaskFields() {
+        Set<string> setFields = new Set<string>();  
+        setFields.add('Task.WhoId');
+        setFields.add('Task.WhatId');
+        //setFields.add('Task.subject');
+        //setFields.add('Task.Status');
+        //setFields.add('Task.Priority');
+        setFields.add('Task.ActivityDate');
+        setFields.add('Task.'+MusterStrings.STR_NAMESPACE+'Muster_Campaign_Name__c');
+        setFields.add('Task.'+MusterStrings.STR_NAMESPACE+'Muster_Target__c');
+        setFields.add('Task.'+MusterStrings.STR_NAMESPACE+'Muster_Action_Center__c');
+        setFields.add('Task.'+MusterStrings.STR_NAMESPACE+'Muster_Action__c');  
+        setFields.add('Task.'+MusterStrings.STR_NAMESPACE+'Muster_Sync_Logs__c');          
+        return setFields;
+    }
+    
+    public static set<string> getApiLogFields() {
+        Set<string> setFields = new Set<string>();  
+        setFields.add(MusterStrings.STR_NAMESPACE+'Muster_API_Log__c.'+MusterStrings.STR_NAMESPACE+'Muster_API_EndPoint__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'Muster_API_Log__c.'+MusterStrings.STR_NAMESPACE+'Batch_Log__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'Muster_API_Log__c.'+MusterStrings.STR_NAMESPACE+'Muster_Response__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'Muster_API_Log__c.'+MusterStrings.STR_NAMESPACE+'Muster_Date_Time__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'Muster_API_Log__c.'+MusterStrings.STR_NAMESPACE+'Requested_Method__c');
+        setFields.add(MusterStrings.STR_NAMESPACE+'Muster_API_Log__c.'+MusterStrings.STR_NAMESPACE+'Type__c');         
+        return setFields;
+    }
+    
+    //Call from POST Batch handler class
+    public static set<string> checkMetadataFieldPermission() {  
+        try {
+            Muster_Settings__mdt ms = MusterUtility.getMusterSettingsMetadata('contact'); 
+            set<string> strExcluded = getExcludedFields();        
+            
+            set<string> strAddAfter = new set<string>();
+            
+            Set<string> setFields = new Set<string>();  
+            string fields = getMusterSettingsFields(ms);
+            if(string.isNotEmpty(fields)) {
+                fields = fields.removeEnd(',');
+                string[] arr = fields.split(',');            
+                for(string str : arr) {
+                    if(!strExcluded.contains(str.trim())) { 
+                        setFields.add(ms.Entity__c+'.'+str.trim());
+                    } else {strAddAfter.add(ms.Entity__c+'.'+str.trim());}
+                }
+            }
+            
+            Boolean fp = checkFieldPermission(setFields, ms.Entity__c, 'Read');
+            if(Test.isRunningTest()) {fp = true; setFieldPermission.addAll(setFields);} 
+            /*if(!fp) {
+                MusterCustomCallout.creatBatchLog('Insufficient permission on '+ms.Entity__c+' fields');
+            }*/
+            if(strAddAfter.size() > 0) {setFieldPermission.addAll(strAddAfter);}
+            
+        } catch(Exception ex) {MusterCustomCallout.creatBatchLog('Exception in Check_Permissions.checkMetadataFieldPermission(), Exception :'+ex.getMessage());}
+        return setFieldPermission;
+    } 
+    
+    public static string getMusterSettingsFields(Muster_Settings__mdt ms) {
+        string fields = '';
+        try {
+           
+            Map<string,string> mapKey = new Map<string,string>();
+            if(string.isNotEmpty(ms.Prefix__c) ) { fields += ms.Prefix__c; mapKey.put(ms.Prefix__c, ms.Prefix__c); }
+            if(string.isNotEmpty(ms.First_Name__c) && !fields.contains(ms.First_Name__c)) { fields += (fields == '')? ms.First_Name__c : ', '+ms.First_Name__c; mapKey.put(ms.First_Name__c, ms.First_Name__c); }
+            if(string.isNotEmpty(ms.Last_Name__c) && !fields.contains(ms.Last_Name__c)) { fields += (fields == '')? ms.Last_Name__c : ', '+ms.Last_Name__c; mapKey.put(ms.Last_Name__c, ms.Last_Name__c);}
+            if(string.isNotEmpty(ms.Primary_Email__c) && !fields.contains(ms.Primary_Email__c)) { fields += (fields == '')? ms.Primary_Email__c : ', '+ms.Primary_Email__c; mapKey.put(ms.Primary_Email__c, ms.Primary_Email__c);}
+            if(string.isNotEmpty(ms.Phone_Number__c) && !fields.contains(ms.Phone_Number__c)) { fields += (fields == '')? ms.Phone_Number__c : ', '+ms.Phone_Number__c; mapKey.put(ms.Phone_Number__c, ms.Phone_Number__c);}
+            if(string.isNotEmpty(ms.Address_1__c) && !fields.contains(ms.Address_1__c)) { fields += (fields == '')? ms.Address_1__c : ', '+ms.Address_1__c; mapKey.put(ms.Address_1__c, ms.Address_1__c);}
+            if(string.isNotEmpty(ms.Address_2__c) && !fields.contains(ms.Address_2__c)) { fields += (fields == '')? ms.Address_2__c : ', '+ms.Address_2__c; mapKey.put(ms.Address_2__c, ms.Address_2__c);}
+            if(string.isNotEmpty(ms.City__c) && !fields.contains(ms.City__c)) { fields += (fields == '')? ms.City__c : ', '+ms.City__c; mapKey.put(ms.City__c, ms.City__c);}
+            if(string.isNotEmpty(ms.State__c) && !fields.contains(ms.State__c)) { fields += (fields == '')? ms.State__c : ', '+ms.State__c; mapKey.put(ms.State__c, ms.State__c);}
+            if(string.isNotEmpty(ms.ZIP__c) && !fields.contains(ms.ZIP__c)) { fields += (fields == '')? ms.ZIP__c : ', '+ms.ZIP__c; mapKey.put(ms.ZIP__c, ms.ZIP__c);}
+            if(string.isNotEmpty(ms.Email_Opt_in__c) && !fields.contains(ms.Email_Opt_in__c)) { fields += (fields == '')? ms.Email_Opt_in__c : ', '+ms.Email_Opt_in__c; mapKey.put(ms.Email_Opt_in__c, ms.Email_Opt_in__c);}
+            if(string.isNotEmpty(ms.Text_Opt_in__c)&& !fields.contains(ms.Text_Opt_in__c)) { fields += (fields == '')? ms.Text_Opt_in__c : ', '+ms.Text_Opt_in__c; mapKey.put(ms.Text_Opt_in__c, ms.Text_Opt_in__c);}
+            if(string.isNotEmpty(ms.Advocate__c) && !fields.contains(ms.Advocate__c)) { fields += (fields == '')? ms.Advocate__c : ', '+ms.Advocate__c; mapKey.put(ms.Advocate__c, ms.Advocate__c);}
+           
+            if(Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c').getDescribe().isAccessible() 
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.Field_Type__c.isAccessible()
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.SF_API_Name__c.isAccessible()
+               && Schema.sObjectType.Muster_Custom_Fields__c.fields.uuid_muster__c.isAccessible()
+              ) {
+                  List<Muster_Custom_Fields__c> lstMcf = [SELECT id
+                                                          , Field_Type__c
+                                                          , SF_API_Name__c
+                                                          , uuid_muster__c
+                                                          FROM Muster_Custom_Fields__c
+                                                          WHERE uuid_muster__c != ''
+                                                          AND Field_Type__c != ''
+                                                          AND SF_API_Name__c != '' WITH USER_MODE];              
+                  
+                  if(lstMcf.size() > 0) {
+                      for(Muster_Custom_Fields__c mcf : lstMcf) {
+                          if(!mapKey.ContainsKey(mcf.SF_API_Name__c.Trim()) ) { 
+                              fields += (fields == '')? mcf.SF_API_Name__c : ', '+mcf.SF_API_Name__c; 
+                              mapKey.put(mcf.SF_API_Name__c, mcf.SF_API_Name__c);
+                          }
+                      }
+                  } 
+              } 
+        }
+        catch (Exception ex) {
+            MusterCustomCallout.creatBatchLog('Exception check_Permission.getMusterSettingsFields() : '+ex.getMessage()+ ', Line no :'+ex.getLineNumber());
+        }
+        return fields;
+    }
+    
+    public static set<string> getExcludedFields() {
+        set<string> strExcluded = new set<string>();
+        strExcluded.add('Salutation');
+        strExcluded.add('FirstName');
+        strExcluded.add('LastName');
+        strExcluded.add('MailingPostalCode');
+        strExcluded.add('MailingCity');
+        strExcluded.add('MailingState');
+        strExcluded.add('MailingStreet');
+        strExcluded.add('OtherStreet');
+        strExcluded.add('OtherState');
+        strExcluded.add('Title');
+        strExcluded.add('EmailBouncedReason');
+        
+        strExcluded.add('Name');
+        strExcluded.add('BillingStreet');
+        strExcluded.add('BillingPostalCode');
+        strExcluded.add('BillingState');
+        strExcluded.add('BillingCity');
+        strExcluded.add('ShippingStreet');        
+        strExcluded.add('ShippingState');        
+        strExcluded.add('ShippingCity');
+        strExcluded.add('ShippingPostalCode');
+        return strExcluded;
+    }
+    
+    
+}

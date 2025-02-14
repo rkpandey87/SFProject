@@ -1,0 +1,69 @@
+public with sharing class MusterContactTrigger_Handler {
+
+     // Logic moved at the trigger level (MusterContactTrigger)
+    public static Boolean isChange(Contact newCon, Contact oldCon, Muster_Settings__mdt ms, List<Muster_Custom_Fields__c> lstMcf, set<string> fieldPermission ) {
+       /*if(string.isNotEmpty(ms.Prefix__c) && fieldPermission.contains(MusterStrings.STR_CONTACT+'.'+ms.Prefix__c) ) { 
+            if( (string)newCon.get(ms.Prefix__c) != (string)oldCon.get (ms.Prefix__c) ) { return true; }
+        }
+        
+        if(string.isNotEmpty(ms.First_Name__c) && fieldPermission.contains(MusterStrings.STR_CONTACT+'.'+ms.First_Name__c) ) {
+            if( (string)newCon.get(ms.First_Name__c) != (string)oldCon.get(ms.First_Name__c) ) { return true; } 
+        }
+        
+        if(string.isNotEmpty(ms.Last_Name__c) && fieldPermission.contains(MusterStrings.STR_CONTACT+'.'+ms.Last_Name__c) ) {
+            if( (string)newCon.get(ms.Last_Name__c) != (string)oldCon.get(ms.Last_Name__c) ) { return true; } 
+        }
+         
+        if(string.isNotEmpty(ms.Primary_Email__c) && fieldPermission.contains(MusterStrings.STR_CONTACT+'.'+ms.Primary_Email__c) ) {
+            if( (string)newCon.get(ms.Primary_Email__c) != (string)oldCon.get(ms.Primary_Email__c) ) { return true; } 
+        }
+        
+        if(string.isNotEmpty(ms.Phone_Number__c) && fieldPermission.contains(MusterStrings.STR_CONTACT+'.'+ms.Phone_Number__c) ) {
+            if( (string)newCon.get(ms.Phone_Number__c) != (string)oldCon.get(ms.Phone_Number__c) ) { return true; } 
+        }
+        if(string.isNotEmpty(ms.Address_1__c) && fieldPermission.contains(MusterStrings.STR_CONTACT+'.'+ms.Address_1__c) ) {
+            if( (string)newCon.get(ms.Address_1__c) != (string)oldCon.get(ms.Address_1__c) ) { return true; } 
+        }
+        
+        if(string.isNotEmpty(ms.Address_2__c) && fieldPermission.contains(MusterStrings.STR_CONTACT+'.'+ms.Address_2__c) ) {
+            if( (string)newCon.get(ms.Address_2__c) != (string)oldCon.get(ms.Address_2__c) ) { return true; } 
+        }
+        
+        if(string.isNotEmpty(ms.City__c) && fieldPermission.contains(MusterStrings.STR_CONTACT+'.'+ms.City__c) ) {
+            if( (string)newCon.get(ms.City__c) != (string)oldCon.get(ms.City__c) ) { return true; } 
+        }
+        
+        if(string.isNotEmpty(ms.State__c) && fieldPermission.contains(MusterStrings.STR_CONTACT+'.'+ms.State__c) ) {
+            if( (string)newCon.get(ms.State__c) != (string)oldCon.get(ms.State__c) ) { return true; } 
+        }
+        
+        if(string.isNotEmpty(ms.ZIP__c) && fieldPermission.contains(MusterStrings.STR_CONTACT+'.'+ms.ZIP__c) ) {
+            if( (string)newCon.get(ms.ZIP__c) != (string)oldCon.get(ms.ZIP__c) ) { return true; } 
+        }
+        
+        if(string.isNotEmpty(ms.Email_Opt_in__c) && fieldPermission.contains(MusterStrings.STR_CONTACT+'.'+ms.Email_Opt_in__c) ) {
+            if( (Boolean)newCon.get(ms.Email_Opt_in__c) != (Boolean)oldCon.get(ms.Email_Opt_in__c) ) { return true; } 
+        }
+        
+        if(string.isNotEmpty(ms.Text_Opt_in__c) && fieldPermission.contains(MusterStrings.STR_CONTACT+'.'+ms.Text_Opt_in__c) ) {
+            if( (Boolean)newCon.get(ms.Text_Opt_in__c) != (Boolean)oldCon.get(ms.Text_Opt_in__c) ) { return true; } 
+        }
+        
+        if(string.isNotEmpty(ms.Advocate__c) && fieldPermission.contains(MusterStrings.STR_CONTACT+'.'+ms.Advocate__c) ) {
+            if( (Boolean)newCon.get(ms.Advocate__c) != (Boolean)oldCon.get(ms.Advocate__c) ) { return true; } 
+        }
+       
+        if((Schema.getGlobalDescribe().get(MusterStrings.STR_NAMESPACE+'Muster_Custom_Fields__c').getDescribe().isAccessible() 
+            && Schema.sObjectType.Muster_Custom_Fields__c.fields.SF_API_Name__c.isAccessible()   
+           )) {
+               if(lstMcf.size() > 0) {
+                   for(Muster_Custom_Fields__c mcf : lstMcf) {
+                       if(fieldPermission.contains(MusterStrings.STR_CONTACT+'.'+mcf.SF_API_Name__c) ) {
+                           if( (string)newCon.get(mcf.SF_API_Name__c) != (string)oldCon.get(mcf.SF_API_Name__c) ) { return true; } 
+                       }
+                   }
+               }
+           }*/
+        return false;
+    }
+}
