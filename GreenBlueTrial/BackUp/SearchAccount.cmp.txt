@@ -1,0 +1,30 @@
+<aura:component controller="SearchAccountController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+	<aura:attribute name="ShowRecords" type="List"/>
+    <aura:attribute name="key" type="String" /> 
+    <aura:handler  name="init" value="{!this}" action="{!c.Accountcontroller}" />
+    <div class="size">
+    
+     <table class="slds-table slds-table--bordered slds-table--striped">
+        <thead>
+            
+        </thead>
+        <tbody>
+            <aura:iteration items="{!v.ShowRecords}" var="A">
+                <tr>
+                    <td>
+                        <div class="slds-box">
+                                <p>
+                                    <lightning:formattedRichText value="Logo"/>
+                                </p>
+                            </div></td>
+                    <td><b>{!A.Name}</b> <br/>
+                    <p>{!A.Principal_Activity__c} </p>
+                    </td>
+                    <td>{!A.Organization_Description__c}</td>
+                    <td>Become a member to <br/>see full profile</td>
+                </tr>
+            </aura:iteration>
+        </tbody>
+    </table>
+        </div>
+</aura:component>

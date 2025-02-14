@@ -1,0 +1,17 @@
+public without sharing class SearchAccountController {
+@AuraEnabled
+    public static List<Account> fetchAccountRecords() {
+         return [select Name,Logo__c,Principal_Activity__c,Organization_Description__c from Account];
+    /*    Set<string>prIdSet =new Set<string>();
+        List<Program_Engagement__c>prList = [Select Id,Account__c,Subscription_Status__c ,Program__r.Name from Program_Engagement__c where Subscription_Status__c ='Active' AND Program__r.Name = 'SPC'];
+        if(prList!=Null && prList.size()>0){
+            For(Program_Engagement__c pr:prList){
+                prIdSet.add(pr.Account__c);
+            }  
+        }
+        System.debug('prIdSet====>'+prIdSet);
+        return [select Name,Logo__c,Principal_Activity__c,Organization_Description__c from Account where id in:prIdSet ]; 
+*/
+    }
+   
+}

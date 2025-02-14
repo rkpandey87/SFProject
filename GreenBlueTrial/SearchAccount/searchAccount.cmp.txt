@@ -1,0 +1,44 @@
+<aura:component controller="AccountsController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+	<aura:attribute name="accounts" type="List" />
+    <aura:attribute name="key" type="String" /> 
+    <aura:attribute name="recordCount" type="Integer" /> 
+    <aura:attribute name="selectedpicklist" type="string"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" /> 
+    <aura:handler name="PickListCarry" event="c:PickListCarryEvent" action="{!c.reloadData}"/>
+    
+    <div class="slds-grid slds-grid_pull-padded-medium">
+  <div class="slds-col slds-p-horizontal_medium">
+    <span><lightning:input type="text" name="searchKey" label="Enter" aura:id="searchKey" onchange="{!c.searchKeyChange}" placeholder="Search" /></span>
+  </div>
+  <div class="slds-col slds-p-horizontal_medium">
+    <span><c:searchData /></span>
+  </div>
+        
+   <p>No of Account :{!v.recordCount}</p>
+        
+</div>
+   <!-- <lightning:input type="text" name="searchKey" label="Enter" aura:id="searchKey" onchange="{!c.searchKeyChange}" placeholder="Search" />          
+    -->
+    <table class="slds-table slds-table_bordered slds-table_striped slds-table_cell-buffer slds-table_fixed-layout">
+        <thead>
+            <tr class="slds-text-heading_label">
+                 <th scope="col"><div class="slds-truncate" title="Logo">Logo</div></th> 
+                <th scope="col"><div class="slds-truncate" title="Name">Name</div></th>
+                <th scope="col"><div class="slds-truncate" title="Type">Type</div></th>         
+                <th scope="col"><div class="slds-truncate" title="Phone">Phone</div></th>
+                <th scope="col"><div class="slds-truncate" title="Type">Industry</div></th> 
+            </tr>
+        </thead>
+        <tbody>
+            <aura:iteration items="{!v.accounts}" var="account">
+                <tr> 
+                    <td><img src="{!account.LogoUrl__c}"/></td>
+                    <td><div class="slds-truncate" title="{!account.Name}">{!account.Name}</div></td>
+                    <td><div class="slds-truncate" title="{!account.Type}">{!account.Type}</div></td>                   
+                    <td><div class="slds-truncate" title="{!account.Phone}">{!account.Phone}</div></td>
+                    <td><div class="slds-truncate" title="{!account.Industry}">{!account.Industry}</div></td>                     
+                </tr>
+            </aura:iteration>
+        </tbody>
+    </table>
+</aura:component>

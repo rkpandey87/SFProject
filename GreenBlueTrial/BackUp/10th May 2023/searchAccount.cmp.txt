@@ -1,0 +1,54 @@
+<aura:component controller="SearchAccountController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+	<aura:attribute name="ShowRecords" type="List"/>
+    <aura:attribute name="ActivityField" type="string"/>
+    <aura:attribute name="ActivityList" type="String[]" default="['Academic Institution','Auxiliary Material Manufacturer/Supplier']"/>
+    
+    <aura:attribute name="key" type="String" /> 
+    <aura:handler  name="init" value="{!this}" action="{!c.Accountcontroller}" />
+    <div class="size">
+        
+        <div class="slds-grid slds-gutters">
+            <div class="slds-col slds-size_2-of-3">
+                <lightning:input aura:id="enter-search" name="enter-search" label="Member Search" type="search"/>
+            </div>
+            <div class="slds-col slds-size_2-of-3">
+                <lightning:select value="{!v.ActivityField}"  > 
+                    <option value="Academic Institution">Activity</option>
+                    <option value="Academic Institution">Academic Institution</option>
+                    <option value="Academic Institution">Auxiliary Material Manufacturer/Supplier</option> 
+                    <aura:iteration items="{!v.ActivityList}" var="i">
+                        <option text="{!i.label}" value="{!i.value}" selected="{!i.value ==v.ActivityField}" />
+                    </aura:iteration> 
+                </lightning:select> 
+            </div>
+        </div>
+    
+        <table class="slds-table slds-table_cell-buffer slds-table_bordered" aria-labelledby="element-with-table-label other-element-with-table-label">
+        <thead>
+            
+        </thead>
+        <tbody>
+            <aura:iteration items="{!v.ShowRecords[0].accList}" var="A">
+                <tr  class="slds-hint-parent">
+                    <td >
+                  
+                        <div class="slds-box">
+                            <p>
+                                <lightning:formattedRichText value="{!A.Logo__c}"/>
+                            </p> 
+                        </div>
+                    </td> 
+                    <td><p style="font-size:18px;"><b>{!A.Name}</b></p> <br/>
+                    <p>{!A.Principal_Activity__c} </p>
+                    </td>
+                   <!-- <td>{!A.Organization_Description__c}</td>-->
+                    <td><div class="slds-truncate"  >{!A.Organization_Description__c}</div></td>
+                  <!--  <td>Become a member to <br/>see full profile</td> -->
+                    <td><a href="https://greenblue--dev.sandbox.my.site.com/SPC/s/memberdirectory" target="_blank">Become a member<br/> to see full profile</a></td>
+                    
+                </tr>
+            </aura:iteration>
+        </tbody>
+    </table>
+        </div>
+</aura:component>
