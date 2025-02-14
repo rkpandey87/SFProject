@@ -1,0 +1,211 @@
+public class MIPWrapperClass {
+    //login Wrapper
+    public class LoginWrapper {
+        public String username;
+        public String password;
+        public String org;
+        
+    }
+    
+    // Session Wrapper
+    public class ReceivableSessionsWrapper {
+        
+        public String sessionId {get;set;} 
+        public String status {get;set;} 
+        public String description {get;set;} 
+        public String date_Z {get;set;} 
+    }
+    // Session Response Wrapper
+    public class SessionsReturnWrapper {
+        
+        public String sessionId {get;set;} 
+        public Integer status {get;set;} 
+        public String Title {get;set;} 
+        
+    }
+    
+    //Receivable Document Invoices Wrapper
+    public class ReceivableDocumentInvoicesWrapper {
+        
+        public String documentId;
+        public String description;
+        public String playerId;
+        public String documentDate;
+        public String dueDate;
+        public Integer documentAmount;
+        public List<Transactions> transactions;
+    }
+    //Receivable Document Invoices Transaction Wrapper
+    public class Transactions {
+		public String effectiveDate;
+		public String entryTypeId;
+		public String description;
+		public Integer debitAmount;
+		public Integer creditAmount;
+		public String segment0;
+		public String segment1;
+		public String segment2;
+		public String segment3;
+		public String segment4;
+		public String segment5;
+		public UserDefinedFields userDefinedFields;
+	}
+    public class UserDefinedFields {
+		public Integer Client_Numbers;
+	}
+    // Receivable Document Credit Wrapper
+    public class ReceivableDocumentCreditWrapper {
+        public String documentId;
+        public String description;
+        public String documentDate;
+        public Integer documentAmount;
+        public String playerId;
+        public UserDefinedFields_C userDefinedFields;
+        public List<Transactions_C> transactions;
+    }
+    
+    public class UserDefinedFields_C {
+		public String editable;
+		public String noneeditable;
+		public String udfdoc01;
+		public String udfdoc02;
+	}
+    
+    public class UserDefinedFields_Z {
+		public String EditableTransLines;
+		public String NoneEditableTransLines;
+		public Boolean UDFboolean;
+		public String UdfString;
+		public Integer udft01;
+		public Integer udft02;
+	}
+    
+    //Receivable Document Credit Transaction Wrapper
+    public class Transactions_C {
+		public Integer creditAmount;
+		public Double debitAmount;
+		public String description;
+		public String effectiveDate;
+		public String entryTypeId;
+		public Double invoiceAppliedToId;
+        public String invoiceAppliedToDocumentId;
+		public String segment0;
+		public String segment1;
+		public String segment2;
+		public String segment3;
+		public String segment4;
+		public String segment5;
+		public UserDefinedFields_Z userDefinedFields;
+	}
+  //Receivable Document Receipt  Wrapper
+    public class ReceivableDocumentReceiptWrapper {
+    
+    public String documentId;
+	public String description;
+	public String playerId;
+	public String documentDate;
+	public Integer documentAmount;
+	public List<Transactions_R> transactions;
+        
+    }
+    
+   //Receivable Document Receipt Transaction Wrapper 
+   
+    public class Transactions_R {
+		public String effectiveDate;
+		public String entryTypeId;
+		public String description;
+		public String invoiceAppliedToDocumentId;
+		public Integer invoiceAppliedToId;
+		public Integer debitAmount;
+		public Integer creditAmount;
+		public String segment0;
+		public String segment1;
+		public String segment2;
+		public String segment3;
+		public String segment4;
+		public String segment5;
+	}
+    
+    public class CreateCustomerWrapper {
+    
+	public String id {get;set;} 
+	public String statusId {get;set;} 
+	public String name {get;set;} 
+	public String classId {get;set;} 
+	public String typeId {get;set;} 
+	public Boolean forceCurrencyType {get;set;} 
+	public Boolean cashOnlyCustomer {get;set;} 
+	public String billingPrintedAddress {get;set;} 
+	public String billingAddressTemplate {get;set;} 
+	public String billingPhone {get;set;} 
+	public String billingFax {get;set;} 
+	public String billingContact_FirstName {get;set;} 
+	public String billingContact_MiddleName {get;set;} 
+	public String billingContact_LastName {get;set;} 
+	public String billingContact_Title {get;set;} 
+	public String billingContact_Position {get;set;} 
+	public String billingContact_EmailAddress {get;set;} 
+	public Boolean creditHold {get;set;} 
+	public Boolean printSeparateChecksForEachInvoice {get;set;} 
+	public String customerComment {get;set;} 
+	public Double firstDiscount {get;set;} 
+	public Integer firstDiscountDaysAvailable {get;set;} 
+	public Double secondDiscount {get;set;} 
+	public Integer secondDiscountDaysAvailable {get;set;} 
+	public Integer daysUntilNetAmountDue {get;set;} 
+	public String defaultRevenueAccountId {get;set;} 
+	public String defaultPrepaymentAccountId {get;set;} 
+	public String distributionCodeId {get;set;} 
+	public String defaultGeneralLedgerAccountId {get;set;} 
+	public String website {get;set;} 
+	public String resaleTaxId {get;set;} 
+	public String notes {get;set;} 
+	public String serviceAddressSameAsId {get;set;} 
+	public String serviceAddress_Line {get;set;} 
+	public String serviceAddress_City {get;set;} 
+	public String serviceAddress_State {get;set;} 
+	public String serviceAddress_PostalCode {get;set;} 
+	public String serviceAddress_Country {get;set;}
+    public String servicePrintedAddress {get;set;}
+	public String serviceAddressTemplate {get;set;} 
+	public String serviceAddressPhone {get;set;} 
+	public String serviceAddressFax {get;set;} 
+	public String serviceContact_FirstName {get;set;} 
+	public String serviceContact_MiddleName {get;set;} 
+	public String serviceContact_LastName {get;set;} 
+	public String serviceContact_Title {get;set;} 
+	public String serviceContact_Position {get;set;} 
+	public String serviceContact_EmailAddress {get;set;} 
+	public Boolean applyFinanceCharges {get;set;} 
+	public Boolean emailInvoice {get;set;} 
+	public Boolean printInvoice {get;set;} 
+	public String invoiceEmailAddress {get;set;} 
+	public String invoiceProcessTemplate {get;set;} 
+	public Boolean emailStatement {get;set;} 
+	public Boolean printStatement {get;set;} 
+	public String statementEmailAddress {get;set;} 
+	public String statementEmailTemplate {get;set;} 
+	public Addresses addresses {get;set;} 
+	public UserDefinedFields_CU userDefinedFields {get;set;} 
+
+	}
+    public class UserDefinedFields_CU {
+		public Integer NumericCustomer {get;set;} 
+
+	}
+    public class Addresses {
+		public Main main {get;set;} 
+
+		
+	}
+    
+    public class Main {
+		public String billingAddress_Line {get;set;} 
+		public String billingAddress_City {get;set;} 
+		public String billingAddress_State {get;set;}
+		public String billingAddress_PostalCode {get;set;} 
+		public String billingAddress_Country {get;set;} 
+	}
+
+}

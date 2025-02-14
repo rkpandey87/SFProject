@@ -1,0 +1,152 @@
+public static void createReceivableCreditDocuments() {
+        
+        String endPoint ;
+        String baseURL;        
+        String reqMethod ;
+        String CreditsReceibableURL;        
+        String MIPName = 'MIPDATA';
+        String jsonText;
+        String AccessToken ='SI_23653_SYS_M$C_cdH7H6_n83zfG536Xki23lQ6XdA1';
+        String sessionId;
+        
+        try {
+            //get sessionId  
+            sessionId =createReceivableSession();
+            if(string.isNotEmpty(AccessToken) && string.isNotEmpty(sessionId)){
+                
+                Http http = new Http();        
+                HttpResponse res = new HttpResponse();
+                HttpRequest req = new HttpRequest(); 
+                
+                MIP_Credential__mdt MIPRec= MIP_Credential__mdt.getInstance(MIPName);
+                MIPWrapperClass.UserDefinedFields_C udcf = new MIPWrapperClass.UserDefinedFields_C();
+				MIPWrapperClass.UserDefinedFields_Z udzf = new MIPWrapperClass.UserDefinedFields_Z();
+                List<MIPWrapperClass.Transactions_C> tcwLst = new List<MIPWrapperClass.Transactions_C>();
+                MIPWrapperClass.ReceivableDocumentCreditWrapper rdw = new MIPWrapperClass.ReceivableDocumentCreditWrapper();
+                
+                system.debug('MIPRec====>'+MIPRec);
+                if(MIPRec!=Null  ){
+                    
+                    baseURL =MIPRec.Base_URL__c;
+                    CreditsReceibableURL =MIPRec.Credits_Receivable_URL__c;
+                    reqMethod =MIPRec.RequestedMethod__c;
+                    endPoint = baseURL+CreditsReceibableURL+'/sessions/'+sessionId+'/documents';
+                }
+                
+                system.debug('##baseURL====>'+baseURL);
+                system.debug('##reqMethod====>'+reqMethod);
+                system.debug('##endPoint====>'+endPoint);
+                
+               //create user defined C record
+                 
+                udcf.editable ='Default Text' ;
+                udcf.noneeditable ='001' ;
+                udcf.udfdoc01 ='' ;
+                udcf.udfdoc02 ='' ;
+                //create user defined Z record
+                udzf.EditableTransLines ='Default Trans Lines';
+                udzf.NoneEditableTransLines ='002';
+                udzf.UDFboolean =true;
+                udzf.UdfString ='String Default';
+                udzf.udft01 =15;
+                udzf.udft02 =0;
+                
+                // create transaction details
+                MIPWrapperClass.Transactions_C tw = new MIPWrapperClass.Transactions_C();
+                tw.creditAmount =222;
+                tw.debitAmount=0;
+                tw.effectiveDate='02/07/2024';
+                tw.description ='Decription ARB_Session_012';
+                tw.entryTypeId ='N';
+                tw.invoiceAppliedToId =0.00;
+                tw.segment0 ='16301';
+                tw.segment1='01';
+                tw.segment2 ='990';
+                tw.segment3 ='';
+                tw.segment4 ='';
+                tw.segment5 ='';
+               // tw.userDefinedFields =udf;
+                system.debug('tw====>'+tw);
+               // twLst.add(tw);
+                
+                MIPWrapperClass.Transactions_C tw1 = new MIPWrapperClass.Transactions_C();
+                
+                tw1.effectiveDate='02/07/2024';
+                tw1.entryTypeId ='N';
+                  tw.invoiceAppliedToId =0.00;
+                tw1.description ='Decription ARB_Session_012';
+                tw1.debitAmount=222;
+                tw1.creditAmount =0;
+                tw1.segment0 ='1600';
+                tw1.segment1='11';
+                tw1.segment2 ='13';
+                tw1.segment3 ='141';
+                tw1.segment4 ='1';
+                tw1.segment5 ='1';
+               // tw1.userDefinedFields =udf;
+                system.debug('tw1====>'+tw1);
+               // twLst.add(tw1);
+              //  system.debug('##twLst====>'+twLst);
+              //  system.debug('##twLst Size====>'+twLst.size());
+                
+                // create document request body 
+                rdw.documentId ='Doc_002';
+                rdw.description ='Decription ARB_Session_012';
+                rdw.playerId ='BRIJ001';
+                rdw.documentDate ='02/07/2024';
+               // rdw.dueDate ='01/19/2024';
+                rdw.documentAmount =0;
+               // rdw.transactions =twLst;
+                
+                system.debug('##rdw=====>'+rdw);
+                
+                jsonText =JSON.serialize(rdw);
+                jsonText =jsonText.replace('_',' ');
+                system.debug('## jsonText ===='+jsonText); 
+                
+                // create session request
+                
+                req.setHeader('Authorization-Token',AccessToken);
+                req.setHeader('Content-Type','application/json');
+                req.setMethod(reqMethod);
+                req.setEndpoint(endPoint);
+                req.setBody(jsonText);
+                system.debug('## req ===='+req); 
+                
+                // send request in order to create session for accountsreceivableinvoices
+                res = http.send(req);
+                system.debug('##res====>'+res);
+                system.debug('##Responsebody===>' + res.getBody());
+                if(res.getStatusCode() == 201) {
+                    System.debug('##Response body after success===>' + res.getBody());
+                    System.debug('##sessionId===>'+ sessionId);     
+                    // return sessionId;
+                    
+                    /* Map<String, list<Object>> results = (Map<String, list<Object>>) JSON.deserializeUntyped(res.getBody());
+                    List<Object> objsessionlst=(List<Object>)results.get('data');
+                    System.debug('##objsessionlst===>'+ objsessionlst); 
+                   if(objsessionlst!=Null && objsessionlst.size()>0){
+                  }*/
+                    
+                    
+                }
+                else {
+                    sessionId ='';
+                }
+                
+                
+            }
+            else{
+                system.debug('Not found required details');
+            }
+            
+        }
+        catch (Exception e){ 
+            sessionId ='';
+            System.debug('Error:' + e.getMessage() + 'LN:' + e.getLineNumber());           
+        }
+        
+        //   return sessionId;
+        
+        
+    }

@@ -1,0 +1,3 @@
+Method: POST
+API: https://api.mip.com/api/security/logout
+Authorization-Token: token

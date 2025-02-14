@@ -1,0 +1,340 @@
+public class MIPCreateCreaditesReceipt_Batch implements Database.Batchable<sObject>, Database.AllowsCallouts, Database.Stateful {
+    // this batch called only 1 scope Size 
+    // Database.executeBatch(new MIPCreateCreaditesReceipt_Batch(),1 );
+    
+    Set<String>ConIdSet =New Set<String>();
+    List<contact>conlist =new List<contact>();
+    MIP_Credential__mdt MIPRec= MIP_Credential__mdt.getInstance('MIPDATA');
+    MIP_Codes__mdt CreditRec= MIP_Codes__mdt.getInstance('Credit');
+    MIP_Codes__mdt ReceiptRec= MIP_Codes__mdt.getInstance('Receipt');
+    
+    MIP_Codes__mdt CreditCRec= MIP_Codes__mdt.getInstance('CreditC');
+    MIP_Codes__mdt CreditDRec= MIP_Codes__mdt.getInstance('CreditD');
+    MIP_Codes__mdt ReceiptCreditRec= MIP_Codes__mdt.getInstance('ReceiptCredit');
+    MIP_Codes__mdt ReceiptDebitRec= MIP_Codes__mdt.getInstance('ReceiptDebit');
+    
+    String accessToken;
+    String sessionId;
+    String creditSessionId;
+    String receiptSessionId;
+    
+    // MIPWrapperClass.ReceivableSessionsWrapper rsw = new MIPWrapperClass.ReceivableSessionsWrapper();
+    MIPWrapperClass.ReceivableSessionsWrapper creditrsw = new MIPWrapperClass.ReceivableSessionsWrapper();
+    MIPWrapperClass.ReceivableSessionsWrapper Receiptrsw = new MIPWrapperClass.ReceivableSessionsWrapper();
+    // MIPWrapperClass.SessionsReturnWrapper sw = new MIPWrapperClass.SessionsReturnWrapper();
+    MIPWrapperClass.SessionsReturnWrapper creditsw = new MIPWrapperClass.SessionsReturnWrapper();
+    MIPWrapperClass.SessionsReturnWrapper Receiptsw = new MIPWrapperClass.SessionsReturnWrapper();
+    
+    public MIPCreateCreaditesReceipt_Batch(){
+        
+        //get updated token
+        accessToken = getUpdatedToken();
+        system.debug('##accessToken===>'+accessToken);
+        
+        //Create Credit Session
+        String todayDate = String.valueof(system.today());
+        if(string.isNotEmpty(accessToken)){
+            
+            creditrsw.sessionId ='CR'+todayDate;
+            creditrsw.status ='BP';
+            creditrsw.description ='Testing Descriptions';
+            creditrsw.date_Z =todayDate;
+            creditsw = MIPCalloutClass.createReceivableSession(creditrsw,AccessToken,'Credits');
+            if(creditsw!=Null && creditsw.status ==201){
+                creditSessionId =creditsw.sessionId; 
+            }
+            system.debug('##Received creditSessionId====>'+creditSessionId);
+            
+            
+            //Create Receipt Session
+            
+            Receiptrsw.sessionId ='REC'+todayDate;
+            Receiptrsw.status ='BP';
+            Receiptrsw.description ='Testing Descriptions';
+            Receiptrsw.date_Z =todayDate;
+            Receiptsw = MIPCalloutClass.createReceivableSession(Receiptrsw,AccessToken,'Receipts');
+            if(Receiptsw!=Null && Receiptsw.status ==201){
+                receiptSessionId =Receiptsw.sessionId; 
+            }
+            system.debug('##Received receiptSessionId====>'+receiptSessionId);
+            
+        }
+        
+        //  sessionId ='INS000103';
+    }
+    
+    public Database.QueryLocator start(Database.BatchableContext BC) {
+        
+        string query;
+        // query ='select id,npe01__Payment_Amount__c,npe01__Payment_Date__c,npe01__Opportunity__c,npe01__Opportunity__r.MIP_Invoice_Document_ID__c,npe01__Opportunity__r.npsp__Primary_Contact__r.MIP_Customer_ID__c,MIP_Credit_Document_ID__c,MIP_Receipt_Document_ID__c from npe01__OppPayment__c where MIP_Credit_Document_ID__c=Null AND MIP_Receipt_Document_ID__c=Null ';
+        query ='select id,npe01__Payment_Amount__c,npe01__Payment_Date__c,npe01__Opportunity__c,npe01__Opportunity__r.MIP_Invoice_Document_ID__c,npe01__Opportunity__r.npsp__Primary_Contact__r.MIP_Customer_ID__c,npe01__Opportunity__r.Account.MIP_Customer_ID__c,npe01__Opportunity__r.Account.RecordType.DeveloperName,MIP_Credit_Document_ID__c,MIP_Receipt_Document_ID__c from npe01__OppPayment__c where MIP_Credit_Document_ID__c=Null AND MIP_Receipt_Document_ID__c=Null';
+        return Database.getQueryLocator(query);
+    }
+    public void execute(Database.BatchableContext BC, List<npe01__OppPayment__c> scope){
+        system.debug('##Scope===>'+scope); 
+        system.debug('##Scope Size===>'+scope.Size());
+        
+        HttpResponse res = new HttpResponse();
+        string documentid;
+        string receiptId;
+        String creditId;
+        String accRecordType;
+        
+        //Credit
+        
+        MIPWrapperClass.UserDefinedFields_C udcf = new MIPWrapperClass.UserDefinedFields_C();
+        MIPWrapperClass.UserDefinedFields_Z udzf = new MIPWrapperClass.UserDefinedFields_Z();
+        List<MIPWrapperClass.Transactions_C> tcwLst = new List<MIPWrapperClass.Transactions_C>();
+        MIPWrapperClass.ReceivableDocumentCreditWrapper rdcw = new MIPWrapperClass.ReceivableDocumentCreditWrapper();
+        
+        //Receipt
+        List<MIPWrapperClass.Transactions_R> trwLst = new List<MIPWrapperClass.Transactions_R>();
+        MIPWrapperClass.ReceivableDocumentReceiptWrapper rdrw = new MIPWrapperClass.ReceivableDocumentReceiptWrapper();
+        
+        
+        if(String.isNotEmpty(accessToken) && String.isNotEmpty(sessionId)){
+            // Create Invoice document body request body 
+            for(npe01__OppPayment__c pay:scope){
+                if(pay.npe01__Opportunity__r.Account.RecordType.DeveloperName !=Null){
+                    accRecordType =pay.npe01__Opportunity__r.Account.RecordType.DeveloperName;
+                }
+                system.debug('##accRecordType====>'+accRecordType); 
+                
+                if(pay.npe01__Payment_Amount__c >0){
+                    // create receipt document
+                    
+                    
+                    // create transaction_C details
+                    
+                    // Create credit line 
+                    MIPWrapperClass.Transactions_R tw = new MIPWrapperClass.Transactions_R();
+                    
+                    tw.effectiveDate=String.valueof(pay.npe01__Payment_Date__c);
+                    tw.description ='Test Receipt Description';
+                    tw.entryTypeId ='N';
+                    tw.invoiceAppliedToDocumentId=pay.npe01__Opportunity__r.MIP_Invoice_Document_ID__c;
+                    tw.invoiceAppliedToId =pay.npe01__Payment_Amount__c;
+                    tw.debitAmount=0;
+                    tw.creditAmount =pay.npe01__Payment_Amount__c;
+                    if(ReceiptCreditRec!=Null){
+                        tw.segment0 =ReceiptCreditRec.Core_Code__c;
+                        tw.segment1=ReceiptCreditRec.Fund_Code__c;
+                        tw.segment2 =ReceiptCreditRec.Cost_Center_Code__c;
+                        tw.segment3 =ReceiptCreditRec.Program_Code__c;
+                        tw.segment4 =ReceiptCreditRec.Restriction_Code__c;
+                        tw.segment5 =Null;
+                        
+                    }
+                    
+                    system.debug('tw====>'+tw);
+                    trwLst.add(tw);
+                    
+                    // Create debit line
+                    
+                    MIPWrapperClass.Transactions_R tw1 = new MIPWrapperClass.Transactions_R();
+                    
+                    tw1.effectiveDate=String.valueof(pay.npe01__Payment_Date__c);
+                    tw1.entryTypeId ='N';
+                    tw1.invoiceAppliedToDocumentId=pay.npe01__Opportunity__r.MIP_Invoice_Document_ID__c;
+                    tw1.invoiceAppliedToId =pay.npe01__Payment_Amount__c;
+                    tw1.description ='Test Receipt Description';
+                    tw1.debitAmount=pay.npe01__Payment_Amount__c;
+                    if(ReceiptDebitRec!=Null){
+                        tw1.segment0 =ReceiptDebitRec.Core_Code__c;
+                        tw1.segment1=ReceiptDebitRec.Fund_Code__c;
+                        tw1.segment2 =ReceiptDebitRec.Cost_Center_Code__c;
+                        tw1.segment3 =ReceiptDebitRec.Program_Code__c;
+                        tw1.segment4 =ReceiptDebitRec.Restriction_Code__c;
+                        tw1.segment5 =Null;
+                        
+                    }
+                    
+                    system.debug('tw1====>'+tw1);
+                    trwLst.add(tw1);
+                    system.debug('##trwLst====>'+trwLst);
+                    system.debug('##trwLst Size====>'+trwLst.size());
+                    
+                    // create Credit document body 
+                    receiptId =pay.Id;
+                    rdrw.documentId =receiptId;
+                    rdrw.description ='Test Description arc 001';
+                    if(accRecordType =='HH_Account' && pay.npe01__Opportunity__r.npsp__Primary_Contact__r.MIP_Customer_ID__c!=Null ) {
+                        rdrw.playerId =pay.npe01__Opportunity__r.npsp__Primary_Contact__r.MIP_Customer_ID__c;  
+                    } 
+                    else if(pay.npe01__Opportunity__r.Account.MIP_Customer_ID__c!=Null){
+                        rdrw.playerId =pay.npe01__Opportunity__r.Account.MIP_Customer_ID__c;  
+                    }
+                    
+                    
+                    rdrw.documentDate =String.valueof(pay.npe01__Payment_Date__c);
+                    rdrw.documentAmount =pay.npe01__Payment_Amount__c;
+                    rdrw.transactions =trwLst;
+                    
+                    system.debug('##rdrw=====>'+rdrw);
+                    // call Receipt document callout method
+                    res =MIPCalloutClass.createReceivableReceiptDocuments(rdrw,AccessToken,receiptSessionId); 
+                    
+                    if(res.getStatusCode() == 201){
+                        //update customer id in contact 
+                        UpdatedDocIDInPayment( receiptId, '' );
+                        system.debug('Opportunity Updated Successfully');
+                        
+                    }  
+                    
+                } 
+                else{
+                    //create Credit document
+                    
+                    //create user defined C record
+                    
+                    udcf.editable ='Default Text' ;
+                    udcf.noneeditable ='001' ;
+                    udcf.udfdoc01 ='' ;
+                    udcf.udfdoc02 ='' ;
+                    
+                    system.debug('##udcf=====>'+udcf);
+                    //create user defined Z record
+                    udzf.EditableTransLines ='Default Trans Lines';
+                    udzf.NoneEditableTransLines ='002';
+                    udzf.UDFboolean =true;
+                    udzf.UdfString ='String Default';
+                    udzf.udft01 =15;
+                    udzf.udft02 =0;
+                    system.debug('##udzf=====>'+udzf);
+                    
+                    // create transaction_C details
+                    // Create Credit line item
+                    MIPWrapperClass.Transactions_C tw = new MIPWrapperClass.Transactions_C();
+                    tw.creditAmount =pay.npe01__Payment_Amount__c;
+                    tw.debitAmount=0;
+                    tw.effectiveDate=String.valueof(pay.npe01__Payment_Date__c);
+                    tw.description ='Test Description';
+                    tw.entryTypeId ='N';
+                    tw.invoiceAppliedToId =pay.npe01__Payment_Amount__c;
+                    tw.invoiceAppliedToDocumentId=pay.npe01__Opportunity__r.MIP_Invoice_Document_ID__c;
+                    tw.segment0 ='1600';
+                    tw.segment1='11';
+                    tw.segment2 ='13';
+                    tw.segment3 ='';
+                    tw.segment4 ='';
+                    tw.segment5 ='';
+                    tw.userDefinedFields =udzf;
+                    system.debug('tw====>'+tw);
+                    tcwLst.add(tw);
+                    // Create Debit line item
+                    MIPWrapperClass.Transactions_C tw1 = new MIPWrapperClass.Transactions_C();
+                    
+                    tw1.effectiveDate=String.valueof(pay.npe01__Payment_Date__c);
+                    tw1.entryTypeId ='N';
+                    tw1.invoiceAppliedToId =pay.npe01__Payment_Amount__c;
+                    tw1.invoiceAppliedToDocumentId=pay.npe01__Opportunity__r.MIP_Invoice_Document_ID__c;
+                    tw1.description ='Test Description';
+                    tw1.debitAmount=pay.npe01__Payment_Amount__c;
+                    tw1.creditAmount =0;
+                    tw1.segment0 ='1600';
+                    tw1.segment1='11';
+                    tw1.segment2 ='13';
+                    tw1.segment3 ='';
+                    tw1.segment4 ='';
+                    tw1.segment5 ='';
+                    tw1.userDefinedFields =udzf;
+                    system.debug('tw1====>'+tw1);
+                    tcwLst.add(tw1);
+                    system.debug('##tcwLst====>'+tcwLst);
+                    system.debug('##twLst Size====>'+tcwLst.size());
+                    
+                    // create Credit document body 
+                    creditId =pay.Id;
+                    rdcw.documentId =creditId;
+                    rdcw.description ='Testing description';
+                    if(accRecordType =='HH_Account' && pay.npe01__Opportunity__r.npsp__Primary_Contact__r.MIP_Customer_ID__c!=Null ) {
+                        rdcw.playerId =pay.npe01__Opportunity__r.npsp__Primary_Contact__r.MIP_Customer_ID__c;  
+                    } 
+                    else if(pay.npe01__Opportunity__r.Account.MIP_Customer_ID__c!=Null){
+                        rdcw.playerId =pay.npe01__Opportunity__r.Account.MIP_Customer_ID__c;  
+                    }
+                    rdcw.documentDate =String.valueof(pay.npe01__Payment_Date__c);
+                    rdcw.documentAmount =0;
+                    rdcw.userDefinedFields =udcf;
+                    rdcw.transactions =tcwLst;
+                    
+                    system.debug('##rdcw=====>'+rdcw);
+                    // call Credit document call out method
+                    res =MIPCalloutClass.createReceivableCreditDocuments(rdcw,AccessToken,creditSessionId); 
+                    if(res.getStatusCode() == 201){
+                        //update customer id in contact 
+                        UpdatedDocIDInPayment( '', creditId );
+                        system.debug('Opportunity Updated Successfully');
+                        
+                    } 
+                    
+                }
+                
+            }
+        }
+    }  
+    
+    public void finish(Database.BatchableContext BC) {
+        
+        
+    }
+    
+    private static String getUpdatedToken(){
+        
+        HttpResponse resCustomer = new HttpResponse(); 
+        
+        MIP_Credential__mdt MIPRec= MIP_Credential__mdt.getInstance('MIPDATA');
+        MIPWrapperClass.ReceivableSessionsWrapper rsw = new MIPWrapperClass.ReceivableSessionsWrapper();
+        MIPWrapperClass.SessionsReturnWrapper sw = new MIPWrapperClass.SessionsReturnWrapper();
+        String getToken;
+        String title;
+        
+        if(MIPRec!=Null && String.isNotEmpty(MIPRec.AccessToken__c) ){
+            sw =MIPCalloutClass.createReceivableSession(rsw, MIPRec.AccessToken__c,'Credits');
+            if( sw!=Null && sw.status == 401 && sw.Title =='Invalid Token, not authorized.'){
+                
+                // call login api in order to generate updated token
+                String newToken = MIPCalloutClass.requestLogin();
+                if(newToken !=Null){
+                    getToken  = newToken;
+                    system.debug('#After login token===>'+getToken);
+                    // update token in the custom meta data record 
+                    MIPCalloutClass.GetAndSetAccessToken(getToken);
+                    
+                }
+            }
+            else{
+                getToken = MIPRec.AccessToken__c;
+            }
+        }
+        else{
+            // call login api in order to generate updated token
+            String newToken = MIPCalloutClass.requestLogin();
+            if(newToken !=Null){
+                getToken  = newToken;
+                system.debug('#After login token===>'+getToken);
+                // update token in the custom meta data record 
+                MIPCalloutClass.GetAndSetAccessToken(getToken);
+                
+            } 
+        }
+        system.debug('#final token===>'+getToken);
+        return getToken;
+    }
+    
+    private static void UpdatedDocIDInPayment( string ReceiptId, String CreditId ){
+        npe01__OppPayment__c py = new npe01__OppPayment__c();
+        
+        if(ReceiptId !=''){
+            py.Id =ReceiptId;
+            py.MIP_Receipt_Document_ID__c =ReceiptId;
+        }
+        else if(CreditId !=''){
+            py.Id =CreditId;
+            py.MIP_Credit_Document_ID__c =CreditId;
+        }
+        update py;
+        
+    }
+    
+}

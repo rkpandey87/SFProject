@@ -1,0 +1,46 @@
+public class MIPWrapperClass {
+    
+    public class LoginWrapper {
+        
+        public String username;
+        public String password;
+        public String org;
+        
+    }
+    public class ReceivableSessionsWrapper {
+        
+        public String sessionId {get;set;} 
+        public String status {get;set;} 
+        public String description {get;set;} 
+        public String date_Z {get;set;} 
+    }
+    public class ReceivableDocumentInvoicesWrapper {
+        
+        public String documentId;
+        public String description;
+        public String playerId;
+        public String documentDate;
+        public String dueDate;
+        public Integer documentAmount;
+        public List<Transactions> transactions;
+    }
+    public class Transactions {
+		public String effectiveDate;
+		public String entryTypeId;
+		public String description;
+		public Integer debitAmount;
+		public Integer creditAmount;
+		public String segment0;
+		public String segment1;
+		public String segment2;
+		public String segment3;
+		public String segment4;
+		public String segment5;
+		public UserDefinedFields userDefinedFields;
+	}
+    public class UserDefinedFields {
+		public Integer Client_Numbers;
+	}
+
+
+}

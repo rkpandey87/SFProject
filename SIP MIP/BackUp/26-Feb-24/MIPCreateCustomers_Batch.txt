@@ -1,0 +1,132 @@
+public class MIPCreateCustomers_Batch implements Database.Batchable<sObject>, Database.AllowsCallouts, Database.Stateful  {
+ 
+  // this batch called only 1 scope Size 
+  
+    Set<String>ConIdSet =New Set<String>();
+    List<contact>conlist =new List<contact>();
+  
+    
+    public MIPCreateCustomers_Batch(){
+       
+        List<Opportunity> oppList =[select id,name,npsp__Primary_Contact__c from opportunity];
+        for(Opportunity op:oppList){
+            ConIdSet.add(op.npsp__Primary_Contact__c);
+        }
+        system.debug('##ConIdSet===>'+ConIdSet);
+        
+        
+       /* List<npe01__OppPayment__c>paymentLst =[select id,npe01__Payment_Amount__c,SIA_Net_Payment_Amount__c,npe01__Opportunity__c, npe01__Opportunity__r.name, npe01__Opportunity__r.npsp__Primary_Contact__c,npe01__Paid__c from npe01__OppPayment__c where npe01__Paid__c =true];
+         for(npe01__OppPayment__c pt:paymentLst){
+            ConIdSet.add(pt.npe01__Opportunity__r.npsp__Primary_Contact__c);
+        }
+        system.debug('##ConIdSet===>'+ConIdSet);*/
+    
+    
+    
+    }
+    
+    public Database.QueryLocator start(Database.BatchableContext BC) {
+        
+        string query;
+        query ='select id,Name,FirstName, LastName, MIP_Customer_ID__c from contact where id IN:ConIdSet AND MIP_Customer_ID__c=Null ';
+        return Database.getQueryLocator(query);
+     }
+    public void execute(Database.BatchableContext BC, List<contact> scope){
+       system.debug('##Scope===>'+scope); 
+       system.debug('##Scope Size===>'+scope.Size());
+        MIPWrapperClass.CreateCustomerWrapper cw = new MIPWrapperClass.CreateCustomerWrapper();
+        HttpResponse res = new HttpResponse(); 
+        String accessToken;
+        String title;
+        String customerId;
+          
+        //get updated token
+        accessToken = getUpdatedToken();
+        system.debug('##accessToken===>'+accessToken);
+      
+        // Create customer request body 
+        if(String.isNotEmpty(accessToken)){
+         
+          for(contact con:scope){
+            customerId = con.id; 
+            cw.id =customerId;
+            cw.name =con.Name;
+            cw.statusId ='A';
+        } 
+            
+        system.debug('##cw=====>'+cw);
+            //Call customer Api in order to create customer
+            res =MIPCalloutClass.createCustomer(cw, accessToken);
+            if(res.getStatusCode() == 201){
+                //update customer id in contact 
+                UpdatedCustomerIdInContact(customerId);
+                 system.debug('Customer Updated Successfully');
+            }
+        }
+        
+      
+    }  
+    
+    public void finish(Database.BatchableContext BC) {
+        
+        
+    }
+    
+    private static String getUpdatedToken(){
+       
+        HttpResponse resCustomer = new HttpResponse(); 
+        
+        MIP_Credential__mdt MIPRec= MIP_Credential__mdt.getInstance('MIPDATA');
+        MIPWrapperClass.CreateCustomerWrapper cw = new MIPWrapperClass.CreateCustomerWrapper();
+        String getToken;
+        String title;
+        
+        if(MIPRec!=Null && String.isNotEmpty(MIPRec.AccessToken__c) ){
+            resCustomer =MIPCalloutClass.createCustomer(cw, MIPRec.AccessToken__c);
+            if( resCustomer.getStatusCode()== 401){
+                Map<String,Object> results = (Map<String, Object>) JSON.deserializeUntyped(resCustomer.getBody());
+                Object obj=(Object)results.get('title');
+                if(obj!=Null){
+                    Title = String.valueof(obj);
+                    if(Title =='Invalid Token, not authorized.'){
+                        // call login api in order to generate updated token
+                        String newToken = MIPCalloutClass.requestLogin();
+                        if(newToken !=Null){
+                            getToken  = newToken;
+                            system.debug('#After login token===>'+getToken);
+                            // update token in the custom meta data record 
+                            MIPCalloutClass.GetAndSetAccessToken(getToken);
+                          
+                        }
+                        
+                    }
+                    
+                }
+            }
+            else{
+                getToken = MIPRec.AccessToken__c;
+            }
+        }
+        else{
+              // call login api in order to generate updated token
+            String newToken = MIPCalloutClass.requestLogin();
+            if(newToken !=Null){
+                getToken  = newToken;
+                system.debug('#After login token===>'+getToken);
+                // update token in the custom meta data record 
+                MIPCalloutClass.GetAndSetAccessToken(getToken);
+                
+            } 
+        }
+        system.debug('#final token===>'+getToken);
+        return getToken;
+    }
+    
+    private static void UpdatedCustomerIdInContact( string customId ){
+        contact con = new contact();
+         con.id = customId;
+         con.MIP_Customer_ID__c = customId;
+         update con;
+        
+    }
+}

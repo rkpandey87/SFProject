@@ -1,0 +1,312 @@
+public class MIPCalloutHandler {
+    
+    public static void createSession(){
+        String AccessToken ='SI_23653_SYS_M$C_-WmEaw6C9EJDt4NLTtwy50_Or3k1';
+        MIPWrapperClass.ReceivableSessionsWrapper rsw = new MIPWrapperClass.ReceivableSessionsWrapper();
+        rsw.sessionId ='API0201006';
+        rsw.status ='BS';
+        rsw.description ='Testing Descriptions';
+        rsw.date_Z ='02/08/2024';
+        
+        //call session callout method
+        MIPCalloutClass.createReceivableSession(rsw,AccessToken,'Receipts');
+        
+    }
+     public static void createCustomerInMIP(){
+        String AccessToken ='SI_23653_SYS_M$C_1b88i-mzjrE1BLWkp7lIPqacInE1';
+         MIPWrapperClass.CreateCustomerWrapper cw = new MIPWrapperClass.CreateCustomerWrapper();
+      
+         // Create main
+         MIPWrapperClass.Main mw = new MIPWrapperClass.Main();        
+          mw.billingAddress_Line='4321 Red River Parkway';
+          mw.billingAddress_City='Austin';
+          mw.billingAddress_State='TX';
+          mw.billingAddress_PostalCode='78701';
+          mw.billingAddress_Country='United States';
+         
+         // create address
+         MIPWrapperClass.Addresses  aw = new MIPWrapperClass.Addresses();
+         aw.main =mw;
+         
+         // create user defined fields
+        
+         MIPWrapperClass.UserDefinedFields_CU udf =new MIPWrapperClass.UserDefinedFields_CU();
+         udf.NumericCustomer =35;
+         
+         //create customer details 
+         cw.id ='Rajeev17022024';
+         cw.statusId ='A';
+         cw.name ='Rajeev1 Pandey1';
+         cw.classId ='Independent';
+         cw.typeId ='Edu';
+         cw.forceCurrencyType =false;
+         cw.cashOnlyCustomer =false;
+         cw.billingPrintedAddress ='printed address';
+         cw.billingAddressTemplate ='<Default>';
+         cw.billingPhone ='(512) 555-4322';
+         cw.billingFax ='12345679';
+         cw.billingContact_FirstName ='Harold';
+         cw.billingContact_MiddleName ='M';
+         cw.billingContact_LastName='Montes';
+         cw.billingContact_Title ='Mr.';
+         cw.billingContact_Position  ='Boss';
+         cw.billingContact_EmailAddress ='rajeev.montes@netsutra.com';
+         cw.creditHold =true;
+         cw.printSeparateChecksForEachInvoice =false;
+         cw.customerComment ='Billing Comments';
+         cw.firstDiscount =0.3;
+         cw.firstDiscountDaysAvailable =1;
+         cw.secondDiscount =0.2;
+         cw.secondDiscountDaysAvailable=4;
+         cw.daysUntilNetAmountDue =30;
+         cw.defaultRevenueAccountId  ='1005';
+        // cw.defaultPrepaymentAccountId ='1006';
+         cw.distributionCodeId ='28-124 Spons';
+        // cw.creditHold =false;
+        // cw.printSeparateChecksForEachInvoice =false;
+         cw.defaultGeneralLedgerAccountId ='1005';
+         cw.website ='www.customer.ramon.rose.com';
+         cw.resaleTaxId ='resaleTaxId';
+         cw.notes ='Customer notes.';
+         cw.serviceAddressSameAsId='0';
+         cw.serviceAddress_Line ='4321 Red River Parkway';
+         cw.serviceAddress_City  ='A';
+       //  cw.defaultPrepaymentAccountId ='A';
+         cw.serviceAddress_State ='TX';
+         cw.serviceAddress_PostalCode='78701';
+         cw.serviceAddress_Country ='United States';
+         cw.servicePrintedAddress  ='';
+         cw.serviceAddressTemplate  ='';
+         cw.serviceAddressPhone ='(512) 555-4321';
+         cw.serviceAddressFax ='12345678';
+         
+         cw.serviceContact_FirstName='Harold';
+         cw.serviceContact_MiddleName ='M';
+         cw.serviceContact_LastName  ='Montes';
+         cw.serviceContact_Title ='Mr';
+         cw.serviceContact_Position ='Boss';
+        // cw.serviceContact_EmailAddress='rajeev.pandey@netsutra.com';
+         cw.applyFinanceCharges =true;
+         cw.emailInvoice  =false;
+         cw.printInvoice =true;
+       //  cw.invoiceEmailAddress ='rajeev.pandey@netsutra.com';
+         
+         cw.invoiceProcessTemplate='<Default>';
+         cw.emailStatement =false;
+         cw.printStatement  =true;
+        // cw.statementEmailAddress ='rajeev.pandey@netsutra.com';
+         cw.statementEmailTemplate ='<Default>';
+         
+         cw.addresses =aw;
+         cw.userDefinedFields =udf;
+        
+        
+         
+         //call Create Customer callout method
+        MIPCalloutClass.createCustomer(cw,AccessToken);
+        
+    }
+    public static void createInvoicesDocuments(){
+         String AccessToken ='SI_23653_SYS_M$C_-WmEaw6C9EJDt4NLTtwy50_Or3k1';
+        String sessionId ='API0201006' ;
+        MIPWrapperClass.UserDefinedFields udf = new MIPWrapperClass.UserDefinedFields();
+        List<MIPWrapperClass.Transactions> twLst = new List<MIPWrapperClass.Transactions>();
+        MIPWrapperClass.ReceivableDocumentInvoicesWrapper rdw = new MIPWrapperClass.ReceivableDocumentInvoicesWrapper();
+        
+        //create user defined 
+        udf.Client_Numbers = 0;
+        
+        // create transaction details
+        MIPWrapperClass.Transactions tw = new MIPWrapperClass.Transactions();
+        tw.effectiveDate='02/07/2024';
+        tw.entryTypeId ='N';
+        tw.description ='Decription ARB_Session_012';
+        tw.debitAmount=0;
+        tw.creditAmount =333;
+        tw.segment0 ='1600';
+        tw.segment1='11';
+        tw.segment2 ='13';
+        tw.segment3 ='141';
+        tw.segment4 ='1';
+        tw.segment5 ='1';
+        tw.userDefinedFields =udf;
+        system.debug('tw====>'+tw);
+        twLst.add(tw);
+        
+        MIPWrapperClass.Transactions tw1 = new MIPWrapperClass.Transactions();
+        
+        tw1.effectiveDate='02/07/2024';
+        tw1.entryTypeId ='N';
+        tw1.description ='Decription ARB_Session_012';
+        tw1.debitAmount=222;
+        tw1.creditAmount =0;
+        tw1.segment0 ='1600';
+        tw1.segment1='11';
+        tw1.segment2 ='13';
+        tw1.segment3 ='141';
+        tw1.segment4 ='1';
+        tw1.segment5 ='1';
+        tw1.userDefinedFields =udf;
+        system.debug('tw1====>'+tw1);
+        twLst.add(tw1);
+        system.debug('##twLst====>'+twLst);
+        system.debug('##twLst Size====>'+twLst.size());
+        
+        // create Invoice document type  
+        rdw.documentId ='Doc_002';
+        rdw.description ='Decription ARB_Session_012';
+        rdw.playerId ='BRIJ001';
+        rdw.documentDate ='02/07/2024';
+        rdw.dueDate ='01/19/2024';
+        rdw.documentAmount =0;
+        rdw.transactions =twLst;
+        
+        system.debug('##rdw=====>'+rdw);
+        
+        // call invoice document call out method
+        MIPCalloutClass.createReceivableInvoicesDocuments(rdw,AccessToken,sessionId);
+    }
+    
+    public static void createCreditsDocuments(){
+          String AccessToken ='SI_23653_SYS_M$C_-WmEaw6C9EJDt4NLTtwy50_Or3k1';
+        String sessionId ='API0201006' ;
+        MIPWrapperClass.UserDefinedFields_C udcf = new MIPWrapperClass.UserDefinedFields_C();
+        MIPWrapperClass.UserDefinedFields_Z udzf = new MIPWrapperClass.UserDefinedFields_Z();
+        List<MIPWrapperClass.Transactions_C> tcwLst = new List<MIPWrapperClass.Transactions_C>();
+        MIPWrapperClass.ReceivableDocumentCreditWrapper rdcw = new MIPWrapperClass.ReceivableDocumentCreditWrapper();
+        
+        //create user defined C record
+        
+        udcf.editable ='Default Text' ;
+        udcf.noneeditable ='001' ;
+        udcf.udfdoc01 ='' ;
+        udcf.udfdoc02 ='' ;
+        
+        system.debug('##udcf=====>'+udcf);
+        //create user defined Z record
+        udzf.EditableTransLines ='Default Trans Lines';
+        udzf.NoneEditableTransLines ='002';
+        udzf.UDFboolean =true;
+        udzf.UdfString ='String Default';
+        udzf.udft01 =15;
+        udzf.udft02 =0;
+        system.debug('##udzf=====>'+udzf);
+        // create transaction_C details
+        MIPWrapperClass.Transactions_C tw = new MIPWrapperClass.Transactions_C();
+        tw.creditAmount =233;
+        tw.debitAmount=0;
+        tw.effectiveDate='02/07/2024';
+        tw.description ='Decription ARB_Session_012';
+        tw.entryTypeId ='N';
+        tw.invoiceAppliedToId =0.00;
+        tw.invoiceAppliedToDocumentId='1';
+        tw.segment0 ='1600';
+        tw.segment1='11';
+        tw.segment2 ='13';
+        tw.segment3 ='';
+        tw.segment4 ='';
+        tw.segment5 ='';
+        tw.userDefinedFields =udzf;
+        system.debug('tw====>'+tw);
+         tcwLst.add(tw);
+        
+        MIPWrapperClass.Transactions_C tw1 = new MIPWrapperClass.Transactions_C();
+        
+        tw1.effectiveDate='02/07/2024';
+        tw1.entryTypeId ='N';
+        tw1.invoiceAppliedToId =0.00;
+        tw1.invoiceAppliedToDocumentId='1';
+        tw1.description ='Decription ARB_Session_012';
+        tw1.debitAmount=233;
+        tw1.creditAmount =0;
+        tw1.segment0 ='1600';
+        tw1.segment1='11';
+        tw1.segment2 ='13';
+        tw1.segment3 ='';
+        tw1.segment4 ='';
+        tw1.segment5 ='';
+        tw1.userDefinedFields =udzf;
+        system.debug('tw1====>'+tw1);
+        tcwLst.add(tw1);
+        system.debug('##tcwLst====>'+tcwLst);
+        system.debug('##twLst Size====>'+tcwLst.size());
+        
+        // create Credit document body 
+        
+        rdcw.documentId ='DocA004';
+        rdcw.description ='Testing description';
+        rdcw.playerId ='BRIJ001';
+        rdcw.documentDate ='02/07/2024';
+        rdcw.documentAmount =0;
+        rdcw.userDefinedFields =udcf;
+         rdcw.transactions =tcwLst;
+        
+        system.debug('##rdcw=====>'+rdcw);
+        // call Credit document call out method
+        MIPCalloutClass.createReceivableCreditDocuments(rdcw,AccessToken,sessionId);       
+    }
+    
+     public static void createReceiptsDocuments(){
+          String AccessToken ='SI_23653_SYS_M$C_-WmEaw6C9EJDt4NLTtwy50_Or3k1';
+        String sessionId ='API0201006' ;
+     
+        List<MIPWrapperClass.Transactions_R> trwLst = new List<MIPWrapperClass.Transactions_R>();
+        MIPWrapperClass.ReceivableDocumentReceiptWrapper rdrw = new MIPWrapperClass.ReceivableDocumentReceiptWrapper();
+        
+       
+        // create transaction_C details
+        MIPWrapperClass.Transactions_R tw = new MIPWrapperClass.Transactions_R();
+         
+         tw.effectiveDate='02/07/2024';
+         tw.description ='Decription ARB_Session_012';
+         tw.entryTypeId ='N';
+         tw.invoiceAppliedToDocumentId='1';
+         tw.invoiceAppliedToId =455;
+         tw.debitAmount=1;
+         tw.creditAmount =250;
+         tw.segment0 ='1600';
+         tw.segment1='11';
+         tw.segment2 ='13';
+         tw.segment3 ='';
+         tw.segment4 ='';
+         tw.segment5 ='';
+       
+        system.debug('tw====>'+tw);
+         trwLst.add(tw);
+        
+        MIPWrapperClass.Transactions_R tw1 = new MIPWrapperClass.Transactions_R();
+        
+        tw1.effectiveDate='02/07/2024';
+        tw1.entryTypeId ='N';
+        tw1.invoiceAppliedToDocumentId='1';
+        tw1.invoiceAppliedToId =450;
+        tw1.description ='Decription ARB_Session_012';
+        tw1.debitAmount=250;
+        tw1.creditAmount =1;
+        tw1.segment0 ='1600';
+        tw1.segment1='11';
+        tw1.segment2 ='13';
+        tw1.segment3 ='';
+        tw1.segment4 ='';
+        tw1.segment5 ='';
+      
+        system.debug('tw1====>'+tw1);
+        trwLst.add(tw1);
+        system.debug('##trwLst====>'+trwLst);
+        system.debug('##trwLst Size====>'+trwLst.size());
+        
+        // create Credit document body 
+        
+        rdrw.documentId ='ARCDOC00';
+        rdrw.description ='Test Description arc 001';
+        rdrw.playerId ='BRIJ001';
+        rdrw.documentDate ='02/07/2024';
+        rdrw.documentAmount =0;
+        rdrw.transactions =trwLst;
+        
+        system.debug('##rdrw=====>'+rdrw);
+        // call Receipt document callout method
+        MIPCalloutClass.createReceivableReceiptDocuments(rdrw,AccessToken,sessionId);       
+    }
+    
+}

@@ -1,0 +1,685 @@
+global without sharing class EnceliumFormController {
+    /*
+*********************************************************
+Apex Class Name    : EnceliumFormController
+Created Date       : 05 May, 2023
+@description       : This class is used by EnceliumForm page. Used to create Startup form PDF and send to customer with self sign.
+@author            : Netsutra
+Modification Log:
+Ver   Date         Author                               Modification
+1.0   24-05-2023   Netsutra                             Initial Version
+*********************************************************
+*/
+    
+    /*******Project Information Section Variables**********/
+    public string siteName {get;set;}
+    public string quoteNumber {get;set;}
+    public string streetAddress {get;set;}
+    public string city {get;set;}
+    public string state {get;set;}
+    public string country {get;set;}
+    public string zip {get;set;}
+    public string crossStreet {get;set;}
+    public date requestDate {get;set;}
+    public date latestStartDate {get;set;}
+    public string SiteOpenTime {get;set;}
+    public string SiteCloseTime {get;set;}
+    public date ThreeWeeksDate {get;set;}
+    
+    
+    /*******Electrical contractor Information Variables**********/
+    public string ecContactCompany {get;set;}
+    //public string ecContactName {get;set;}
+    public string ecContactFirstName {get;set;}
+    public string ecContactLastName {get;set;}
+    public string ecContactEmail {get;set;}
+    public string ecContactPhone {get;set;}
+    
+    /*******Project Owner Information Variables**********/
+    public string ownerContactCompany {get;set;}
+    //public string ownerContact {get;set;}
+    public string ownerContactFirstName {get;set;}
+    public string ownerContactLastName {get;set;}
+    public string ownerPhone {get;set;}
+    public string ownerEmail {get;set;}
+    
+    /*******On-Site Contact Variables**********/
+    public string onSiteContact {get;set;}
+    public string onSiteContactFirstName {get;set;}
+    public string onSiteContactLastName {get;set;}
+    public string onSitePhone {get;set;} 
+    public string onSiteContactEmail {get;set;}
+    
+    /*******Authorized User Information Variables**********/
+    public string authorizedUserConAccount {get;set;}
+    public string authorizedUserConFirstName {get;set;}
+    public string authorizedUserConLastName {get;set;}
+    public string AuthorizedUserConPhone {get;set;} 
+    public string AuthorizedUserConEmail {get;set;}  
+    
+    /*******Work Order wrappler List**********/
+    public List<WrapData> wrapperList {get;set;}
+    public List<WrapData> WrapperLightningItemList {get;set;}
+    public List<WrapData> WrapperCompleteItemList {get;set;} 
+    public List<WrapData> WrapperDLMLightningCPanelList {get;set;}
+    public List<WrapData> WrapperDLMDaylightSystemsList {get;set;}
+    public List<WrapData> WrapperDLMDimmingSystemsList {get;set;}
+    public List<WrapData> WrapperDLMNetSysList {get;set;}
+    public List<WrapData> WrapperExtWirelessList {get;set;}
+    public List<WrapData> WrapperArcDimmingSysList {get;set;}
+    public List<WrapData> WrapperDayLiSysList {get;set;}
+    public List<WrapData> WrapperDimmingSysList {get;set;}
+    //New Wrapper List created
+    public List<WrapData> WrapperSystemTypeList {get;set;}
+    public List<WrapData> WrapperWiredSystemTypeList {get;set;}
+    public List<WrapData> WrapperWirelessSystemTypeList {get;set;}
+    public List<WrapData> WrapperHybridSystemTypeList {get;set;}
+    public List<WrapData> WrapperSSUNewList {get;set;}
+    public List<WrapData> WrapperIsSSUNewList {get;set;}
+    public List<WrapData> WrapperSSUExistingList {get;set;}
+    public List<WrapData> WrapperSSURemoteList {get;set;}
+    public List<WrapData> WrapperEquipAvailableList {get;set;}
+    public List<WrapData> WrapperEquipRequiedList {get;set;}
+    public List<SelectOption> options{get;set;}
+    
+    /*******Selected Work Order wrappler List**********/
+    public List<WrapData> selectedwrapDataList {get;set;}
+    public List<WrapData> selectedWrapLightningItemList {get;set;}
+    public List<WrapData> selectedWrapCompleteItemList {get;set;} 
+    public List<WrapData> selectedWrDLMLightningCPanelList {get;set;}
+    public List<WrapData> selectedWrDLMDaylightSystemsList {get;set;}
+    public List<WrapData> selectedWrDLMDimmingSystemsList {get;set;}
+    public List<WrapData> selectedWrDLMNetSysList {get;set;}
+    public List<WrapData> selectedWrExtWirelessList {get;set;}
+    public List<WrapData> selectedWrArcDimmingSysList {get;set;}
+    public List<WrapData> selectedWrDayLiSysList {get;set;}
+    public List<WrapData> selectedWrDimmingSysList {get;set;}
+    //New Wrapper List created
+    public List<WrapData> selectedSystemTypeList {get;set;}
+    public List<WrapData> selectedWiredSystemTypeList {get;set;}
+    public List<WrapData> selectedWirelessSystemTypeList {get;set;}
+    public List<WrapData> selectedWrapperSSUNewList {get;set;}
+    public List<WrapData> selectedWrapperIsSSUNewList {get;set;}
+    public List<WrapData> selectedWrapperSSUExistingList {get;set;}
+    public List<WrapData> selectedWrapperSSURemoteList {get;set;}
+    public List<WrapData> selectedWrapperHybridSystemTypeList {get;set;}
+    public List<WrapData> selectedWrapperEquipAvailableList {get;set;}
+    public List<WrapData> selectedWrapperEquipRequiedList {get;set;}
+    public List<String> canadaStateList {get;set;}
+    
+    /*******Few other variables**********/
+    public string caseId {get;set;}  
+    public string caseNumber {get;set;}  
+    public string signatureinput {get;set;}
+    public string impNotes {get;set;}    
+    public string signName {get;set;}
+    public boolean termsAndConditions {get;set;}
+    // Declare new Variable 
+    public string perStatus{get;set;}
+    public string onSiteStartTime{get;set;}
+    public string onSiteEndTime{get;set;}
+    public string pickStartTime{get;set;}
+    public string pickEndTime{get;set;}
+    public string onSiteDays{get;set;}
+    public Boolean checkWired{get;set;}
+    public Boolean checkWireless{get;set;}
+    public Boolean checkHybrid{get;set;}
+    public Boolean checkNew{get;set;}
+    public Boolean checkExist{get;set;}
+    public Boolean checkRemote{get;set;}
+    public Boolean siteVefication{get;set;}
+    public Boolean trainAck{get;set;}
+    public string strEmail {get;set;}
+    public string strName {get;set;}
+    /*************Constructor*****************/
+    public EnceliumFormController() {
+        system.debug('## Test--------->>');
+        strEmail = 'enceliumstartup@legrand.com';
+        strName = 'Encelium';
+        signName='';
+        country = 'US';     
+        termsAndConditions = false; 
+        checkWired = false; 
+        checkWireless = false; 
+        checkHybrid = false; 
+        checkNew = false; 
+        checkExist = false; 
+        checkRemote = false;
+        siteVefication= false;
+        trainAck= false;
+        ThreeWeeksDate= date.today()+21;
+        System.debug('ThreeWeeksDate==>'+ThreeWeeksDate);
+        System.debug('latestStartDate==>'+latestStartDate);
+        WrapperLightningItemList = new List<WrapData>();
+        WrapperCompleteItemList = new List<WrapData>();
+        WrapperDLMLightningCPanelList = new List<WrapData>(); 
+        WrapperDLMDaylightSystemsList = new List<WrapData>(); 
+        WrapperDLMDimmingSystemsList = new List<WrapData>();  
+        WrapperDLMNetSysList = new List<WrapData>();  
+        WrapperExtWirelessList = new List<WrapData>();  
+        WrapperArcDimmingSysList = new List<WrapData>();  
+        WrapperDayLiSysList = new List<WrapData>();  
+        WrapperDimmingSysList = new List<WrapData>();  
+        
+        selectedwrapDataList = new List<WrapData>();
+        selectedWrapLightningItemList = new List<WrapData>();
+        selectedWrapCompleteItemList = new List<WrapData>(); 
+        selectedWrDLMLightningCPanelList = new List<WrapData>(); 
+        selectedWrDLMDaylightSystemsList = new List<WrapData>(); 
+        selectedWrDLMDimmingSystemsList = new List<WrapData>(); 
+        selectedWrDLMNetSysList = new List<WrapData>();
+        selectedWrapperIsSSUNewList =new List<WrapData>();
+        selectedWrExtWirelessList = new List<WrapData>();  
+        selectedWrArcDimmingSysList = new List<WrapData>();  
+        selectedWrDayLiSysList = new List<WrapData>();  
+        selectedWrDimmingSysList = new List<WrapData>();  
+        wrapperList = new List<WrapData>();
+        //New Wrapper List created
+        WrapperSystemTypeList = new List<WrapData>();
+        WrapperWiredSystemTypeList = new List<WrapData>();
+        WrapperWirelessSystemTypeList = new List<WrapData>();
+        WrapperHybridSystemTypeList = new List<WrapData>();
+        WrapperSSUNewList = new List<WrapData>();
+        WrapperIsSSUNewList = new List<WrapData>();
+        WrapperSSUExistingList = new List<WrapData>();
+        WrapperSSURemoteList = new List<WrapData>();
+        WrapperEquipAvailableList = new List<WrapData>();
+        WrapperEquipRequiedList = new List<WrapData>();
+        
+        selectedSystemTypeList = new List<WrapData>();
+        selectedWiredSystemTypeList = new List<WrapData>();
+        selectedWirelessSystemTypeList = new List<WrapData>();
+        selectedWrapperHybridSystemTypeList = new List<WrapData>();
+        selectedWrapperSSUNewList = new List<WrapData>();
+        selectedWrapperSSUExistingList = new List<WrapData>();
+        selectedWrapperSSURemoteList = new List<WrapData>();
+        selectedWrapperEquipAvailableList =new List<WrapData>();
+        selectedWrapperEquipRequiedList = new List<WrapData>();
+        options = new List<SelectOption>();
+        canadaStateList = New List<String>{'AB','BC','MB','NB','NL','NT','NS','NU','ON','PE','QC','SK','YT'};
+            Schema.DescribeFieldResult fieldResult = Work_Order_Task__c.System_Type__c.getDescribe();
+        List<Schema.PicklistEntry> ple = fieldResult.getPicklistValues();
+        for( Schema.PicklistEntry f : ple) {
+            options.add(new SelectOption(f.getLabel(), f.getValue()));
+        }
+        System.debug('options===>'+options);
+        
+        workOrderset(); 
+        //selectedWorkOrderTaskSet();
+        
+    }   
+    //This method is used to get all the state values from case State field        
+    public List<SelectOption> getStateGlobalValueSet() {
+        List<SelectOption> stateOptions = new List<SelectOption>();
+        Schema.DescribeFieldResult F = Case.VAN_Ship_State__c.getDescribe();
+        Schema.sObjectField T = F.getSObjectField();
+        List<PicklistEntry> entries = T.getDescribe().getPicklistValues();
+        stateOptions.add(new selectoption('','--none--'));
+        if(!entries.isEmpty()) {
+            for(PicklistEntry pe : entries) {                
+                stateOptions.add(new selectoption(pe.Value,pe.Label));             
+            }
+        }
+        
+        return stateOptions ;
+    }
+    public void changeCountry() {
+        if(canadaStateList.contains(state)){
+            country ='CA';
+        }
+        else{
+            country = 'US';
+        }
+        state ='';
+        pickStartTime ='';
+        pickEndTime ='';
+    }
+    public void setSignature(){
+        signName = signName;        
+    }
+    //This method returns true if an error comes up. 
+    public Boolean hasError { 
+        get { 
+            return ApexPages.hasMessages(); 
+        }       
+    }
+    //This method is used to validate the form fields and create a Case record.
+    public pagereference createCase() {
+        String emailRegex = '^[a-zA-Z0-9._|\\\\%#~`=?&/$^*!}{+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$'; // source: <a href="http://www.regular-expressions.info/email.html" target="_blank" rel="nofollow">http://www.regular-expressions.info/email.html</a>
+        Pattern MyPattern = Pattern.compile(emailRegex);        
+        Matcher MyMatcherecContEmail = MyPattern.matcher(ecContactEmail); 
+        Matcher MyMatcherOwnerEmail = MyPattern.matcher(ownerEmail);
+        Matcher MyMatcherOnSiteEmail = MyPattern.matcher(onSiteContactEmail);
+        Matcher MyMatcherAuContEmail = MyPattern.matcher(authorizedUserConEmail);
+        
+        if(!MyMatcherecContEmail.matches() && ecContactEmail != '') {
+            ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR,'<font color="Free Speech red">' + Label.StartUpForm_valid_EC_Contact_Email + '</font>'); 
+            ApexPages.addMessage(myMsg);
+            if(!Test.isRunningTest()) return null;
+            
+        }
+        if (!MyMatcherOwnerEmail.matches() && ownerEmail != '') {
+            ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR,'<font color="Free Speech red">' + Label.StartUpForm_valid_Owner_Contact_Email + '</font>'); 
+            ApexPages.addMessage(myMsg);
+            if(!Test.isRunningTest()) return null;
+            
+        }
+        if (!MyMatcherOnSiteEmail.matches() && onSiteContactEmail != '') {
+            ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR,'<font color="Free Speech red">' + Label.StartUpForm_valid_On_Site_Contact_Email + '</font>'); 
+            ApexPages.addMessage(myMsg);
+            if(!Test.isRunningTest()) return null;
+         }
+        if (!MyMatcherAuContEmail.matches() && authorizedUserConEmail != '') {
+            ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR,'<font color="Free Speech red">' + Label.StartUpForm_valid_Authorized_User_Contact_Email + '</font>'); 
+            ApexPages.addMessage(myMsg);
+            if(!Test.isRunningTest()) return null;     
+        }
+       if(String.isBlank(siteName) || String.isBlank(streetAddress) || String.isBlank(quoteNumber) ||String.isBlank(city) || String.isBlank(state) || String.isBlank(zip) || String.isBlank(SiteOpenTime) || String.isBlank(SiteCloseTime) || requestDate == null || latestStartDate == null) {
+            ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR,'<font color="Free Speech red">' + Label.StartUpForm_Project_Information+ '</font>');
+            ApexPages.addMessage(myMsg);
+            if(!Test.isRunningTest())return null;
+        }
+        if(String.isBlank(ecContactCompany) || String.isBlank(ecContactFirstName) || String.isBlank(ecContactLastName) || ecContactEmail == '' || ecContactPhone == '') {
+            ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR,'<font color="Free Speech red">' + Label.StartUpForm_Electrical_Contractor_Information+ '</font>');
+            ApexPages.addMessage(myMsg);
+            if(!Test.isRunningTest())return null;
+        }
+        if(String.isBlank(onSiteContact) || String.isBlank(onSiteContactFirstName) || String.isBlank(onSiteContactLastName) || onSiteContactEmail == '' || onSitePhone == '') {
+            ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR,'<font color="Free Speech red">' + Label.StartUpForm_On_Site_Contact_Information + '</font>');
+            ApexPages.addMessage(myMsg);
+            if(!Test.isRunningTest())return null;
+        }   
+        if(String.isBlank(perStatus)) {
+            ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR,'<font color="Free Speech red">' + Label.EnceliumForm_installation_status_Required + '</font>');
+            ApexPages.addMessage(myMsg);
+            if(!Test.isRunningTest())return null;
+        }
+        
+        if(checkWired == False && checkWireless == False && checkHybrid ==False) {
+            ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR,'<font color="Free Speech red">' + Label.EnceliumForm_installation_Required + '</font>');
+            ApexPages.addMessage(myMsg);
+            if(!Test.isRunningTest())return null;
+        }
+        if(checkNew == False && checkExist == False && checkRemote ==False) {
+            ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR,'<font color="Free Speech red">' + Label.EnceliumForm_Network_Required + '</font>');
+            ApexPages.addMessage(myMsg);
+            if(!Test.isRunningTest())return null;
+        } 
+        if(String.isBlank(onSiteStartTime) || String.isBlank(onSiteEndTime) ) {
+            ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR,'<font color="Free Speech red">' + Label.EnceliumForm_On_Site_Hours_Required + '</font>');
+            ApexPages.addMessage(myMsg);
+            if(!Test.isRunningTest())return null;
+        }
+        
+        if(!termsAndConditions) {
+            ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR,'<font color="Free Speech red">' + Label.StartUpForm_Terms_and_Conditions + '</font>');
+            ApexPages.addMessage(myMsg);
+            if(!Test.isRunningTest())return null;
+        }
+        if(String.isBlank(signatureinput)) {
+            ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR,'<font color="Free Speech red">' + Label.StartUpForm_Signature_required + '</font>');
+            ApexPages.addMessage(myMsg);
+            if(!Test.isRunningTest())return null;
+        }
+        selectedWorkOrderTaskSet();
+        
+        AssignmentRule AR = new AssignmentRule();
+        AR = [select id from AssignmentRule where SobjectType = 'Case' and Active = true limit 1];
+        
+        //Creating the DMLOptions for "Assign using active assignment rules" checkbox
+        Database.DMLOptions dmlOpts = new Database.DMLOptions();
+        dmlOpts.assignmentRuleHeader.assignmentRuleId= AR.id;
+        
+        Id recTypeId = Schema.SObjectType.Case.getRecordTypeInfosByName().get('Encelium Field Tech Support Case').getRecordTypeId();          
+        Case c = new Case();
+        c.SiteName__c = siteName ;
+        c.Quote_Number__c = quoteNumber ;
+        c.StreetAddress__c = streetAddress ;
+        c.VAN_Ship_City__c = city;
+        c.VAN_Ship_Zip__c = zip;
+        c.VAN_Ship_State__c = state;
+        c.VAN_Ship_Country__c = country;
+        c.Cross_Street__c = crossStreet;
+        c.Earliest_Start_Date__c = requestDate;
+        c.Latest_Start_Date__c = latestStartDate; 
+        c.SiteOpenTime__c = SiteOpenTime;
+        c.SiteCloseTime__c = SiteCloseTime;
+        
+        c.EC_Contact_Email__c = ecContactEmail;
+        c.EC_Contact_First_Name__c = ecContactFirstName;
+        c.EC_Contact_Last_Name__c = ecContactLastName;        
+        c.EC_Contact_Phone__c = ecContactPhone;
+        c.ECContactAccount__c = ecContactCompany;
+        c.Origin = 'ENC Startup Form';
+        c.SuppliedEmail = ecContactEmail;
+        c.SuppliedCompany = ecContactCompany;
+        c.SuppliedPhone= ecContactPhone;
+        c.SuppliedName= ecContactFirstName+' '+ecContactLastName;
+        
+        c.ProjectOwnerContactAccount__c = ownerContactCompany;
+        c.Owner_Contact_First_name__c = ownerContactFirstName;
+        c.Owner_Contact_Last_name__c = ownerContactLastName;
+        c.Owner_Email__c = ownerEmail;
+        c.Owner_Phone__c = ownerPhone;
+        
+        c.OnSiteContactAccount__c= onSiteContact;
+        c.On_Site_Contact_First_Name__c = onSiteContactFirstName;
+        c.On_Site_Contact_Last_Name__c= onSiteContactLastName;
+        c.On_Site_Contact_Email__c = onSiteContactEmail;
+        c.On_Site_Phone__c = onSitePhone;
+        
+        c.AuthorizedUserContactAccount__c = authorizedUserConAccount ;
+        c.Authorized_User_Contact_First_Name__c= authorizedUserConFirstName ;
+        c.Authorized_User_Contact_Last_Name__c= authorizedUserConLastName ;
+        c.AuthorizedUserContactPhone__c= authorizedUserConPhone ;
+        c.AuthorizedUserContactEmail__c= authorizedUserConEmail ;
+        c.Description = impNotes;
+        c.RecordtypeId = recTypeId ;
+        //Setting the DMLOption on Case instance
+        c.setOptions(dmlOpts);
+        try{
+            insert c;
+            caseId = c.Id;
+            caseNumber  = c.Quote_Number__c ;
+            Case cse = [Select id, CaseNumber from Case where id =: c.id];
+            caseNumber  = cse.CaseNumber ;            
+        }
+        catch(Exception ex){
+            ApexPages.addMessages(ex);
+        }   
+        system.debug('## createCase End--------->>'+caseId);
+        return null;   
+        
+    }
+    //Create a Case attachment and send email to customer
+    public pageReference generatePDF() {    
+        system.debug('## caseId--------->>'+caseId);
+        if(caseId != '') {
+            Case cs = [select Id,CaseNumber,Quote_Number__c from Case where Id=:caseId LIMIT 1];  //ORDER BY CreatedDate DESC         
+            pageReference pdfPage = Page.EnceliumForm;
+            blob pdfBody;
+            if(Test.isRunningTest()) { 
+                pdfBody = blob.valueOf('Unit.Test');
+            } else {
+                pdfBody = pdfPage.getContentAsPdf(); 
+            }       
+            system.debug('in method--------->>'+caseId+cs);
+            system.debug('pdfFile===>'+pdfBody);
+            
+            
+            /* insert case pdf file into attachement */
+            /*
+             attachment pdfFile = new attachment();
+             pdfFile.isPrivate  = false;
+             pdfFile.body       = pdfBody;
+             pdfFile.parentId   = cs.Id; // '5003B000005oRIx';
+             pdfFile.Name       = 'Encelium Request form.pdf';        
+             insert pdfFile; 
+             system.debug('## pdfFile===>'+pdfFile);
+                        */
+            ContentVersion cVersion = new ContentVersion();
+            cVersion.ContentLocation = 'S';                         //S-Document is in Salesforce. E-Document is outside of Salesforce. L-Document is on a Social Netork.
+            cVersion.PathOnClient ='Encelium Request form.pdf';       //File name with extention
+            cVersion.Title = 'Encelium Request form.pdf';         //Name of the file
+            cVersion.VersionData = pdfBody;  //readAsDataURL                     //File content
+            Insert cVersion;
+            System.debug('cVersion==>'+cVersion);
+            
+            //After saved the Content Verison, get the ContentDocumentId
+            Id conDocument = [SELECT ContentDocumentId FROM ContentVersion WHERE Id =:cVersion.Id].ContentDocumentId;
+            
+            //Insert ContentDocumentLink
+            ContentDocumentLink cDocLink = new ContentDocumentLink();
+            cDocLink.ContentDocumentId = conDocument;               //Add ContentDocumentId
+            cDocLink.LinkedEntityId = cs.Id;                      //Add attachment parentId
+            cDocLink.ShareType = 'I';                            //V - Viewer permission. C - Collaborator permission. I - Inferred permission
+            cDocLink.Visibility = 'AllUsers';                  //AllUsers, InternalUsers, SharedUsers
+            Insert cDocLink;
+            System.debug('cDocLink==>'+cDocLink);
+            
+            
+            
+            if(string.isNotBlank(ecContactEmail)) {
+                system.debug('## ecContactEmail===>'+ecContactEmail);                
+                OrgWideEmailAddress owea = new OrgWideEmailAddress();
+                owea = [SELECT Id, Address, DisplayName FROM 
+                        OrgWideEmailAddress WHERE displayname='Legrand CRM Support Team' limit 1];                                                
+                string conEmail = ecContactEmail;
+                Messaging.EmailFileAttachment att = new Messaging.EmailFileAttachment();
+                att.setBody(pdfBody);
+                att.setContentType('application/pdf');
+                att.setFileName('attachment.pdf');
+                Messaging.SingleEmailMessage mess = new Messaging.SingleEmailMessage();
+                mess.setSubject('Encelium Request Form:'+' Your Case Number: '+ cs.CaseNumber);
+                mess.setToAddresses(new String[]{conEmail}); 
+                
+                mess.setHtmlBody('Please find attached self-signed Encelium Request Form. <br/><br/> Please do not reply to this mail');
+                mess.setFileAttachments(new Messaging.EmailFileAttachment[]{att});
+                mess.setSaveAsActivity(false);
+                mess.setOrgWideEmailAddressId(owea.id);                //Messaging.sendEmail(new Messaging.Email[]{mess});
+                system.debug('## End===>');
+                
+                try{
+                    List<Messaging.SendEmailResult> results =   Messaging.sendEmail(new Messaging.Email[]{mess});
+                    if(results[0].success){
+                        system.debug('## success===>');
+                    }else{
+                        system.debug('## Fail===>');
+                    }
+                } catch(Exception ex){
+                    system.debug('## Exception===>'+ex.getMessage() +' LN ='+ex.getLineNumber());
+                }
+                
+                
+            }
+        }
+        return new pagereference('http://www.Legrand.us').setRedirect(true);
+    }
+    
+    
+    //To get workordertaskset records and display to VF page
+    public void workOrderset() {      
+        // assign value to SystemTypeList
+        for(SelectOption op : options){
+            WrapperSystemTypeList.add(new WrapData(false, op.getLabel())); 
+        }
+        system.debug('WrapperSystemTypeList===>'+WrapperSystemTypeList);    
+        List<Work_Order_Task__c> workordtasksetList = [SELECT Id, Name, Work_Type__c, (select Id, Name, System_Type__c,SSU_Type__c,Site_Access_and_Equipment__c,Is_SSU_New__c, Work_Type__c from Work_Order_Tasks__r) Work_Order__c, Section__c, Visible__c FROM Work_Order_Task__c 
+                                                       where Visible__c = true AND 
+                                                       (Section__c ='Installation' OR 
+                                                        Section__c ='Network' or  
+                                                        Section__c  = 'Site Access and Equipment' OR 
+                                                        Section__c  = 'Site Verification' OR 
+                                                        Section__c  = 'Training Acknowledgement' )];
+        for(Work_Order_Task__c wot : workordtasksetList){
+            
+            if(wot.Section__c == 'Installation'){
+                if(wot.Work_Order_Tasks__r.size()>0){
+                    for(Work_Order_Task__c wotInner : wot.Work_Order_Tasks__r){
+                        wrapperList.add(new WrapData(false, wotInner.Work_Type__c));
+                        if(wotInner.System_Type__c =='Wired' ){
+                            WrapperWiredSystemTypeList.add(new WrapData(false, wotInner.Work_Type__c));
+                        }
+                        if(wotInner.System_Type__c =='Wireless' ){
+                            WrapperWirelessSystemTypeList.add(new WrapData(false, wotInner.Work_Type__c));
+                        }
+                        if(wotInner.System_Type__c =='Hybrid (i.e Wired System with Wireless Site Lighting)' ){
+                            WrapperHybridSystemTypeList.add(new WrapData(false, wotInner.Work_Type__c));
+                        }
+                    }
+                }
+            }
+            else if(wot.Section__c == 'Network'){
+                if(wot.Work_Order_Tasks__r.size()>0){
+                    for(Work_Order_Task__c wotInner : wot.Work_Order_Tasks__r){
+                        WrapperLightningItemList.add(new WrapData(false, wotInner.Work_Type__c));
+                        if(wotInner.SSU_Type__c =='New'  && wotInner.Is_SSU_New__c == False ){
+                            WrapperSSUNewList.add(new WrapData(false, wotInner.Work_Type__c));
+                        }
+                        if(wotInner.SSU_Type__c =='New' && wotInner.Is_SSU_New__c == True){
+                            WrapperIsSSUNewList.add(new WrapData(false, wotInner.Work_Type__c));
+                        }
+                        if(wotInner.SSU_Type__c =='Existing' ){
+                            WrapperSSUExistingList.add(new WrapData(false, wotInner.Work_Type__c));
+                        }
+                        if(wotInner.SSU_Type__c =='Remote' ){
+                            WrapperSSURemoteList.add(new WrapData(false, wotInner.Work_Type__c));
+                        }
+                    }
+                }
+            }
+            else if(wot.Section__c == 'Site Access and Equipment'){
+                if(wot.Work_Order_Tasks__r.size()>0){
+                    for(Work_Order_Task__c wotInner : wot.Work_Order_Tasks__r){
+                        WrapperCompleteItemList.add(new WrapData(false, wotInner.Work_Type__c));
+                        if(wotInner.Site_Access_and_Equipment__c =='Available' ){
+                            WrapperEquipAvailableList.add(new WrapData(false, wotInner.Work_Type__c));
+                        }
+                        if(wotInner.Site_Access_and_Equipment__c =='Required' ){
+                            WrapperEquipRequiedList.add(new WrapData(false, wotInner.Work_Type__c));
+                        }
+                    }
+                }                
+            }  
+            
+            else if(wot.Section__c == 'Site Verification'){
+                if(wot.Work_Order_Tasks__r.size()>0){
+                    for(Work_Order_Task__c wotInner : wot.Work_Order_Tasks__r){
+                        WrapperDLMLightningCPanelList.add(new WrapData(false, wotInner.Work_Type__c));
+                    }
+                }                
+            }  
+            else if(wot.Section__c == 'Training Acknowledgement'){
+                if(wot.Work_Order_Tasks__r.size()>0){
+                    for(Work_Order_Task__c wotInner : wot.Work_Order_Tasks__r){
+                        WrapperDLMDaylightSystemsList.add(new WrapData(false, wotInner.Work_Type__c));
+                    }
+                }                
+            }  
+            
+        }   
+    }
+    //To get all selected workordertaskset records and display to VF page
+    public void selectedWorkOrderTaskSet() {
+        
+        if(!wrapperList.isEmpty()) {
+            for(WrapData w : wrapperList) {                
+                if(w.selected == true) {                    
+                    selectedwrapDataList.add(new WrapData(true,w.workOrdertsName));
+                }
+            }
+        }
+        if(!WrapperLightningItemList.isEmpty()) {
+            for(WrapData w : WrapperLightningItemList) {                
+                if(w.selected == true) {                    
+                    selectedWrapLightningItemList.add(new WrapData(true,w.workOrdertsName));
+                }
+            }
+        }
+        
+        if(!WrapperCompleteItemList.isEmpty()) {
+            for(WrapData w : WrapperCompleteItemList) {
+                if(w.selected == true) {
+                    selectedWrapCompleteItemList.add(new WrapData(true,w.workOrdertsName));
+                }
+            }
+        }
+        if(!WrapperDLMLightningCPanelList.isEmpty()) {
+            for(WrapData w : WrapperDLMLightningCPanelList) {
+                if(w.selected == true) {
+                    selectedWrDLMLightningCPanelList.add(new WrapData(true,w.workOrdertsName));
+                }
+            }
+        }
+        if(!WrapperDLMDaylightSystemsList.isEmpty()) {
+            for(WrapData w : WrapperDLMDaylightSystemsList) {
+                if(w.selected == true) {
+                    selectedWrDLMDaylightSystemsList.add(new WrapData(true,w.workOrdertsName));
+                }
+            }
+        }
+        // Assign New Wrapper List Value
+        if(!WrapperSystemTypeList.isEmpty()) {
+            for(WrapData w : WrapperSystemTypeList) {
+                if(w.selected == true) {
+                    selectedSystemTypeList.add(new WrapData(true,w.workOrdertsName));
+                }
+            }
+        }
+        if(!WrapperWiredSystemTypeList.isEmpty()) {
+            for(WrapData w : WrapperWiredSystemTypeList) {
+                if(w.selected == true) {
+                    selectedWiredSystemTypeList.add(new WrapData(true,w.workOrdertsName));
+                }
+            }
+        }
+        if(!WrapperWirelessSystemTypeList.isEmpty()) {
+            for(WrapData w : WrapperWirelessSystemTypeList) {
+                if(w.selected == true) {
+                    selectedWirelessSystemTypeList.add(new WrapData(true,w.workOrdertsName));
+                }
+            }
+        }
+        if(!WrapperHybridSystemTypeList.isEmpty()) {
+            for(WrapData w : WrapperHybridSystemTypeList) {
+                if(w.selected == true) {
+                    selectedWrapperHybridSystemTypeList.add(new WrapData(true,w.workOrdertsName));
+                }
+            }
+        }
+        if(!selectedWrapperSSUNewList.isEmpty()) {
+            for(WrapData w : WrapperHybridSystemTypeList) {
+                if(w.selected == true) {
+                    selectedWrapperHybridSystemTypeList.add(new WrapData(true,w.workOrdertsName));
+                }
+            }
+        }
+        if(!selectedWrapperIsSSUNewList.isEmpty()) {
+            for(WrapData w : WrapperHybridSystemTypeList) {
+                if(w.selected == true) {
+                    selectedWrapperHybridSystemTypeList.add(new WrapData(true,w.workOrdertsName));
+                }
+            }
+        }
+        if(!selectedWrapperSSUExistingList.isEmpty()) {
+            for(WrapData w : WrapperHybridSystemTypeList) {
+                if(w.selected == true) {
+                    selectedWrapperHybridSystemTypeList.add(new WrapData(true,w.workOrdertsName));
+                }
+            }
+        }
+        if(!selectedWrapperEquipAvailableList.isEmpty()) {
+            for(WrapData w : WrapperHybridSystemTypeList) {
+                if(w.selected == true) {
+                    selectedWrapperHybridSystemTypeList.add(new WrapData(true,w.workOrdertsName));
+                }
+            }
+        }
+        if(!selectedWrapperEquipRequiedList.isEmpty()) {
+            for(WrapData w : WrapperHybridSystemTypeList) {
+                if(w.selected == true) {
+                    selectedWrapperHybridSystemTypeList.add(new WrapData(true,w.workOrdertsName));
+                }
+            }
+        }
+    }
+    /****************Get PickList Time Method******************/
+    public List<SelectOption> getSelectTime() {
+        List<SelectOption> options = new List<SelectOption>();
+        options.add(new SelectOption('AM','AM'));
+        options.add(new SelectOption('PM','PM'));          
+        return options;
+    }
+  
+    /****************Wrapper Class******************/
+    public class WrapData {
+        public boolean selected {get;set;}
+        public string workOrdertsName {get;set;}
+        
+        public WrapData(boolean b, string wo) {
+            this.selected = b;
+            this.workOrdertsName = wo;
+        }
+    } 
+    
+}

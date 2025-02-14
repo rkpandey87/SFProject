@@ -1,0 +1,214 @@
+public class MIPCreateInvoices_Batch implements Database.Batchable<sObject>, Database.AllowsCallouts, Database.Stateful  {
+    
+  // this batch called only 1 scope Size 
+  // Database.executeBatch(new MIPCreateInvoices_Batch(),1 );
+  
+    Set<String>ConIdSet =New Set<String>();
+    List<contact>conlist =new List<contact>();
+    MIP_Credential__mdt MIPRec= MIP_Credential__mdt.getInstance('MIPDATA');
+    MIP_Codes__mdt InvoiceRec= MIP_Codes__mdt.getInstance('Invoice');
+    
+    String accessToken;
+    String sessionId;
+    
+    MIPWrapperClass.ReceivableSessionsWrapper rsw = new MIPWrapperClass.ReceivableSessionsWrapper();
+    MIPWrapperClass.SessionsReturnWrapper sw = new MIPWrapperClass.SessionsReturnWrapper();
+    
+    public MIPCreateInvoices_Batch(){
+   
+   //get updated token
+        accessToken = getUpdatedToken();
+        system.debug('##accessToken===>'+accessToken);
+        
+        if(string.isNotEmpty(accessToken)){
+            
+            rsw.sessionId ='INV02292024';
+            rsw.status ='BP';
+            rsw.description ='INV_Description';
+            rsw.date_Z =String.valueof(System.today());
+           // sw = MIPCalloutClass.createReceivableSession(rsw,AccessToken,'Invoices');
+            system.debug('##sw ====>'+sw);
+            system.debug('##sw.status====>'+sw.status);
+            
+            if(sw!=Null && sw.status ==201 || sw.status ==201){
+                sessionId =sw.sessionId; 
+            }
+            system.debug('##Received session id ====>'+sessionId);
+        }
+        
+   sessionId ='INV02292024';
+    }
+    
+    public Database.QueryLocator start(Database.BatchableContext BC) {
+        
+        string query;
+        query ='select id,name,npsp__Primary_Contact__c,CloseDate,Amount,AccountId,Account.RecordType.DeveloperName,Account.MIP_Customer_ID__c,npsp__Primary_Contact__r.MIP_Customer_ID__c from opportunity where MIP_Invoice_Document_ID__c=Null ';
+        return Database.getQueryLocator(query);
+     }
+    public void execute(Database.BatchableContext BC, List<opportunity> scope){
+        system.debug('##Scope===>'+scope); 
+        system.debug('##Scope Size===>'+scope.Size());
+        MIPWrapperClass.ReceivableDocumentInvoicesWrapper rdw = new MIPWrapperClass.ReceivableDocumentInvoicesWrapper();
+        MIPWrapperClass.UserDefinedFields udf = new MIPWrapperClass.UserDefinedFields();
+        List<MIPWrapperClass.Transactions> twLst = new List<MIPWrapperClass.Transactions>();
+        HttpResponse res = new HttpResponse();
+        string documentid;
+        string recordTypeName;
+        
+      if(String.isNotEmpty(accessToken) && String.isNotEmpty(sessionId)){
+         // Create Invoice document body request body 
+          for(opportunity opp:scope){
+              if(opp.Account.RecordType.DeveloperName!=Null){
+                  recordTypeName =opp.Account.RecordType.DeveloperName;
+                  system.debug('##recordTypeName===>'+recordTypeName);
+              } 
+              if(opp.Amount > 0){
+                  
+                  //create user defined 
+                  udf.Client_Numbers = 0;
+                  
+                  // create transaction details
+                  
+                  // create credit line item
+                  MIPWrapperClass.Transactions tw = new MIPWrapperClass.Transactions();
+                  
+                  tw.effectiveDate=String.valueof(opp.CloseDate) ;
+                  tw.entryTypeId ='N';
+                  tw.description =Opp.Name;
+                  tw.debitAmount=0;
+                  tw.creditAmount =opp.Amount;  
+                  if(InvoiceRec!=Null){
+                      tw.segment0 =InvoiceRec.Core_Code__c;
+                      tw.segment1=InvoiceRec.Fund_Code__c;
+                      tw.segment2 =InvoiceRec.Cost_Center_Code__c;
+                      tw.segment3 =InvoiceRec.Program_Code__c;
+                      tw.segment4 =InvoiceRec.Restriction_Code__c;
+                      tw.segment5 ='';
+                      
+                  }
+                
+                  
+                  tw.userDefinedFields =udf;
+                  system.debug('tw====>'+tw);
+                  twLst.add(tw);
+                  
+                    // create Debit line item
+                  MIPWrapperClass.Transactions tw1 = new MIPWrapperClass.Transactions();
+                  
+                  tw1.effectiveDate=String.valueof(opp.CloseDate) ;
+                  tw1.entryTypeId ='N';
+                  tw1.description =opp.Name;
+                  tw1.debitAmount=opp.Amount;
+                  tw1.creditAmount =0;  
+                  if(InvoiceRec!=Null){
+                      tw1.segment0 ='1201';
+                      tw1.segment1='11';
+                      tw1.segment2 =Null;
+                      tw1.segment3 =Null;
+                      tw1.segment4 =Null;
+                      tw1.segment5 =Null;
+                      
+                  }
+                
+                  
+                  tw1.userDefinedFields =udf;
+                  system.debug('tw====>'+tw);
+                  twLst.add(tw1);
+                  
+                  system.debug('##twLst====>'+twLst);
+                  system.debug('##twLst Size====>'+twLst.size());
+                  
+                  // create Invoice document type  
+                  documentId = 'IN'+opp.Id;
+                  rdw.documentId =documentId;
+                  rdw.description ='Test Document Description';
+                  if(recordTypeName =='HH_Account'){
+                     rdw.playerId =String.valueof(opp.npsp__Primary_Contact__r.MIP_Customer_ID__c); 
+                  }
+                  else{
+                       rdw.playerId =String.valueof(opp.Account.MIP_Customer_ID__c);
+                  }
+                  
+                  rdw.documentDate =String.valueof(opp.CloseDate);
+                  rdw.dueDate =String.valueof(opp.CloseDate);
+                  rdw.documentAmount =opp.Amount;
+                  rdw.transactions =twLst;
+                  system.debug('##rdw=====>'+rdw);
+                  
+                  //Call customer Api in order to create customer
+                  res =MIPCalloutClass.createReceivableInvoicesDocuments(rdw, accessToken,sessionId);
+                  if(res.getStatusCode() == 201 || res.getStatusCode() == 200){
+                      //update customer id in contact 
+                      UpdatedInvoiceDocIDInOpp( opp.id, documentId);
+                      system.debug('Opportunity Updated Successfully');
+                      
+                  } 
+                  
+              }
+                             
+          }
+      }
+    }  
+    
+    public void finish(Database.BatchableContext BC) {
+        
+        
+    }
+    
+    private static String getUpdatedToken(){
+       
+        HttpResponse resCustomer = new HttpResponse(); 
+        
+        MIP_Credential__mdt MIPRec= MIP_Credential__mdt.getInstance('MIPDATA');
+        MIPWrapperClass.ReceivableSessionsWrapper rsw = new MIPWrapperClass.ReceivableSessionsWrapper();
+         MIPWrapperClass.SessionsReturnWrapper sw = new MIPWrapperClass.SessionsReturnWrapper();
+        String getToken;
+        String title;
+        
+        if(MIPRec!=Null && String.isNotEmpty(MIPRec.AccessToken__c) ){
+            sw =MIPCalloutClass.createReceivableSession(rsw, MIPRec.AccessToken__c,'Invoices');
+                if( sw!=Null && sw.status == 401 && sw.Title =='Invalid Token, not authorized.'){
+                    
+                    // call login api in order to generate updated token
+                    String newToken = MIPCalloutClass.requestLogin();
+                    if(newToken !=Null){
+                        getToken  = newToken;
+                        system.debug('#After login token===>'+getToken);
+                        // update token in the custom meta data record 
+                        MIPCalloutClass.GetAndSetAccessToken(getToken);
+                        
+                    }
+                }
+            else{
+                getToken = MIPRec.AccessToken__c;
+            }
+        }
+        else{
+              // call login api in order to generate updated token
+            String newToken = MIPCalloutClass.requestLogin();
+            if(newToken !=Null){
+                getToken  = newToken;
+                system.debug('#After login token===>'+getToken);
+                // update token in the custom meta data record 
+                MIPCalloutClass.GetAndSetAccessToken(getToken);
+                
+            } 
+        }
+        system.debug('#final token===>'+getToken);
+        return getToken;
+    }
+    
+    private static void UpdatedInvoiceDocIDInOpp(string oppId, string DocId ){
+        
+        if(oppId!=Null && DocId!=Null){
+            opportunity opp = new opportunity();
+            opp.id = oppId;
+            opp.MIP_Invoice_Document_ID__c = DocId;
+            update opp;  
+        }
+      
+        
+    }
+    
+
+}

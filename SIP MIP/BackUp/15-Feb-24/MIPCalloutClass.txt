@@ -1,0 +1,471 @@
+public class MIPCalloutClass {
+    
+    public static String requestLogin() {
+        
+        String username ;
+        String password;        
+        String org ;
+        String endPoint ;
+        String baseURL;        
+        String reqMethod ;
+       // String InvoiceReceibableURL;        
+        String MIPName = 'MIPDATA';
+        String jsonText;
+        String AccessToken;
+        
+        try {
+            Http http = new Http();        
+            HttpResponse res = new HttpResponse();
+            HttpRequest req = new HttpRequest(); 
+            MIP_Credential__mdt MIPRec= MIP_Credential__mdt.getInstance(MIPName);
+            MIPWrapperClass.LoginWrapper lw = new MIPWrapperClass.LoginWrapper();
+            
+            system.debug('MIPRec====>'+MIPRec);
+            
+            if(MIPRec !=Null){
+                
+                username =MIPRec.username__c;
+                password =MIPRec.password__c;
+                org =MIPRec.org__c;
+                baseURL =MIPRec.Base_URL__c;
+                reqMethod =MIPRec.RequestedMethod__c;
+                endPoint = 'https://login.mip.com/api/v1/sso/mipadv/login';
+            }
+            system.debug('##username====>'+username);
+            system.debug('##password====>'+password);
+            system.debug('##org====>'+org);
+            system.debug('##baseURL====>'+baseURL);
+            system.debug('##reqMethod====>'+reqMethod);
+            system.debug('##endPoint====>'+endPoint);
+            
+            //create login request body 
+            
+            lw.username =username;
+            lw.password =password;
+            lw.org =org;
+            
+            jsonText =JSON.serialize(lw); 
+            
+            system.debug('## jsonText ===='+jsonText); 
+            
+            // create login request
+            
+            req.setHeader('Content-Type','application/json');
+            req.setMethod(reqMethod);
+            req.setEndpoint(endPoint);
+            req.setBody(jsonText);
+            system.debug('## req ===='+req); 
+            
+            // send request for login and get token
+            res = http.send(req);
+            if(res.getStatusCode() == 200) {
+                System.debug('##Response===>' + res.getBody());
+                // String str ='{"RestApiUrl": "https://api.mip.com/","AccessToken": "SI_23653_SYS_M$C_1IqKaky9ly6deFtIGabAmCUBvls1"}';
+                Map<String, Object> results = (Map<String, Object>) JSON.deserializeUntyped( res.getBody());
+                Object objToken=(Object)results.get('AccessToken');
+                System.debug('##objToken===>'+ objToken); 
+                AccessToken=String.valueOf(objToken);
+                System.debug('##AccessToken===>'+ AccessToken);     
+            }
+            
+            AccessToken ='SI_23653_SYS_M$C_1QLEcY7tucwiYOZDi2abKb35f_M1';
+        }
+        catch (Exception e){         
+            System.debug('Error:' + e.getMessage() + 'LN:' + e.getLineNumber());           
+        }
+        return AccessToken;
+        
+        
+    }
+    public static void requestLogOut() {
+        
+        String endPoint ;
+        String baseURL;        
+        String reqMethod ;
+        String InvoiceReceibableURL;        
+        String MIPName = 'MIPDATA';
+        String jsonText;
+        String AccessToken ='SI_23653_SYS_M$C_-WmEaw6C9EJDt4NLTtwy50_Or3k1';
+        
+        try {
+            Http http = new Http();        
+            HttpResponse res = new HttpResponse();
+            HttpRequest req = new HttpRequest(); 
+            MIP_Credential__mdt MIPRec= MIP_Credential__mdt.getInstance(MIPName);
+            
+            system.debug('MIPRec====>'+MIPRec);
+            
+            if(MIPRec !=Null){
+                reqMethod =MIPRec.RequestedMethod__c;
+                endPoint = 'https://api.mip.com/api/security/logout';
+            }
+            
+            system.debug('##reqMethod====>'+reqMethod);
+            system.debug('##endPoint====>'+endPoint);
+            
+            //create logout request
+            
+            req.setHeader('Authorization-Token',AccessToken);
+            req.setMethod(reqMethod);
+            req.setEndpoint(endPoint);
+            
+            system.debug('## req ===='+req); 
+            
+            // send request for logout and get token
+            res = http.send(req);
+            System.debug('##Response===>' + res.getBody());
+            if(res.getStatusCode() == 200) {
+                System.debug('##Response===>' + res.getBody());
+            }
+            
+            
+        }
+        catch (Exception e){         
+            System.debug('Error:' + e.getMessage() + 'LN:' + e.getLineNumber());           
+        }
+        
+        
+        
+    }
+    public static String createReceivableSession( MIPWrapperClass.ReceivableSessionsWrapper rsw, String DocType) {
+        
+        String endPoint ;
+        String baseURL;        
+        String reqMethod ;
+        String InvoiceReceibableURL;
+        String CreditReceibableURL;
+        String ReceiptReceibableURL;        
+        String MIPName = 'MIPDATA';
+        String jsonText;
+        String AccessToken ='SI_23653_SYS_M$C_-WmEaw6C9EJDt4NLTtwy50_Or3k1';
+        String sessionId;
+        
+        try {
+           // AccessToken =requestLogin();
+            system.debug('##accessToken===>'+AccessToken);
+            if(string.isNotEmpty(AccessToken)){
+                Http http = new Http();        
+                HttpResponse res = new HttpResponse();
+                HttpRequest req = new HttpRequest(); 
+                MIP_Credential__mdt MIPRec= MIP_Credential__mdt.getInstance(MIPName);
+                              
+                system.debug('MIPRec====>'+MIPRec);
+                
+                if(MIPRec !=Null){
+                    
+                    baseURL =MIPRec.Base_URL__c;
+                    CreditReceibableURL =MIPRec.Credits_Receivable_URL__c;
+                    InvoiceReceibableURL =MIPRec.ReceivableURL__c;
+                    ReceiptReceibableURL =MIPRec.Receipts_Receivable_URL__c;
+                    reqMethod =MIPRec.RequestedMethod__c;
+                    
+                    if(String.isNotEmpty(DocType)){
+                        if(DocType =='Credits' && String.isNotEmpty(CreditReceibableURL)){
+                           endPoint = baseURL+CreditReceibableURL+'/sessions';  
+                        }
+                        else if(DocType =='Invoices' && String.isNotEmpty(InvoiceReceibableURL)){
+                           endPoint = baseURL+InvoiceReceibableURL+'/sessions'; 
+                        }
+                        else if(DocType =='Receipts' && String.isNotEmpty(ReceiptReceibableURL)){
+                            endPoint = baseURL+ReceiptReceibableURL+'/sessions'; 
+                        }
+                       
+                    }
+                    
+                }
+                
+                system.debug('##baseURL====>'+baseURL);
+                system.debug('##reqMethod====>'+reqMethod);
+                system.debug('##endPoint====>'+endPoint);
+                
+                //create session request body 
+                if(rsw!=Null){
+                   sessionId = rsw.sessionId;  
+                }
+               
+                jsonText =JSON.serialize(rsw);
+                jsonText =jsonText.replace('date_Z','date');
+                system.debug('## jsonText ===='+jsonText); 
+                
+                
+                // create session request
+                
+                req.setHeader('Authorization-Token',AccessToken);
+                req.setHeader('Content-Type','application/json');
+                req.setMethod(reqMethod);
+                req.setEndpoint(endPoint);
+                req.setBody(jsonText);
+                system.debug('## req ===='+req); 
+                
+                // send request in order to create session for accountsreceivableinvoices
+                res = http.send(req);
+                system.debug('##res====>'+res);
+                system.debug('##Responsebody===>' + res.getBody());
+                if(res.getStatusCode() == 201) {
+                    System.debug('##Response body after success===>' + res.getBody());
+                    System.debug('##sessionId===>'+ sessionId);     
+                    return sessionId;
+                   }
+                else {
+                    sessionId ='';
+                }
+                
+            }
+            else{
+                system.debug('Access token not found');
+            }
+            
+            
+        }
+        catch (Exception e){ 
+            sessionId ='';
+            System.debug('Error:' + e.getMessage() + 'LN:' + e.getLineNumber());           
+        }
+        
+        return sessionId;
+        
+        
+    }
+    public static void createReceivableInvoicesDocuments( MIPWrapperClass.ReceivableDocumentInvoicesWrapper rdw,String AccessToken,String sessionId) {
+        
+        String endPoint ;
+        String baseURL;        
+        String reqMethod ;
+        String InvoiceReceibableURL;        
+        String MIPName = 'MIPDATA';
+        String jsonText;
+      //  String AccessToken ='SI_23653_SYS_M$C_-WmEaw6C9EJDt4NLTtwy50_Or3k1';
+       // String sessionId ='API0201014';
+        
+        try {
+            //get sessionId  
+           // sessionId =createReceivableSession();
+            if(string.isNotEmpty(AccessToken) && string.isNotEmpty(sessionId)){
+                
+                Http http = new Http();        
+                HttpResponse res = new HttpResponse();
+                HttpRequest req = new HttpRequest(); 
+                
+                MIP_Credential__mdt MIPRec= MIP_Credential__mdt.getInstance(MIPName);
+              
+                
+                system.debug('MIPRec====>'+MIPRec);
+                if(MIPRec!=Null  ){
+                    
+                    baseURL =MIPRec.Base_URL__c;
+                    InvoiceReceibableURL =MIPRec.ReceivableURL__c;
+                    reqMethod =MIPRec.RequestedMethod__c;
+                    endPoint = baseURL+InvoiceReceibableURL+'/sessions/'+sessionId+'/documents';
+                }
+                
+                system.debug('##baseURL====>'+baseURL);
+                system.debug('##reqMethod====>'+reqMethod);
+                system.debug('##endPoint====>'+endPoint);
+                
+                
+           
+                system.debug('##rdw=====>'+rdw);
+                
+                jsonText =JSON.serialize(rdw);
+                jsonText =jsonText.replace('_',' ');
+                system.debug('## jsonText ===='+jsonText); 
+                
+                // create session request
+                
+                req.setHeader('Authorization-Token',AccessToken);
+                req.setHeader('Content-Type','application/json');
+                req.setMethod(reqMethod);
+                req.setEndpoint(endPoint);
+                req.setBody(jsonText);
+                system.debug('## req ===='+req); 
+                
+                // send request in order to create session for accountsreceivableinvoices
+                res = http.send(req);
+                system.debug('##res====>'+res);
+                system.debug('##Responsebody===>' + res.getBody());
+                if(res.getStatusCode() == 201) {
+                    System.debug('##Response body after success===>' + res.getBody());
+                    System.debug('##sessionId===>'+ sessionId);     
+                     //return sessionId;
+                  
+                }
+                else {
+                    sessionId ='';
+                }
+                
+                
+            }
+            else{
+                system.debug('Not found required details');
+            }
+            
+        }
+        catch (Exception e){ 
+            sessionId ='';
+            System.debug('Error:' + e.getMessage() + 'LN:' + e.getLineNumber());           
+        }
+        
+          // return sessionId;
+        
+        
+    }
+    public static void createReceivableCreditDocuments( MIPWrapperClass.ReceivableDocumentCreditWrapper rdcw,String AccessToken,String sessionId) {
+        
+        String endPoint ;
+        String baseURL;        
+        String reqMethod ;
+        String CreditsReceibableURL;        
+        String MIPName = 'MIPDATA';
+        String jsonText;
+       // String AccessToken ='SI_23653_SYS_M$C_-WmEaw6C9EJDt4NLTtwy50_Or3k1';
+       // String sessionId ='API0201014' ;
+        
+        try {
+            //get sessionId  
+         //   sessionId =createReceivableSession();
+         
+            if(string.isNotEmpty(AccessToken) && string.isNotEmpty(sessionId)){
+                
+                Http http = new Http();        
+                HttpResponse res = new HttpResponse();
+                HttpRequest req = new HttpRequest(); 
+                
+                MIP_Credential__mdt MIPRec= MIP_Credential__mdt.getInstance(MIPName);
+                system.debug('MIPRec====>'+MIPRec);
+                if(MIPRec!=Null  ){
+                    
+                    baseURL =MIPRec.Base_URL__c;
+                    CreditsReceibableURL =MIPRec.Credits_Receivable_URL__c;
+                    reqMethod =MIPRec.RequestedMethod__c;
+                    endPoint = baseURL+CreditsReceibableURL+'/sessions/'+sessionId+'/documents';
+                }
+                
+                system.debug('##baseURL====>'+baseURL);
+                system.debug('##reqMethod====>'+reqMethod);
+                system.debug('##endPoint====>'+endPoint);
+             
+                
+                system.debug('##rdcw=====>'+rdcw);
+                
+                jsonText =JSON.serialize(rdcw);
+                system.debug('## jsonText before replace===='+jsonText); 
+               // jsonText=jsonText.replaceAll('UserDefinedFields_C', 'UserDefinedFields');
+               // jsonText=jsonText.replaceAll('UserDefinedFields_Z', 'UserDefinedFields');
+               // jsonText=jsonText.replaceAll('Transactions_C', 'Transactions');
+                system.debug('## jsonText After replace===='+jsonText); 
+                
+                // create session request
+                
+                req.setHeader('Authorization-Token',AccessToken);
+                req.setHeader('Content-Type','application/json');
+                req.setMethod(reqMethod);
+                req.setEndpoint(endPoint);
+                req.setBody(jsonText);
+                system.debug('## req ===='+req); 
+                
+                // send request in order to create session for accountsreceivableinvoices
+                res = http.send(req);
+                system.debug('##res====>'+res);
+                system.debug('##Responsebody===>' + res.getBody());
+                if(res.getStatusCode() == 201) {
+                    System.debug('##Response body after success===>' + res.getBody());
+                    System.debug('##sessionId===>'+ sessionId);     
+                    // return sessionId;
+                     }
+                else {
+                    sessionId ='';
+                }
+               }
+           else{
+             system.debug('Not found required details');
+            }
+            
+        }
+        catch (Exception e){ 
+            sessionId ='';
+            System.debug('Error:' + e.getMessage() + 'LN:' + e.getLineNumber());           
+        }
+        
+        //   return sessionId;
+        
+        
+    }
+    public static void createReceivableReceiptDocuments( MIPWrapperClass.ReceivableDocumentReceiptWrapper rdrw,String AccessToken,String sessionId) {
+        
+        String endPoint ;
+        String baseURL;        
+        String reqMethod ;
+        String ReceiptReceibableURL;        
+        String MIPName = 'MIPDATA';
+        String jsonText;
+       // String AccessToken ='SI_23653_SYS_M$C_-WmEaw6C9EJDt4NLTtwy50_Or3k1';
+       // String sessionId ='API0201006' ;
+        
+        try {
+            //get sessionId  
+         //   sessionId =createReceivableSession();
+         
+            if(string.isNotEmpty(AccessToken) && string.isNotEmpty(sessionId)){
+                
+                Http http = new Http();        
+                HttpResponse res = new HttpResponse();
+                HttpRequest req = new HttpRequest(); 
+                
+                MIP_Credential__mdt MIPRec= MIP_Credential__mdt.getInstance(MIPName);
+                system.debug('MIPRec====>'+MIPRec);
+                if(MIPRec!=Null  ){
+                    
+                    baseURL =MIPRec.Base_URL__c;
+                    ReceiptReceibableURL =MIPRec.Receipts_Receivable_URL__c;
+                    reqMethod =MIPRec.RequestedMethod__c;
+                    endPoint = baseURL+ReceiptReceibableURL+'/sessions/'+sessionId+'/documents';
+                }
+                
+                system.debug('##baseURL====>'+baseURL);
+                system.debug('##reqMethod====>'+reqMethod);
+                system.debug('##endPoint====>'+endPoint);
+             
+                
+                system.debug('##rdrw=====>'+rdrw);
+                
+                jsonText =JSON.serialize(rdrw);
+                system.debug('## jsonText===='+jsonText); 
+            
+                // create receipt document  request
+                
+                req.setHeader('Authorization-Token',AccessToken);
+                req.setHeader('Content-Type','application/json');
+                req.setMethod(reqMethod);
+                req.setEndpoint(endPoint);
+                req.setBody(jsonText);
+                system.debug('## req ===='+req); 
+                
+                // send request in order to create session for accountsreceivableinvoices
+                res = http.send(req);
+                system.debug('##res====>'+res);
+                system.debug('##Responsebody===>' + res.getBody());
+                if(res.getStatusCode() == 201) {
+                    System.debug('##Response body after success===>' + res.getBody());
+                    System.debug('##sessionId===>'+ sessionId);     
+                    // return sessionId;
+                     }
+                else {
+                    sessionId ='';
+                }
+               }
+           else{
+             system.debug('Not found required details');
+            }
+            
+        }
+        catch (Exception e){ 
+            sessionId ='';
+            System.debug('Error:' + e.getMessage() + 'LN:' + e.getLineNumber());           
+        }
+        
+        //   return sessionId;
+        
+        
+    }
+   
+}

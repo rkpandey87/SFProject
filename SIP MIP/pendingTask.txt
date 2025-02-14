@@ -1,0 +1,5 @@
+- Update API Token in meta data 
+
+- First get accesstoken from meta data if it expire then send login request and get meta data 
+
+- Require to create a batch on which we filter contact require and create customer accordingly 

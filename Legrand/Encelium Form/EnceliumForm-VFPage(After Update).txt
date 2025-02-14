@@ -1,0 +1,1222 @@
+<apex:page sidebar="false" id="thePage" showHeader="false" controller="EnceliumFormController" docType="html-5.0"> <!-- standardStylesheets="false" renderAs="pdf" -->
+    <apex:includeScript value="/soap/ajax/28.0/connection.js"/>
+    <apex:includeScript value="{!$Resource.JQuery}"/>
+    <apex:includeScript value="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js" />
+    
+    <head>
+        
+        <style>
+            #loading-curtain-div {
+            height:0px;
+            width:100%;
+            position:absolute;
+            z-index:5;
+            //-webkit-transition: all 0.30s ease-out;
+            //-moz-transition: all 0.30s ease-out;
+            }
+            
+            /* This is for the full screen DIV */
+            .popupBackground {
+            /* Background color */
+            background-color:black;
+            
+            filter: alpha(opacity = 20);
+            
+            /* Dimensions */
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 998;
+            position: absolute;
+            
+            /* Mouse */
+            cursor:wait;
+            }
+            
+            /* This is for the message DIV */
+            .PopupPanel {
+            /* Background color */
+            border: solid 1px #e3deb8;
+            background-color: #ECECEC;
+            
+            /* Dimensions */
+            left: 50%;
+            width: 300px;
+            margin-left: -100px;
+            top: 50%;
+            height: 50px;
+            margin-top: -25px;
+            z-index: 999;
+            position: fixed;
+            
+            /* Mouse */
+            cursor:pointer;
+            }
+        </style>
+    </head> 
+    <body onload="loadContent()">
+        
+        
+        <apex:form id="frm">        
+            
+            <apex:actionFunction name="callApexSetSignature" action="{!setSignature}" reRender="signText">
+                <apex:param assignTo="{!signName}" name="signNm" value=""/>
+            </apex:actionFunction>
+            <apex:actionFunction action="{!generatePDF}" name="call" reRender="opScriptPanel,msgId,thePanelId"/>
+           <apex:outputPanel id="theHeaderDiv" rendered="{!IF((caseId==''),true,false)}">
+                <div  style="width:100%; text-align:center; background-color:#c7c7c7; height:70px; margin-bottom: 5px;">
+                    <div style="">
+                        <div style="width:14%;float:left;">
+                            <div class="page-form-heading" style="width: 151px; margin-left: 0px;">
+                                <img alt="image not found" src="{!$Resource.LegrandLogo}" style="padding-top:12px;width: 138px;height: 36px;float: right;" />
+                            </div>
+                        </div>
+                        <div style="width:72%;float:left;">
+                            <h1 style="text-align: center;
+                                       font-size: 50px;
+                                       color: rgb(255, 255, 255);
+                                       text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);">
+                                STARTUP FORM
+                            </h1>
+                        </div>
+                    </div>  
+                    
+                </div>
+            </apex:outputPanel>
+            <div style="padding-left:50px;padding-right:50px;">
+            <apex:outputPanel id="thePanelId">
+                <apex:include pageName="EnceliumFormHeader"/>
+                
+                <div class="Page1" style="">
+                    <!--<h2 style="margin-right:0in;margin-bottom:.0001pt;font-size:17px;font-family:Trebuchet MS,sans-serif;"><u>INSTRUCTIONS</u></h2>-->
+                    <table cellpadding="0" cellspacing="0"  style="margin-left:5.0pt;border-collapse:collapse;border:none;width:100%;padding:9px;margin-bottom:7px;">
+                        <tbody>                        
+                            <tr>
+                                <td  style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <h2 style="margin-right:0in;margin-bottom:.0001pt;font-size:17px;font-family:Trebuchet MS,sans-serif;"><u>INSTRUCTIONS</u></h2>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top" >                                
+                                    <apex:outputLabel style="margin-top:.05in;margin-right:0in;margin-bottom:.0001pt;font-size:12px;font-family:Tahoma,sans-serif;">
+                                        To request a Startup visit of the {!strName} Lighting Control equipment: </apex:outputLabel>
+                                </td>
+                            </tr>             
+                            
+                            <tr>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top" >
+                                    <apex:outputLabel style="margin-top:.05in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;"> Contact {!strName} Field Technical Services at <a href="mailto:field.enceliumstartup@legrand.com"><span style="font-size:13px;font-family:Tahoma,sans-serif;color:windowtext;text-decoration:none;">{!strEmail}</span></a> to schedule the startup visit.</apex:outputLabel>
+                                    
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table >
+                    
+                    <h2 style="margin-top:8.0pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><u>PROJECT INFORMATION</u></h2>
+                   
+                    <table width="100%" border="0" cellpadding="0" cellspacing="0" style="border:3px solid black;margin-bottom:2px;">
+                        <tbody>          
+                            <tr>
+                                <td style="border-right:3px solid black;padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Case Number:                          
+                                        <apex:outputText style="border-bottom: 1px solid black;" value="{!caseNumber}" id="outputId" rendered="{!IF((hasError==false),true,false)}"/></p>
+                                </td>
+                                <td style="border-right:3px solid black;padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                </td>                            
+                            </tr>     
+                            <tr>
+                                <td colspan=""  style="border-right:3px solid black;padding: 0in 5.4pt;vertical-align: top;" valign="top" width="32%;">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Project/SiteName:<span style="color:red;font-weight:bold;">* </span><apex:inputText value="{!siteName}" /><apex:outputText value="{!siteName}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}"  /></p>
+                                </td>
+                                <td style="border-right:3px solid black;padding: 0in 5.4pt;vertical-align: top;" valign="top" width="32%;">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Job Quote#:<span style="color:red;font-weight:bold;">* </span> <apex:inputText value="{!quoteNumber}" /><apex:outputText value="{!quoteNumber}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}"/></p>
+                                </td> 
+                                <td width="36%;" style="padding: 0in 5.4pt;vertical-align: top;font-size:13px;font-family:Tahoma,sans-serif;" valign="top"> 
+                                    IMPORTANT:
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="" style="border-right:3px solid black;padding: 0in 5.4pt;vertical-align: top;" width="32%;">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Address/Location:<span style="color:red;font-weight:bold;">* </span><apex:inputText value="{!streetAddress}" /><apex:outputText value="{!streetAddress}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}" /></p>
+                                </td>
+                                <td  style="border-right:3px solid black;padding: 0in 5.4pt;vertical-align: top;" valign="top" width="32%;">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">City:<span style="color:red;font-weight:bold;">* </span><apex:inputText value="{!city}" /><apex:outputText value="{!city}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}" /></p>
+                                </td>
+                                <td width="36%;" colspan="0" style="padding: 0in 5.4pt;vertical-align: top;font-size:12px;font-family:Tahoma,sans-serif;" valign="top">  Earliest Start Date: this date must be Greater than TODAY.  
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="border-right:3px solid black;padding: 0in 5.4pt;vertical-align: top;" valign="top" width="32%;">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">State: <span style="color:red;font-weight:bold;">* </span>
+                                        <apex:selectList id="stateId" value="{!state}" multiselect="false" size="1"  rendered="{!IF(state=='',true,false)}"   >
+                                            <apex:selectOptions value="{!stateGlobalValueSet}" />
+                                          <apex:actionSupport event="onclick" action="{!changeCountry}"  reRender="thePage:frm:countryId" /> 
+                                        </apex:selectList>
+                                         <apex:outputText value="{!state}"  style="border-bottom: 1px solid black;"  /></p>
+                                </td>                             
+                                <td  style="border-right:3px solid black;padding: 0in 5.4pt;vertical-align: top;" valign="top" width="32%;">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Zip:<span style="color:red;font-weight:bold;">* </span><apex:inputText value="{!zip}" /><apex:outputText value="{!zip}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}"/></p>
+                                </td>
+                                <td width="36%;" colspan="0" style="padding: 0in 5.4pt;vertical-align: top;font-size:12px;font-family:Tahoma,sans-serif;" valign="top">
+                                    Latest Start Date: this date must be Greater than or equal to 'Earliest Start Date'. 
+                                </td>
+                                
+                            </tr>                      
+                            <tr>
+                                <td  style="border-right:3px solid black;padding: 0in 5.4pt;vertical-align: top;" valign="top" width="32%;">
+                                    <p style="margin-top:1.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Country: <span> </span>
+                                  <!--       <apex:selectList value="{!country}" multiselect="false" size="1" rendered="{!IF(country=='',true,false)}">
+                                            <apex:selectOptions value="{!CountryGlobalValueSet}"/>
+                                        </apex:selectList> --->
+                                        <apex:outputText id="countryId" value=" {!country}" style="border-bottom: 1px solid black;"  /></p>
+                                </td>
+                                
+                                <td  style="border-right:3px solid black;padding: 0in 5.4pt;vertical-align: top;" valign="top" width="32%;">
+                                    <p style="margin-top:1.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Cross Street: <apex:inputText value="{!crossStreet}" /><apex:outputText value="{!crossStreet}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}" /></p>
+                                </td>
+                              <td width="36%;" colspan="0">
+                                </td>
+                                 
+                                
+                            </tr>
+                            
+                            <tr>
+                                <td style="border-right:3px solid black;padding: 0in 5.4pt;vertical-align: top;" valign="top" width="32%;">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Earliest Start Date:<span style="color:red;font-weight:bold;">* </span><apex:input type="date" id="Edate" value="{!requestDate}" label="Earliest Start Date" onchange="ValidateDate();" />
+                                      <!--  <br/><span id="demo" style="font-size:10px;" ></span>-->
+                                     <!--  <apex:actionSupport event="onchange" reRender="thePage:frm:Edate" /> -->
+                                        <apex:outputText value="{0, date, MMMM d','  yyyy}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}" ><apex:param value="{!requestDate}"/> 
+                                        </apex:outputText></p>
+                                </td>
+                                <td style="border-right:3px solid black;padding: 0in 5.4pt;vertical-align: top;" valign="top" width="32%;">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Latest Start Date:<span style="color:red;font-weight:bold;">* </span><apex:input type="date" id="Ldate" value="{!latestStartDate}" label="Latest Start Date" onchange="ValidateDate();" />
+                                       <!--   <br/><span id="demo1" style="font-size:10px;" ></span>-->
+                                        <apex:outputText value="{0, date, MMMM d','  yyyy}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}" ><apex:param value="{!latestStartDate}" /> </apex:outputText></p>
+                                </td>   
+                              <!--  <td width="36%;" colspan="0"></td>  -->
+                                
+                                
+                                <td  style="padding: 0in 5.4pt;vertical-align: top;" valign="top" width="32%;">
+                                  <!-- <apex:outputLabel rendered="{!IF((latestStartDate==Null),true,false)}"> <p style="font-weight:bold;vertical-align: top;font-size:10px;" valign="top"><img alt="image not found" src="{!$Resource.checkboxUnCheckedImg}" style="width:10px;"/>
+                                        &nbsp;Urgent Request (less than 3 weeks)</p></apex:outputLabel>-->
+                                    
+                                    <apex:outputLabel rendered="{!IF((latestStartDate!=Null && latestStartDate<=ThreeWeeksDate),true,false)}"> <p style="font-weight:bold;vertical-align: top;font-size:9px;" valign="top"> <img src="/img/checkbox_checked.gif" style="width:10px;"/>&nbsp;Urgent Request (less than 3 weeks)</p></apex:outputLabel>
+                              <!--      <apex:outputLabel rendered="{!IF((latestStartDate!=Null && latestStartDate>ThreeWeeksDate),true,false)}"> <p style="font-weight:bold;vertical-align: top;font-size:14px;" valign="top"> <img alt="image not found" src="{!$Resource.checkboxUnCheckedImg}" style="width:16px;"/>&nbsp;Urgent Request (less than 3 weeks)</p></apex:outputLabel>-->
+                                </td>
+                                
+                            </tr>
+                            
+                            <tr>
+                                <td style="border-right:3px solid black;padding: 0in 5.4pt;vertical-align: top;" valign="top" width="32%;">
+                                    <p style="margin-top:1.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Site Open Time: <span style="color:red;font-weight:bold;">* </span><input type="time" value="{!SiteOpenTime}" name="open_time" onblur="document.getElementById('{!$Component.SiteOpenTime}').value = this.value;"/> <apex:outputText value="{!SiteOpenTime}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}" /></p>
+                                    <apex:inputHidden value="{!SiteOpenTime}" id="SiteOpenTime" /> 
+                                    
+                                </td>
+                                
+                                <td style="border-right:3px solid black;padding: 0in 5.4pt;vertical-align: top;" valign="top" width="32%;">
+                                    <p style="margin-top:1.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Site Close Time: <span style="color:red;font-weight:bold;">* </span><input type="time" value="{!SiteCloseTime}" name="close_time" onblur="document.getElementById('{!$Component.SiteCloseTime}').value = this.value;"/> <apex:outputText value="{!SiteCloseTime}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}" /></p>
+                                    <apex:inputHidden value="{!SiteCloseTime}" id="SiteCloseTime" /> 
+                                </td>
+                                <td width="36%;" colspan="0">
+                                </td>
+                            </tr> 
+                        </tbody>
+                    </table>
+                    
+                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><u>CONTACT INFORMATION</u></h2>
+                    <table  cellpadding="0" cellspacing="0" style="margin-bottom:2px;border:3px solid black;" width="100%">
+                        <tbody>
+                            <tr>
+                                <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top;border-right:3px solid black;" valign="top" >
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><em><span style="font-size:10px;color:red;">Electrical Contractor (form Submitter)</span></em></h2>
+                                </td>
+                                <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top;" valign="top" >
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><em><span style="font-size:10px;color:red;">  Project Owner Information</span></em></h2>
+                                </td>
+                            </tr>
+                            <tr style="">
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;">EC Contact Company: <span style="color:red;font-weight:bold;">* </span><apex:inputText value="{!ecContactCompany}"/></span></h2>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top; border-right:3px solid black;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;"><apex:outputText value="{!ecContactCompany}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}" /></span></h2>
+                                </td>
+                                
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;"> Company: <apex:inputText value="{!ownerContactCompany}"/></span></h2>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;"><apex:outputText value="{!ownerContactCompany}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}" /></span></h2>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;">EC First Name: <span style="color:red;font-weight:bold;">* </span><apex:inputText value="{!ecContactFirstName}" /></span></h2>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top; border-right:3px solid black;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;"><apex:outputText value="{!ecContactFirstName}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}" /></span></h2>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;"> First Name: <apex:inputText value="{!ownerContactFirstName}"  /></span></h2>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;"><apex:outputText value="{!ownerContactFirstName}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}" /></span></h2>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;">EC Last Name: <span style="color:red;font-weight:bold;">* </span><apex:inputText value="{!ecContactLastName}"  /></span></h2>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top; border-right:3px solid black;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;"><apex:outputText value="{!ecContactLastName}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}" /></span></h2>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;">Last Name: <apex:inputText value="{!ownerContactLastName}" /></span></h2>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;"><apex:outputText value="{!ownerContactLastName}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}" /></span></h2>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;">EC Contact Phone:<span style="color:red;font-weight:bold;">* </span><apex:inputText value="{!ecContactPhone}"/></span></h2> 
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top; border-right:3px solid black;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;"><apex:outputText value="{!ecContactPhone}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}" /></span></h2>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;"> Phone:<apex:inputText value="{!ownerPhone}"/></span></h2>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;"><apex:outputText value="{!ownerPhone}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}" /></span></h2>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;border-bottom:3px solid black;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;">EC Contact Email:<span style="color:red;font-weight:bold;">* </span><apex:inputText value="{!ecContactEmail}" id="ecEmailId"/></span></h2>
+                                    
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top; border-right:3px solid black;border-bottom:3px solid black;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;"><apex:outputText value="{!ecContactEmail}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}" /></span></h2>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;border-bottom:3px solid black;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;"> Email:<apex:inputText value="{!ownerEmail}"/></span></h2>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;border-bottom:3px solid black;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;"><apex:outputText value="{!ownerEmail}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}" /></span></h2>
+                                </td>
+                            </tr>
+                            <tr style="">
+                                <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top;border-right:3px solid black;" valign="top" >
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><em><span style="font-size:10px;color:red;">On-Site Contact Information</span></em></h2>
+                                </td>
+                                <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top;" valign="top" >
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><em><span style="font-size:10px;color:red;">Owner IT Information</span></em></h2>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;">Contact Company:<span style="color:red;font-weight:bold;">* </span><apex:inputText value="{!onSiteContact}"/></span></h2> 
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top; border-right:3px solid black;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;"><apex:outputText value="{!onSiteContact}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}" /></span></h2>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;"> Company:<apex:inputText value="{!authorizedUserConAccount}"/></span></h2>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;"><apex:outputText value="{!authorizedUserConAccount}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}" /></span></h2>
+                                </td>
+                                
+                                
+                            </tr>
+                            <tr>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;">Contact First Name:<span style="color:red;font-weight:bold;">* </span><apex:inputText value="{!onSiteContactFirstName}"/></span></h2>
+                                </td>
+                                <td colspan="" style="padding: 0in 5.4pt;vertical-align: top;border-right:3px solid black;" valign="top" >
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;"><apex:outputText value="{!onSiteContactFirstName}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}" /></span></h2>
+                                </td>
+                                <td colspan="" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;"> Contact First Name:<apex:inputText value="{!authorizedUserConFirstName}"/> </span></h2>
+                                </td>
+                                <td colspan="" style="padding: 0in 5.4pt;vertical-align: top;" valign="top" >
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;"><apex:outputText value="{!authorizedUserConFirstName}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}" /></span></h2>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;"> Contact Last Name:<span style="color:red;font-weight:bold;">* </span><apex:inputText value="{!onSiteContactLastName}"/> </span></h2>
+                                </td>
+                                <td colspan="" style="padding: 0in 5.4pt;vertical-align: top;border-right:3px solid black;" valign="top" >
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;"><apex:outputText value="{!onSiteContactLastName}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}" /></span></h2>
+                                </td>
+                                <td colspan="" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;">Contact Last Name:<apex:inputText value="{!authorizedUserConLastName}"/> </span></h2>
+                                </td>
+                                <td colspan="" style="padding: 0in 5.4pt;vertical-align: top;" valign="top" >
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;"><apex:outputText value="{!authorizedUserConLastName}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}" /></span></h2>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;"> Contact Phone:<span style="color:red;font-weight:bold;">* </span><apex:inputText value="{!onSitePhone}"/> </span></h2>
+                                </td>
+                                <td colspan="" style="padding: 0in 5.4pt;vertical-align: top;border-right:3px solid black;" valign="top" >
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;"><apex:outputText value="{!onSitePhone}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}" /></span></h2>
+                                </td>
+                                <td colspan="" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;">Contact Phone:<apex:inputText value="{!AuthorizedUserConPhone}"/> </span></h2>
+                                </td>
+                                <td colspan="" style="padding: 0in 5.4pt;vertical-align: top;" valign="top" >
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;"><apex:outputText value="{!AuthorizedUserConPhone}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}" /></span></h2>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;"> Contact Email:<span style="color:red;font-weight:bold;">* </span><apex:inputText value="{!onSiteContactEmail}"/></span></h2>
+                                </td>
+                                <td colspan="" style="padding: 0in 5.4pt;vertical-align: top;border-right:3px solid black;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;"><apex:outputText value="{!onSiteContactEmail}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}" /></span></h2>
+                                </td>
+                                <td colspan="" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;">Contact Email:<apex:inputText value="{!AuthorizedUserConEmail}" /> </span></h2>
+                                </td>
+                                <td colspan="" style="padding: 0in 5.4pt;vertical-align: top;" valign="top" >
+                                    <h2 style="margin-top:0in;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Trebuchet MS,sans-serif;"><span style="font-size:12px;font-family:Tahoma,sans-serif;font-weight:normal;"><apex:outputText value="{!AuthorizedUserConEmail}" rendered="{!IF((hasError==false),true,false)}" /></span></h2>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table >
+                  <!--  <br/> <br/> <br/> <br/> <br/> -->
+                    <table  cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:4px;border:1px solid black;">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div style="margin:0in;margin-bottom:.0001pt;font-size:16px;font-family:Trebuchet MS,sans-serif;">
+                                        <p style="margin:0in;font-size:13px;font-family:Trebuchet MS,sans-serif;text-align:center;margin-bottom:1px;"><strong>RECEIPT OF THE STARTUP REQUEST FORM IS REQUIRED TO SCHEDULE A STARTUP VISIT. A MINIMUM OF THREE WEEKS NOTICE IS NECESSARY FOR A STARTUP DATE</strong></p>
+                                        <!--
+<p style="margin:0in;font-size:13px;font-family:Trebuchet MS,sans-serif;text-align:center;margin-bottom: 1%;"><strong>DLM Networked projects that have a RACCESS cellular modem and have successfully completed the Site Readiness Check (SRC) process will receive priority scheduling. If a return trip is necessary to complete the startup for a project with a successful SRC, the return trip will be non-billable.</strong></p>
+
+<p style="margin:0in;font-size:13px;font-family:Trebuchet MS,sans-serif;text-align:center;margin-bottom: 1%;"><strong>To schedule an SRC for a DLM Networked project that has a RACCESS cellular modem, please contact the Remote Operations Center (ROC) team at (888) 740-7950.</strong></p>
+-->
+                                        <p style="margin:0in;font-size:13px;font-family:Trebuchet MS,sans-serif;"><strong>Additional Charges</strong></p>
+                                        <p style="margin:0in;margin-bottom: 0.1%;font-size:13px;font-family:Trebuchet MS,sans-serif;text-align:center;"><strong><span style="color:red;">IF EXTRA TRIPS OR EXTRA TIME IS REQUIRED TO COMPLETE THE SYSTEM STARTUP DUE, TO LACK OF PREPARATION OR INSTALLATION PROBLEMS, ADDITIONAL CHARGES TO THE CONTRACTOR MAY RESULT. THIS EXTRA WORK WILL REQUIRE A PURCHASE ORDER.</span></strong></p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table >
+                    
+                </div>
+                <apex:include pageName="EnceliumFormFooter"/>
+                <br/><br/><br/><br/><br/><br/><br/><br/>
+                
+                <apex:include pageName="EnceliumFormHeader"/>
+                
+                <div class="Page2" >
+                    <table cellpadding="0" cellspacing="0" width="100%">
+                        <tbody>
+                            <tr>
+                                <td style="padding: 0in 1.1pt;"  >
+                                    <h2 style="margin-top:.01in;margin-right:0in;margin-bottom:.0001pt;font-size:17px;font-family:Trebuchet MS,sans-serif;">
+                                        <strong><em><u>Purpose of Startup Visit</u></em></strong>
+                                    </h2>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">1. To verify proper installation of the {!strName} system.</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                        2. To verify proper operation of the system.
+                                    </p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                        3. To calibrate the system and perform software programming and scheduling.
+                                    </p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">4. To provide orientation and training for the end user.</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table cellpadding="2" cellspacing="2" style="margin-top:1px.5px;">
+                        <tbody>
+                            <tr>
+                                <td colspan="2" style="padding: 0in 5.1pt;vertical-align: top;" valign="top" >
+                                    <h2 style="margin-top:.01in;margin-right:0in;margin-bottom:.0001pt;font-size:17px;font-family:Tahoma,sans-serif;">
+                                        Site Readiness
+                                        <!--  <strong><em><u>Required Preparation For Startup Visit</u></em></strong> -->
+                                    </h2>
+                                </td>
+                            </tr>
+                            
+                            <tr>
+                                <td colspan="2" style="padding: 0in 5.1pt;vertical-align: top;" valign="top" >
+                                    <h2 style="margin-top:.01in;margin-right:0in;margin-bottom:.0001pt;font-size:12px;font-family:Trebuchet MS,sans-serif;">
+                                        <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;"><strong><em>Installation</em></strong></p> 
+                                    </h2>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" valign="top" style="padding: 0in 5.4pt;vertical-align: top;">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                        Installation Status of Fixtures and Encelium Devices:<span style="color:red;font-weight:bold;">* </span><apex:inputText size="3" value="{!perStatus}"></apex:inputText><apex:outputText value="{!perStatus}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}"  /> %(approximate)
+                                    </p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" valign="top" style="padding: 0in 5.4pt;vertical-align: top;">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                        System Type<span style="color:red;font-weight:bold;">* </span>(Select which system applies):
+                                    </p>
+                                </td>
+                                
+                            </tr>
+                            <!----------------------System Type Picklist Start--------------------------->
+                             <!-- <apex:repeat value="{!WrapperSystemTypeList}" var="data">
+                                <tr>
+                                    <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                        <apex:inputCheckbox text="{!data.workOrdertsName}" value="{!data.workOrdertsName}" styleClass="SystemType" onClick="allowOneSystemType(this,'SystemType');"></apex:inputCheckbox> 
+                                        <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                            <apex:outputLabel rendered="{!data.selected}">  <img src="/img/checkbox_checked.gif"/></apex:outputLabel>
+                                        </p>
+                                    </td>
+                                 <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                        <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">{!data.workOrdertsName }</p>
+                                    </td> 
+                                </tr>
+                            </apex:repeat> -->
+                            <tr>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <apex:inputCheckbox id="WiredId" value="{!checkWired}" styleClass="SystemType" onClick="checkSystemType(this,'SystemType','Wired');"></apex:inputCheckbox> 
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                        <apex:outputLabel rendered="{!checkWired}" >  <img src="/img/checkbox_checked.gif"/></apex:outputLabel>
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Wired</p>
+                                </td> 
+                                </tr>
+                             <tr>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <apex:inputCheckbox id="WirelessId" value="{!checkWireless}" styleClass="SystemType" onClick="checkSystemType(this,'SystemType','Wireless');"></apex:inputCheckbox> 
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                        <apex:outputLabel rendered="{!checkWireless}" >  <img src="/img/checkbox_checked.gif"/></apex:outputLabel>
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Wireless</p>
+                                </td> 
+                                </tr>
+                             <tr>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <apex:inputCheckbox id="HybridId" value="{!checkHybrid}" styleClass="SystemType" onClick="checkSystemType(this,'SystemType','Hybrid');"></apex:inputCheckbox> 
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                        <apex:outputLabel rendered="{!checkHybrid}" >  <img src="/img/checkbox_checked.gif"/></apex:outputLabel>
+                                    </p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">Hybrid(i.e Wired System with Wireless Site Lighting)</p>
+                                </td> 
+                                </tr>
+                            <!----------------------System Type Picklist END--------------------------->
+                            <tr>
+                                <td colspan="2" valign="top" style="padding: 0in 5.4pt;vertical-align: top;">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                        For Wired Systems Only<span style="color:red;font-weight:bold;">* </span> :
+                                    </p>
+                                </td>
+                            </tr>
+                            <apex:repeat value="{!WrapperWiredSystemTypeList}" var="data">
+                                <tr>
+                                    <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                        <apex:inputCheckbox value="{!data.selected}" styleClass="WiredClass"/> 
+                                        <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                            <apex:outputLabel rendered="{!data.selected}">  <img src="/img/checkbox_checked.gif"/></apex:outputLabel>
+                                        </p>
+                                    </td>
+                                    <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                        <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">{!data.workOrdertsName }</p>
+                                    </td>
+                                </tr>
+                            </apex:repeat>
+                            <tr>
+                                <td colspan="2" valign="top" style="padding: 0in 5.4pt;vertical-align: top;">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                        For Wireless Systems Only<span style="color:red;font-weight:bold;">* </span> :
+                                    </p>
+                                </td>
+                            </tr>
+                            <apex:repeat value="{!WrapperWirelessSystemTypeList}" var="data">
+                                <tr>
+                                    <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                        <apex:inputCheckbox value="{!data.selected}" styleClass="WirelessClass"/> 
+                                        <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                            <apex:outputLabel rendered="{!data.selected}">  <img src="/img/checkbox_checked.gif"/></apex:outputLabel>
+                                        </p>
+                                    </td>
+                                    <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                        <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">{!data.workOrdertsName }</p>
+                                    </td>
+                                </tr>
+                            </apex:repeat>
+                            <tr>
+                                <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;"><strong><em>Network</em></strong></p>
+                                </td> 
+                                </tr>
+                            <tr>
+                                <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;"><em>SSU Type<span style="color:red;font-weight:bold;">* </span>(select one option only)</em></p>
+                                </td> 
+                            </tr>
+                            
+                            <apex:repeat value="{!WrapperSSUNewList}" var="data">
+                                <tr>
+                                    <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                        <apex:inputCheckbox Id="SSUNewId" value="{!checkNew}" styleClass="SSUType" onClick="checkSystemType(this,'SSUType','SSUNew');"/> 
+                                        <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                            <apex:outputLabel rendered="{!checkNew}">  <img src="/img/checkbox_checked.gif"/></apex:outputLabel>
+                                        </p>
+                                    </td>
+                                    <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                        <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">{!data.workOrdertsName }</p>
+                                    </td>
+                                </tr>
+                            </apex:repeat>
+                            <tr>
+                                <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0002pt;margin-left:.5in;font-size:12px;font-family:Tahoma,sans-serif;"><em>if SSU is new<span style="color:red;font-weight:bold;">* </span> :</em></p>
+                                </td> 
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table cellpadding="2" cellspacing="2" style="margin-top:1px.5px;">
+                        
+                        <tbody>
+                            <apex:repeat value="{!WrapperIsSSUNewList}" var="data">
+                                <tr>
+                                    <td><span style="padding-left:50px;"></span>&nbsp;</td>
+                                    <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                        <apex:inputCheckbox id="IsSSUId" value="{!data.selected}" styleClass="SSUNewType" onClick="checkSystemType(this,'SSUNewType','ifSSUNew');"/> 
+                                        <p style="margin-top:1.85pt;margin-right:0in;margin-bottom:.0002pt;margin-left:0in;font-size:10px;font-family:Tahoma,sans-serif;">
+                                            <apex:outputLabel rendered="{!data.selected}">  <img src="/img/checkbox_checked.gif"/></apex:outputLabel>
+                                        </p>
+                                    </td>
+                                    <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                        <p style="margin-top:1.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:10px;font-family:Tahoma,sans-serif;">{!data.workOrdertsName }</p>
+                                    </td>
+                                </tr>
+                            </apex:repeat>
+                        </tbody>
+                    </table>
+                    <table cellpadding="2" cellspacing="2" style="margin-top:1px.5px;">
+                        
+                        <tbody>
+                            <apex:repeat value="{!WrapperSSUExistingList}" var="data">
+                                <tr>
+                                    <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                        <apex:inputCheckbox Id="SSUExistId" value="{!CheckExist}" styleClass="SSUType" onClick="checkSystemType(this,'SSUType','SSUExisting');"/> 
+                                        <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                            <apex:outputLabel rendered="{!CheckExist}">  <img src="/img/checkbox_checked.gif"/></apex:outputLabel>
+                                        </p>
+                                    </td>
+                                    <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                        <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">{!data.workOrdertsName }</p>
+                                    </td>
+                                </tr>
+                            </apex:repeat>
+                            <tr>
+                                
+                                <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;"><em>Remote Access<span style="color:red;font-weight:bold;">* </span>(select only one option)</em></p>
+                                </td> 
+                            </tr>
+                            <apex:repeat value="{!WrapperSSURemoteList}" var="data">
+                                <tr>
+                                    <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                        <apex:inputCheckbox value="{!data.selected}"  styleClass="RemoteAccess" onClick="checkSystemType(this,'RemoteAccess','Remote');"/> 
+                                        <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                            <apex:outputLabel rendered="{!data.selected}" >  <img src="/img/checkbox_checked.gif"/></apex:outputLabel>
+                                        </p>
+                                    </td>
+                                    <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                        <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">{!data.workOrdertsName }</p>
+                                    </td>
+                                </tr>
+                            </apex:repeat>
+                            <tr>
+                                <td colspan="2" style="padding: 0.1in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;"><strong><em>Additional Readiness Comments: </em></strong><br/><br/> <apex:inputTextarea style="width: 300px; height: 50px; " /></p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;"></p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;"><strong>Site Access and Equipment</strong> </p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;"><em>Electrician On-Site Hours<span style="color:red;font-weight:bold;">* </span>:</em> <input type="time" value="{!onSiteStartTime}" name="start_time" onblur="document.getElementById('{!$Component.onSiteStartTime}').value = this.value;"/> <apex:outputText value="{!onSiteStartTime}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}" /> 
+                                       <apex:inputHidden value="{!onSiteStartTime}" id="onSiteStartTime" /> 
+                                        <em>&nbsp;to </em> <input type="time" value="{!onSiteEndTime}" name="end_time" onblur="document.getElementById('{!$Component.onSiteEndTime}').value = this.value;"/> &nbsp; <apex:outputText value="{!onSiteEndTime}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}" />
+                                    <apex:inputHidden value="{!onSiteEndTime}" id="onSiteEndTime" /> 
+                                      &nbsp;<em> Specified Days(if required): </em> <apex:inputText size="12" value="{!onSiteDays}" ></apex:inputText>&nbsp; <apex:outputText value="{!onSiteDays}" style="border-bottom: 1px solid black;" rendered="{!IF((hasError==false),true,false)}"></apex:outputText>
+                                    </p>
+                                </td>
+                                <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:-3in;font-size:12px;font-family:Tahoma,sans-serif;"> </p>
+                            </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;"><em>Pesonnel and equipment available to the technician(Check what applies) </em> </p>
+                                </td>
+                            </tr>
+                            <apex:repeat value="{!WrapperEquipAvailableList}" var="data">
+                                <tr>
+                                    <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                        <apex:inputCheckbox value="{!data.selected}"/> 
+                                        <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                            <apex:outputLabel rendered="{!data.selected}">  <img src="/img/checkbox_checked.gif"/></apex:outputLabel>
+                                        </p>
+                                    </td>
+                                    <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                        <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">{!data.workOrdertsName }</p>
+                                    </td>
+                                </tr>
+                            </apex:repeat>
+                            <tr>
+                                <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;"><em>Safety Equipment/protocol required by the technician(check what applies)</em> </p>
+                                </td>
+                            </tr>
+                            <apex:repeat value="{!WrapperEquipRequiedList}" var="data">
+                                <tr>
+                                    <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                        <apex:inputCheckbox value="{!data.selected}"/> 
+                                        <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                            <apex:outputLabel rendered="{!data.selected}">  <img src="/img/checkbox_checked.gif"/></apex:outputLabel>
+                                        </p>
+                                    </td>
+                                    <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                        <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">{!data.workOrdertsName }</p>
+                                    </td>
+                                </tr>
+                            </apex:repeat>
+                            <tr>
+                                <td colspan="2" style="padding: 0.1in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:1pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;"><strong><em>Additional Site Access and Equipment Comments: </em></strong><br/><br/> <apex:inputTextarea style="width: 300px; height: 50px;" /></p>
+                                </td>
+                                <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;"></p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>               
+                <br/>
+                <apex:include pageName="EnceliumFormFooter"/>
+                
+                <div style="page-break-after: always"/>
+               <br/><br/><br/><br/><br/>
+              <!--  <apex:include pageName="EnceliumFormHeader"/> -->
+                <!-----------Header Page 3 Start-------------->
+
+                <table cellpadding="0" cellspacing="0" width="100%" >
+                    <tbody>
+                        <tr>
+                            <td style="width:100%; border-bottom:3px solid black;">
+                                
+                                <div style="width:14%;float:left;">
+                                    <!--     <div class="page-form-heading" style="background-color:black;width: 151px;margin-left: 0px;">-->
+                                    <!-- <p style="color: white;font-family: Tahoma;font-size: 15px;padding: 26px 0px 10px 26px;margin-top: 0px; margin-bottom:0px;">ENCELIUM</p>-->
+                                    <img alt="image not found" src="{!$Resource.EnceliumLogo}" style="width: 146px; padding-top:35px;float:left;" />  
+                                    <!--      </div>-->
+                                </div>
+                                <div style="width:86%;float:right;">
+                                    <img alt="image not found" src="{!$Resource.BrandLogo}" style="padding-top:15px;width: 136px;height: 33px;float: right;" />
+                                </div>                                    
+                            </td>
+                            
+                        </tr>
+                        <tr>
+                            <td style="padding-top:8px;">
+                                <span style="font-size:15px;font-family:Trebuchet MS,sans-serif;color:gray;text-align:left;">STARTUP REQUEST FORM</span><br/>
+                            </td>                                
+                        </tr>
+                    </tbody>
+                </table>
+				
+                       <!-----------Header Page 3 END-------------->
+                <div class="Page3">
+                    <table cellpadding="0" cellspacing="0" width="100%" border="0">
+                        <tbody>
+                            <tr>
+                                <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;"><strong>Site Verification</strong> </p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;"><em>3rd Party Verification(by Others)<span style="color:red;font-weight:bold;">* </span></em></p>
+                                </td>
+                            </tr>
+                            <apex:repeat value="{!WrapperDLMLightningCPanelList}" var="data">
+                                <tr>
+                                    <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                        <apex:inputCheckbox Id="siteId" value="{!data.selected}" styleClass="SiteClass"/> 
+                                        <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:10px;font-family:Tahoma,sans-serif;">
+                                            <apex:outputLabel rendered="{!data.selected}">  <img src="/img/checkbox_checked.gif"/></apex:outputLabel>
+                                        </p>
+                                    </td>
+                                    <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                        <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">{!data.workOrdertsName }</p>
+                                    </td>
+                                </tr>
+                            </apex:repeat>
+                            <tr>
+                                <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:17px;font-family:Tahoma,sans-serif;"><strong>Training Acknowledgement</strong><span style="color:red;font-weight:bold;">* </span> </p>
+                                </td>
+                            </tr>
+                            <apex:repeat value="{!WrapperDLMDaylightSystemsList}" var="data">
+                                <tr>
+                                    <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                        <apex:inputCheckbox id="trainId" value="{!data.selected}" styleClass="trainClass"/> 
+                                        <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:10px;font-family:Tahoma,sans-serif;">
+                                            <apex:outputLabel rendered="{!data.selected}">  <img src="/img/checkbox_checked.gif"/></apex:outputLabel>
+                                        </p>
+                                    </td>
+                                    <td style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                        <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">{!data.workOrdertsName }</p>
+                                    </td>
+                                </tr>
+                            </apex:repeat>
+                            </tbody>
+                    </table>
+                </div>            
+                <br/>
+                <apex:include pageName="EnceliumFormFooter"/>
+                  
+                <div style="page-break-after: always"/> 
+               <br/><br/><br/><br/><br/>
+            <!--    <apex:include pageName="EnceliumFormHeader"/>  --->
+                  <!-----------Header Page 5 Start-------------->
+
+                <table cellpadding="0" cellspacing="0" width="100%" >
+                    <tbody>
+                        <tr>
+                            <td style="width:100%; border-bottom:3px solid black;">
+                                
+                                <div style="width:14%;float:left;">
+                               <!--     <div class="page-form-heading" style="background-color:black;width: 151px;margin-left: 0px;">-->
+                                <!---        <p style="color: white;font-family: Tahoma;font-size: 15px;padding: 26px 0px 10px 26px;margin-top: 0px; margin-bottom:0px;">ENCELIUM</p> -->
+                                         <img alt="image not found" src="{!$Resource.EnceliumLogo}" style="width: 146px;padding-top:35px; float:left;" />  
+                                 <!--  </div>-->
+                                </div>
+                                <div style="width:86%;float:right;">
+                                    <img alt="image not found" src="{!$Resource.BrandLogo}" style="padding-top:15px;width: 136px;height: 33px;float: right;" />
+                                </div>                                    
+                            </td>
+                            
+                        </tr>
+                        <tr>
+                            <td style="padding-top:8px;">
+                                <span style="font-size:15px;font-family:Trebuchet MS,sans-serif;color:gray;text-align:left;">STARTUP REQUEST FORM</span><br/>
+                            </td>                                
+                        </tr>
+                    </tbody>
+                </table>
+				
+                       <!-----------Header Page 5 END-------------->
+                
+                <div class="Page5">
+                    <table  cellpadding="0" cellspacing="0" style="margin-bottom:10px;" width="100%" border="0">
+                        <tbody>
+                            <tr>
+                                <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top;" valign="top" width="50%">
+                                    <h2 style="margin-right:0in;margin-bottom:.0001pt;font-size:17px;font-family:Trebuchet MS,sans-serif;"><u>IMPORTANT NOTES</u></h2>  
+                                </td>
+                            </tr>
+                            <tr >                         
+                                <td colspan="2">                                
+                                    <!--<u style="padding-left:10%;border:3px solid black;"></u> --> <apex:inputTextarea cols="50" rows="5" value="{!impNotes}" style="padding-left:5%;border:3px solid black;width:70%;resize:none;margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">
+                                    </apex:inputTextarea>
+                                </td>
+                            </tr>
+                            <tr>                            
+                                <td colspan="2" style="padding: 0in 5.1pt;vertical-align: top;" valign="top" >
+                                    <h2 style="margin-top:.01in;margin-right:0in;margin-bottom:.0001pt;font-size:17px;font-family:Trebuchet MS,sans-serif;">
+                                        <strong><em><u>Scheduling the Startup Visit</u></em></strong>                           
+                                    </h2>
+                                </td>
+                            </tr>
+                            <tr>
+                                 <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;m1rgin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">1. Make sure all preparations listed above have been or will be completed by the date of the startup visit.</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">2. Determine the preferred date for the startup visit. (Please note required lead time)</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">3. Complete the “Startup Request” form and email it to <a href="mailto:field.enceliumstartup@legrand.com"><span style="font-size:13px;font-family:Tahoma,sans-serif;color:windowtext;text-decoration:none;">{!strEmail}</span></a></p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top; width:20%;" valign="top">
+                                    <h2 style="margin-right:0in;margin-bottom:.0001pt;font-size:17px;font-family:Trebuchet MS,sans-serif;"><u>Cancellation</u></h2>  
+                                    </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">In the event you cancel your confirmed date without reasonable notice, you may be charged to reschedule.</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">      Less than 3 business days - $500.00</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">      4-7 business days - $250.00</p>
+                                </td>
+                            </tr>
+                            <tr>
+                               <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">*If you need blank documentation forms or have any questions please contact {!strName} Field Technical Services at <a href="mailto:field.enceliumstartup@legrand.com"><span style="font-size:13px;font-family:Tahoma,sans-serif;color:windowtext;text-decoration:none;">{!strEmail}</span></a></p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top; width:20%;" valign="top">
+                                    <h2 style="margin-right:0in;margin-bottom:.0001pt;font-size:17px;font-family:Trebuchet MS,sans-serif;"><u>Request</u></h2>  
+                                    
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="padding: 0in 5.4pt;vertical-align: top;" valign="top">
+                                    <p style="margin-top:3.85pt;margin-right:0in;margin-bottom:.0001pt;margin-left:0in;font-size:12px;font-family:Tahoma,sans-serif;">The startup visit for the above-named project is hereby requested. The preparations listed above are, or will be, completed prior to the date of the startup visit.<b> It is understood that additional trips or excess time required to complete the startup visit due to lack of preparation on the part of the installer may result in additional charges to the installer.</b></p>
+                                </td>
+                            </tr>
+                            
+                        </tbody>
+                    </table>                
+                </div>            
+                <br/>
+                <apex:pageMessages id="msgId" escape="false"  /> 
+                <p Id ="demo"></p>
+                <apex:outputPanel >          
+                    <apex:inputCheckbox value="{!termsAndConditions}" rendered="{!(!termsAndConditions)}"/>
+                    <apex:outputLabel rendered="{!(termsAndConditions)}">  <img src="/img/checkbox_checked.gif"/></apex:outputLabel>
+                    <apex:outputLabel style="font-size:12px;font-family:Tahoma,sans-serif;">I agree to the terms and conditions</apex:outputLabel>    
+                </apex:outputPanel> 
+                <br/><br/>
+                <apex:outputPanel >
+                    Signature: <span style="font-size:18px;font-family:Tahoma,sans-serif;font-weight:normal;color:red;font-weight:bold;" >  *</span>
+                    <apex:outputText id="signText" style="font-size: 20pt;margin-top: 1%;margin-left: 1%;font-family:Tahoma,sans-serif;" value="{!signName}"></apex:outputText>
+                    <apex:outputText style="font-size: 15pt;margin-top:1%; margin-left: 3%;font-family:Tahoma,sans-serif;" value="{!MONTH(TODAY())}/{!DAY(TODAY())}/{!YEAR(TODAY())}"></apex:outputText>  
+                    <br/>
+                </apex:outputPanel> <br/>
+                <apex:inputText id="theInput" style="font-size: 20pt;margin-top:1%;margin-left: 6%;" onkeyup="myfun(this);" value="{!signatureinput}"/> 
+                <!--<input type="text" style="font-size: 20pt;margin-top:1%;margin-left: 6%;" onkeyup="myfun(this);" name="fname" id="input1"/> --> <br/><br/>
+            </apex:outputPanel>     
+            
+                <apex:commandButton status="statusSave" onclick="if(!confirm('Do you want to continue?')){return false};" action="{!createCase}" value="Send signed Form" oncomplete="return createPdf();"   reRender="opScriptPanel,hiidTextId,outputId,frm"/>         
+                <apex:inputHidden value="{!caseId}" id="hiidTextId"/>
+                <apex:include pageName="EnceliumFormFooter"/>
+                <apex:outputPanel id="opScriptPanel" layout="block">
+                    <apex:outPutPanel id="script-block" layout="block">
+                        <script type="text/javascript" layout="block">
+                        //document.getElementById('thePage:frm:hasError').value = '{!hasError}';
+                        var hasMessages = '{!hasError}';            
+                        </script>
+                    </apex:outputPanel>
+                </apex:outPutPanel>
+                <apex:actionStatus id="statusSave" stopText="">
+                    <apex:facet name="start">
+                        <div id="loading-window">
+                        </div>
+                    </apex:facet>
+                </apex:actionStatus> 
+            </div>
+            
+        </apex:form>
+    </body>
+    <script>
+     var isValid= true;
+       function validateCheck(){
+           //  alert('Do you want to continue?');
+        var IsCheck =false;
+        var IsNew = false;
+        var isRemote = false;
+        var isSite =false;
+        var isTrain = false;
+        var ischeckNew = document.getElementById("thePage:frm:j_id176:0:SSUNewId").checked
+        var ischeckExist = document.getElementById("thePage:frm:j_id190:0:SSUExistId").checked
+       if(document.getElementById("thePage:frm:WiredId").checked){
+            var checkForWired=document.getElementsByClassName("WiredClass");
+           for(var i=0,l=checkForWired.length;i<l;i++){
+                if(checkForWired[i].checked)
+                {
+                    IsCheck=true;
+                    break;
+                }
+            }
+            if(IsCheck){isValid = false; }
+            else{alert('please select aleast one option for Wired System in Installation Section' );}
+           }
+        else if(document.getElementById("thePage:frm:WirelessId").checked){
+            
+            var checkForWireless=document.getElementsByClassName("WirelessClass");
+            for(var i=0,l=checkForWireless.length;i<l;i++)
+            {
+                if(checkForWireless[i].checked)
+                {
+                    IsCheck=true;
+                    break;
+                }
+            }
+             if(IsCheck){isValid = false; }
+            else{alert('please select aleast one option for Wireless System in Installation Section' );}
+           
+        }
+        else if(document.getElementById("thePage:frm:HybridId").checked){
+            var check1=document.getElementsByClassName("WiredClass");
+             var check2=document.getElementsByClassName("WirelessClass");
+              var isCheck1 =false;
+              for(var i=0,l=check1.length;i<l;i++)
+                {
+                    if(check1[i].checked){isCheck1=true;break;}
+                }
+                if(isCheck1){
+                    for(var i=0,l=check2.length;i<l;i++){
+                        if(check2[i].checked){ IsCheck=true;break;}
+                    }
+                    if(IsCheck){isValid = false; }
+                    else{
+                       
+                        alert('please select aleast one option for Wire and Wireless System in Installation Section' );}
+                     }
+              else{
+                 
+                  alert('please select aleast one option for Wire and Wireless System in Installation Section' );}
+            
+                        } 
+        if(IsCheck == true  && ischeckNew == true){ 
+            var newSSU=document.getElementsByClassName("SSUNewType");
+             for(var i=0,l=newSSU.length;i<l;i++)
+                    {
+                        // alert(newSSU[i].checked);
+                        if(newSSU[i].checked)
+                        {
+                            IsCheck=true;
+                            IsNew = true;
+                            break;
+                        }
+                    }
+                    if(IsNew){isValid = false; }
+                    else{
+                        isValid = true;
+                        alert('please select aleast one option if SSU is New' );}
+                                    
+                }
+           
+           if(IsCheck == true && (IsNew == true || ischeckExist == true)  && isRemote == false ){
+             var checkRemote=document.getElementsByClassName("RemoteAccess");
+            for(var i=0,l=checkRemote.length;i<l;i++)
+            {
+                if(checkRemote[i].checked)
+                {
+                    IsCheck=true;
+                    isRemote =true;
+                    break;
+                }
+            }
+            if(isRemote){isValid = false; }
+            
+            else{
+                isValid= true;
+                alert('please select aleast one option for Remote Acess in Network Section' );}
+           
+            }   
+         if(isRemote== true && isSite ==false ){
+             var checkSite=document.getElementsByClassName("SiteClass");
+            for(var i=0,l=checkSite.length;i<l;i++)
+            {
+                if(checkSite[i].checked)
+                {
+                    IsCheck=true;
+                    isSite = true;
+                    break;
+                }
+            }
+            if(isSite){isValid = false; }
+            else{
+                isValid= true;
+                alert('please select aleast one option in Site Verification Section' );}
+           
+            }
+         if(isSite ==true && isTrain==false){
+             var checkTrain=document.getElementsByClassName("trainClass");
+            for(var i=0,l=checkTrain.length;i<l;i++)
+            {
+                if(checkTrain[i].checked)
+                {
+                    IsCheck=true;
+                    isTrain= true;
+                    break;
+                }
+            }
+             if(isTrain){isValid = false; }
+            else{
+                isValid= true;
+                alert('please select aleast one option in Training Acknowledgement Section' );}
+            } 
+            
+            return isValid;
+    } 
+    function loadContent(){
+        document.getElementById('loading-window').innerHTML = '<div class="popupBackground" /><div class="PopupPanel"> <table width="100%" height="100%"> <tr> <td align="center"><b>Please Wait</b></td> </tr> <tr> <td align="center"><img src="/img/loading24.gif"/></td> </tr> </table> </div>';
+    }
+    function myfun(e){
+        var signNm = e.value;
+        callApexSetSignature(signNm);        
+        //document.getElementsByClassName("outputText1").value = e.value;
+    }    
+    function createPdf() {
+        var check1= validateCheck();
+        //  alert(check1);
+        //  if(check1){ }
+      
+        if(check1 == false && hasMessages == 'false' ) {
+           alert('Thank you for submitting the Start-up request form. An email will be sent to you that includes a PDF attachment of the form you have just filled out to '+document.getElementById('thePage:frm:ecEmailId').value +' .');
+            document.getElementById('loading-window').innerHTML = '';
+            call();
+        }else{loadContent();
+             }
+      
+       }
+  
+    function checkSystemType(checkbox, className, systemType) {
+        var checkboxes = document.getElementsByClassName(className);
+        for(var i=0; i<checkboxes.length; i++){
+            checkboxes[i].checked = false;
+        }
+        checkbox.checked = true;
+        if(systemType =='Wired'){
+            var disWireless = document.getElementsByClassName("WirelessClass");
+            for(var i=0; i<disWireless.length; i++){
+                disWireless[i].checked = false;
+                disWireless[i].disabled = true; 
+            }
+            var enableWired = document.getElementsByClassName("WiredClass");
+            for(var i=0; i<enableWired.length; i++){
+                enableWired[i].disabled = false; 
+            }
+        }
+        else if(systemType =='Wireless'){
+            var disWired = document.getElementsByClassName("WiredClass");
+            for(var i=0; i<disWired.length; i++){
+                disWired[i].checked = false;
+                disWired[i].disabled = true; 
+            }
+            var enableWireless = document.getElementsByClassName("WirelessClass");
+            for(var i=0; i<enableWireless.length; i++){
+                enableWireless[i].disabled = false; 
+            }
+            
+        }
+            else if(systemType =='Hybrid'){
+                var enableWired = document.getElementsByClassName("WiredClass");           
+                for(var i=0; i<enableWired.length; i++){
+                    enableWired[i].checked = false;
+                    enableWired[i].disabled = false; 
+                }
+                var enableWireless = document.getElementsByClassName("WirelessClass");           
+                for(var i=0; i<enableWireless.length; i++){
+                    enableWireless[i].checked = false; 
+                    enableWireless[i].disabled = false; 
+                } 
+            }
+                else if(systemType =='SSUNew'){
+                    
+                    var enableNew = document.getElementsByClassName("SSUNewType");
+                    for(var i=0; i<enableNew.length; i++){
+                        enableNew[i].disabled = false; 
+                       }
+                    }
+                    else if(systemType =='SSUExisting'){
+                        var disNew = document.getElementsByClassName("SSUNewType");
+                        for(var i=0; i<disNew.length; i++){
+                            disNew[i].checked = false;
+                            disNew[i].disabled = true; 
+                        }
+                        
+                    }
+    }
+    /*   function ValidateEarliestDate() {
+           var dateString = document.getElementById('thePage:frm:Edate').value;
+         //  var dateString = e.value;
+        var myDate = new Date(dateString);
+        var today = new Date();
+        if ( myDate <= today ) { 
+            alert('Earliest Start Date must be Greater than TODAY');
+            //   document.getElementById("demo").innerHTML = '*Earliest Start Date must be Greater than TODAY ';
+            //  document.getElementById("demo").style.color = 'red';
+            // document.getElementById("demo").style.font-size = 8px;
+            
+        }
+         else{ 
+              document.getElementById("demo").style.display = "none";
+         }
+       
+    }*/
+     function ValidateDate() {
+         var IsValidDate = true;
+         var date1 = document.getElementById('thePage:frm:Edate').value;
+         var date2 = document.getElementById('thePage:frm:Ldate').value; 
+         var Edate = new Date(date1);
+         var today = new Date();
+         var Ldate = new Date(date2);
+         if( Edate <= today ) { 
+            IsValidDate = false;
+            alert('Earliest Start Date must be Greater than TODAY');
+               document.getElementById('thePage:frm:Edate').value =new Date();
+           }
+         else if(Ldate <= today || Edate > Ldate) {
+            IsValidDate = false;
+            alert("Latest Start Date must be Greater than or equal to 'Earliest Start Date'");
+               document.getElementById('thePage:frm:Ldate').value =new Date();
+                 
+            }
+            
+          return IsValidDate;
+        } 
+       function setCountry(){
+           changeCountry();
+           }
+     
+    </script>
+</apex:page>

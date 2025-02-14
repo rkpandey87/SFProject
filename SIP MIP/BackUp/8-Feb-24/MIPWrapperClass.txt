@@ -1,0 +1,92 @@
+public class MIPWrapperClass {
+    //login Wrapper
+    public class LoginWrapper {
+        public String username;
+        public String password;
+        public String org;
+        
+    }
+    
+    // Session Wrapper
+    public class ReceivableSessionsWrapper {
+        
+        public String sessionId {get;set;} 
+        public String status {get;set;} 
+        public String description {get;set;} 
+        public String date_Z {get;set;} 
+    }
+    //Receivable Document Invoices Wrapper
+    public class ReceivableDocumentInvoicesWrapper {
+        
+        public String documentId;
+        public String description;
+        public String playerId;
+        public String documentDate;
+        public String dueDate;
+        public Integer documentAmount;
+        public List<Transactions> transactions;
+    }
+    //Receivable Document Invoices Transaction Wrapper
+    public class Transactions {
+		public String effectiveDate;
+		public String entryTypeId;
+		public String description;
+		public Integer debitAmount;
+		public Integer creditAmount;
+		public String segment0;
+		public String segment1;
+		public String segment2;
+		public String segment3;
+		public String segment4;
+		public String segment5;
+		public UserDefinedFields userDefinedFields;
+	}
+    public class UserDefinedFields {
+		public Integer Client_Numbers;
+	}
+    // Receivable Document Credit Wrapper
+    public class ReceivableDocumentCreditWrapper {
+        public String documentId;
+        public String description;
+        public String documentDate;
+        public Integer documentAmount;
+        public String playerId;
+        public UserDefinedFields_C userDefinedFields;
+        public List<Transactions_C> transactions;
+    }
+    
+    public class UserDefinedFields_C {
+		public String editable;
+		public String noneeditable;
+		public String udfdoc01;
+		public String udfdoc02;
+	}
+    
+    public class UserDefinedFields_Z {
+		public String EditableTransLines;
+		public String NoneEditableTransLines;
+		public Boolean UDFboolean;
+		public String UdfString;
+		public Integer udft01;
+		public Integer udft02;
+	}
+    
+    //Receivable Document Credit Transaction Wrapper
+    public class Transactions_C {
+		public Integer creditAmount;
+		public Double debitAmount;
+		public String description;
+		public String effectiveDate;
+		public String entryTypeId;
+		public Double invoiceAppliedToId;
+		public String segment0;
+		public String segment1;
+		public String segment2;
+		public String segment3;
+		public String segment4;
+		public String segment5;
+		public UserDefinedFields_Z userDefinedFields;
+	}
+
+
+}

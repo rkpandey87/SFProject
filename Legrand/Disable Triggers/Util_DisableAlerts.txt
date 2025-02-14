@@ -1,0 +1,54 @@
+public with sharing class Util_DisableAlerts {
+   private static boolean disableTriggers = null;
+     
+	public static boolean disableAllTriggers  {
+		get {
+			if (disableTriggers != null)
+			{
+				return disableTriggers;
+			}
+            set<string> excludeSysAdmins = new set<string>();
+		/*	set<string> integrationSysAdmins = new set<string>{
+				'System Admin',
+				'Salesforce Sync'
+			};*/
+			List<Disable_Triggers_For_Data_Upload__mdt> lstSt = [Select Disable_All_Triggers__c, Disable_for_Admins_only__c,Admin_Name_to_Exclude_1__c,Admin_Name_to_Exclude_2__c from Disable_Triggers_For_Data_Upload__mdt];
+			
+            
+            map<id, profile> profiles = new map<id, profile>();
+			profiles.putAll([select id, name from profile]);
+
+			profile userProfile = profiles.get(userinfo.getProfileId());
+			string userName = userInfo.getName();
+
+			if (lstSt.size() == 0) {
+				disableTriggers = false;
+				return disableTriggers;
+			}
+            else{
+                if(lstSt[0].Admin_Name_to_Exclude_1__c!= Null ){
+                    excludeSysAdmins.add(lstSt[0].Admin_Name_to_Exclude_1__c);
+                }
+                 if(lstSt[0].Admin_Name_to_Exclude_2__c!= Null ){
+                    excludeSysAdmins.add(lstSt[0].Admin_Name_to_Exclude_2__c);
+                }
+            }
+
+			//if disable for admins only, only disable it for the non-sys admin user.
+			if(lstSt[0].Disable_All_Triggers__c == true || ( lstSt[0].Disable_for_Admins_only__c == true && userProfile.name == 'System Administrator' && excludeSysAdmins.contains(userName) == false))
+			{
+				disableTriggers = true ;
+			}
+			else
+			{
+				disableTriggers = false;
+			}
+
+			return disableTriggers;
+		}
+
+		set;
+	}
+
+
+}

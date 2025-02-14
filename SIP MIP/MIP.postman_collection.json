@@ -1,0 +1,554 @@
+{
+	"info": {
+		"_postman_id": "5d0ef962-bfb4-4c40-bbff-012a079fdc15",
+		"name": "MIP",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "10795733"
+	},
+	"item": [
+		{
+			"name": "Accounts Receivable",
+			"item": [
+				{
+					"name": "1.1 Get Sessions List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization-Token",
+								"value": "SI_23653_SYS_M$C_0zGYmAh2KoI3hrlwzGOIJbWeyss1",
+								"type": "text"
+							}
+						],
+						"url": "https://api.mip.com/api/v1/transactions/accountsreceivablecredits/sessions"
+					},
+					"response": []
+				},
+				{
+					"name": "1.2  Receivable Credit session",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization-Token",
+								"value": "SI_23653_SYS_M$C_qliVCqVKVtohhrn-j1cayIm0fP01",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sessionId\": \"CRAPI0201003\",\n  \"status\": \"BP\",\n  \"description\": \"Description1\",\n  \"date\": \"2019-06-20\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "https://api.mip.com/api/v1/transactions/accountsreceivablecredits/sessions/API0201003/documents"
+					},
+					"response": []
+				},
+				{
+					"name": "1.3 Receivable Credit Document",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization-Token",
+								"value": "SI_23653_SYS_M$C_qliVCqVKVtohhrn-j1cayIm0fP01",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"documentId\": \"DocA004\",\n  \"description\": \"Test description\",\n  \"documentDate\": \"03/24/2023\",\n  \"documentAmount\": 0,\n  \"playerId\": \"BRIJ001\",\n  \"userDefinedFields\": {\n    \"editable\": \"Default Text\",\n    \"noneeditable\": \"001\",\n    \"udfdoc01\": \"\",\n    \"udfdoc02\": \"\"\n  },\n  \"transactions\": [\n    {\n      \"creditAmount\": 0,\n      \"debitAmount\": 765.25,\n      \"description\": \"Test description\",\n      \"effectiveDate\": \"03/24/2023\",\n      \"entryTypeId\": \"N\",\n      \"invoiceAppliedToId\": 38510.48,\n      \"invoiceAppliedToDocumentId\":\"1\",\n      \"segment0\": \"1600\",\n      \"segment1\": \"11\",\n      \"segment2\": \"13\",\n      \"segment3\": \"\",\n      \"segment4\": \"\",\n      \"segment5\": \"\",\n      \"userDefinedFields\": {\n        \"EditableTransLines\": \"Default Trans Lines\",\n        \"NoneEditableTransLines\": \"002\",\n        \"UDFboolean\": true,\n        \"UdfString\": \"String Default\",\n        \"udft01\": 15,\n        \"udft02\": 0\n      }\n    },\n    {\n      \"creditAmount\": 765.25,\n      \"debitAmount\": 0,\n      \"description\": \"Test description\",\n      \"effectiveDate\": \"03/24/2023\",\n      \"entryTypeId\": \"N\",\n      \"invoiceAppliedToId\": 38510.48,\n      \"invoiceAppliedToDocumentId\":\"1\",\n      \"segment0\": \"1600\",\n      \"segment1\": \"11\",\n      \"segment2\": \"13\",\n      \"segment3\": \"\",\n      \"segment4\": \"\",\n      \"segment5\": \"\",\n      \"userDefinedFields\": {\n        \"EditableTransLines\": \"Default Trans Lines\",\n        \"NoneEditableTransLines\": \"002\",\n        \"UDFboolean\": true,\n        \"UdfString\": \"String Default\",\n        \"udft01\": 15,\n        \"udft02\": 0\n      }\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "https://api.mip.com/api/v1/transactions/accountsreceivablecredits/sessions/CRAPI0201003/documents"
+					},
+					"response": []
+				},
+				{
+					"name": "1.4 Receivable Credit Document template",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization-Token",
+								"value": "SI_23653_SYS_M$C_qliVCqVKVtohhrn-j1cayIm0fP01",
+								"type": "text"
+							}
+						],
+						"url": "https://api.mip.com/api/v1/transactions/accountsreceivablecredits/templates/documents"
+					},
+					"response": []
+				},
+				{
+					"name": "1.5 Get Receivable Credit session",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization-Token",
+								"value": "SI_23653_SYS_M$C_qliVCqVKVtohhrn-j1cayIm0fP01",
+								"type": "text"
+							}
+						],
+						"url": "https://api.mip.com/api/v1/transactions/accountsreceivablecredits/sessions/CRAPI0201003"
+					},
+					"response": []
+				},
+				{
+					"name": "1.6 Update Accounts Receivable Credit session.",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization-Token",
+								"value": "SI_23653_SYS_M$C_qliVCqVKVtohhrn-j1cayIm0fP01",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"description\": \"Update the description of the session\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "https://api.mip.com/api/v1/transactions/accountsreceivablecredits/sessions/CRAPI0201003/documents"
+					},
+					"response": []
+				},
+				{
+					"name": "1.7 Pagination Receivable Credit sessions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization-Token",
+								"value": "SI_23653_SYS_M$C_qliVCqVKVtohhrn-j1cayIm0fP01",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://api.mip.com/api/v1/transactions/accountsreceivablecredits/sessions?page[Number]=1&page[size]=1",
+							"protocol": "https",
+							"host": [
+								"api",
+								"mip",
+								"com"
+							],
+							"path": [
+								"api",
+								"v1",
+								"transactions",
+								"accountsreceivablecredits",
+								"sessions"
+							],
+							"query": [
+								{
+									"key": "page[Number]",
+									"value": "1"
+								},
+								{
+									"key": "page[size]",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1.8 Invoices Documents",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization-Token",
+								"value": "SI_23653_SYS_M$C_qliVCqVKVtohhrn-j1cayIm0fP01",
+								"type": "text"
+							}
+						],
+						"url": "https://api.mip.com/api/v1/transactions/accountsreceivablecredits/lookups/documents/Invoices/BRIJ101"
+					},
+					"response": []
+				},
+				{
+					"name": "2.1 Receivable Invoice session",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization-Token",
+								"value": "SI_23653_SYS_M$C_qliVCqVKVtohhrn-j1cayIm0fP01",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sessionId\": \"API0201004\",\n  \"status\": \"BS\",\n  \"description\": \"Description test\",\n  \"date\": \"01/19/2024\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "https://api.mip.com/api/v1/transactions/accountsreceivableinvoices/sessions"
+					},
+					"response": []
+				},
+				{
+					"name": "2.2 Receivable Invoice document",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization-Token",
+								"value": "SI_23653_SYS_M$C_qliVCqVKVtohhrn-j1cayIm0fP01",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"documentId\": \"Doc_002\",\n  \"description\": \"Decription ARB_Session_001\",\n  \"playerId\": \"BRIJ001\",\n  \"documentDate\": \"01/19/2024\",\n  \"dueDate\": \"01/19/2024\",\n  \"documentAmount\": 0,\n  \"transactions\": [\n    {\n      \"effectiveDate\": \"03/29/2023\",\n      \"entryTypeId\": \"N\",\n      \"description\": \"Decription ARB_Session_001\",\n      \"debitAmount\": 0,\n      \"creditAmount\": 250,\n      \"segment0\": \"1600\",\n      \"segment1\": \"11\",\n      \"segment2\": \"13\",\n      \"segment3\": \"141\",\n      \"segment4\": \"1\",\n      \"segment5\": \"1\",\n      \"userDefinedFields\": {\n        \"Client Numbers\": 0\n      }\n    },\n    {\n      \"effectiveDate\": \"03/29/2023\",\n      \"entryTypeId\": \"N\",\n      \"description\": \"Decription ARB_Session_001\",\n      \"debitAmount\": 250,\n      \"creditAmount\": 0,\n      \"segment0\": \"1600\",\n      \"segment1\": \"11\",\n      \"segment2\": \"13\",\n      \"segment3\": \"141\",\n      \"segment4\": \"1\",\n      \"segment5\": \"1\",\n      \"userDefinedFields\": {\n        \"Client Numbers\": 0\n      }\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "https://api.mip.com/api/v1/transactions/accountsreceivableinvoices/sessions/API0201004/documents"
+					},
+					"response": []
+				},
+				{
+					"name": "2.3 Lookup Status",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization-Token",
+								"value": "SI_23653_SYS_M$C_qliVCqVKVtohhrn-j1cayIm0fP01",
+								"type": "text"
+							}
+						],
+						"url": "https://api.mip.com/api/v1/transactions/accountsreceivableinvoices/lookups/status"
+					},
+					"response": []
+				},
+				{
+					"name": "2.4 Gets the Segments.",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization-Token",
+								"value": "SI_23653_SYS_M$C_qliVCqVKVtohhrn-j1cayIm0fP01",
+								"type": "text"
+							}
+						],
+						"url": "https://api.mip.com/api/v1/transactions/accountsreceivableinvoices/lookups/documents/segments"
+					},
+					"response": []
+				},
+				{
+					"name": "2.5 Gets the Segments Value",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization-Token",
+								"value": "SI_23653_SYS_M$C_qliVCqVKVtohhrn-j1cayIm0fP01",
+								"type": "text"
+							}
+						],
+						"url": "https://api.mip.com/api/v1/transactions/accountsreceivableinvoices/lookups/documents/segmentValues/1"
+					},
+					"response": []
+				},
+				{
+					"name": "2.6 Get Receivable Invoice document",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization-Token",
+								"value": "SI_23653_SYS_M$C_qliVCqVKVtohhrn-j1cayIm0fP01",
+								"type": "text"
+							}
+						],
+						"url": "https://api.mip.com/api/v1/transactions/accountsreceivableinvoices/sessions/API0201004/documents/Doc_002"
+					},
+					"response": []
+				},
+				{
+					"name": "3.1 Receivable Receipt session",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization-Token",
+								"value": "SI_23653_SYS_M$C_qliVCqVKVtohhrn-j1cayIm0fP01",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sessionId\": \"API0201003\",\n  \"status\": \"BP\",\n  \"description\": \"Description test\",\n  \"date\": \"2020-01-28\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "https://api.mip.com/api/v1/transactions/accountsreceivablereceipts/sessions"
+					},
+					"response": []
+				},
+				{
+					"name": "3.2 Receivable Receipt document",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization-Token",
+								"value": "SI_23653_SYS_M$C_qliVCqVKVtohhrn-j1cayIm0fP01",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"documentId\": \"ARCDOC00\",\n  \"description\": \"Description arc 001\",\n  \"playerId\": \"BRIJ001\",\n  \"documentDate\": \"03/29/2022\",\n  \"documentAmount\": 250,\n  \"transactions\": [\n    {\n      \"effectiveDate\": \"03/29/2022\",\n      \"entryTypeId\": \"N\",\n      \"description\": \"Description arc 001\",\n      \"invoiceAppliedToDocumentId\": \"Doc001\",\n      \"invoiceAppliedToId\": 455,\n      \"debitAmount\": 1,\n      \"creditAmount\": 250,\n      \"segment0\": \"1600\",\n      \"segment1\": \"11\",\n      \"segment2\": \"13\",\n      \"segment3\": \"\",\n      \"segment4\": \"\",\n      \"segment5\": \"\"\n    },\n    {\n      \"effectiveDate\": \"03/29/2022\",\n      \"entryTypeId\": \"N\",\n      \"description\": \"Description arc 001\",\n      \"invoiceAppliedToDocumentId\": \"Doc001\",\n      \"invoiceAppliedToId\": 450,\n      \"debitAmount\": 250,\n      \"creditAmount\": 0,\n      \"segment0\": \"1100\",\n      \"segment1\": \"11\",\n      \"segment2\": \"13\",\n      \"segment3\": \"\",\n      \"segment4\": \"\",\n      \"segment5\": \"\"\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "https://api.mip.com/api/v1/transactions/accountsreceivablereceipts/sessions/API0201003/documents"
+					},
+					"response": []
+				},
+				{
+					"name": "3.3 Invoices Documents",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization-Token",
+								"value": "SI_23653_SYS_M$C_qliVCqVKVtohhrn-j1cayIm0fP01",
+								"type": "text"
+							}
+						],
+						"url": "https://api.mip.com/api/v1/transactions/accountsreceivablereceipts/lookups/documents/Invoices/BRIJ101"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Accounts Payable",
+			"item": []
+		},
+		{
+			"name": "https://api.mip.com/api/v1/transactions/accountspayableinvoices/sessions/108/documents",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization-Token",
+						"value": "SI_23653_SYS_M$C_RV0FV-pf13TI2Z9yUfxeK-epCQc1",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"documentId\": \"DocTest03\",\n  \"description\": \"Description\",\n  \"documentDate\": \"2023-11-03\",\n  \"playerId\": \"ABILA\",\n  \"playerIdType\": \"V\",\n  \"documentAmount\": 500,\n  \"userDefinedFields\": {},\n  \"transactions\": [\n    {\n      \"effectiveDate\": \"2023-11-03\",\n      \"entryTypeId\": \"N\",\n      \"description\": \"Template\",\n      \"debitAmount\": 500,\n      \"creditAmount\": 0,\n      \"segment0\": \"5710\",\n      \"segment1\": \"11\",\n      \"segment2\": \"21\",\n      \"segment3\": \"116\",\n      \"segment4\": \"1\",\n      \"userDefinedFields\": {}\n    },\n    {\n      \"effectiveDate\": \"2023-11-03\",\n      \"entryTypeId\": \"N\",\n      \"description\": \"Template\",\n      \"debitAmount\": 0,\n      \"creditAmount\": 500,\n      \"segment0\": \"2000\",\n      \"segment1\": \"11\",\n      \"segment2\": \"\",\n      \"segment3\": \"\",\n      \"segment4\": \"\",\n      \"userDefinedFields\": {}\n    }\n  ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://api.mip.com/api/v1/transactions/accountspayableinvoices/sessions/108/documents"
+			},
+			"response": []
+		},
+		{
+			"name": "MIP Login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"Abhishek.Kar\",\n    \"password\": \"Netsutra@123\",\n    \"org\": \"SI_23653_PLAY\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://login.mip.com/api/v1/sso/mipadv/login"
+			},
+			"response": []
+		},
+		{
+			"name": "https://api.mip.com/api/v1/transactions/accountspayableinvoices/sessions",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization-Token",
+						"value": "SI_23653_SYS_M$C_RV0FV-pf13TI2Z9yUfxeK-epCQc1",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"sessionId\": \"108\",\n  \"status\": \"BP\",\n  \"description\": \"Description test\",\n  \"date\": \"2023-11-03\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://api.mip.com/api/v1/transactions/accountspayableinvoices/sessions"
+			},
+			"response": []
+		},
+		{
+			"name": "https://api.mip.com/api/v1/transactions/accountspayableinvoices/sessions",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization-Token",
+						"value": "SI_23653_SYS_M$C_RV0FV-pf13TI2Z9yUfxeK-epCQc1",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"sessionId\": \"107\",\n  \"status\": \"BP\",\n  \"description\": \"Description test\",\n  \"date\": \"2020-01-28\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://api.mip.com/api/v1/transactions/accountspayableinvoices/sessions"
+			},
+			"response": []
+		},
+		{
+			"name": "https://api.mip.com/api/v1/transactions/accountspayableinvoices/sessions",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization-Token",
+						"value": "SI_23653_SYS_M$C_RV0FV-pf13TI2Z9yUfxeK-epCQc1",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"sessionId\": \"107\",\n  \"status\": \"BP\",\n  \"description\": \"Description test\",\n  \"date\": \"2020-01-28\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://api.mip.com/api/v1/transactions/accountspayableinvoices/sessions"
+			},
+			"response": []
+		},
+		{
+			"name": "https://api.mip.com/api/v1/transactions/accountsreceivablereceipts/sessions",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization-Token",
+						"value": "SI_23653_SYS_M$C_0zGYmAh2KoI3hrlwzGOIJbWeyss1",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"sessionId\": \"API0201003\",\n  \"status\": \"BP\",\n  \"description\": \"Description1\",\n  \"date\": \"2019-06-20\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://api.mip.com/api/v1/transactions/accountsreceivablecredits/sessions"
+			},
+			"response": []
+		},
+		{
+			"name": "https://api.mip.com/api/v1/transactions/accountspayableinvoices/sessions/108/documents",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization-Token",
+						"value": "SI_23653_SYS_M$C_RV0FV-pf13TI2Z9yUfxeK-epCQc1",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://api.mip.com/api/v1/transactions/accountspayableinvoices/sessions/108/documents"
+			},
+			"response": []
+		},
+		{
+			"name": "https://api.mip.com/api/v1/transactions/accountspayableinvoices/sessions/108",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization-Token",
+						"value": "SI_23653_SYS_M$C_RV0FV-pf13TI2Z9yUfxeK-epCQc1",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://api.mip.com/api/v1/transactions/accountspayableinvoices/sessions/108"
+			},
+			"response": []
+		}
+	]
+}
