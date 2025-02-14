@@ -1,0 +1,67 @@
+public class XMLToJSONConverter {
+    
+    public static String convertXMLToJSON(String xmlString) {
+       
+        system.debug('##xmlString==>'+xmlString);
+         // Replace <null> with <Email>
+        xmlString = xmlString.replaceAll('<null>', '<Email>').replaceAll('</null>', '</Email>');
+        xmlString = xmlString.replaceAll('<null>', '<Email>').replaceAll('</null>', '</Email>');
+         system.debug('##xmlString==>'+xmlString);
+        // Load XML into Dom.Document
+        Dom.Document doc = new Dom.Document();
+        doc.load(xmlString);
+
+        // Get the root element (worksheet)
+        Dom.XMLNode root = doc.getRootElement();
+
+        // Get EmailAddresses node
+        Dom.XMLNode emailAddressesNode = root.getChildElement('EmailAddresses', null);
+
+        // Initialize JSON Generator
+        JSONGenerator jsonGen = JSON.createGenerator(false);
+        jsonGen.writeStartObject(); // Start root JSON object
+        jsonGen.writeFieldName('EmailAddresses');
+        jsonGen.writeStartArray(); // Start array for EmailAddresses
+
+        // Iterate through child nodes of EmailAddresses
+        for (Dom.XMLNode emailNode : emailAddressesNode.getChildElements()) {
+            jsonGen.writeStartObject(); // Start Email object
+            jsonGen.writeStringField('EmailType', emailNode.getChildElement('EmailType', null).getText());
+            jsonGen.writeStringField('EmailAddress', emailNode.getChildElement('EmailAddress', null).getText());
+          //  jsonGen.writeStringField('total', emailNode.getChildElement('total', null).getText());
+            jsonGen.writeEndObject(); // End Email object
+        }
+
+        jsonGen.writeEndArray(); // End EmailAddresses array
+        jsonGen.writeEndObject(); // End root JSON object
+
+        // Convert JSON generator to string
+        return jsonGen.getAsString();
+    }
+    
+     public static void testXMLToJSON() {
+       // String xmlfile ='<?xml version="1.0" encoding="UTF-8"?><worksheet><EmailAddresses><Email><EmailType>1</EmailType><EmailAddress>abhishek.kar+1@agilecloudconsulting.com</EmailAddress></Email><Email><EmailType>2</EmailType><EmailAddress>abhishek.kar+2@agilecloudconsulting.com</EmailAddress></Email></EmailAddresses></worksheet>';
+        String xmlfile ='<?xml version=\"1.0\" encoding=\"UTF-8\"?><worksheet>\n\t<EmailAddresses>\n\t\t<null>\n\t\t\t<EmailType>1</EmailType>\n\t\t\t<EmailAddress>abhishek.kar+1@agilecloudconsulting.com</EmailAddress>\n\t\t</null>\n\t\t<null>\n\t\t\t<EmailType>2</EmailType>\n\t\t\t<EmailAddress>abhishek.kar+2@agilecloudconsulting.com</EmailAddress>\n\t\t</null>\n\t\t<null>\n\t\t\t<EmailType>1</EmailType>\n\t\t\t<EmailAddress>abhishek.kar+3@agilecloudconsulting.com</EmailAddress>\n\t\t</null>\n\t\t<total>3</total>\n\t</EmailAddresses>\n</worksheet>';
+       // String xmlfile ='<?xml version=\"1.0\" encoding=\"UTF-8\"?><worksheet>\n\t<EmailAddresses>\n\t\t<null>\n\t\t\t<EmailType>1</EmailType>\n\t\t\t<EmailAddress>abhishek.kar+1@agilecloudconsulting.com</EmailAddress>\n\t\t</null>\n\t\t<null>\n\t\t\t<EmailType>2</EmailType>\n\t\t\t<EmailAddress>abhishek.kar+2@agilecloudconsulting.com</EmailAddress>\n\t\t</null>\n\t\t<null>\n\t\t\t<EmailType>1</EmailType>\n\t\t\t<EmailAddress>abhishek.kar+3@agilecloudconsulting.com</EmailAddress>\n\t\t</null>\n\t\t</EmailAddresses>\n</worksheet>';
+
+        String jsonString = convertXMLToJSON(xmlfile);
+        System.debug(jsonString);
+         
+          Map<String,Object> mapJ = (Map<String,Object>) JSON.deserializeUntyped(jsonString);
+        
+        system.debug('#mapJ ===>'+mapJ);
+        List<Object> lstJ = (List<Object>) JSON.deserializeUntyped(JSON.serialize(mapJ.get('EmailAddresses')));
+         system.debug('#lstJ ===>'+lstJ);
+        
+        // Iterate over the list and read values
+        for (Object obj : lstJ) {
+            Map<String, Object> emailMap = (Map<String, Object>) obj; // Convert Object to Map
+            String email = (String) emailMap.get('EmailAddress');
+            String type = (String) emailMap.get('EmailType');
+            
+           // System.debug('Type: ' + type + ', Email: ' + email);
+        }
+        
+     }
+
+}

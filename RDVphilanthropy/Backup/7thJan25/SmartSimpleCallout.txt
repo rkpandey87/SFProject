@@ -1,0 +1,42 @@
+public class SmartSimpleCallout {
+    
+    // Method to send the HTTP request to SmartSimple API
+    
+    public static void SmartSimpleAPIHandler(String jsonPayload) {
+        
+        //get SmartSimple meta data record
+       
+        SmartSimpleAPI__mdt CustomMeta = SmartSimpleAPI__mdt.getInstance('SmartSimple');
+        String endpoint ;
+        String baseUrl = CustomMeta.Base_URL__c;
+        String Apitoken = CustomMeta.API_Token__c;
+        String BearerToken = CustomMeta.Bearer_Token__c;
+        String companyId = CustomMeta.CompanyId__c;
+        
+               
+        HttpRequest req = new HttpRequest();
+        endpoint = baseUrl+'API/2/user/';
+        String queryParams = '?apitoken='+Apitoken+'&companyid='+companyId;
+        
+        req.setEndpoint(endpoint + queryParams);  
+        req.setHeader('Authorization', 'Bearer ' +BearerToken);
+        req.setMethod('GET');
+        
+       // req.setHeader('Content-Type', 'application/json');
+       //  req.setBody(jsonPayload);
+        
+        // Make the callout
+        Http http = new Http();
+        HttpResponse res = http.send(req);
+
+        // Check the response and handle errors
+        if (res.getStatusCode() == 200) {
+            System.debug('Success');
+            System.debug('Response===>'+res.getBody());
+        } else {
+            System.debug('Error posting to SmartSimple: ' + res.getBody());
+            //  retry logic or error handling here
+        }
+    }
+
+}

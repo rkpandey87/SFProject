@@ -1,0 +1,36 @@
+"<?xml version=\"1.0\" encoding=\"UTF-8\"?><worksheet>\n\t
+<EmailAddresses>\n\t\t<null>\n\t\t\t
+<EmailType>1</EmailType>\n\t\t\t
+<EmailAddress>abhishek.kar+1@agilecloudconsulting.com
+</EmailAddress>\n\t\t</null>\n\t\t<null>\n\t\t\t
+<EmailType>2</EmailType>\n\t\t\t
+<EmailAddress>abhishek.kar+2@agilecloudconsulting.com
+</EmailAddress>\n\t\t</null>\n\t\t<null>\n\t\t\t
+<EmailType>1</EmailType>\n\t\t\t
+<EmailAddress>abhishek.kar+3@agilecloudconsulting.com</EmailAddress>
+\n\t\t</null>\n\t\t<total>\n\t\t</total>\n\t
+</EmailAddresses>\n
+</worksheet>",
+
+
+map<emailtype, emailaddress >
+
+
+"<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+worksheet>\n\t
+<PhoneBook>\n\t\t<null>\n\t\t\t
+<PhoneType>1</PhoneType>\n\t\t\t
+<PhoneNumber>123-456-7890</PhoneNumber>\n\t\t\t
+<Extension>1</Extension>\n\t\t
+</null>\n\t\t
+<null>\n\t\t\t
+<PhoneType>3
+</PhoneType>\n\t\t\t
+<PhoneNumber>234-567-8901
+</PhoneNumber>\n\t\t\t
+<Extension>2</Extension>\n\t\t</null>
+\n\t\t<total>\n\t\t</total>\n\t
+</PhoneBook>\n</worksheet>",
+
+map<phonetype, list{123-456-7890,2} >
+

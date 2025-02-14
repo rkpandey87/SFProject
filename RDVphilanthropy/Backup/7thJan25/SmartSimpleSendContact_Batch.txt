@@ -1,0 +1,69 @@
+global class SmartSimpleSendContact_Batch implements Database.Batchable<sObject> {
+
+    // Define the query to select Account records
+    global Database.QueryLocator start(Database.BatchableContext BC) {
+        String query = 'SELECT Id, Name, Phone,External_Id__c FROM Contact WHERE LastModifiedDate = Today';
+        return Database.getQueryLocator(query);
+    }
+
+    global void execute(Database.BatchableContext BC, List<Account> scope) {
+        // Prepare data to send to SmartSimple
+        List<String> jsonPayloads = new List<String>();
+
+        for (Account acc : scope) {
+            // Construct the data in the format required by SmartSimple
+            Map<String, Object> accountData = new Map<String, Object>();
+            accountData.put('accountId', acc.Id);
+            accountData.put('accountName', acc.Name);
+            accountData.put('phone', acc.Phone);
+            
+            
+            
+            /*
+          // Create a complex map for Post 
+           List<object>objlst = new List<object>();
+           Map<String, Object> complexMap = new Map<String, Object>();
+           complexMap.put('recordid', '0');
+           complexMap.put('sf_Parent Company ID', '826082');
+           complexMap.put('sf_Is External', '1');
+           complexMap.put('sf_Name', 'Test 1 Company');
+
+           complexMap.put('sf_Country', '10');
+           complexMap.put('sf_Address', '111 Peter Street');
+
+           complexMap.put('sf_City', 'Toronto');
+           complexMap.put('sf_State / Province', 'ON');
+
+           complexMap.put('cf_EIN Number', '10	1010101');
+           complexMap.put('sf_Category ID List', '3884');
+           
+          // complexMap.put('Address', new Map<String, String>{'City' => 'Toronto', 'PostalCode' => 'M5V 2H1'});
+           objlst.add(complexMap);
+
+        // Convert to JSON
+           String jsonString = JSON.serialize(objlst);
+
+        // Debug the JSON output
+        System.debug('Complex JSON String: ' + jsonString);
+
+           */
+
+
+            // Convert the account data to JSON format
+            String jsonPayload = JSON.serialize(accountData);
+            jsonPayloads.add(jsonPayload);
+        }
+
+        // Perform the callout to SmartSimple API
+        for (String jsonPayload : jsonPayloads) {
+          //  SmartSimpleCallout.SmartSimpleAPIHandler(jsonPayload);
+        }
+    }
+
+    global void finish(Database.BatchableContext BC) {
+        // Optionally, log completion of the batch process or send an email
+        System.debug('Batch process completed.');
+    }
+
+    
+}
