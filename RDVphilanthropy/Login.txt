@@ -1,0 +1,34 @@
+https://rdvphilanthropy--full.sandbox.my.salesforce-setup.com/
+
+abhishek.kar+rdv@agilecloudconsulting.com.full
+
+
+netsutra@123
+
+
+---------------------------------------------
+
+ SmartSimple org Login 
+
+https://rdv.smartsimplebk.com/s_Login.jsp
+
+abhishek.kar@agilecloudconsulting.com
+
+6]wc\6BIZy3B38F'nafW
+
+-------------------------------------
+
+Base URL:  https://api.smartsimplebk.com 
+Companyid: 825646
+Apitoken: dFV9XlBxXXh9BU1iaFBEUXBeamgFXAZMAgYM
+Bearer Token: V39CdWdwc30HegUFTU4GBXRCTmZBXgMXDA8MCgQGOAc3DgIxAw4MDQUPAgQBAw80CgIMCgUNDjgJBQgCAgMP
+
+
+-------------------------------------------------------------------------
+
+
+https://api.smartsimple.com/devtools/api.html
+
+
+
+

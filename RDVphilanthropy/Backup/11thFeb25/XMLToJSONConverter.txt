@@ -1,0 +1,184 @@
+public class XMLToJSONConverter {
+    
+    //method to initiate recursive parsing of XML stream
+    public static Map<String, Object> xmlToMap(String xmlString){
+        
+       
+        //initialzing XML document
+        Dom.Document doc = new Dom.Document();
+        doc.load(xmlString);
+        
+        //getting the root element and parsing it recursively
+        Dom.XMLNode root = doc.getRootElement();
+        Object temp = parse(root);
+        
+        //map to store parsed data
+        Map<String, Object> jsonResult = new Map<String, Object>{root.getName() => temp};
+        
+        //result map having data from the XML string as a map
+        return jsonResult;
+        
+    }
+    
+    //method to recursively parse child nodes from XML document
+    private static Object parse(Dom.XMLNode node){
+        
+        //map to store data of current XML node
+        Map<String, Object> jsonResult = new Map<String, Object>();
+        
+        //getting list of child elements
+        List<Dom.XMLNode> children = node.getChildElements();
+        
+        //if no child elements found, we simply return the text value
+        if(children.isEmpty()){
+            return node.getText();
+        }
+
+        //map to store occurence count of child elements against their names       
+        Map<String, Integer> nodeNameCount = new Map<String, Integer>();
+        
+        //iterating over child elements and populating the count in map
+        for(Dom.XMLNode child : children){
+            
+            String nodeName = child.getName();
+            
+            if(!nodeNameCount.containsKey(child.getName())){
+                nodeNameCount.put(nodeName, 0);
+            }
+
+            Integer oldCount = nodeNameCount.get(nodeName);
+            nodeNameCount.put(nodeName, oldCount + 1);
+            
+        }
+        
+        //iterating over child elements and parsing them recursively
+        for(Dom.XMLNode child : children) {
+        
+            Object temp = parse(child);
+            String nodeName = child.getName();
+            
+            //checking if this child is an array 
+            Boolean childIsArray = (nodeNameCount.get(nodeName) > 1);
+            
+            //if child is array, save the values as array, else as strings. 
+            if(childIsArray) {  
+                
+                if(jsonResult.get(nodeName) == null){
+                    jsonResult.put(nodeName, new List<Object>{ temp });
+                }
+                else{
+                    List<Object> tempList = (List<Object>)jsonResult.get(nodeName);
+                    tempList.add(temp);
+                    jsonResult.put(nodeName, tempList);
+                }
+               
+            }
+            else{
+                jsonResult.put(nodeName, temp);
+            }
+        }
+        
+        //result map for current node
+        return jsonResult;
+        
+    }
+    
+     public static String generateXML() {
+        // Query Contacts (Modify SOQL query as needed)
+        List<Account> AccList = [SELECT Id,PersonEmail, Other_Email_Addresses__c FROM Account WHERE PersonEmail != NULL limit 5];
+
+        // XML Header
+        String xmlString = '<?xml version="1.0" encoding="UTF-8"?><worksheet>\n\t<EmailAddresses>\n';
+
+        // Counter for total emails
+        Integer totalCount = 0;
+
+        // Iterate through Contacts to construct XML nodes
+        for (Account acc : AccList) {
+            xmlString += '\t\t<Email>\n';
+            xmlString += '\t\t\t<EmailType>' + acc.Other_Email_Addresses__c + '</EmailType>\n';
+            xmlString += '\t\t\t<EmailAddress>' + acc.PersonEmail + '</EmailAddress>\n';
+            xmlString += '\t\t</Email>\n';
+            totalCount++;
+        }
+
+        // Append total count to XML
+        xmlString += '\t\t<total>' + totalCount + '</total>\n';
+
+        // Closing XML tags
+        xmlString += '\t</EmailAddresses>\n</worksheet>';
+
+        return xmlString;
+    }
+   
+    
+    public static void testXMLToJSON() {
+        //input xml data
+        //  String xmlfile = '<book><title>Some title</title><description>some description</description><author><id>1</id><name>some author name</name></author><review>nice book</review><review>this book sucks</review><review>amazing work</review></book>';
+        String xmlfile ='<?xml version=\"1.0\" encoding=\"UTF-8\"?><worksheet>\n\t<EmailAddresses>\n\t\t<null>\n\t\t\t<EmailType>1</EmailType>\n\t\t\t<EmailAddress>abhishek.kar+1@agilecloudconsulting.com</EmailAddress>\n\t\t</null>\n\t\t<null>\n\t\t\t<EmailType>2</EmailType>\n\t\t\t<EmailAddress>abhishek.kar+2@agilecloudconsulting.com</EmailAddress>\n\t\t</null>\n\t\t<null>\n\t\t\t<EmailType>1</EmailType>\n\t\t\t<EmailAddress>abhishek.kar+3@agilecloudconsulting.com</EmailAddress>\n\t\t</null>\n\t\t<total>3</total>\n\t</EmailAddresses>\n</worksheet>';
+         xmlfile = xmlfile.replaceAll('<null>', '<Email>').replaceAll('</null>', '</Email>');
+        
+        //parsing xml data and printing to debug logs
+        Map<String, Object> jsonMap = XMLToJSONConverter.xmlToMap(xmlfile);
+       system.debug('jsonMap ===>'+jsonMap);
+            
+        // Navigate to worksheet -> EmailAddresses
+        Map<String, Object> worksheet = (Map<String, Object>) jsonMap.get('worksheet');
+        Map<String, Object> emailAddresses = (Map<String, Object>) worksheet.get('EmailAddresses');
+
+        // Extract Email List
+        List<Object> emails = (List<Object>) emailAddresses.get('Email');
+        String total = String.valueOf(emailAddresses.get('total'));
+
+        System.debug('Total: ' + total);
+
+        // Loop through the emails list
+        for (Object emailObj : emails) {
+            Map<String, Object> emailMap = (Map<String, Object>) emailObj;
+            String emailType = String.valueOf(emailMap.get('EmailType'));
+            String emailAddress = String.valueOf(emailMap.get('EmailAddress'));
+
+            System.debug('Email Type: ' + emailType + ', Email Address: ' + emailAddress);
+        }
+         
+        
+       
+        
+    }
+    
+  public static void testXMLToJSON2() {
+        //input xml data
+        //  String xmlfile = '<book><title>Some title</title><description>some description</description><author><id>1</id><name>some author name</name></author><review>nice book</review><review>this book sucks</review><review>amazing work</review></book>';
+     //   String xmlfile ='<?xml version=\"1.0\" encoding=\"UTF-8\"?><worksheet>\n\t<EmailAddresses>\n\t\t<null>\n\t\t\t<EmailType>1</EmailType>\n\t\t\t<EmailAddress>abhishek.kar+1@agilecloudconsulting.com</EmailAddress>\n\t\t</null>\n\t\t<null>\n\t\t\t<EmailType>2</EmailType>\n\t\t\t<EmailAddress>abhishek.kar+2@agilecloudconsulting.com</EmailAddress>\n\t\t</null>\n\t\t<null>\n\t\t\t<EmailType>1</EmailType>\n\t\t\t<EmailAddress>abhishek.kar+3@agilecloudconsulting.com</EmailAddress>\n\t\t</null>\n\t\t<total>3</total>\n\t</EmailAddresses>\n</workksheet>';
+        
+        String xmlString = '<?xml version=\"1.0\" encoding=\"UTF-8\"?><worksheet><PhoneBook><null><PhoneType>1</PhoneType><PhoneNumber>123-456-7890</PhoneNumber><Extension>1</Extension></null><null><PhoneType>3</PhoneType><PhoneNumber>234-567-8901</PhoneNumber><Extension>2</Extension></null><total>2</total></PhoneBook></worksheet>';
+         xmlString = xmlString.replaceAll('<null>', '<Phone>').replaceAll('</null>', '</Phone>');
+        //parsing xml data and printing to debug logs
+        Map<String, Object> jsonMap = XMLToJSONConverter.xmlToMap(xmlString);
+       system.debug('jsonMap ===>'+jsonMap);
+            
+        // Navigate to worksheet -> EmailAddresses
+        Map<String, Object> worksheet = (Map<String, Object>) jsonMap.get('worksheet');
+        Map<String, Object> emailAddresses = (Map<String, Object>) worksheet.get('PhoneBook');
+    
+        // Extract Email List
+        List<Object> emails = (List<Object>) emailAddresses.get('Phone');
+        String total = String.valueOf(emailAddresses.get('total'));
+
+        System.debug('Total: ' + total);
+
+        // Loop through the emails list
+        for (Object emailObj : emails) {
+            Map<String, Object> emailMap = (Map<String, Object>) emailObj;
+            String phoneType = String.valueOf(emailMap.get('PhoneType'));
+            String phoneNumber = String.valueOf(emailMap.get('PhoneNumber'));
+
+            System.debug('Phone Type: ' + phoneType + ', Phone Number: ' + phoneNumber);
+        }
+         
+        
+       
+        
+    }
+
+}

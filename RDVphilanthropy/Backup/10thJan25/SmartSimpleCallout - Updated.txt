@@ -1,0 +1,169 @@
+public class SmartSimpleCallout {
+    
+    Http http = new Http();
+    HttpRequest req = new HttpRequest();
+    HttpResponse res = new HttpResponse();
+    
+    //get SmartSimple Custom meta data record
+    
+    SmartSimpleAPI__mdt CustomMeta = SmartSimpleAPI__mdt.getInstance('SmartSimple');
+    
+    String endpoint ;
+    String baseUrl = CustomMeta.Base_URL__c;
+    String Apitoken = CustomMeta.API_Token__c;
+    String BearerToken = CustomMeta.Bearer_Token__c;
+    String companyId = CustomMeta.CompanyId__c;
+    
+   public String getContacts() {
+        String jsonResponse;
+        endpoint = baseUrl+'API/2/user/';
+        String queryParams = '?apitoken='+Apitoken+'&companyid='+companyId;
+        req.setEndpoint(endpoint + queryParams);  
+        req.setHeader('Authorization', 'Bearer ' +BearerToken);
+        req.setMethod('GET');
+        
+        // Send the callout Request 
+        res = http.send(req);
+        
+        // Check the response and handle errors
+        if (res.getStatusCode() == 200) {
+            System.debug('Success');
+            System.debug('Response===>'+res.getBody());
+            jsonResponse = res.getBody();
+            
+              /* Paste your JSON string here */
+     
+       /*for testing 
+ jsonResponse = '{' +
+    '"records":[{' +
+        '"recordid":"3107559",' +
+        '"sf_User ID":"3107559",' +
+        '"sf_First Name":"Smartsimple",' +
+        '"sf_City":"Toronto",' +
+        '"sf_Zip \\/ Postal Code":"M5V 2H1",' +
+        '"sf_Address":"111 Peter St,suite 405",' +
+        '"sf_Address 2":"",' +
+        '"sf_State \\/ Province":"Ontario",' +
+        '"sf_Country":"Canada"' +
+    '}],' +
+    '"header":[{' +
+        '"name":"First Name",' +
+        '"index":"1",' +
+        '"caption":"First Name",' +
+        '"id":"sf_First Name"' +
+    '},{' +
+        '"name":"Address",' +
+        '"index":"2",' +
+        '"caption":"Address",' +
+        '"id":"sf_Address"' +
+    '},{' +
+        '"name":"Address 2",' +
+        '"index":"3",' +
+        '"caption":"Address 2",' +
+        '"id":"sf_Address 2"' +
+    '},{' +
+        '"name":"City",' +
+        '"index":"4",' +
+        '"caption":"City",' +
+        '"id":"sf_City"' +
+    '},{' +
+        '"name":"State \\/ Province",' +
+        '"index":"5",' +
+        '"caption":"State \\/ Province",' +
+        '"id":"sf_State \\/ Province"' +
+    '},{' +
+        '"name":"Country",' +
+        '"index":"6",' +
+        '"caption":"Country",' +
+        '"id":"sf_Country"' +
+    '},{' +
+        '"name":"Zip \\/ Postal Code",' +
+        '"index":"7",' +
+        '"caption":"Zip \\/ Postal Code",' +
+        '"id":"sf_Zip \\/ Postal Code"' +
+    '},{' +
+        '"name":"User ID",' +
+        '"index":"8",' +
+        '"caption":"",' +
+        '"id":"sf_User ID"' +
+    '}],' +
+    '"message":{' +
+        '"recordto":4,' +
+        '"note":"Maximum number of records returned by each API call: 10000",' +
+        '"recordcount":4,' +
+        '"returncode":1,' +
+        '"allcount":4,' +
+        '"recordfrom":1' +
+    '}' +
+'}';
+*/
+     
+       jsonResponse = jsonResponse.replaceAll('sf_First Name','sf_FirstName');
+        SmartSimpleWrapper parsedResponse = (SmartSimpleWrapper) JSON.deserialize(jsonResponse, SmartSimpleWrapper.class);
+        
+        System.debug('#parsedResponse====>'+parsedResponse);
+            
+        // Access data
+        System.debug('#firstName===>'+ parsedResponse.records[0].sf_FirstName); // Outputs "Smartsimple"
+        System.debug('#headerName===>'+ parsedResponse.header[0].name);          // Outputs "First Name"
+        System.debug('#readcount===>'+parsedResponse.message.recordcount);     // Outputs 4
+         System.debug('#note===>'+parsedResponse.message.note); 
+            
+            
+            
+        } else {
+            System.debug('Error posting to SmartSimple: ' + res.getBody());
+            //  retry logic or error handling here
+            jsonResponse = res.getBody();
+            
+            
+            // Parse the JSON string into a Map
+            Map<String, Object> parsedJson = (Map<String, Object>) JSON.deserializeUntyped(jsonResponse);
+            
+            // Access the nested `message` object
+            Map<String, Object> message = (Map<String, Object>) parsedJson.get('message');
+            
+            // Extract individual values
+            Integer returnCode = (Integer) message.get('returncode');
+            String errorMessage = (String) message.get('error');
+            
+            // Debug the results
+            System.debug('Return Code: ' + returnCode);
+            System.debug('Error Message: ' + 'Error:'+errorMessage);
+
+        }
+       
+      return jsonResponse;
+    }
+    
+    public void SendContact(String jsonPayload) {
+        system.debug('#baseUrl ==>'+baseUrl);
+        system.debug('#Apitoken ==>'+Apitoken);
+        system.debug('#BearerToken ==>'+BearerToken);
+        system.debug('#companyId ==>'+companyId);
+        
+        String encodedjsonPayload = EncodingUtil.urlEncode(jsonPayload, 'UTF-8');
+        
+        endpoint = baseUrl+'API/2/user/';
+        String queryParams = '?apitoken='+Apitoken+'&companyid='+companyId+'&jsonrset='+encodedjsonPayload;
+        
+        system.debug('#endpoint ==> '+ endpoint + queryParams);
+        req.setEndpoint(endpoint + queryParams);  
+        req.setHeader('Authorization', 'Bearer ' +BearerToken);
+       // req.setHeader('Content-Type', 'application/json');
+        req.setMethod('POST');
+        
+        // Send the callout Request
+        res = http.send(req);
+        
+        // Check the response and handle errors
+        if (res.getStatusCode() == 200) {
+            System.debug('Success');
+            System.debug('Response===>'+res.getBody());
+        } else {
+            System.debug('Error posting to SmartSimple: ' + res.getBody());
+            //  retry logic or error handling here
+        }
+    }
+    
+}

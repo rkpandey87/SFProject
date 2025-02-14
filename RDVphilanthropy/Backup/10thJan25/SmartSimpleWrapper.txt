@@ -1,0 +1,60 @@
+public class SmartSimpleWrapper {
+    public List<Record> records { get; set; }
+    public Message message { get; set; }
+    
+    public class Record {
+        public String sf_City { get; set; }
+        public String cf_Mission_Statement { get; set; }
+        public String sf_Company_ID { get; set; }
+        public String sf_Zip_Postal_Code { get; set; }
+        public String sf_Address { get; set; }
+        public String cf_EIN_Number { get; set; }
+        public String sf_Country { get; set; }
+        public String sf_Name { get; set; }
+    }
+    
+    public class Message {
+        public Integer returncode { get; set; }
+    }
+
+    public static SmartSimpleWrapper parse(String JsonString) {
+       // return (SmartSimpleWrapper) JSON.deserialize(JsonString, SmartSimpleWrapper.class);
+       
+         List<SmartSimpleWrapper.Record> recordlst = New List<SmartSimpleWrapper.Record>();
+          SmartSimpleWrapper.Message msg = New SmartSimpleWrapper.Message();
+        
+       // JsonString = '{"records":[{"sf_City":"Toronto","cf_Mission Statement":"SmartSimple was designed from the start to help organizations connect with their communities and streamline critical processes. We are able to do this because our products are almost endlessly configurable. Once a system is implemented, our clients are able to administer their software on their own, with minimal help from us.","sf_Company ID":"825646","sf_Zip \/ Postal Code":"M5V 2H1","sf_Address":"111 Peter Street","cf_EIN Number":"","sf_Country":"Canada","sf_Name":"SmartSimple Software Inc"}],"message":{"returncode":1}}';
+        
+        JsonString = '{"records":[{"sf_City":"Toronto","cf_Mission Statement":"SmartSimple was designed from the start to help organizations connect with their communities and streamline critical processes. We are able to do this because our products are almost endlessly configurable. Once a system is implemented, our clients are able to administer their software on their own, with minimal help from us.","sf_Company ID":"825646","sf_Zip Postal Code":"M5V 2H1","sf_Address":"111 Peter Street","cf_EIN Number":"","sf_Country":"Canada","sf_Name":"SmartSimple Software Inc"}],"message":{"returncode":1}}';
+        
+        SmartSimpleWrapper lst = (SmartSimpleWrapper)JSON.deserialize(JsonString, SmartSimpleWrapper.class);
+        system.debug('lst===>'+lst);
+        if(lst !=Null){
+            if(lst.records !=Null && lst.records.size()>0){
+                recordlst = lst.records;
+                System.debug('#recordlst ===>'+recordlst);
+                
+                //retrieve all fields value from record list
+                
+                System.debug('#sf_City ===>'+recordlst[0].sf_City);
+                System.debug('#cf_Mission_Statement ===>'+recordlst[0].cf_Mission_Statement);
+                System.debug('#sf_Company_ID ===>'+recordlst[0].sf_Company_ID);
+                System.debug('#sf_Zip_Postal_Code ===>'+recordlst[0].sf_Zip_Postal_Code);
+                System.debug('#sf_Address ===>'+recordlst[0].sf_Address);
+                System.debug('#cf_EIN_Number ===>'+recordlst[0].cf_EIN_Number);
+                System.debug('#sf_Country ===>'+recordlst[0].sf_Country);
+                System.debug('#sf_Name ===>'+recordlst[0].sf_Name);
+            }
+            
+            if(lst.message !=Null ){
+                msg = lst.message;
+                System.debug('#msg ===>'+msg);
+                system.debug('#returncode===>'+msg.returncode);
+            }
+            
+        }
+        
+       return lst;
+    }
+
+}
